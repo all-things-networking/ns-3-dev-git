@@ -60,7 +60,7 @@ public:
 class MtState
 {
 public:
-    MtState();
+    MtState(ModularTransport* mt);
 
     /**
      * \brief Get the context of Mt connection with id.

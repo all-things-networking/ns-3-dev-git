@@ -17,6 +17,7 @@ public:
     {
         TIME,
         RECEIVE,
+        TIMEOUT,
         OTHER
     };
 
@@ -64,6 +65,18 @@ public:
     MtCongNotifyEvent(int id, uint32_t lastAckNum);
 
     uint32_t m_lastAckNum; // latest received ack number
+};
+
+/**
+ * \brief Event for timeouts
+ * TODO: Complete Implementation
+ * 
+ * The packet should sent right away without checking if isFastRetrans == true
+ */
+class TcpTimeoutEvent: public MtEvent
+{
+public:
+    TcpTimeoutEvent(int id);
 };
 
 

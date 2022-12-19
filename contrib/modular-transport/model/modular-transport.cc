@@ -2,6 +2,14 @@
 
 #include "modular-transport.h"
 
+#include "mt-dispatcher.h"
+#include "mt-event.h"
+#include "mt-eventprocessor.h"
+#include "mt-packet-to-event.h"
+#include "mt-scheduler.h"
+#include "mt-state.h"
+#include "mt-timer.h"
+
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -23,8 +31,44 @@ ModularTransport::GetTypeId()
 }
 
 ModularTransport::ModularTransport()
+    : m_scheduler{MtScheduler()},
+      m_dispatcher{MtDispatcher()},
+      m_state{MtState(this)},
+      m_packetToEvent{MtPacketToEvent()}
 {
     NS_LOG_FUNCTION(this);
+
+    // Add processors
+    this->m_dispatcher.AddProcessor(TcpAckHandler());
+    this->m_dispatcher.AddProcessor(TcpCongControl());
+}
+
+void
+ModularTransport::Core()
+{
+    // Get the next event to process.
+    MtEvent nextEvent = this->m_scheduler.NextEvent();
+    // Get the corresponding processor.
+    MtEventProcessor processor = this->m_dispatcher.Dispatch(nextEvent);
+    // Get the tcp id of the event
+    int tcpId = 0; // TODO: Need to find a way to get this and initialize this.
+    // Get the context of the tcp id.
+    TcpContext context = this->m_state.GetVal(tcpId);
+    // Process the event.
+    std::pair<std::vector<MtEvent>, MtContext> result = processor.Process(nextEvent, context);
+    // Update context and push generated new events.
+    this->m_state.Write(result.second());
+    for (auto newEvent : result.first())
+    {
+        this->m_scheduler.PushInEvent(newEvent);
+    }
+}
+
+void
+ModularTransport::TimeOutNotify(int tcpId)
+{
+    MtEvent timeoutEvent = TcpTimeoutEvent(tcpId);
+    this->m_scheduler.PushInEvent(timeoutEvent);
 }
 
 ModularTransport::~ModularTransport()
@@ -120,6 +164,18 @@ ModularTransport::Receive(Ptr<Packet> packet,
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
     NS_LOG_UNCOND("Received packet in ModularTransport");
     return IpL4Protocol::RX_OK;
+
+    // MT specific
+    // Get the tcp header of the incoming packet
+    TcpHeader tcpHeader;
+    this->PacketReceived(packet, tcpHeader, incomingIpHeader.GetSource(), incomingIpHeader.GetDestination());
+    // Convert to packet receive events.
+    std::vector<MtEvent> eventList = this->m_packetToEvent.CreateEvents(packet);
+    for (auto event : eventList)
+    {
+        this->m_scheduler.PushInEvent(event);
+    }
+    // TODO: need a way to create TCP id and create corresponding context.
 }
 
 void

@@ -26,4 +26,9 @@ MtCongNotifyEvent::MtCongNotifyEvent(int id, uint32_t lastAckNum)
 {
 }
 
+TcpTimeoutEvent::TcpTimeoutEvent(int id)
+    : MtEvent(id, MtEvent::Type::TIMEOUT)
+{
+}
+
 } // namespace ns3

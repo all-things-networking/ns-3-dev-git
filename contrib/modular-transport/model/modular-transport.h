@@ -14,6 +14,10 @@ namespace ns3
 {
 
 class Node;
+class MtScheduler;
+class MtDispatcher;
+class MtState;
+class MtPacketToEvent;
 
 class ModularTransport: public IpL4Protocol
 {
@@ -31,6 +35,16 @@ class ModularTransport: public IpL4Protocol
     // Delete copy constructor and assignment operator to avoid misuse
     ModularTransport(const ModularTransport&) = delete;
     ModularTransport& operator=(const ModularTransport&) = delete;
+
+    /**
+     * Core function to run modular transport program.
+     */
+    void Core();
+
+    /**
+     * Triggered by the timeouts.
+     */
+    void TimeOutNotify(int tcpId);
 
     /**
      * Set node associated with this stack
@@ -101,6 +115,12 @@ class ModularTransport: public IpL4Protocol
     Ptr<Node> m_node;                                //!< the node this stack is associated with
     IpL4Protocol::DownTargetCallback m_downTarget;   //!< Callback to send packets over IPv4
     IpL4Protocol::DownTargetCallback6 m_downTarget6; //!< Callback to send packets over IPv6
+
+    // MT specific
+    MtScheduler m_scheduler;
+    MtDispatcher m_dispatcher;
+    MtState m_state;
+    MtPacketToEvent m_packetToEvent;
 };
 
 } // namespace ns3
