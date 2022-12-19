@@ -6,6 +6,8 @@
 
 namespace ns3
 {
+class MtTimer;
+class ModularTransport;
 
 /**
  * \brief The class indicate phase in congestion control algorithms.
@@ -19,25 +21,6 @@ enum TcpCongPhase
     FAST_RECOVER
 };
 
-// Need timer to event class
-class MTTimer
-{
-public:
-// need Mt connection id
-// timer id (int)
-    MTTimer(uint32_t duration, int MtId, int timerId); // not start yet
-
-    void reset();
-
-    void SetDuration(uint32_t duration);
-    uint32_t GetDuration();
-    void Start(); // get ns3 time
-
-private:
-    uint32_t m_duration;
-    // Ns3 Event (responsible)
-};
-
 /**
  * \brief The class for maintaing the state variables for ONE Mt connections.
  */
@@ -45,29 +28,27 @@ private:
 class TcpContext
 {
 public:
-    TcpContext();
+    TcpContext(ModularTransport* mt, int tcpId, uint32_t timer_duration = 100);
 
     // rfc9293 - Sec 3.3.1
-    uint32_t m_Una;          // send unacknowledged
-    uint32_t m_Nxt;          // send next
-    uint32_t m_Wnd;          // send window, in bytes
-    uint32_t m_Iss;          // initial send sequence number
+    uint32_t m_Una;           // send unacknowledged
+    uint32_t m_Nxt;           // send next
+    uint32_t m_Wnd;           // send window, in bytes
+    uint32_t m_Iss;           // initial send sequence number
 
     // rfc5681 - Sec 2
-    uint32_t m_cnwd;         // congestion window
-    uint32_t m_Smss;         // Sender maximum segment size
+    uint32_t m_cnwd;          // congestion window
+    uint32_t m_Smss;          // Sender maximum segment size
     // rfc5681 - Sec 3
-    uint32_t m_N;            // the number of previously un-acked bytes acked in the incoming ACK
+    uint32_t m_N;             // the number of previously un-acked bytes acked in the incoming ACK
 
     // Self defined
     TcpCongPhase m_congPhase; // Current Congestion Control Phase
-    uint32_t m_dupSeq;       // the sequence number of duplicate packet
-    uint32_t m_dupAmount;    // the amount for duplicate packet
-    uint32_t m_ssthresh;     // slow start threshold
-    std::time_t m_time_out;  // time when timeout occurs
-    uint32_t m_dupThreshold; // Threshold for triggler packet loss, usually 3
-
-
+    uint32_t m_dupSeq;        // the sequence number of duplicate packet
+    uint32_t m_dupAmount;     // the amount for duplicate packet
+    uint32_t m_ssthresh;      // slow start threshold
+    MtTimer m_time_out;       // time when timeout occurs
+    uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
 };
 
 /**
@@ -95,6 +76,7 @@ public:
     void Write(int id, MtContext data);
 
 private:
+    ModularTransport* m_mt;
     std::map<int, TcpContext> m_library; // database of all Mt connnections.
 };
 
