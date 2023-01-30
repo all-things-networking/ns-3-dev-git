@@ -23,7 +23,8 @@ class MTHeader : public Header {
      * \return The ostream passed as first argument
      */
     friend std::ostream& operator<<(std::ostream& os, const MTHeader& h);
-
+    virtual void OpsBeforeSend(); // Compute Hash
+    virtual void OpsAfterRecieved(); //Verify Hash, then return a event
     uint32_t GetF1();
     void SetF1(uint32_t);
 

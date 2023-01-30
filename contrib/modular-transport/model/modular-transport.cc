@@ -83,7 +83,7 @@ ModularTransport::SendPacket(Ptr<Packet> packet,
     // TODO:Use NS_LOG_LOGIC to record information about the segment/packet being sent out.
 
     MTHeader outgoingHeader = outgoing;
-   
+    outgoingHeader.OpsBeforeSend();//Need a global state variable
     packet->AddHeader(outgoingHeader);
 
     Ptr<Ipv4> ipv4 = m_node->GetObject<Ipv4>();
@@ -117,7 +117,11 @@ ModularTransport::Receive(Ptr<Packet> packet,
                           const Ipv4Header& incomingIpHeader,
                           Ptr<Ipv4Interface> incomingInterface)
 {
+    MTHeader recievedHeader;
+    packet->RemoveHeader(recievedHeader);
+    recievedHeader.OpsAfterRecieved(); //THis one returns a event
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
+
     NS_LOG_UNCOND("Received packet in ModularTransport");
     return IpL4Protocol::RX_OK;
 }
