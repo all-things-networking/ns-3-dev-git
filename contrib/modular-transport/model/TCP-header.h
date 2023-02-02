@@ -1,8 +1,6 @@
 #ifndef MT_TCP_HEADER_H
 
 #define MT_TCP_HEADER_H
-
-#include "mt-header.h"
 class MTHeader;
 //#Modular transport TCP header
 class MTTCPHeader : public MTHeader {
