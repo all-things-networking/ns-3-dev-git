@@ -3,7 +3,7 @@
 #define MT_HEADER_H
 
 #include "ns3/header.h"
-
+class Header;
 namespace ns3
 {
 
@@ -14,7 +14,7 @@ class MTHeader : public Header {
 
     MTHeader();
     ~MTHeader() override;
-    
+
     /**
      * \brief Print an MT header into an output stream
      *
