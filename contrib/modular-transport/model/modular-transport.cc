@@ -51,20 +51,20 @@ ModularTransport::SetNode(Ptr<Node> node)
 
 void
 ModularTransport::NotifyNewAggregate()
-{   
+{
     NS_LOG_FUNCTION(this);
     Ptr<Node> node = this->GetObject<Node>();
     Ptr<Ipv4> ipv4 = this->GetObject<Ipv4>();
-    
+
     if (!m_node)
-    {   
+    {
         if (node && ipv4)
-        {   
+        {
             this->SetNode(node);
         }
     }
-    
-    // We set the down target to the IPv4 send function.  
+
+    // We set the down target to the IPv4 send function.
     if (ipv4 && m_downTarget.IsNull())
     {
         ipv4->Insert(this);
@@ -83,7 +83,7 @@ ModularTransport::SendPacket(Ptr<Packet> packet,
     // TODO:Use NS_LOG_LOGIC to record information about the segment/packet being sent out.
 
     MTHeader outgoingHeader = outgoing;
-    outgoingHeader.OpsBeforeSend();//Need a global state variable
+    //outgoingHeader.OpsBeforeSend();//Need a global state variable
     packet->AddHeader(outgoingHeader);
 
     Ptr<Ipv4> ipv4 = m_node->GetObject<Ipv4>();
@@ -119,7 +119,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
 {
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
-    recievedHeader.OpsAfterRecieved(); //THis one returns a event
+    //recievedHeader.OpsAfterRecieved(); //THis one returns a event
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
 
     NS_LOG_UNCOND("Received packet in ModularTransport");
