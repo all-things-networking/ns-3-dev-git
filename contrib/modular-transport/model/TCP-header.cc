@@ -21,4 +21,10 @@ void MTTCPHeader::OpsAfterRecieved() { //Return A event to be added to Queue?
     }//else continue
     //return a event
 }
+MTTCPHeader::MTTCPHeader(){
+
+}
+MTTCPHeader::~MTTCPHeader(){
+
+}
 }
