@@ -115,10 +115,13 @@ ModularTransport::SendPacket(Ptr<Packet> packet,
 enum IpL4Protocol::RxStatus
 ModularTransport::Receive(Ptr<Packet> packet,
                           const Ipv4Header& incomingIpHeader,
-                          Ptr<Ipv4Interface> incomingInterface)
+                          Ptr<Ipv4Interface> incomingInterface,
+                          MTScheduler chosenScheduler)
 {
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
+    chosenScheduler.OpsAfterRecieved(recievedHeader);
+    chosenScheduler.GenerateAndAddEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
 
