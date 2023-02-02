@@ -3,7 +3,6 @@
 #define MT_HEADER_H
 
 #include "ns3/header.h"
-class Header;
 namespace ns3
 {
 
