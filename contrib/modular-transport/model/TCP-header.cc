@@ -1,5 +1,6 @@
-#include "TCP-header.h"
 #include "mt-header.h"
+#include "TCP-header.h"
+namespace ns3{
 int MTTCPHeader::GenPseudoHeader() {
     return 0;
 }
@@ -19,4 +20,5 @@ void MTTCPHeader::OpsAfterRecieved() { //Return A event to be added to Queue?
         //Check sum failed
     }//else continue
     //return a event
+}
 }

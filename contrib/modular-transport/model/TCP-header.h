@@ -1,6 +1,6 @@
 #ifndef MT_TCP_HEADER_H
-
 #define MT_TCP_HEADER_H
+namespace ns3{
 class MTHeader;
 //#Modular transport TCP header
 class MTTCPHeader : public MTHeader {
@@ -23,4 +23,5 @@ class MTTCPHeader : public MTHeader {
         void OpsAfterRecieved(); //Just produce event, leave verify hash to processor?
 
 };
+}
 #endif
