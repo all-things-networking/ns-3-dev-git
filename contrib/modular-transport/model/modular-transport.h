@@ -1,7 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 #ifndef MODULAR_TRANSPORT_H
 #define MODULAR_TRANSPORT_H
-
+#include "mt-state.h"
 #include "mt-header.h"
 #include "TCP-header.h"
 #include "ns3/ip-l4-protocol.h"
@@ -14,10 +14,11 @@ namespace ns3
 {
 
 class Node;
-
+class MtState;
 class ModularTransport: public IpL4Protocol
 {
   public:
+    MtState table;
     /**
      * \brief Get the type ID.
      * \return the object TypeId
@@ -31,7 +32,20 @@ class ModularTransport: public IpL4Protocol
     // Delete copy constructor and assignment operator to avoid misuse
     ModularTransport(const ModularTransport&) = delete;
     ModularTransport& operator=(const ModularTransport&) = delete;
-
+    /**
+     initiate a flow by adding its state/context to the state table.
+     pick a constant for flow id. Context can include anything you need
+     for processing TCP packets, e.g., initial sequence number,
+     window size, beginning of the window, total number of bytes to send, etc.
+    */
+    void start(Ptr<Packet> pkt,
+               const MTHeader& outgoing,
+               const Ipv4Address& saddr,
+               const Ipv4Address& daddr);
+    /**
+    main of simulation
+    */
+    void mainloop();
     /**
      * Set node associated with this stack
      * \param node the node
@@ -49,7 +63,7 @@ class ModularTransport: public IpL4Protocol
     void SendPacket(Ptr<Packet> pkt,
                     const MTHeader& outgoing,
                     const Ipv4Address& saddr,
-                    const Ipv4Address& daddr) const; 
+                    const Ipv4Address& daddr) const;
 
     // From IpL4Protocol
     enum IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
@@ -67,7 +81,7 @@ class ModularTransport: public IpL4Protocol
                      Ipv4Address payloadSource,
                      Ipv4Address payloadDestination,
                      const uint8_t payload[8]) override;
-    
+
     void ReceiveIcmp(Ipv6Address icmpSource,
                      uint8_t icmpTtl,
                      uint8_t icmpType,

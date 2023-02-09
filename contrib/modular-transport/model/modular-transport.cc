@@ -1,7 +1,8 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 #include "modular-transport.h"
-
+#include "mt-event.h"
+#include "mt-state.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -31,7 +32,54 @@ ModularTransport::~ModularTransport()
 {
     NS_LOG_FUNCTION(this);
 }
+void ModularTransport::start(
+                             const Ipv4Address& saddr,
+                             const Ipv4Address& daddr){
+    // initiate a flow by adding its state/context to the state table.
+    // pick a constant for flow id. Context can include anything you need
+    // for processing TCP packets, e.g., initial sequence number,
+    // window size, beginning of the window, total number of bytes to send, etc.
+    flow_id = 1
+    this->table =  MtState(this);
+    TcpContext context = TcpContext(flow_id) //Change to MTContext
+    context.saddr = saddr;
+    context.daddr = daddr;
+    table.write(flow_id, context)
+    long time = 1
+       // Then, create a "send" event to send the first window of packets for this
+       // flow. This event will be processed by "Send if Possible" event processor
+     MTEvent e = schedular.CreateSendEvent(flow_id, time);
+     Scheduler.AddEvent(e);
+     main_loop();
+}
+void ModularTransport::mainloop(){
+    // This is the main loop of the transport layer
+       // that calls the different components of our model
+       // to process events
+    while (!scheduler.isEmpty()){
+         MTEvent e = scheduler.GetNextEvent();
+         EventProcessor ep = dispatcher.dispatch(e);
+         Context ctx = this->table.GetVal(e.flow_id);
+         std::pair<std::vector<MtEvent>, MtContext> result = ep.process(e, ctx);
+         sendifPossible PosentialSendType = dynamic_cast<sendifPossible> (ep);
+         for (auto newEvent : result.first())
+          {
+                 this->scheduler.PushInEvent(newEvent);
+          }
+         if (PosentialSendType != NULL){
+             std::vector<Packet> packets = ep.getPackets()
+             for (auto packet : packets)
+                 {
+                    MTHeader outgoing = MTheader();
+                    //recreate Header for outgoing
+                     this->SendPacket(packet, outgoing, ctx.saddr, ctx.daddr);
+                 }
+          }
 
+         //Use rult's mtcontext to update table's context at id
+         //addall every thing in first vector of result into schedular
+    }
+}
 void
 ModularTransport::DoDispose()
 {
