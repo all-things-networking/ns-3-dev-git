@@ -45,6 +45,7 @@ void ModularTransport::start(
     context.saddr = saddr;
     context.daddr = daddr;
     table.write(flow_id, context)
+    MTScheduler scheduler = TCPschedular();
     long time = 1
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
