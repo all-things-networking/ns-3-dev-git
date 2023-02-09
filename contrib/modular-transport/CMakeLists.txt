@@ -15,7 +15,6 @@ build_lib(
     SOURCE_FILES model/modular-transport.cc
                  helper/modular-transport-helper.cc
                  model/dispatcher.cc
-                 model/mt-event.cc
                  model/eventprocessor.cc
                  model/mt-scheduler.cc
                  model/mt-header.cc
