@@ -14,6 +14,11 @@ class Packet;
 /**
  * \brief The base class for event processor. This is virtual class.
  */
+struct EventProcessorOutput{
+     std::vector<MTEvent> newEvents;
+     MTContext updatedContext;
+     std::vector<Packet> packetToSend;
+ };
 class MTEventProcessor
 {
 public:
@@ -25,7 +30,7 @@ public:
      * \param c The context of the Mt connection.
      * \return The modified context and new generated event if exits.
      */
-    virtual std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c) = 0;
+    virtual EventProcessorOutput Process(MTEvent e, MTContext c) = 0;
 
 
     /**
@@ -56,7 +61,7 @@ public:
      * Timeout lost should be handled by other event processors.
      * Perform Mt congestion control.
      */
-    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
+    EventProcessorOutput Process(MTEvent e, MTContext c);
 
 
     /**
@@ -83,7 +88,7 @@ public:
      *
      * Perform Mt congestion control based on RFC5681.
      */
-    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
+    EventProcessorOutput Process(MTEvent e, MTContext c);
 
     /**
      * \brief Check if the input event is valid event type for the processor.
@@ -95,11 +100,9 @@ public:
 
 class SendIfPossible: public MTEventProcessor
 {
-   std::vector <Packet> packetTobeSend;
 public:
     SendIfPossible();
-    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
-    std::vector<Packet> getPackets();
+    EventProcessorOutput Process(MTEvent e, MTContext c);
     bool IsValidEvent(MTEvent e);
 };
 
