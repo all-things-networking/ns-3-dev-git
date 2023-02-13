@@ -2,7 +2,6 @@
 
 #include "modular-transport.h"
 #include "mt-eventprocessor.h"
-#include "mt-dispatcher.h"
 #include "TCP-scheduler.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
@@ -62,16 +61,16 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-    TCPDispatcher dispatcher = TCPDispatcher();
+       TCPDispatcher dispatcher = TCPDispatcher();
     while (!scheduler.isEmpty()){
          MTEvent e = scheduler.GetNextEvent();
          MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
-         std::pair<std::vector<MTEvent>, MTContext> result = ep->Process(e, ctx);
-         SendIfPossible* PosentialSendType = dynamic_cast<SendIfPossible*> (ep);
+         std::pair<std::vector<MTEvent>, MTContext> result = ep->process(e, ctx);
+         SendifPossible* PosentialSendType = dynamic_cast<SendifPossible*> (ep);
          for (auto newEvent : result.first())
           {
-                 scheduler.PushInEvent(newEvent);
+                 this->scheduler.PushInEvent(newEvent);
           }
          if (PosentialSendType != NULL){
              std::vector<Packet> packets = PosentialSendType->getPackets()

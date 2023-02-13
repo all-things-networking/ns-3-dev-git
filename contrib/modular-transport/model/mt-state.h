@@ -66,7 +66,6 @@ public:
 class MTState
 {
 public:
-    MTState();
     MTState(ModularTransport* mt);
 
     /**
