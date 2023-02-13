@@ -6,13 +6,13 @@ class MTEvent;
 class MTEventProcessor;
 
 class MTDispatcher{
-    virtual MTEventProcessor* dispatch(MTEvent);//map event to processor
+    virtual MTEventProcessor dispatch(MTEvent);//map event to processor
 };
 
 class TCPDispatcher:public MTDispatcher{
     public:
     TCPDispatcher();
-    MTEventProcessor* dispatch(MTEvent);
+    MTEventProcessor dispatch(MTEvent);
 };
 
 }
