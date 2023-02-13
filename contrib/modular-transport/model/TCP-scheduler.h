@@ -4,7 +4,7 @@
 namespace ns3{
 class MTScheduler;
 class MTEvent;
-class MTHeader
+class MTHeader;
 class TCPscheduler: public MTScheduler{
 struct MTEventQueue;
     void OpsBeforeSend(); // Compute Hash
