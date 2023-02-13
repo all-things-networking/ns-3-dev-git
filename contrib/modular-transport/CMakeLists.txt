@@ -16,7 +16,7 @@ build_lib(
                  helper/modular-transport-helper.cc
                  model/mt-dispatcher.cc
                  model/mt-eventprocessor.cc
-                 model/mt-scheduler.cc
+
                  model/mt-header.cc
                  model/mt-state.cc
                  model/TCP-header.cc
