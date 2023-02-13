@@ -50,7 +50,7 @@ void ModularTransport::Start(
     context.saddr = saddr;
     context.daddr = daddr;
     table.Write(flow_id, context);
-    MTScheduler scheduler = TCPscheduler();
+    MTScheduler scheduler = TCPschedular();
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
@@ -67,20 +67,21 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
          MTEvent e = scheduler.GetNextEvent();
          MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
-         EventProcessorOutput result = ep->Process(e, ctx);
-         for (auto newEvent : result.newEvents)
+         std::pair<std::vector<MTEvent>, MTContext> result = ep->Process(e, ctx);
+         SendIfPossible* PosentialSendType = dynamic_cast<SendIfPossible*> (ep);
+         for (auto newEvent : result.first())
           {
-                 scheduler.AddEvent(newEvent);
+                 scheduler.PushInEvent(newEvent);
           }
-
-
-         for (auto packet : result.packetToSend)
-         {
-                MTHeader outgoing = MTheader();
-                //recreate Header for outgoing
-                this->SendPacket(packet, outgoing, ctx.saddr, ctx.daddr);
-         }
-
+         if (PosentialSendType != NULL){
+             std::vector<Packet> packets = PosentialSendType->getPackets()
+             for (auto packet : packets)
+                 {
+                    MTHeader outgoing = MTheader();
+                    //recreate Header for outgoing
+                     this->SendPacket(packet, outgoing, ctx.saddr, ctx.daddr);
+                 }
+          }
 
          //Use rult's mtcontext to update table's context at id
          //addall every thing in first vector of result into schedular

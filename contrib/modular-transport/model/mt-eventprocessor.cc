@@ -8,7 +8,6 @@
 #include "ns3/node.h"
 namespace ns3
 {
-
 class Packet;
 class ModularTransport;
 //Send if possible, mine
@@ -21,15 +20,18 @@ SendIfPossible::IsValidEvent(MTEvent e)
     MTEvent* ePtr = &e;
     return true;
 }
+std::vector<Packet> SendIfPossible::getPackets(){
+    std::vector<Packet> temp (packetTobeSend);
+    packetTobeSend.clear();
+    return temp;
+}
 
-EventProcessorOutput SendIfPossible::Process(MTEvent e, MTContext c){
+std::pair<std::vector<MTEvent>, MTContext> SendIfPossible::Process(MTEvent e, MTContext c){
     //I call mt->SendPack here
     MTContext newContext = c;
     std::vector<MTEvent> newEvents;
     Packet P = Packet();
-    std::vector<Packet> packetTobeSend;
     packetTobeSend.emplace_back(P);
-    EventProcessorOutput {newEvents,newContext,packetTobeSend};
     return std::pair<newEvents, newContext>;
     //store packets to send as vector in class
     //call get packet to retrieve it later, and clear vector in class, use temp vector
