@@ -61,6 +61,7 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
+       TCPDispatcher dispatcher = TCPDispatcher();
     while (!scheduler.isEmpty()){
          MTEvent e = scheduler.GetNextEvent();
          MTEventProcessor ep = dispatcher.dispatch(e);

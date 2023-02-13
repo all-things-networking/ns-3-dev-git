@@ -1,6 +1,4 @@
 #include "mt-state.h"
-
-#include "mt-timer.h"
 #include <ctime>
 #include <map>
 

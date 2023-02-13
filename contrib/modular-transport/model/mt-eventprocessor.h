@@ -10,7 +10,7 @@ namespace ns3
 
 class MTEvent;
 class MTContext;
-
+class Packet;
 /**
  * \brief The base class for event processor. This is virtual class.
  */
@@ -95,11 +95,11 @@ public:
 
 class SendIfPossible: public MTEventProcessor
 {
-   std::vector <Packets> packetTobeSend;
+   std::vector <Packet> packetTobeSend;
 public:
     SendIfPossible();
     std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
-    std::vector<Packets> getPackets();
+    std::vector<Packet> getPackets();
     bool IsValidEvent(MTEvent e);
 };
 
