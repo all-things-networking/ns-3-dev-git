@@ -19,18 +19,18 @@ enum TcpCongPhase
     FAST_RETRAINS,
     FAST_RECOVER
 };
-class MtContext{
+class MTContext{
 public:
     ns3::Ipv4Address saddr;
     ns3::Ipv4Address daddr;
-    MtContext();
+    MTContext();
 
 };
 /**
  * \brief The class for maintaing the state variables for ONE Mt connections.
  */
 // TCP context
-class TcpContext: public MtContext
+class TcpContext: public MTContext
 {
 public:
     TcpContext(int tcpId);

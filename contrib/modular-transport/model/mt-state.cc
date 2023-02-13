@@ -6,6 +6,9 @@
 
 namespace ns3
 {
+MTContext::MTContext(){
+
+}
 TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
     : m_Una{0},
       m_Nxt{0},
