@@ -28,7 +28,7 @@ MTState::MTState(ModularTransport* mt)
 {
 }
 
-TcpContext
+MTContext
 MTState::GetVal(int id)
 {
     if (this->m_library.find(id) == this->m_library.end())

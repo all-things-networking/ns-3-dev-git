@@ -10,6 +10,7 @@ class MTEvent{
 };
 
 class SendEvent: public MTEvent{
+    public:
     SendEvent(long time, int flow_id);
 };
 }

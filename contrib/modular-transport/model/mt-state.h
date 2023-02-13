@@ -73,7 +73,7 @@ public:
      * \param id The id of Mt connection.
      * \return The context that belongs to the specific Mt connection.
      */
-    TcpContext GetVal(int id);
+    MTContext GetVal(int id);
     /**
      * \brief Store the context data to m_library, given Mt connection id.
      * \param id The id of Mt connection.
