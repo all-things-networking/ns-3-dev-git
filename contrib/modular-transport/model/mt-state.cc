@@ -19,7 +19,7 @@ TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
       m_ssthresh{1048576}, // 2^20
       //m_time_out{MtTimer(timer_duration, tcpId)},
       m_dupThreshold{3},
-      m_congPhase{MtCongPhase::NONE}
+      m_congPhase{MTCongPhase::NONE}
 {
 }
 

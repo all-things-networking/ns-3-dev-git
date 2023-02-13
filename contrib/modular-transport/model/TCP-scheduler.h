@@ -1,6 +1,6 @@
 #ifndef MT_TCP_SCHEDULER_H
 #define MT_TCP_SCHEDULER_H
-using namespace ns3{
+namespace ns3{
 class MTScheduler;
 class MTEvent;
 class TCPscheduler: public MTScheduler{

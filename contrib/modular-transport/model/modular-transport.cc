@@ -64,16 +64,16 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
        TCPDispatcher dispatcher = TCPDispatcher();
     while (!scheduler.isEmpty()){
          MTEvent e = scheduler.GetNextEvent();
-         MTEventProcessor ep = dispatcher.dispatch(e);
+         MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
-         std::pair<std::vector<MTEvent>, MTContext> result = ep.process(e, ctx);
-         SendifPossible PosentialSendType = dynamic_cast<SendifPossible> (ep);
+         std::pair<std::vector<MTEvent>, MTContext> result = ep->process(e, ctx);
+         SendifPossible* PosentialSendType = dynamic_cast<SendifPossible*> (ep);
          for (auto newEvent : result.first())
           {
                  this->scheduler.PushInEvent(newEvent);
           }
          if (PosentialSendType != NULL){
-             std::vector<Packet> packets = PosentialSendType.getPackets()
+             std::vector<Packet> packets = PosentialSendType->getPackets()
              for (auto packet : packets)
                  {
                     MTHeader outgoing = MTheader();

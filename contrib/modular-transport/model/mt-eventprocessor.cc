@@ -4,7 +4,8 @@
 #include <vector>
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
-
+#include "ns3/ipv4-l3-protocol.h"
+#include "ns3/node.h"
 namespace ns3
 {
 class Packet;
@@ -14,12 +15,12 @@ SendIfPossible::SendIfPossible():
 MTEventProcessor()
 {}
 bool
-SendSendIfPossible::IsValidEvent(MTEvent e)
+SendIfPossible::IsValidEvent(MTEvent e)
 {
     MTEvent* ePtr = &e;
     return true;
 }
-std::vector<Packet> SendIfPossible::getpacket(){
+std::vector<Packet> SendIfPossible::getPackets(){
     vector<Packet> temp = packetTobeSend.copy();
     packetTobeSend.clear();
     return temp;
@@ -29,9 +30,9 @@ std::pair<std::vector<MTEvent>, MTContext> SendIfPossible::Process(MTEvent e, MT
     //I call mt->SendPack here
     MTContext newContext = c;
     std::vector<MTEvent> newEvents;
-    Packet P = new Packet();
+    Packet P = Packet();
     packetTobeSend.emplace_back(P);
-    return std::pair<newEvents, c>;
+    return std::pair<newEvents, newContext>;
     //store packets to send as vector in class
     //call get packet to retrieve it later, and clear vector in class, use temp vector
 }
