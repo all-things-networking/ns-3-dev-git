@@ -14,10 +14,10 @@ class MtContext;
 /**
  * \brief The base class for event processor. This is virtual class.
  */
-class MtEventProcessor
+class MTEventProcessor
 {
 public:
-    MtEventProcessor();
+    MTEventProcessor();
 
     /**
      * \brief Process the event and return the processed results.
@@ -40,7 +40,7 @@ public:
 /**
  * \brief The processor handling the acknowledgement events.
  */
-class TcpAckHandler: public MtEventProcessor
+class TcpAckHandler: public MTEventProcessor
 {
 public:
     TcpAckHandler();

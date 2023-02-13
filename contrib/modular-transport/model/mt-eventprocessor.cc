@@ -11,7 +11,7 @@ namespace ns3
 class ModularTransport;
 //Send if possible, mine
 SendIfPossible: SendIfPossible():
-MtEventProcessor()
+MTEventProcessor()
 {}
 bool
 SendSendIfPossible::IsValidEvent(MtEvent e)
@@ -25,10 +25,10 @@ vector<Packet> SendIfPossible::getpacket(){
     return temp;
 }
 
-std::pair<std::vector<MtEvent>, MtContext> SendIfPossible:Process(MtEvent e, MtContext c, ModularTransport *mt){
+std::pair<std::vector<MTEvent>, MTContext> SendIfPossible:Process(MTEvent e, MTContext c, ModularTransport *mt){
     //I call mt->SendPack here
-    MtContext newContext = c;
-    std::vector<MtEvent> newEvents;
+    MTContext newContext = c;
+    std::vector<MTEvent> newEvents;
     Packet P = new Packet();
     packetTobeSend.emplace_back(P);
     return std::pair<newEvents, c>;

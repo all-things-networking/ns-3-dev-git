@@ -51,17 +51,17 @@ void ModularTransport::Start(
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent e = schedular.CreateSendEvent(flow_id, time);
      Scheduler.AddEvent(e);
-     main_loop();
+     main_loop(scheduler);
 }
-void ModularTransport::Mainloop(){
+void ModularTransport::Mainloop(MTScheduler scheduler){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
     while (!scheduler.isEmpty()){
          MTEvent e = scheduler.GetNextEvent();
-         EventProcessor ep = dispatcher.dispatch(e);
-         Context ctx = this->table.GetVal(e.flow_id);
-         std::pair<std::vector<MtEvent>, MtContext> result = ep.process(e, ctx);
+         MTEventProcessor ep = dispatcher.dispatch(e);
+         MTContext ctx = this->table.GetVal(e.flow_id);
+         std::pair<std::vector<MTEvent>, MTContext> result = ep.process(e, ctx);
          sendifPossible PosentialSendType = dynamic_cast<sendifPossible> (ep);
          for (auto newEvent : result.first())
           {
