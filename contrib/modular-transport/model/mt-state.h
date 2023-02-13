@@ -83,7 +83,7 @@ public:
 
 private:
     ModularTransport* m_mt;
-    std::map<int, TcpContext> m_library; // database of all Mt connnections.
+    std::map<int, MTContext> m_library; // database of all Mt connnections.
 };
 
 } // namespace ns3

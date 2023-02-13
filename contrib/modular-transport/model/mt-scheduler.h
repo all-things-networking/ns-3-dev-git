@@ -14,7 +14,7 @@ class MTScheduler{
     virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent GetNextEvent();
     virtual MTEvent AddEvent();
-    virtual MTEvent CreateSendEvent();
+    virtual MTEvent CreateSendEvent(int, long);
     virtual bool isEmpty();
 };
 }

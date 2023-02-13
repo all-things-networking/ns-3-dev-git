@@ -12,7 +12,7 @@ struct MTEventQueue;
     MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     MTEvent GenerateEventOnInitate(MTHeader);
     MTEvent GetNextEvent();
-    MTEvent CreateSendEvent();
+    MTEvent CreateSendEvent(int, long);
     };
 }
 
