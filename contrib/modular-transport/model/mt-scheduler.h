@@ -4,7 +4,7 @@
 using namespace ns3{
 class MTEvent;
 class MTEventQueue;
-class MTHeader
+class MTHeader;
 class MTSchedular{
 
     MTSchedular();

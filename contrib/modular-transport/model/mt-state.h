@@ -21,8 +21,8 @@ enum TcpCongPhase
 };
 class MtContext{
 public:
-    int saddr;
-    int daddr;
+    ns3::Ipv4Address saddr;
+    ns3::Ipv4Address daddr;
     MtContext();
 
 };

@@ -19,7 +19,7 @@ class MTScheduler;
 class ModularTransport: public IpL4Protocol
 {
   public:
-    MtState table;
+    MTState table;
     /**
      * \brief Get the type ID.
      * \return the object TypeId

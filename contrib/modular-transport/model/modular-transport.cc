@@ -40,7 +40,7 @@ void ModularTransport::Start(
     // pick a constant for flow id. Context can include anything you need
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
-    flow_id = 1
+    int flow_id = 1
     this->table =  MTState(this);
     TcpContext context = TcpContext(flow_id) //Change to MTContext
     context.saddr = saddr;
