@@ -2,6 +2,7 @@
 
 #include "modular-transport.h"
 #include "mt-eventprocessor.h"
+#include "TCP-scheduler.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
@@ -44,10 +45,10 @@ void ModularTransport::Start(
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
-    MTContext context = TcpContext(flow_id) //Change to MTContext
+    MTContext context = TcpContext(flow_id);//Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
-    table.write(flow_id, context);
+    table.Write(flow_id, context);
     MTScheduler scheduler = TCPschedular();
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
@@ -65,13 +66,13 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
          MTEventProcessor ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
          std::pair<std::vector<MTEvent>, MTContext> result = ep.process(e, ctx);
-         sendifPossible PosentialSendType = dynamic_cast<sendifPossible> (ep);
+         SendifPossible PosentialSendType = dynamic_cast<SendifPossible> (ep);
          for (auto newEvent : result.first())
           {
                  this->scheduler.PushInEvent(newEvent);
           }
          if (PosentialSendType != NULL){
-             std::vector<Packet> packets = ep.getPackets()
+             std::vector<Packet> packets = PosentialSendType.getPackets()
              for (auto packet : packets)
                  {
                     MTHeader outgoing = MTheader();

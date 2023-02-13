@@ -8,8 +8,8 @@
 namespace ns3
 {
 
-class MtEvent;
-class MtContext;
+class MTEvent;
+class MTContext;
 
 /**
  * \brief The base class for event processor. This is virtual class.
@@ -25,7 +25,7 @@ public:
      * \param c The context of the Mt connection.
      * \return The modified context and new generated event if exits.
      */
-    virtual std::pair<std::vector<MtEvent>, MtContext> Process(MtEvent e, MtContext c) = 0;
+    virtual std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c) = 0;
 
 
     /**
@@ -33,7 +33,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    virtual bool IsValidEvent(MtEvent e) = 0;
+    virtual bool IsValidEvent(MTEvent e) = 0;
 };
 
 
@@ -56,7 +56,7 @@ public:
      * Timeout lost should be handled by other event processors.
      * Perform Mt congestion control.
      */
-    std::pair<std::vector<MtEvent>, MtContext> Process(MtEvent e, MtContext c);
+    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
 
 
     /**
@@ -64,13 +64,13 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MtEvent e);
+    bool IsValidEvent(MTEvent e);
 };
 
 /**
  * \brief The processor managing congestion control algorithms.
 */
-class TcpCongControl: public MtEventProcessor
+class TcpCongControl: public MTEventProcessor
 {
 public:
     TcpCongControl();
@@ -83,25 +83,25 @@ public:
      *
      * Perform Mt congestion control based on RFC5681.
      */
-    std::pair<std::vector<MtEvent>, MtContext> Process(MtEvent e, MtContext c);
+    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
 
     /**
      * \brief Check if the input event is valid event type for the processor.
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MtEvent e);
+    bool IsValidEvent(MTEvent e);
 };
 
-class SendIfPossible: public MtEventProcessor
+class SendIfPossible: public MTEventProcessor
 {
-    vector <Packets> packetTobeSend;
+   std::vector <Packets> packetTobeSend;
 public:
     SendIfPossible();
-    std::pair<std::vector<MtEvent>, MtContext> Process(MtEvent e, MtContext c);
-    vector<Packets> getPackets();
-    bool IsValidEvent(MtEvent e);
-}
+    std::pair<std::vector<MTEvent>, MTContext> Process(MTEvent e, MTContext c);
+    std::vector<Packets> getPackets();
+    bool IsValidEvent(MTEvent e);
+};
 
 } // namespace ns3
 
