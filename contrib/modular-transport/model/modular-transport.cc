@@ -32,7 +32,7 @@ ModularTransport::~ModularTransport()
 {
     NS_LOG_FUNCTION(this);
 }
-void ModularTransport::start(
+void ModularTransport::Start(
                              const Ipv4Address& saddr,
                              const Ipv4Address& daddr){
     // initiate a flow by adding its state/context to the state table.
@@ -53,7 +53,7 @@ void ModularTransport::start(
      Scheduler.AddEvent(e);
      main_loop();
 }
-void ModularTransport::mainloop(){
+void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events

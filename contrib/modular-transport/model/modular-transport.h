@@ -38,14 +38,14 @@ class ModularTransport: public IpL4Protocol
      for processing TCP packets, e.g., initial sequence number,
      window size, beginning of the window, total number of bytes to send, etc.
     */
-    void start(Ptr<Packet> pkt,
+    void Start(Ptr<Packet> pkt,
                const MTHeader& outgoing,
                const Ipv4Address& saddr,
                const Ipv4Address& daddr);
     /**
     main of simulation
     */
-    void mainloop();
+    void Mainloop();
     /**
      * Set node associated with this stack
      * \param node the node

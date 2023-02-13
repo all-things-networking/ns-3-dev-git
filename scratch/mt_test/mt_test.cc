@@ -25,34 +25,34 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("MTTest");
 
-int 
+int
 main (int argc, char *argv[])
 {
   NS_LOG_UNCOND ("Testing Modular Transport");
 
   NodeContainer nodes;
   nodes.Create(2);
-  
+
   PointToPointHelper p2p;
   NetDeviceContainer devs = p2p.Install(nodes);
 
   // Install the stack
   for (NodeContainer::Iterator i = nodes.Begin (); i != nodes.End (); ++i){
-    Ptr<Node> node = *i; 
+    Ptr<Node> node = *i;
 
     NS_LOG_UNCOND ("Installing ARP on Node " << node->GetId());
- 
+
     Ptr<ArpL3Protocol> arp = CreateObject<ArpL3Protocol>();
     node->AggregateObject(arp);
 
     NS_LOG_UNCOND ("Installing IP on Node " << node->GetId());
-    
+
     Ptr<Ipv4L3Protocol> ip = CreateObject<Ipv4L3Protocol>();
     node->AggregateObject(ip);
 
-    
+
     NS_LOG_UNCOND ("Installing ICMP on Node " << node->GetId());
-    
+
     Ptr<Icmpv4L4Protocol> icmp = CreateObject<Icmpv4L4Protocol>();
     node->AggregateObject(icmp);
 
@@ -63,10 +63,10 @@ main (int argc, char *argv[])
     Ipv4ListRoutingHelper listRouting;
     listRouting.Add (staticRouting, 0);
     listRouting.Add (globalRouting, -10);
-    
+
     Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
     Ptr<Ipv4RoutingProtocol> ipv4Routing = listRouting.Create (node);
-    ipv4->SetRoutingProtocol (ipv4Routing); 
+    ipv4->SetRoutingProtocol (ipv4Routing);
 
     Ptr<TrafficControlLayer> tc = CreateObject<TrafficControlLayer>();
     node->AggregateObject(tc);
@@ -98,12 +98,12 @@ main (int argc, char *argv[])
     }
 
     NS_LOG_UNCOND("");
-  } 
+  }
 
-  
+
   // Send a packet
   Ptr<Node> src = *nodes.Begin();
-  Ptr<Ipv4Interface> src_intf = src->GetObject<Ipv4L3Protocol>()->GetInterface(1); 
+  Ptr<Ipv4Interface> src_intf = src->GetObject<Ipv4L3Protocol>()->GetInterface(1);
   Ipv4Address saddr = src_intf->GetAddress(0).GetAddress();
   NS_LOG_UNCOND("Source address: " << saddr);
   Ptr<Node> dst = *(nodes.End() - 1);
@@ -114,8 +114,8 @@ main (int argc, char *argv[])
   MTHeader mth = MTTCPHeader();
   mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
-  Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
-  
+  //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
+  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr);
 
   Simulator::Run ();
   Simulator::Destroy ();
