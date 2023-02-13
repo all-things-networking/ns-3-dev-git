@@ -5,11 +5,11 @@ class MTHeader;
 class MTEvent{
     long time;
     int flow_id;
-    MTHeader(long time, int flow_id);
-}
+    MTEvent(long time, int flow_id);
+};
 
 class SendEvent: public MTEvent{
     SendEvent(long time, int flow_id);
-}
+};
 }
 #endif

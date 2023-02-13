@@ -25,7 +25,7 @@ public:
     int daddr;
     MtContext();
 
-}
+};
 /**
  * \brief The class for maintaing the state variables for ONE Mt connections.
  */
