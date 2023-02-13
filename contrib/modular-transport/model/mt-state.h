@@ -12,14 +12,6 @@ class ModularTransport;
 /**
  * \brief The class indicate phase in congestion control algorithms.
 */
-enum MTCongPhase
-{
-    NONE,
-    SLOW_START,
-    CONG_AVOID,
-    FAST_RETRAINS,
-    FAST_RECOVER
-};
 enum TcpCongPhase
 {
     NONE,

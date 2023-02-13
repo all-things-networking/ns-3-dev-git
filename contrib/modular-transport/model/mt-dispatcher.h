@@ -3,15 +3,16 @@
 namespace ns3
 {
 class MTEvent;
-class MtEventProcessor;
+class MTEventProcessor;
 
 class MTDispatcher{
-    virtual MtEventProcessor* dispatch(MTEvent);//map event to processor
+    virtual MTEventProcessor* dispatch(MTEvent);//map event to processor
 };
 
 class TCPDispatcher:public MTDispatcher{
+    public:
     TCPDispatcher();
-    MtEventProcessor* dispatch(MTEvent);
+    MTEventProcessor* dispatch(MTEvent);
 };
 
 }

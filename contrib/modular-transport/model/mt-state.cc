@@ -18,8 +18,7 @@ TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
       m_cnwd{4096}, // RFC5681, IW = 4 * SMSS bytes
       m_ssthresh{1048576}, // 2^20
       //m_time_out{MtTimer(timer_duration, tcpId)},
-      m_dupThreshold{3},
-      m_congPhase{MTCongPhase::NONE}
+      m_dupThreshold{3}
 {
 }
 
@@ -40,7 +39,7 @@ MTState::GetVal(int id)
 }
 
 void
-MTState::Write(int id, TcpContext data)
+MTState::Write(int id, MTContext data)
 {
     this->m_library[id] = data;
 }
