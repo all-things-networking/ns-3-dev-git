@@ -1,6 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 #include "modular-transport.h"
+#include "mt-eventprocessor.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
@@ -26,6 +27,7 @@ ModularTransport::GetTypeId()
 
 ModularTransport::ModularTransport()
 {
+    this->table =  MTState(this);
     NS_LOG_FUNCTION(this);
 }
 
@@ -41,18 +43,18 @@ void ModularTransport::Start(
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
-    this->table =  MTState(this);
+    //this->table =  MTState(this); move this line to constructor
     MTContext context = TcpContext(flow_id) //Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
-    table.write(flow_id, context)
+    table.write(flow_id, context);
     MTScheduler scheduler = TCPschedular();
-    long time = 1
+    long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
-     MTEvent e = schedular.CreateSendEvent(flow_id, time);
-     Scheduler.AddEvent(e);
-     main_loop(scheduler);
+     MTEvent e = scheduler.CreateSendEvent(flow_id, time);
+     scheduler.AddEvent(e);
+     Mainloop(scheduler);
 }
 void ModularTransport::Mainloop(MTScheduler scheduler){
     // This is the main loop of the transport layer

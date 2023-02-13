@@ -5,9 +5,9 @@ namespace ns3{
 class MTEvent;
 class MTEventQueue;
 class MTHeader;
-class MTSchedular{
+class MTScheduler{
     public:
-    MTSchedular();
+    MTScheduler();
     // virtual void OpsBeforeSend(); // Compute Hash
    // virtual void OpsAfterRecieved(); //Verify Hash, then return a event
     virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue

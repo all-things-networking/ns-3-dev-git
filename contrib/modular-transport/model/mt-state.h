@@ -3,6 +3,7 @@
 
 #include <ctime> // std::time_t
 #include <map>
+#include "ns3/ipv4-address.h"
 
 namespace ns3
 {
@@ -78,7 +79,7 @@ public:
      * \param id The id of Mt connection.
      * \param data The context data of the Mt.
      */
-    void Write(int id, MtContext data);
+    void Write(int id, MTContext data);
 
 private:
     ModularTransport* m_mt;

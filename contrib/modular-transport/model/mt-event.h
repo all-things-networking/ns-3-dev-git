@@ -3,6 +3,7 @@
 namespace ns3{
 class MTHeader;
 class MTEvent{
+    public:
     long time;
     int flow_id;
     MTEvent(long time, int flow_id);
