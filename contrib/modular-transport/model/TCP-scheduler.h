@@ -6,12 +6,15 @@ class MTScheduler;
 class MTEvent;
 class MTHeader;
 class TCPscheduler: public MTScheduler{
-struct MTEventQueue;
+    public:
+    std::vector<MTEvent> myqueue;
+    TCPscheduler();
     void OpsBeforeSend(); // Compute Hash
     void OpsAfterRecieved(); //Verify Hash, then return a event
     MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     MTEvent GenerateEventOnInitate(MTHeader);
     MTEvent GetNextEvent();
+    void AddEvent(MTEvent);
     MTEvent CreateSendEvent(int, long);
     };
 }

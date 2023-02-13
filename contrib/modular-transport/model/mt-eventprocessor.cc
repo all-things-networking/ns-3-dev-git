@@ -21,7 +21,7 @@ SendIfPossible::IsValidEvent(MTEvent e)
     return true;
 }
 std::vector<Packet> SendIfPossible::getPackets(){
-    vector<Packet> temp = packetTobeSend.copy();
+    std::vector<Packet> temp (packetTobeSend);
     packetTobeSend.clear();
     return temp;
 }

@@ -21,7 +21,7 @@ TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
       m_dupThreshold{3}
 {
 }
-
+MTState::MTState(){}
 MTState::MTState(ModularTransport* mt)
     : m_library{std::map<int, MTContext>()},
       m_mt{mt}
