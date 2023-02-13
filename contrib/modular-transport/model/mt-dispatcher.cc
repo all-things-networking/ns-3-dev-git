@@ -4,8 +4,8 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 
-MTEventProcessor TCPDispatcher::dispatch(MTEvent anything){
-    MTEventProcessor ChosenProcessor = SendIfPossible();
+MTEventProcessor* TCPDispatcher::dispatch(MTEvent anything){
+    MTEventProcessor* ChosenProcessor = new SendIfPossible();
     return ChosenProcessor;
 }
 }
