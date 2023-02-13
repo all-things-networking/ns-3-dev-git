@@ -14,7 +14,8 @@ namespace ns3
 {
 
 class Node;
-class MtState;
+class MTState;
+class MTScheduler;
 class ModularTransport: public IpL4Protocol
 {
   public:
@@ -38,14 +39,13 @@ class ModularTransport: public IpL4Protocol
      for processing TCP packets, e.g., initial sequence number,
      window size, beginning of the window, total number of bytes to send, etc.
     */
-    void Start(Ptr<Packet> pkt,
-               const MTHeader& outgoing,
+    void Start(
                const Ipv4Address& saddr,
                const Ipv4Address& daddr);
     /**
     main of simulation
     */
-    void Mainloop();
+    void Mainloop(MTScheduler scheduler);
     /**
      * Set node associated with this stack
      * \param node the node

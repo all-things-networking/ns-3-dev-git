@@ -1,6 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 #include "modular-transport.h"
+#include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
 #include "ns3/ipv4-l3-protocol.h"
@@ -40,7 +41,7 @@ void ModularTransport::Start(
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
     flow_id = 1
-    this->table =  MtState(this);
+    this->table =  MTState(this);
     TcpContext context = TcpContext(flow_id) //Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;

@@ -62,10 +62,10 @@ public:
  * Currently all contexts are stored on stack.
  * TODO: may move the data storage to heap using alloc or smart pointer.
  */
-class MtState
+class MTState
 {
 public:
-    MtState(ModularTransport* mt);
+    MTState(ModularTransport* mt);
 
     /**
      * \brief Get the context of Mt connection with id.
