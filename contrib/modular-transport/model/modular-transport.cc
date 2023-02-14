@@ -68,13 +68,13 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
          MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput result = ep->Process(e, ctx);
-         for (auto newEvent : result.newEvents)
+         for (auto newEvent : result->newEvents)
           {
                  scheduler.AddEvent(newEvent);
           }
 
 
-         for (auto packet : result.packetToSend)
+         for (auto packet : result->packetToSend)
          {
                 MTHeader outgoing = MTheader();
                 //recreate Header for outgoing

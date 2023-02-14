@@ -27,15 +27,15 @@ SendIfPossible::IsValidEvent(MTEvent e)
     return true;
 }
 
-EventProcessorOutput SendIfPossible::Process(MTEvent e, MTContext c){
+EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     //I call mt->SendPack here
     MTContext newContext = c;
     std::vector<MTEvent> newEvents;
     Packet P = Packet();
     std::vector<Packet> packetTobeSend;
     packetTobeSend.emplace_back(P);
-    EventProcessorOutput {newEvents,newContext,packetTobeSend};
-    return std::pair<newEvents, newContext>;
+    EventProcessorOutput* Output=new EventProcessorOutput(newEvents,newContext,packetTobeSend);
+    return Output;
     //store packets to send as vector in class
     //call get packet to retrieve it later, and clear vector in class, use temp vector
 }
