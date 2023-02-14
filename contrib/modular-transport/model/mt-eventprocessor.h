@@ -14,11 +14,7 @@ class Packet;
 /**
  * \brief The base class for event processor. This is virtual class.
  */
-struct EventProcessorOutput{
-     std::vector<MTEvent> newEvents;
-     MTContext updatedContext;
-     std::vector<Packet> packetToSend;
- };
+struct EventProcessorOutput;
 class MTEventProcessor
 {
 public:

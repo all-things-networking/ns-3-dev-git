@@ -13,7 +13,7 @@ class MTScheduler{
     virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent GetNextEvent();
-    virtual MTEvent AddEvent(MTEvent);
+    virtual void AddEvent(MTEvent);
     virtual MTEvent CreateSendEvent(int, long);
     virtual bool isEmpty();
 };

@@ -11,6 +11,11 @@ namespace ns3
 
 class Packet;
 class ModularTransport;
+struct EventProcessorOutput{
+     std::vector<MTEvent> newEvents;
+     MTContext updatedContext;
+     std::vector<Packet> packetToSend;
+ };
 //Send if possible, mine
 SendIfPossible::SendIfPossible():
 MTEventProcessor()
