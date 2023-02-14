@@ -67,7 +67,7 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
          MTEvent e = scheduler.GetNextEvent();
          MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
-         EventProcessorOutput result = ep->Process(e, ctx);
+         EventProcessorOutput* result = ep->Process(e, ctx);
          for (auto newEvent : result->newEvents)
           {
                  scheduler.AddEvent(newEvent);
