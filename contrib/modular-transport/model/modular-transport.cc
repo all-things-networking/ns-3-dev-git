@@ -76,9 +76,9 @@ void ModularTransport::Mainloop(MTScheduler scheduler){
 
          for (auto packet : result->packetToSend)
          {
-                MTHeader outgoing = MTheader();
+                MTHeader outgoing;
                 //recreate Header for outgoing
-                this->SendPacket(packet, outgoing, ctx.saddr, ctx.daddr);
+                this->SendPacket(&packet, outgoing, ctx.saddr, ctx.daddr);
          }
 
 

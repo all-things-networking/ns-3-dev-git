@@ -19,7 +19,6 @@ MTEventProcessor()
 bool
 SendIfPossible::IsValidEvent(MTEvent e)
 {
-    MTEvent* ePtr = &e;
     return true;
 }
 
@@ -32,8 +31,8 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     packetTobeSend.emplace_back(P);
     EventProcessorOutput* Output;
     Output->newEvents=newEvents;
-    Output->updatedContext=newContext;
-    Output->packetTobeSend=packetTobeSend;
+    Output->updatedContext=&newContext;
+    Output->packetToSend=packetTobeSend;
     return Output;
     //store packets to send as vector in class
     //call get packet to retrieve it later, and clear vector in class, use temp vector
