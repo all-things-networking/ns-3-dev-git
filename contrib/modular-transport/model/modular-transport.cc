@@ -174,8 +174,8 @@ ModularTransport::Receive(Ptr<Packet> packet,
 {
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
-    chosenScheduler.OpsAfterRecieved(recievedHeader);
-    chosenScheduler.GenerateAndAddEventOnReceive(recievedHeader);
+    //chosenScheduler.OpsAfterRecieved(recievedHeader);
+    //chosenScheduler.GenerateEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
 
