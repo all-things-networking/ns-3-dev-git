@@ -9,6 +9,13 @@ MTEvent TCPscheduler::CreateSendEvent(int flow_id, long time){
     return send;
 }
 void TCPscheduler::AddEvent(MTEvent newEvent){
-    this->myqueue.emplace_back(newEvent);
+    this->myqueue.push(newEvent);
+}
+bool TCPscheduler::isEmpty(){
+    return this->myqueue.empty();
+}
+MTEvent TCPscheduler::GetNextEvent(){
+    MTEvent next = this->myqueue.pop();
+    return next;
 }
 }

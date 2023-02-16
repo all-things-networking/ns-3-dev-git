@@ -10,8 +10,8 @@ class MTScheduler{
     MTScheduler();
     // virtual void OpsBeforeSend(); // Compute Hash
    // virtual void OpsAfterRecieved(); //Verify Hash, then return a event
-    virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
-    virtual MTEvent GenerateEventOnInitate(MTHeader);
+    //virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
+    //virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent GetNextEvent();
     virtual void AddEvent(MTEvent);
     virtual MTEvent CreateSendEvent(int, long);
