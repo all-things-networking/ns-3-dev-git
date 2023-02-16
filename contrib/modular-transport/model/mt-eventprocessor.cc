@@ -11,7 +11,9 @@ namespace ns3
 
 class Packet;
 class ModularTransport;
+MTEventProcessor::MTEventProcessor(){
 
+}
 //Send if possible, mine
 SendIfPossible::SendIfPossible():
 MTEventProcessor()
