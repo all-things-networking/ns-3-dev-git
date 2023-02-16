@@ -169,8 +169,8 @@ ModularTransport::SendPacket(Ptr<Packet> packet,
 enum IpL4Protocol::RxStatus
 ModularTransport::Receive(Ptr<Packet> packet,
                           const Ipv4Header& incomingIpHeader,
-                          Ptr<Ipv4Interface> incomingInterface,
-                          MTScheduler chosenScheduler)
+                          Ptr<Ipv4Interface> incomingInterface)
+                          //MTScheduler chosenScheduler)
 {
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
