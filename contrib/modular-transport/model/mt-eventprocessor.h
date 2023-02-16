@@ -11,6 +11,11 @@ namespace ns3
 class MTEvent;
 class MTContext;
 class Packet;
+struct EventProcessorOutput{
+     std::vector<MTEvent> newEvents;
+     MTContext* updatedContext;
+     std::vector<Packet> packetToSend;
+ };
 /**
  * \brief The base class for event processor. This is virtual class.
  */
