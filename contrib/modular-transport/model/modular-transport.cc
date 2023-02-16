@@ -59,7 +59,7 @@ void ModularTransport::Start(
      scheduler.AddEvent(e);
      Mainloop(scheduler);
 }
-void ModularTransport::Mainloop(MTScheduler scheduler){
+void ModularTransport::Mainloop(MTScheduler* scheduler){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
