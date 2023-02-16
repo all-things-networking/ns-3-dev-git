@@ -64,8 +64,8 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
        // that calls the different components of our model
        // to process events
     TCPDispatcher dispatcher = TCPDispatcher();
-    while (!scheduler.isEmpty()){
-         MTEvent e = scheduler.GetNextEvent();
+    while (!scheduler->isEmpty()){
+         MTEvent e = scheduler->GetNextEvent();
          MTEventProcessor* ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
