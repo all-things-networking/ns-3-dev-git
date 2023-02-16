@@ -71,7 +71,7 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
          EventProcessorOutput* result = ep->Process(e, ctx);
          for (auto newEvent : result->newEvents)
           {
-                 scheduler.AddEvent(newEvent);
+                 scheduler->AddEvent(newEvent);
           }
 
 
