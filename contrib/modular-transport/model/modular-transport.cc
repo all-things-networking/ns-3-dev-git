@@ -173,6 +173,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
                           Ptr<Ipv4Interface> incomingInterface)
                           //MTScheduler chosenScheduler)
 {
+    NS_LOG_UNCOND("inside received");
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
     //chosenScheduler.OpsAfterRecieved(recievedHeader);
