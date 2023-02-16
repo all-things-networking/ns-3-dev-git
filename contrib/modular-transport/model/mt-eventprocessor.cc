@@ -31,8 +31,8 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     Packet P = Packet();
     std::vector<Packet> packetTobeSend;
     packetTobeSend.emplace_back(P);
-    EventProcessorOutput* Output = &{newEvents,&newContext,packetTobeSend};
-    return Output;
+    EventProcessorOutput Output = &newEvents,&newContext,packetTobeSend};
+    return &Output;
     //store packets to send as vector in class
     //call get packet to retrieve it later, and clear vector in class, use temp vector
 }
