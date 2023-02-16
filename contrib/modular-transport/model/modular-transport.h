@@ -68,7 +68,8 @@ class ModularTransport: public IpL4Protocol
     // From IpL4Protocol
     enum IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
                                         const Ipv4Header& incomingIpHeader,
-                                        Ptr<Ipv4Interface> incomingInterface) override;
+                                        Ptr<Ipv4Interface> incomingInterface,
+                                        MTScheduler chosenScheduler) override;
     enum IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
                                         const Ipv6Header& incomingIpHeader,
                                         Ptr<Ipv6Interface> incomingInterface) override;
