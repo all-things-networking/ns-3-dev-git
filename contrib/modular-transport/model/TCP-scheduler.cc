@@ -15,7 +15,8 @@ bool TCPscheduler::isEmpty(){
     return this->myqueue.empty();
 }
 MTEvent TCPscheduler::GetNextEvent(){
-    MTEvent next = this->myqueue.pop();
+    MTEvent next = this->myqueue.front();
+    this->myqueue.pop();
     return next;
 }
 }
