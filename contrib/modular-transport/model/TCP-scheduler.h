@@ -1,6 +1,7 @@
 #ifndef MT_TCP_SCHEDULER_H
 #define MT_TCP_SCHEDULER_H
 #include "mt-scheduler.h"
+#include <queue>
 namespace ns3{
 class MTScheduler;
 class MTEvent;
