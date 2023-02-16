@@ -57,7 +57,7 @@ void ModularTransport::Start(
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent e = scheduler.CreateSendEvent(flow_id, time);
      scheduler.AddEvent(e);
-     Mainloop(scheduler);
+     Mainloop(&scheduler);
 }
 void ModularTransport::Mainloop(MTScheduler* scheduler){
     // This is the main loop of the transport layer
