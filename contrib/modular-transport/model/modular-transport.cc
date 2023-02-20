@@ -46,10 +46,10 @@ void ModularTransport::Start(
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
-    MTContext context = TcpContext(flow_id);//Change to MTContext
+    auto context = TcpContext(flow_id);//Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
-    int*data [1000];
+    int data [1000];
     for(int i=0;i<1000;i++){
         data[i]=i;
     }

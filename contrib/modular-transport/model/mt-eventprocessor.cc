@@ -33,7 +33,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     //New Packets
 
     std::vector<Packet> packetTobeSend;
-    Packet P = Packet(c->data, 4);
+    Packet P = Packet(c.data, 4);
     packetTobeSend.emplace_back(P);
 
     //Output
