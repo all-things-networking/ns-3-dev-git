@@ -8,7 +8,8 @@ MTContext::MTContext(){
 
 }
 TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
-    : m_Una{0},
+    : data{NULL},
+      m_Una{0},
       m_Nxt{0},
       m_Wnd{4096},
       m_Iss{0},

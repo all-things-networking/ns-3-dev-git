@@ -49,9 +49,13 @@ void ModularTransport::Start(
     MTContext context = TcpContext(flow_id);//Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
+    int*data [1000];
+    for(int i=0;i<1000;i++){
+        data[i]=i;
+    }
+    context.data = data;
     table.Write(flow_id, context);
     auto scheduler = TCPscheduler();
-
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
@@ -70,11 +74,9 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
          MTContext ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
          for (auto newEvent : result->newEvents)
-          {
+         {
                  scheduler->AddEvent(newEvent);
-          }
-
-
+         }
          for (auto packet : result->packetToSend)
          {
                 MTHeader outgoing;
