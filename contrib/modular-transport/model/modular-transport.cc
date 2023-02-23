@@ -180,7 +180,10 @@ ModularTransport::Receive(Ptr<Packet> packet,
     packet->RemoveHeader(recievedHeader);
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     int size = packet->CopyData(buffer, packet->GetSize());
-    NS_LOG_UNCOND("Received:"<<size<<" "<<buffer[0]);
+    NS_LOG_UNCOND("Received: size"<<size<<" ");
+    for(int i=0;i<packet->GetSize();i++){
+        std::cout<<unsigned(buffer[i])<<std::endl;
+    }
     //chosenScheduler.OpsAfterRecieved(recievedHeader);
     //chosenScheduler.GenerateEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
