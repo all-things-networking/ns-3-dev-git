@@ -7,6 +7,7 @@
 #include "TCP-dispatcher.h"
 #include "TCP-eventprocessor.h"
 #include "TCP-context.h"
+#include "TCP-event.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"

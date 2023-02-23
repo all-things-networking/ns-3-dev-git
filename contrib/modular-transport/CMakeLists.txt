@@ -20,6 +20,7 @@ build_lib(
                  model/mt-header.cc
                  model/mt-state.cc
                  model/TCP-context.cc
+                 model/TCP-event.cc
                  model/TCP-dispatcher.cc
                  model/TCP-eventprocessor.cc
                  model/TCP-header.cc
@@ -35,6 +36,7 @@ build_lib(
                  model/mt-header.h
                  model/mt-state.h
                  model/TCP-context.h
+                 model/TCP-event.h
                  model/TCP-dispatcher.h
                  model/TCP-eventprocessor.h
                  model/TCP-header.h

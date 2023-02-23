@@ -9,11 +9,5 @@ class MTEvent{
     MTEvent();
     MTEvent(long time, int flow_id);
 };
-
-class SendEvent: public MTEvent{
-    public:
-    SendEvent();
-    SendEvent(long time, int flow_id);
-};
 }
 #endif
