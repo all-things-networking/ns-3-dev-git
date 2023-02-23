@@ -203,7 +203,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
         Packet P = Packet();
         MTHeader outgoing;
         //recreate Header for outgoing
-        this->SendPacket(&packet, outgoing, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
+        this->SendPacket(packet, outgoing, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
     }
     return IpL4Protocol::RX_OK;
 }
