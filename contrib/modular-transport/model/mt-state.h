@@ -25,6 +25,7 @@ public:
     ns3::Ipv4Address saddr;
     ns3::Ipv4Address daddr;
     MTContext();
+    virtual ~MTContext();
 
 };
 /**

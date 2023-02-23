@@ -7,6 +7,8 @@ namespace ns3
 MTContext::MTContext(){
 
 }
+MTContext::~MTContext(){
+}
 TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
     : data{NULL},
       m_Una{0},
@@ -22,6 +24,7 @@ TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
       m_dupThreshold{3}
 {
 }
+TcpContext::~TcpContext(){}
 MTState::MTState(){}
 MTState::MTState(ModularTransport* mt)
     : m_library{std::map<int, MTContext*>()},
