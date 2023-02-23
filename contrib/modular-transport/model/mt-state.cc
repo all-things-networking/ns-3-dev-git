@@ -5,11 +5,6 @@
 
 namespace ns3
 {
-MTContext::MTContext(){
-
-}
-MTContext::~MTContext(){
-}
 MTState::MTState(){}
 MTState::MTState(ModularTransport* mt)
     : m_library{std::map<int, MTContext*>()},
