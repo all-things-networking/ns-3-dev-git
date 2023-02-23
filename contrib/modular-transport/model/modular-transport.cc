@@ -10,6 +10,7 @@
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
+#include "mt-context.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 

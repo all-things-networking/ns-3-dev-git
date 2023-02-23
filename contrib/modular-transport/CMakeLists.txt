@@ -14,6 +14,7 @@ build_lib(
     LIBNAME modular-transport
     SOURCE_FILES model/modular-transport.cc
                  helper/modular-transport-helper.cc
+                 model/mt-context.cc
                  model/mt-eventprocessor.cc
                  model/mt-event.cc
                  model/mt-header.cc
@@ -26,6 +27,7 @@ build_lib(
 
     HEADER_FILES model/modular-transport.h
                  helper/modular-transport-helper.h
+                 model/mt-context.h
                  model/mt-dispatcher.h
                  model/mt-event.h
                  model/mt-eventprocessor.h

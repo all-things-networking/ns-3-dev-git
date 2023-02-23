@@ -4,7 +4,7 @@
 #include <ctime> // std::time_t
 #include <map>
 #include "ns3/ipv4-address.h"
-
+#include "mt-context.h"
 namespace ns3
 {
 class ModularTransport;
@@ -12,21 +12,7 @@ class ModularTransport;
 /**
  * \brief The class indicate phase in congestion control algorithms.
 */
-class MTContext{
-public:
-    ns3::Ipv4Address saddr;
-    ns3::Ipv4Address daddr;
-    MTContext();
-    virtual ~MTContext();
-
-};
-
-/**
- * \brief The class for maintaing the state variables for ALL Mt connections.
- *
- * Currently all contexts are stored on stack.
- * TODO: may move the data storage to heap using alloc or smart pointer.
- */
+class MTContext;
 class MTState
 {
 public:
