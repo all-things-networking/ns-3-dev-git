@@ -54,7 +54,7 @@ void ModularTransport::Start(
         data[i]=i;
     }
     context.data = data;
-    table.Write(flow_id, context);
+    table.Write(flow_id, &context);
     auto scheduler = TCPscheduler();
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
@@ -71,7 +71,7 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
     while (!scheduler->isEmpty()){
          MTEvent e = scheduler->GetNextEvent();
          MTEventProcessor* ep = dispatcher.dispatch(e);
-         MTContext ctx = this->table.GetVal(e.flow_id);
+         MTContext* ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
          for (auto newEvent : result->newEvents)
          {

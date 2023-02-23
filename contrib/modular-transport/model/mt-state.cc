@@ -24,23 +24,24 @@ TcpContext::TcpContext(int tcpId)//, uint32_t timer_duration)
 }
 MTState::MTState(){}
 MTState::MTState(ModularTransport* mt)
-    : m_library{std::map<int, MTContext>()},
+    : m_library{std::map<int, MTContext*>()},
       m_mt{mt}
 {
 }
 
-MTContext
+MTContext*
 MTState::GetVal(int id)
 {
     if (this->m_library.find(id) == this->m_library.end())
     {
-        return MTContext();
+        auto newContext = new MTContext();
+        return &newContext;
     }
     return this->m_library[id];
 }
 
 void
-MTState::Write(int id, MTContext data)
+MTState::Write(int id, MTContext* data)
 {
     this->m_library[id] = data;
 }
