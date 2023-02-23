@@ -35,7 +35,7 @@ MTState::GetVal(int id)
     if (this->m_library.find(id) == this->m_library.end())
     {
         auto newContext = new MTContext();
-        return &newContext;
+        return newContext;
     }
     return this->m_library[id];
 }

@@ -81,7 +81,7 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
          {
                 MTHeader outgoing;
                 //recreate Header for outgoing
-                this->SendPacket(&packet, outgoing, ctx.saddr, ctx.daddr);
+                this->SendPacket(&packet, outgoing, ctx->saddr, ctx->daddr);
          }
 
 
