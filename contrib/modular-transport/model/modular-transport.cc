@@ -194,7 +194,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
 
     NS_LOG_UNCOND("Received packet in ModularTransport");
-    if(size == 0){
+    if(incomingIpHeader.GetSource() == "10.0.0.2"){
         NS_LOG_UNCOND("Ack recevied from");
         NS_LOG_UNCOND(incomingIpHeader.GetSource());
     }
