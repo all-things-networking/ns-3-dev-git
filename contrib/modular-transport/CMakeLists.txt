@@ -20,6 +20,7 @@ build_lib(
                  model/mt-state.cc
                  model/TCP-context.cc
                  model/TCP-dispatcher.cc
+                 model/TCP-eventprocessor.cc
                  model/TCP-header.cc
                  model/TCP-scheduler.cc
 
@@ -33,6 +34,7 @@ build_lib(
                  model/mt-state.h
                  model/TCP-context.h
                  model/TCP-dispatcher.h
+                 model/TCP-eventprocessor.h
                  model/TCP-header.h
                  model/TCP-scheduler.h
     LIBRARIES_TO_LINK ${libinternet}
