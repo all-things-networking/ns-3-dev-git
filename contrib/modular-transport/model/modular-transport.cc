@@ -179,9 +179,9 @@ ModularTransport::Receive(Ptr<Packet> packet,
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
     uint8_t *buffer = new uint8_t[packet->GetSize()];
-    size = packet->CopyData(buffer, packet->GetSize());
+    int size = packet->CopyData(buffer, packet->GetSize());
     string s = string(buffer, buffer+packet->GetSize());
-    cout<<"Received:"<<s<<endl;
+    NS_LOG_UNCOND("Received:"<<s);
     //chosenScheduler.OpsAfterRecieved(recievedHeader);
     //chosenScheduler.GenerateEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
