@@ -49,8 +49,8 @@ void ModularTransport::Start(
     auto context = TcpContext(flow_id);//Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
-    int data [1000];
-    for(int i=0;i<1000;i++){
+    uint8_t data [128];
+    for(int i=0;i<128;i++){
         data[i]=i;
     }
     context.data = data;

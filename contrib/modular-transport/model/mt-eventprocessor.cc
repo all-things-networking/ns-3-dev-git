@@ -26,20 +26,20 @@ SendIfPossible::IsValidEvent(MTEvent e)
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     //I call mt->SendPack here
-    auto newContext = c;
+    auto newContext = &c;
     //A
     std::vector<MTEvent> newEvents;
 
     //New Packets
-
+    //Add window
     std::vector<Packet> packetTobeSend;
-    Packet P = Packet(newContext.data, 4);
+    Packet P = Packet(newContext->data, 4);
     packetTobeSend.emplace_back(P);
 
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
-    Output->updatedContext=&newContext;
+    Output->updatedContext=newContext;
     Output->packetToSend=packetTobeSend;
     return Output;
     //store packets to send as vector in class
