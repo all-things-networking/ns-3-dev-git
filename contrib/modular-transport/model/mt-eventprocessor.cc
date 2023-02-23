@@ -26,7 +26,7 @@ SendIfPossible::IsValidEvent(MTEvent e)
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     //I call mt->SendPack here
-    TcpContext* newContext = dynamic_cast<TcpContext*>(&c);
+    TcpContext newContext = dynamic_cast<TcpContext>(c);
     //A
     std::vector<MTEvent> newEvents;
 
@@ -39,7 +39,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
-    Output->updatedContext=newContext;
+    Output->updatedContext=&newContext;
     Output->packetToSend=packetTobeSend;
     return Output;
     //store packets to send as vector in class
