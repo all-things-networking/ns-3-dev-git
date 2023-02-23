@@ -36,6 +36,7 @@ class TcpContext: public MTContext
 {
 public:
     TcpContext(int tcpId);
+    ~TcpContext();
     // rfc9293 - Sec 3.3.1
     uint8_t* data;
     uint32_t m_Una;           // send unacknowledged
