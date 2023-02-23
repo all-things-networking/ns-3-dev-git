@@ -194,6 +194,17 @@ ModularTransport::Receive(Ptr<Packet> packet,
     NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
 
     NS_LOG_UNCOND("Received packet in ModularTransport");
+    if(size == 0){
+        NS_LOG_UNCOND("Ack recevied from");
+        NS_LOG_UNCOND(recievedHeader.GetSource());
+    }
+    else{
+        NS_LOG_UNCOND("Sending back Ack");
+        Packet P = Packet();
+        MTHeader outgoing;
+        //recreate Header for outgoing
+        this->SendPacket(&packet, outgoing, recievedHeader.GetDestination(), recievedHeader.GetSource());
+    }
     return IpL4Protocol::RX_OK;
 }
 
