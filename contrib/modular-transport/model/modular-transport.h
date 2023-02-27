@@ -4,9 +4,7 @@
 #include "mt-state.h"
 #include "mt-header.h"
 #include "TCP-header.h"
-
 #include "ns3/ip-l4-protocol.h"
-
 #include "ns3/ipv4-address.h"
 #include "ns3/ipv6-address.h"
 #include "ns3/sequence-number.h"
@@ -22,7 +20,6 @@ class MTContext;
 class ModularTransport: public IpL4Protocol
 {
   public:
-
     /**
      * \brief Get the type ID.
      * \return the object TypeId
