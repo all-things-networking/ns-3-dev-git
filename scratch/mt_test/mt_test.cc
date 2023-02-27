@@ -80,8 +80,8 @@ main (int argc, char *argv[])
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
-    transport.SetScheduler(scheduler);
-    transport.SetDispatcher(dispatcher);
+    transport->SetScheduler(scheduler);
+    transport->SetDispatcher(dispatcher);
     node->AggregateObject(transport);
   }
 
