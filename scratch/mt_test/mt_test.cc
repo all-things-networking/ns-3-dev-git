@@ -23,6 +23,7 @@
 #include "ns3/TCP-dispatcher.h"
 #include "ns3/TCP-scheduler.h"
 #include "ns3/TCP-context.h"
+#include "ns3/TCP-header.h"
 
 using namespace ns3;
 
