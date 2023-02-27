@@ -20,7 +20,7 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
 #include "ns3/modular-transport.h"
-#include "ns3/TCP-dispacher.h"
+#include "ns3/TCP-dispatcher.h"
 #include "ns3/TCP-scheduler.h"
 #include "ns3/TCP-context.h"
 
