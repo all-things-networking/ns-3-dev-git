@@ -78,7 +78,7 @@ main (int argc, char *argv[])
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
     //TODO:create private memebers
     MTDispatcher* dispatcher =new TCPDispatcher();
-    MTScheduler* sheduler =new TCPScheduler();
+    MTScheduler* scheduler =new TCPScheduler();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>
     ("scheduler",scheduler, "dispachter",dispatcher);
     node->AggregateObject(transport);
@@ -123,7 +123,8 @@ main (int argc, char *argv[])
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"just to make sure it's my branch"<<std::endl;
-  auto context = TcpContext(flow_id);//Change to MTContext
+  int flow_id=1; //flow_id here should be same
+  auto context = TcpContext(flow_id);
   context.saddr = saddr;
   context.daddr = daddr;
   uint8_t data [128];
