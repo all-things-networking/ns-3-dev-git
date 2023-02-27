@@ -24,11 +24,11 @@ class MTContext;
  * \brief The class for maintaing the state variables for ONE Mt connections.
  */
 // TCP context
-class TcpContext: public MTContext
+class TCPContext: public MTContext
 {
 public:
-    TcpContext(int tcpId);
-    ~TcpContext();
+    TCPContext(int tcpId);
+    ~TCPContext();
     // rfc9293 - Sec 3.3.1
     uint8_t* data;
     uint32_t m_Una;           // send unacknowledged

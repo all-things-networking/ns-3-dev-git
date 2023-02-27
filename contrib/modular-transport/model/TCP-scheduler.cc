@@ -2,20 +2,20 @@
 #include "mt-event.h"
 #include "TCP-event.h"
 namespace ns3{
-TCPscheduler::TCPscheduler(){
+TCPScheduler::TCPScheduler(){
 
 }
 MTEvent TCPscheduler::CreateSendEvent(int flow_id, long time){
     MTEvent send = SendEvent(flow_id, time);
     return send;
 }
-void TCPscheduler::AddEvent(MTEvent newEvent){
+void TCPScheduler::AddEvent(MTEvent newEvent){
     this->myqueue.push(newEvent);
 }
-bool TCPscheduler::isEmpty(){
+bool TCPScheduler::isEmpty(){
     return this->myqueue.empty();
 }
-MTEvent TCPscheduler::GetNextEvent(){
+MTEvent TCPScheduler::GetNextEvent(){
     MTEvent next = this->myqueue.front();
     this->myqueue.pop();
     return next;
