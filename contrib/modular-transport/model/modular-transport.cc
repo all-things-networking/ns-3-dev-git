@@ -12,6 +12,7 @@
 #include "mt-event.h"
 #include "mt-state.h"
 #include "mt-context.h"
+#include "mt-dispatcher.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -32,9 +33,11 @@ ModularTransport::GetTypeId()
     return tid;
 }
 
-ModularTransport::ModularTransport()
+ModularTransport::ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher)
 {
     this->table =  MTState(this);
+    this->scheduler = scheduler;
+    this->dispatcher = dispatcher;
     NS_LOG_FUNCTION(this);
 }
 
@@ -44,43 +47,34 @@ ModularTransport::~ModularTransport()
 }
 void ModularTransport::Start(
                              const Ipv4Address& saddr,
-                             const Ipv4Address& daddr){
+                             const Ipv4Address& daddr,
+                             MTContext* StartContext){
     // initiate a flow by adding its state/context to the state table.
     // pick a constant for flow id. Context can include anything you need
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
-    auto context = TcpContext(flow_id);//Change to MTContext
-    context.saddr = saddr;
-    context.daddr = daddr;
-    uint8_t data [128];
-    for(int i=0;i<128;i++){
-        data[i]=i;
-    }
-    context.data = data;
-    table.Write(flow_id, &context);
-    auto scheduler = TCPscheduler();
+    table.Write(flow_id, StartContext);
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
-     MTEvent e = scheduler.CreateSendEvent(flow_id, time);
-     scheduler.AddEvent(e);
-     Mainloop(&scheduler);
+     MTEvent e = this->scheduler->CreateSendEvent(flow_id, time);
+     this->scheduler->AddEvent(e);
+     Mainloop();
 }
-void ModularTransport::Mainloop(MTScheduler* scheduler){
+void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-    TCPDispatcher dispatcher = TCPDispatcher();
-    while (!scheduler->isEmpty()){
-         MTEvent e = scheduler->GetNextEvent();
-         MTEventProcessor* ep = dispatcher.dispatch(e);
+    while (!this->scheduler->isEmpty()){
+         MTEvent e = this->scheduler->GetNextEvent();
+         MTEventProcessor* ep = this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
          for (auto newEvent : result->newEvents)
          {
-                 scheduler->AddEvent(newEvent);
+                 this->scheduler->AddEvent(newEvent);
          }
          for (auto packet : result->packetToSend)
          {

@@ -33,7 +33,6 @@ public:
      */
     virtual EventProcessorOutput* Process(MTEvent e, MTContext* c) = 0;
 
-
     /**
      * \brief Check if the input event is valid event type for the processor.
      * \param e The input event to be processed.

@@ -73,7 +73,10 @@ main (int argc, char *argv[])
     arp->SetTrafficControl(tc);
 
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
-    Ptr<ModularTransport> transport = CreateObject<ModularTransport>();
+    //TODO:create private memebers
+    MTDispatcher* dispatcher =new TCPDispatcher();
+    MTScheduler* sheduler =new TCPScheduler();
+    Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler, dispatcher);
     node->AggregateObject(transport);
   }
 
@@ -116,7 +119,15 @@ main (int argc, char *argv[])
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"just to make sure it's my branch"<<std::endl;
-  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr);
+  auto context = TcpContext(flow_id);//Change to MTContext
+  context.saddr = saddr;
+  context.daddr = daddr;
+  uint8_t data [128];
+  for(int i=0;i<128;i++){
+      data[i]=i;
+  }
+  context.data = data;
+  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
 
   Simulator::Run ();
   Simulator::Destroy ();

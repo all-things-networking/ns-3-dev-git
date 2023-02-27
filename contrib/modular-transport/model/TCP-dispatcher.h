@@ -8,8 +8,8 @@ class MTEventProcessor;
 class MTDispatcher;
 class TCPDispatcher:public MTDispatcher{
     public:
-    TCPDispatcher();
-    MTEventProcessor* dispatch(MTEvent);
+        TCPDispatcher();
+        MTEventProcessor* dispatch(MTEvent);
 };
 }
 #endif

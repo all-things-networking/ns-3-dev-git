@@ -5,6 +5,7 @@ namespace ns3
 class MTEvent;
 class MTEventProcessor;
 class MTDispatcher{
+    public:
     virtual MTEventProcessor* dispatch(MTEvent)=0;//map event to processor
 };
 }

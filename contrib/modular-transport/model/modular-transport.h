@@ -4,6 +4,7 @@
 #include "mt-state.h"
 #include "mt-header.h"
 #include "TCP-header.h"
+
 #include "ns3/ip-l4-protocol.h"
 
 #include "ns3/ipv4-address.h"
@@ -16,18 +17,20 @@ namespace ns3
 class Node;
 class MTState;
 class MTScheduler;
+class MTDispatcher;
+class MTContext;
 class ModularTransport: public IpL4Protocol
 {
   public:
-    MTState table;
+
     /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
     static TypeId GetTypeId();
     static const uint8_t PROT_NUMBER = 0xcc; //!< protocol number (0xcc)
-
-    ModularTransport();
+    ModularTransport(){}
+    ModularTransport(MTScheduler*, MTDispatcher*);
     ~ModularTransport() override;
 
     // Delete copy constructor and assignment operator to avoid misuse
@@ -41,11 +44,12 @@ class ModularTransport: public IpL4Protocol
     */
     void Start(
                const Ipv4Address& saddr,
-               const Ipv4Address& daddr);
+               const Ipv4Address& daddr,
+               MTContext* StartContext);
     /**
     main of simulation
     */
-    void Mainloop(MTScheduler* scheduler);
+    void Mainloop();
     /**
      * Set node associated with this stack
      * \param node the node
@@ -112,6 +116,12 @@ class ModularTransport: public IpL4Protocol
     void NotifyNewAggregate() override;
 
   private:
+    //scheduler
+    //dispatcher
+    //context
+    MTState table;
+    MTScheduler* scheduler;
+    MTDispatcher* dispatcher;
     Ptr<Node> m_node;                                //!< the node this stack is associated with
     IpL4Protocol::DownTargetCallback m_downTarget;   //!< Callback to send packets over IPv4
     IpL4Protocol::DownTargetCallback6 m_downTarget6; //!< Callback to send packets over IPv6
