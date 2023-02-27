@@ -47,6 +47,19 @@ class ModularTransport: public IpL4Protocol
     main of simulation
     */
     void Mainloop();
+
+    /**
+     * Set Dispatcher associated with this stack
+     * \param node the node
+     */
+    void SetDispatcher(MTDispatcher*);
+
+    /**
+     * Set Scheduler associated with this stack
+     * \param node the node
+     */
+    void SetScheduler(MTScheduler*);
+
     /**
      * Set node associated with this stack
      * \param node the node

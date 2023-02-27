@@ -109,6 +109,12 @@ ModularTransport::SetNode(Ptr<Node> node)
     m_node = node;
 }
 
+void ModularTransport::SetScheduler(MTScheduler* scheduler){
+    this->scheduler=scheduler;
+}
+void ModularTransport::SetDispatcher(MTDispatcher* dispatcher){
+    this->dispatcher=dispatcher;
+}
 void
 ModularTransport::NotifyNewAggregate()
 {

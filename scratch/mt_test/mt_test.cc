@@ -79,8 +79,9 @@ main (int argc, char *argv[])
     //TODO:create private memebers
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
-    Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>
-    ("scheduler",scheduler, "dispachter",dispatcher);
+    Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
+    transport.SetScheduler(scheduler);
+    transport.SetDispatcher(dispatcher);
     node->AggregateObject(transport);
   }
 
