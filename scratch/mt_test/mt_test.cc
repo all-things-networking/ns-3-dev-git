@@ -124,7 +124,7 @@ main (int argc, char *argv[])
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"just to make sure it's my branch"<<std::endl;
   int flow_id=1; //flow_id here should be same
-  auto context = TCPContext(flow_id);
+  MTContext* context =new TCPContext(flow_id);
   context.saddr = saddr;
   context.daddr = daddr;
   uint8_t data [128];
