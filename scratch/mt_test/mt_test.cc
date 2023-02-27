@@ -125,13 +125,13 @@ main (int argc, char *argv[])
   std::cout<<"just to make sure it's my branch"<<std::endl;
   int flow_id=1; //flow_id here should be same
   MTContext* context =new TCPContext(flow_id);
-  context.saddr = saddr;
-  context.daddr = daddr;
+  context->saddr = saddr;
+  context->daddr = daddr;
   uint8_t data [128];
   for(int i=0;i<128;i++){
       data[i]=i;
   }
-  context.data = data;
+  context->data = data;
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
 
   Simulator::Run ();
