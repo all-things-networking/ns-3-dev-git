@@ -85,7 +85,7 @@ public:
 class AckHandler: public MTEventProcessor{
     EventProcessorOutput* Process(MTEvent e, MTContext* c);
     bool IsValidEvent(MTEvent e);
-}
+};
 
 } // namespace ns3
 

@@ -35,9 +35,9 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
     //Add window
     std::vector<Packet> packetTobeSend;
 
-    for(; newContext->m_Nxt < newContext->m_wnd; newContext->m_Nxt+=4){
+    for(; newContext->m_Nxt < newContext->m_Wnd; newContext->m_Nxt+=4){
         MTHeader outgoingHeader = MTTCPHeader();
-        Packet P = Packet(newContext->data+m_Nxt, 4);
+        Packet P = Packet(newContext->data+newContext->m_Nxt, 4);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
      }

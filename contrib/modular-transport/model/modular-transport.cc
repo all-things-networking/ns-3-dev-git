@@ -195,9 +195,8 @@ ModularTransport::Receive(Ptr<Packet> packet,
     else{
         NS_LOG_UNCOND("Sending back Ack");
         Packet P = Packet();
-        MTHeader outgoing;
         //recreate Header for outgoing
-        this->SendPacket(&P, outgoing, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
+        this->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
     }
     return IpL4Protocol::RX_OK;
 }

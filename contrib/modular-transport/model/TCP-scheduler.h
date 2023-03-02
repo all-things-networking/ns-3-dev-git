@@ -17,6 +17,7 @@ class TCPScheduler: public MTScheduler{
     MTEvent GetNextEvent();
     void AddEvent(MTEvent);
     MTEvent CreateSendEvent(int, long);
+    MTEvent CreateAckEvent(int, long)
     bool isEmpty();
     };
 }
