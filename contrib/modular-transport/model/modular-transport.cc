@@ -77,9 +77,8 @@ void ModularTransport::Mainloop(){
          }
          for (auto packet : result->packetToSend)
          {
-                MTHeader outgoing;
                 //recreate Header for outgoing
-                this->SendPacket(&packet, outgoing, ctx->saddr, ctx->daddr);
+                this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }
 
 

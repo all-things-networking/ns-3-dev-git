@@ -5,10 +5,14 @@ namespace ns3{
 TCPScheduler::TCPScheduler(){
 
 }
-MTEvent TCPScheduler::CreateSendEvent(int flow_id, long time, int type){
+MTEvent TCPScheduler::CreateSendEvent(int flow_id, long time){
     //#Add type here?
     MTEvent send = SendEvent(flow_id, time);
     return send;
+}
+MTEvent TCPScheduler::CreateActEvent(int flow_id, int seq){
+    MTEvent ack = AckEvent(flow_id, seq);
+    return ack;
 }
 void TCPScheduler::AddEvent(MTEvent newEvent){
     this->myqueue.push(newEvent);
