@@ -1,11 +1,13 @@
-#include "mt-eventprocessor.h"
-#include "mt-state.h"
-#include "mt-event.h"
+#include "../mt-eventprocessor.h"
+#include "../mt-state.h"
+#include "../mt-event.h"
 #include <vector>
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
+#include "../QUIC-Context.h"
+#include "QUIC-SendIfPossible.h"
 namespace ns3
 {
 
@@ -13,22 +15,20 @@ namespace ns3
 
 class Packet;
 class ModularTransport;
-MTEventProcessor::MTEventProcessor(){
 
-}
 //Send if possible, mine
-SendIfPossible::SendIfPossible():
+QUICSendIfPossible::QUICSendIfPossible():
 MTEventProcessor()
 {}
 bool
-SendIfPossible::IsValidEvent(MTEvent e)
+QUICSendIfPossible::IsValidEvent(MTEvent e)
 {
     return true;
 }
 
-EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
+EventProcessorOutput* QUICSendIfPossible::Process(MTEvent e, MTContext* c){
     //I call mt->SendPack here
-    TcpContext* newContext = dynamic_cast<TcpContext*>(c);
+    QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     //A
     std::vector<MTEvent> newEvents;
 

@@ -1,7 +1,6 @@
 #ifndef QUIC_SEND_IF_POSSIBLE_H
 #define QUIC_SEND_IF_POSSIBLE_H
-#include "QUIC-Dispatcher.h"
-#include "QUIC-EventProcessor.h"
+#include "../mt-eventprocessor.h"
 
 namespace ns3
 {
@@ -12,7 +11,7 @@ class MTHeader;
 /**
  * \brief The processor handling the flow control events.
  */
-class QUICSendIfPossible: public QUICEventProcessor
+class QUICSendIfPossible: public MTEventProcessor
 {
 public:
     QUICSendIfPossible();

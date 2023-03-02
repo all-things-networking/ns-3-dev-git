@@ -4,10 +4,12 @@
 #include <ctime> // std::time_t
 #include <map>
 #include "ns3/ipv4-address.h"
-#include "../mt-context.h"
-#include "QUIC-StreamContext.h"
+#include "mt-context.h"
+#include "./QUIC-sender/QUIC-StreamContext.h"
+
 namespace ns3
 {
+    
 class QUICStreamContext;
 
 class MTContext;
@@ -20,6 +22,7 @@ class QUICContext: public MTContext
 public:
     QUICContext(int id);
     ~QUICContext();
+    uint8_t* data;
 
 private:
     std::map<int, QUICStreamContext*> quic_streams; // streams for this connection

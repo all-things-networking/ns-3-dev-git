@@ -20,9 +20,9 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
 #include "ns3/modular-transport.h"
-#include "ns3/TCP-dispatcher.h"
-#include "ns3/TCP-scheduler.h"
-#include "ns3/TCP-context.h"
+#include "ns3/QUIC-Dispatcher.h"
+#include "ns3/QUIC-Scheduler.h"
+#include "ns3/QUIC-Context.h"
 #include "ns3/TCP-header.h"
 #include "ns3/TCP-receiver.h"
 
@@ -79,8 +79,8 @@ main (int argc, char *argv[])
 
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
     //TODO:create private memebers
-    MTDispatcher* dispatcher =new TCPDispatcher();
-    MTScheduler* scheduler =new TCPScheduler();
+    MTDispatcher* dispatcher =new QUICDispatcher();
+    MTScheduler* scheduler =new QUICScheduler();
     MTReceiver* receiver = new TCPReceiver();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
     transport->SetScheduler(scheduler);
@@ -129,7 +129,7 @@ main (int argc, char *argv[])
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"just to make sure it's my branch"<<std::endl;
   int flow_id=1; //flow_id here should be same
-  auto context =new TCPContext(flow_id);
+  auto context =new QUICContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
   uint8_t data [128];
