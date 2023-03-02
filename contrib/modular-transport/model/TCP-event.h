@@ -9,5 +9,11 @@ class SendEvent: public MTEvent{
     SendEvent();
     SendEvent(long time, int flow_id);
 };
+
+class AckEvent: public MTEvent{
+    public:
+    AckEvent();
+    AckEvent(int seq, int flow_id);
+}
 }
 #endif

@@ -74,7 +74,6 @@ class ModularTransport: public IpL4Protocol
      * \param daddr The destination Ipv4Address
      */
     void SendPacket(Ptr<Packet> pkt,
-                    const MTHeader& outgoing,
                     const Ipv4Address& saddr,
                     const Ipv4Address& daddr) const;
 

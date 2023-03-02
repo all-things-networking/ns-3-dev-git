@@ -1,6 +1,8 @@
 #include "mt-eventprocessor.h"
 #include "mt-state.h"
 #include "mt-event.h"
+#include "mt-header.h"
+#include "TCP-header.h"
 #include "TCP-event.h"
 #include "TCP-eventprocessor.h"
 #include "TCP-context.h"
@@ -32,8 +34,14 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
     //New Packets
     //Add window
     std::vector<Packet> packetTobeSend;
-    Packet P = Packet(newContext->data, 4);
-    packetTobeSend.emplace_back(P);
+
+    for(; newContext->m_Nxt < newContext->m_wnd; newContext->m_Nxt+=4){
+        MTHeader outgoingHeader = MTTCPHeader();
+        Packet P = Packet(newContext->data+m_Nxt, 4);
+        P.AddHeader(outgoingHeader);
+        packetTobeSend.emplace_back(P);
+     }
+    //Create header here
 
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;

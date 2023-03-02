@@ -5,7 +5,8 @@ namespace ns3{
 TCPScheduler::TCPScheduler(){
 
 }
-MTEvent TCPScheduler::CreateSendEvent(int flow_id, long time){
+MTEvent TCPScheduler::CreateSendEvent(int flow_id, long time, int type){
+    //#Add type here?
     MTEvent send = SendEvent(flow_id, time);
     return send;
 }

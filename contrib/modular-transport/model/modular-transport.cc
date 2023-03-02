@@ -136,17 +136,11 @@ ModularTransport::NotifyNewAggregate()
 
 void
 ModularTransport::SendPacket(Ptr<Packet> packet,
-                             const MTHeader& outgoing,
                              const Ipv4Address& saddr,
                              const Ipv4Address& daddr) const
 {
     NS_LOG_FUNCTION(this << packet << saddr << daddr);
     // TODO:Use NS_LOG_LOGIC to record information about the segment/packet being sent out.
-
-    MTHeader outgoingHeader = outgoing;
-    //outgoingHeader.OpsBeforeSend();//Need a global state variable
-    packet->AddHeader(outgoingHeader);
-
     Ptr<Ipv4> ipv4 = m_node->GetObject<Ipv4>();
     if (ipv4)
     {
@@ -197,6 +191,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
     if(incomingIpHeader.GetSource() == "10.0.0.2"){
         NS_LOG_UNCOND("Ack recevied from");
         NS_LOG_UNCOND(incomingIpHeader.GetSource());
+        //#how, function from scheduler?
     }
     else{
         NS_LOG_UNCOND("Sending back Ack");
