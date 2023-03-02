@@ -78,6 +78,7 @@ void ModularTransport::Mainloop(){
          for (auto packet : result->packetToSend)
          {
                 //recreate Header for outgoing
+                std::cout<<"Sending"<<std::endl;
                 this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }
 
