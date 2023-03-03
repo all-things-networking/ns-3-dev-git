@@ -5,7 +5,7 @@ TCPscheduler::TCPscheduler(){
 
 }
 MTEvent TCPscheduler::CreateSendEvent(int flow_id, long time){
-    MTEvent send = SendEvent(flow_id, time);
+    MTEvent send;
     return send;
 }
 void TCPscheduler::AddEvent(MTEvent newEvent){

@@ -3,6 +3,7 @@
 #include "modular-transport.h"
 #include "mt-eventprocessor.h"
 #include "mt-dispatcher.h"
+#include "QUIC-dispatcher.h"
 #include "TCP-scheduler.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
@@ -63,12 +64,17 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-    TCPDispatcher dispatcher = TCPDispatcher();
+    QUICDispatcher dispatcher = QUICDispatcher();
     while (!scheduler->isEmpty()){
          MTEvent e = scheduler->GetNextEvent();
-         MTEventProcessor* ep = dispatcher.dispatch(e);
+         std::vector<MTEventProcessor*> ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e.flow_id);
-         EventProcessorOutput* result = ep->Process(e, ctx);
+         std::vector<MTEvent> newEvents;
+         MTContext* context;
+         std::vector<Packet> packetToSend;
+         IntermediateOutput intermOutput;
+         EventProcessorOutput initial = {newEvents, &ctx, packetToSend, intermOutput};
+         EventProcessorOutput* result = ep[0]->Process(e, initial);
          for (auto newEvent : result->newEvents)
           {
                  scheduler->AddEvent(newEvent);

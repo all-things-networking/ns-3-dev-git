@@ -3,7 +3,7 @@
 namespace ns3{
 class QUICPacket{
     public:
-    QUICPacket();
+    QUICPacket(){};
 };
 }
 #endif

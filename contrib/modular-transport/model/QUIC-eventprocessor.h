@@ -2,6 +2,7 @@
 #define MT_QUIC_EVENT_PROCESSOR_H
 #include "mt-eventprocessor.h"
 #include "QUICPacket.h"
+#include "QUICFrame.h"
 #include <vector>
 #include <utility>
 
@@ -21,7 +22,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
+    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
 
 
     /**
@@ -32,15 +33,14 @@ public:
     bool IsValidEvent(MTEvent e);
 };
 
-class Frame;
 class QUICPacketDemultiplexer: public MTEventProcessor
 {
 private:
     QUICPacket recvPacket;
-    std::vector<std::pair<uint64_t, Frame>> FrameToStream;
+    std::vector<std::pair<uint64_t, QUICFrame>> FrameToStream;
 
     void demultiplexePacket();
-    void processFrame(MTContext c);
+    void processFrame(EventProcessorOutput epOut);
 public:
     QUICPacketDemultiplexer();
 
@@ -51,7 +51,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
+    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
 
 
     /**
@@ -75,7 +75,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
+    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
 
 
     /**
@@ -101,7 +101,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
+    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
 
 
     /**

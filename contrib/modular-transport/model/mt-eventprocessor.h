@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <utility> // std::pair
+#include "mt-intermediate_output.h"
 
 //mostly copied from eric's branch, though send if possible is mine
 namespace ns3
@@ -13,8 +14,9 @@ class MTContext;
 class Packet;
 struct EventProcessorOutput{
      std::vector<MTEvent> newEvents;
-     MTContext* updatedContext;
+     MTContext* context;
      std::vector<Packet> packetToSend;
+     IntermediateOutput intermOutput;
  };
 /**
  * \brief The base class for event processor. This is virtual class.
@@ -31,7 +33,7 @@ public:
      * \param c The context of the Mt connection.
      * \return The modified context and new generated event if exits.
      */
-    virtual EventProcessorOutput* Process(MTEvent e, MTContext c) = 0;
+    virtual EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut) = 0;
 
 
     /**

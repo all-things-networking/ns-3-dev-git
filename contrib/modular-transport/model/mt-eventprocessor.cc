@@ -33,7 +33,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext c){
     packetTobeSend.emplace_back(P);
     EventProcessorOutput *Output = new EventProcessorOutput;
         Output->newEvents=newEvents;
-        Output->updatedContext=&newContext;
+        Output->context=&newContext;
         Output->packetToSend=packetTobeSend;
     return Output;
     //store packets to send as vector in class
