@@ -36,7 +36,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
     //New Packets
     //Add window
     std::vector<Packet> packetTobeSend;
-
+    //TODO: segment size 4
     for(; newContext->m_Nxt < newContext->m_start + newContext->m_Wnd; newContext->m_Nxt+=4){
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment

@@ -7,8 +7,10 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 
+//#TODO modify dispatcher for ACK base on type
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent anything){
     MTEventProcessor* ChosenProcessor = new SendIfPossible();
     return ChosenProcessor;
 }
+//TODO: Add dispatch(TCPeventtype)
 }

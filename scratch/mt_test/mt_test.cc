@@ -82,6 +82,7 @@ main (int argc, char *argv[])
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
     MTReceiver* receiver = new TCPReceiver();
+    //TODO: Try CreateObject with parameter in ()
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
     transport->SetScheduler(scheduler);
     transport->SetDispatcher(dispatcher);
