@@ -37,10 +37,10 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
     //Add window
     std::vector<Packet> packetTobeSend;
     newContext->m_Wnd = 32;
-                               //TODO:Add start+
-    for(; newContext->m_Nxt < newContext->m_Wnd; newContext->m_Nxt+=4){
+
+    for(; newContext->m_Nxt < newContext->m_start + newContext->m_Wnd; newContext->m_Nxt+=4){
         MTTCPHeader outgoingHeader = MTTCPHeader();
-        outgoingHeader.seqnum = newContext->m_Nxt+3; //TODO: Check seq start or end
+        outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt+3; //Confirmed: first sequence number of a segment
         Packet P = Packet(newContext->data+newContext->m_Nxt, 4);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);

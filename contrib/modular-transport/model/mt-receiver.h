@@ -11,7 +11,6 @@ class Ipv4Header;
 class Ipv4Interface;
 
 class MTReceiver{
-
     public:
     MTReceiver();
     virtual enum IpL4Protocol::RxStatus Receive(

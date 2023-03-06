@@ -32,6 +32,7 @@ public:
     // rfc9293 - Sec 3.3.1
     uint8_t* data;
     uint32_t m_Una;           // send unacknowledged
+    uint32_t m_start;         // Start of Window
     uint32_t m_Nxt;           // send next
     uint32_t m_Wnd;           // send window, in bytes
     uint32_t m_Iss;           // initial send sequence number
