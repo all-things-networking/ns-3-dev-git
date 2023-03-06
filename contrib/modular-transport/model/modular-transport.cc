@@ -8,6 +8,7 @@
 #include "mt-state.h"
 #include "mt-context.h"
 #include "mt-dispatcher.h"
+#include "mt-receiver.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -110,6 +111,9 @@ void ModularTransport::SetScheduler(MTScheduler* scheduler){
 void ModularTransport::SetDispatcher(MTDispatcher* dispatcher){
     this->dispatcher=dispatcher;
 }
+void ModularTransport::SetReceiver(MTReceiver* receiver){
+    this->receiver=receiver;
+}
 void
 ModularTransport::NotifyNewAggregate()
 {
@@ -173,32 +177,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
                           Ptr<Ipv4Interface> incomingInterface)
                           //MTScheduler chosenScheduler)
 {
-    NS_LOG_UNCOND("inside received");
-    MTHeader recievedHeader;
-    packet->RemoveHeader(recievedHeader);
-    uint8_t *buffer = new uint8_t[packet->GetSize()];
-    int size = packet->CopyData(buffer, packet->GetSize());
-    NS_LOG_UNCOND("Received: size"<<size<<" ");
-    for(int i=0;i<packet->GetSize();i++){
-        std::cout<<unsigned(buffer[i])<<std::endl;
-    }
-    //chosenScheduler.OpsAfterRecieved(recievedHeader);
-    //chosenScheduler.GenerateEventOnReceive(recievedHeader);
-    //recievedHeader.OpsAfterRecieved(); //THis one returns a event
-    NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
-
-    NS_LOG_UNCOND("Received packet in ModularTransport");
-    if(incomingIpHeader.GetSource() == "10.0.0.2"){
-        NS_LOG_UNCOND("Ack recevied from");
-        NS_LOG_UNCOND(incomingIpHeader.GetSource());
-        //#how, function from scheduler?
-    }
-    else{
-        NS_LOG_UNCOND("Sending back Ack");
-        Packet P = Packet();
-        //recreate Header for outgoing
-        this->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
-    }
+    this->receiver->Receive(this, packet, incomingIpHeader, incomingInterface);
     return IpL4Protocol::RX_OK;
 }
 

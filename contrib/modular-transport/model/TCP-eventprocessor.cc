@@ -11,6 +11,8 @@
 #include <algorithm> // std::min, std::max
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
+
+//#TODO Ack processing
 namespace ns3
 {
 class Packet;
@@ -35,8 +37,10 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
     //Add window
     std::vector<Packet> packetTobeSend;
     newContext->m_Wnd = 32;
+                               //TODO:Add start+
     for(; newContext->m_Nxt < newContext->m_Wnd; newContext->m_Nxt+=4){
-        MTHeader outgoingHeader = MTTCPHeader();
+        MTTCPHeader outgoingHeader = MTTCPHeader();
+        outgoingHeader.seqnum = newContext->m_Nxt+3; //TODO: Check seq start or end
         Packet P = Packet(newContext->data+newContext->m_Nxt, 4);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);

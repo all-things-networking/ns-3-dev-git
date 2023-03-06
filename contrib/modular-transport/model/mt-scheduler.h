@@ -15,6 +15,7 @@ class MTScheduler{
     virtual MTEvent GetNextEvent()=0;
     virtual void AddEvent(MTEvent)=0;
     virtual MTEvent CreateSendEvent(int, long)=0;
+    //#TODO ACK
     virtual bool isEmpty()=0;
 };
 }

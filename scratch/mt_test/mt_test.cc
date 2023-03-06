@@ -24,6 +24,7 @@
 #include "ns3/TCP-scheduler.h"
 #include "ns3/TCP-context.h"
 #include "ns3/TCP-header.h"
+#include "ns3/TCP-receiver.h"
 
 using namespace ns3;
 
@@ -80,9 +81,11 @@ main (int argc, char *argv[])
     //TODO:create private memebers
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
+    MTReceiver* receiver = new TCPReceiver();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
     transport->SetScheduler(scheduler);
     transport->SetDispatcher(dispatcher);
+    transport->SetReceiver(receiver);
     node->AggregateObject(transport);
   }
 

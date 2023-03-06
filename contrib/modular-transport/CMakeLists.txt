@@ -18,12 +18,14 @@ build_lib(
                  model/mt-eventprocessor.cc
                  model/mt-event.cc
                  model/mt-header.cc
+                 model/mt-receiver.cc
                  model/mt-state.cc
                  model/TCP-context.cc
                  model/TCP-event.cc
                  model/TCP-dispatcher.cc
                  model/TCP-eventprocessor.cc
                  model/TCP-header.cc
+                 model/TCP-receiver.cc
                  model/TCP-scheduler.cc
 
     HEADER_FILES model/modular-transport.h
@@ -32,6 +34,7 @@ build_lib(
                  model/mt-dispatcher.h
                  model/mt-event.h
                  model/mt-eventprocessor.h
+                 model/mt-receiver.h
                  model/mt-scheduler.h
                  model/mt-header.h
                  model/mt-state.h
@@ -40,6 +43,7 @@ build_lib(
                  model/TCP-dispatcher.h
                  model/TCP-eventprocessor.h
                  model/TCP-header.h
+                 model/TCP-receiver.h
                  model/TCP-scheduler.h
     LIBRARIES_TO_LINK ${libinternet}
     TEST_SOURCES test/modular-transport-test-suite.cc

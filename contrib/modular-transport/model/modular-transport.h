@@ -15,6 +15,7 @@ class Node;
 class MTState;
 class MTScheduler;
 class MTDispatcher;
+class MTReceiver;
 class MTContext;
 class ModularTransport: public IpL4Protocol
 {
@@ -58,6 +59,11 @@ class ModularTransport: public IpL4Protocol
      * \param node the node
      */
     void SetScheduler(MTScheduler*);
+     /**
+         * Set Scheduler associated with this stack
+         * \param node the node
+      */
+     void SetReceiver(MTReceiver*);
 
     /**
      * Set node associated with this stack
@@ -130,6 +136,7 @@ class ModularTransport: public IpL4Protocol
     MTState table;
     MTScheduler* scheduler;
     MTDispatcher* dispatcher;
+    MTReceiver* receiver;
     Ptr<Node> m_node;                                //!< the node this stack is associated with
     IpL4Protocol::DownTargetCallback m_downTarget;   //!< Callback to send packets over IPv4
     IpL4Protocol::DownTargetCallback6 m_downTarget6; //!< Callback to send packets over IPv6
