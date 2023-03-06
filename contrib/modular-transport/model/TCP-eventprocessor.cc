@@ -40,7 +40,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent e, MTContext* c){
 
     for(; newContext->m_Nxt < newContext->m_start + newContext->m_Wnd; newContext->m_Nxt+=4){
         MTTCPHeader outgoingHeader = MTTCPHeader();
-        outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt+3; //Confirmed: first sequence number of a segment
+        outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
         Packet P = Packet(newContext->data+newContext->m_Nxt, 4);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
