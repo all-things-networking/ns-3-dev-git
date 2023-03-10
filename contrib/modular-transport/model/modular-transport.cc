@@ -59,7 +59,7 @@ void ModularTransport::Start(
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
-     MTEvent e = this->scheduler->CreateSendEvent(flow_id, time);
+     MTEvent* e = this->scheduler->CreateSendEvent(flow_id, time);
      this->scheduler->AddEvent(e);
      Mainloop();
 }
@@ -68,10 +68,11 @@ void ModularTransport::Mainloop(){
        // that calls the different components of our model
        // to process events
     while (!this->scheduler->isEmpty()){
-         MTEvent e = this->scheduler->GetNextEvent();
+         MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e.flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
+         this->table.Write(flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
                  this->scheduler->AddEvent(newEvent);

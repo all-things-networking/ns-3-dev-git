@@ -1,6 +1,8 @@
 #include "TCP-receiver.h"
 #include "mt-receiver.h"
 #include "modular-transport.h"
+#include "mt-event.h"
+#include "TCP-event.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 namespace ns3{
@@ -12,9 +14,9 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
                                     Ptr<Packet> packet,
                                     const Ipv4Header& incomingIpHeader,
                                     Ptr<Ipv4Interface> incomingInterface){
-    std::cout<<"inside received"<<std::endl;;
-    MTHeader recievedHeader;
-    packet->RemoveHeader(recievedHeader);
+    std::cout<<"inside received"<<std::endl;
+    MTTCPHeader recievedHeader=new MTTCPHeader();
+    packet->RemoveHeader(recievedHeader*);
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     int size = packet->CopyData(buffer, packet->GetSize());
     std::cout<<"Received: size"<<size<<std::endl;
@@ -31,7 +33,7 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
             std::cout<<"Ack recevied from"<<std::endl;
             std::cout<<incomingIpHeader.GetSource()<<std::endl;
             //need to implement: int flow_id, int seq
-             MTEvent e = mt->scheduler->CreateAckEvent(1,4);
+             MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader->seqnum + size);
              mt->scheduler->AddEvent(e);
         }
         else{

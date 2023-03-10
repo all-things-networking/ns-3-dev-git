@@ -12,11 +12,10 @@ class MTScheduler{
    // virtual void OpsAfterRecieved(); //Verify Hash, then return a event
     //virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     //virtual MTEvent GenerateEventOnInitate(MTHeader);
-    virtual MTEvent GetNextEvent()=0;
-    virtual void AddEvent(MTEvent)=0;
-    virtual MTEvent CreateSendEvent(int, long)=0;
-    virtual MTEvent CreateAckEvent(int, int)=0;
-    //#TODO ACK
+    virtual MTEvent* GetNextEvent()=0;
+    virtual void AddEvent(MTEvent*)=0;
+    virtual MTEvent* CreateSendEvent(int, long)=0;
+    virtual MTEvent* CreateAckEvent(int, int)=0;
     virtual bool isEmpty()=0;
 };
 }

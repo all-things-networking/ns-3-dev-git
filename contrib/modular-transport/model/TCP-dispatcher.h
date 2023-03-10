@@ -9,7 +9,7 @@ class MTDispatcher;
 class TCPDispatcher:public MTDispatcher{
     public:
         TCPDispatcher();
-        MTEventProcessor* dispatch(MTEvent);
+        MTEventProcessor* dispatch(MTEvent*);
 };
 }
 #endif

@@ -37,7 +37,7 @@ public:
      * Timeout lost should be handled by other event processors.
      * Perform Mt congestion control.
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
 
 
     /**
@@ -64,7 +64,7 @@ public:
      *
      * Perform Mt congestion control based on RFC5681.
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
 
     /**
      * \brief Check if the input event is valid event type for the processor.
@@ -78,12 +78,13 @@ class SendIfPossible: public MTEventProcessor
 {
 public:
     SendIfPossible();
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 };
 
 class AckHandler: public MTEventProcessor{
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    AckHandler();
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 };
 

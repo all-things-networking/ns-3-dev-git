@@ -31,7 +31,7 @@ public:
      * \param c The context of the Mt connection.
      * \return The modified context and new generated event if exits.
      */
-    virtual EventProcessorOutput* Process(MTEvent e, MTContext* c) = 0;
+    virtual EventProcessorOutput* Process(MTEvent* e, MTContext* c) = 0;
 
     /**
      * \brief Check if the input event is valid event type for the processor.

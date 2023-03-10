@@ -4,13 +4,17 @@
 #include "TCP-event.h"
 #include "mt-eventprocessor.h"
 #include "TCP-eventprocessor.h"
+#include <typeinfo>
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
-
-//#TODO modify dispatcher for ACK base on type
-MTEventProcessor* TCPDispatcher::dispatch(MTEvent anything){
-    MTEventProcessor* ChosenProcessor = new SendIfPossible();
-    return ChosenProcessor;
+MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
+    if (typeid(anything) == typeid(SendEvent)){
+        MTEventProcessor* SendProcessor = new SendIfPossible();
+        return SendProcessor;
+    }
+    else{
+        MTEventProceesor* AckProcessor = new AckHandler();
+        return AckProcessor;
+    }
 }
-//TODO: Add dispatch(TCPeventtype)
 }

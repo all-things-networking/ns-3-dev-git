@@ -18,6 +18,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
       m_dupAmount{0},
       m_cnwd{4096}, // RFC5681, IW = 4 * SMSS bytes
       m_ssthresh{1048576}, // 2^20
+      m_segmentsize{4},
       //m_time_out{MtTimer(timer_duration, tcpId)},
       m_dupThreshold{3}
 {
