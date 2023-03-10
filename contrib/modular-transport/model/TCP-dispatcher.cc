@@ -13,7 +13,7 @@ MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
         return SendProcessor;
     }
     else{
-        MTEventProcesor* AckProcessor = new AckHandler();
+        MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
     }
 }
