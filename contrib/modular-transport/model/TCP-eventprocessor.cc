@@ -74,7 +74,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     newContext->m_Una = e->seq;
     //SendEvent(time, flow_id)
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
-    packetTobeSend.push_back(newEvent);
+    newEvents.push_back(newEvent);
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
