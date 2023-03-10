@@ -67,6 +67,7 @@ void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
+       
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
@@ -83,8 +84,6 @@ void ModularTransport::Mainloop(){
                 std::cout<<"Sending"<<std::endl;
                 this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }
-
-
          //Use rult's mtcontext to update table's context at id
          //addall every thing in first vector of result into schedular
     }
