@@ -3,6 +3,7 @@
 #include "modular-transport.h"
 #include "mt-event.h"
 #include "TCP-event.h"
+#include "TCP-header.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 namespace ns3{
