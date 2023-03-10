@@ -83,6 +83,7 @@ public:
 };
 
 class AckHandler: public MTEventProcessor{
+    public:
     AckHandler();
     EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
