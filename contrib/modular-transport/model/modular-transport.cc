@@ -70,9 +70,9 @@ void ModularTransport::Mainloop(){
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
-         MTContext* ctx = this->table.GetVal(e.flow_id);
+         MTContext* ctx = this->table.GetVal(e->flow_id);
          EventProcessorOutput* result = ep->Process(e, ctx);
-         this->table.Write(flow_id, result->updatedContext);
+         this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
                  this->scheduler->AddEvent(newEvent);
