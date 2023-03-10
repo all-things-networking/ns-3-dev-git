@@ -30,7 +30,7 @@ public:
     ~QUICStreamContext();
 
     // Self defined
-    QUICStreamState state; // Current sender stream state
+    QUICStreamState state = QUICStreamState::NONE; // Current sender stream state
     uint32_t id; // ID of the stream
     uint32_t offset; // Offset for frame
 };

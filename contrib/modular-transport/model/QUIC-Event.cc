@@ -8,4 +8,19 @@ SendEvent::SendEvent(long time, int flow_id){
     this->time=time;
     this->flow_id=flow_id;
 }
+AckEvent::AckEvent(){
+
+}
+AckEvent::AckEvent(int flow_id, int seq){
+    this->seq=seq;
+    this->flow_id=flow_id;
+}
+
+StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id){
+    this->streamEventType=streamEventType;
+    this->stream_id=stream_id;
+    this->flow_id=flow_id;
+    this->type = EventType::STREAM_EVENT;
+}
+
 }

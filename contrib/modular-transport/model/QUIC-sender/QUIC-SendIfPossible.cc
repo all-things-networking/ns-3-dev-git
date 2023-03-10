@@ -26,11 +26,11 @@ QUICSendIfPossible::IsValidEvent(MTEvent e)
     return true;
 }
 
-EventProcessorOutput* QUICSendIfPossible::Process(MTEvent e, MTContext* c){
+EventProcessorOutput* QUICSendIfPossible::Process(MTEvent* e, MTContext* c){
     //I call mt->SendPack here
     QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     //A
-    std::vector<MTEvent> newEvents;
+    std::vector<MTEvent*> newEvents;
 
     //New Packets
     //Add window

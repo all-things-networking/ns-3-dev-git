@@ -15,7 +15,7 @@ class QUICSendIfPossible: public MTEventProcessor
 {
 public:
     QUICSendIfPossible();
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 };
 } // namespace ns3

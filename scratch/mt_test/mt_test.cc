@@ -24,7 +24,7 @@
 #include "ns3/QUIC-Scheduler.h"
 #include "ns3/QUIC-Context.h"
 #include "ns3/TCP-header.h"
-#include "ns3/TCP-receiver.h"
+#include "ns3/QUIC-Receiver.h"
 
 using namespace ns3;
 
@@ -79,9 +79,9 @@ main (int argc, char *argv[])
 
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
     //TODO:create private memebers
-    MTDispatcher* dispatcher =new QUICDispatcher();
-    MTScheduler* scheduler =new QUICScheduler();
-    MTReceiver* receiver = new TCPReceiver();
+    MTDispatcher* dispatcher = new QUICDispatcher();
+    MTScheduler* scheduler = new QUICScheduler();
+    MTReceiver* receiver = new QUICReceiver();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
     transport->SetScheduler(scheduler);
     transport->SetDispatcher(dispatcher);
@@ -127,7 +127,7 @@ main (int argc, char *argv[])
   mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
-  std::cout<<"just to make sure it's my branch"<<std::endl;
+  std::cout<<"########## STARTING NOW ##########"<<std::endl;
   int flow_id=1; //flow_id here should be same
   auto context =new QUICContext(flow_id);
   context->saddr = saddr;

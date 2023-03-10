@@ -9,7 +9,7 @@ class MTDispatcher;
 class QUICDispatcher:public MTDispatcher{
     public:
         QUICDispatcher();
-        MTEventProcessor* dispatch(MTEvent);
+        MTEventProcessor* dispatch(MTEvent* event);
 };
 }
 #endif

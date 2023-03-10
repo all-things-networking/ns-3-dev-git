@@ -23,8 +23,6 @@ public:
     QUICContext(int id);
     ~QUICContext();
     uint8_t* data;
-
-private:
     std::map<int, QUICStreamContext*> quic_streams; // streams for this connection
 };
 

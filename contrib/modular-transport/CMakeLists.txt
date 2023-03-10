@@ -21,13 +21,14 @@ build_lib(
                  model/mt-receiver.cc
                  model/mt-state.cc
                  model/TCP-header.cc
-                 model/TCP-receiver.cc
-                 model/TCP-scheduler.cc
+                 model/QUIC-Receiver.cc
                  model/QUIC-Context.cc
                  model/QUIC-Event.cc
                  model/QUIC-Dispatcher.cc
                  model/QUIC-Scheduler.cc
                  model/QUIC-sender/QUIC-SendIfPossible.cc
+                 model/QUIC-sender/QUIC-StreamHandler.cc
+                 model/QUIC-sender/QUIC-StreamContext.cc
 
     HEADER_FILES model/modular-transport.h
                  helper/modular-transport-helper.h
@@ -40,13 +41,14 @@ build_lib(
                  model/mt-header.h
                  model/mt-state.h
                  model/TCP-header.h
-                 model/TCP-receiver.h
-                 model/TCP-scheduler.h
+                 model/QUIC-Receiver.h
                  model/QUIC-Context.h
                  model/QUIC-Event.h
                  model/QUIC-Dispatcher.h
                  model/QUIC-Scheduler.h
                  model/QUIC-sender/QUIC-SendIfPossible.h
+                 model/QUIC-sender/QUIC-StreamHandler.h
+                 model/QUIC-sender/QUIC-StreamContext.h
                  
     LIBRARIES_TO_LINK ${libinternet}
     TEST_SOURCES test/modular-transport-test-suite.cc
