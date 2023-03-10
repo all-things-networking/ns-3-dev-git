@@ -50,7 +50,7 @@ public:
     uint32_t m_dupAmount;     // the amount for duplicate packet
     uint32_t m_ssthresh;      // slow start threshold
     //MtTimer m_time_out;       // time when timeout occurs
-    unint32_t m_segmentsize;
+    uint32_t m_segmentsize;
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
 };
 
