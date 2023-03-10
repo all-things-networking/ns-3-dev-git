@@ -37,10 +37,10 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     //Add window
     std::vector<Packet> packetTobeSend;
     if (newContext->m_Wnd<32)
-    for(; newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd; newContext->m_Nxt+=newContext->segmentsize){
+    for(; newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd; newContext->m_Nxt+=newContext->m_segmentsize){
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
-        Packet P = Packet(newContext->data+newContext->m_Nxt, newContext->segmentsize);
+        Packet P = Packet(newContext->data+newContext->m_Nxt, newContext->m_segmentsize);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
      }
@@ -70,7 +70,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    newContext->m_Wnd += newContext->segmentsize;
+    newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = e->seq;
     //SendEvent(time, flow_id)
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
