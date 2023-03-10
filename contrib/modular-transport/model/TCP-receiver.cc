@@ -17,7 +17,7 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
                                     const Ipv4Header& incomingIpHeader,
                                     Ptr<Ipv4Interface> incomingInterface){
     std::cout<<"inside received"<<std::endl;
-    MTTCPHeader recievedHeader=new MTTCPHeader();
+    MTTCPHeader* recievedHeader=new MTTCPHeader();
     packet->RemoveHeader(recievedHeader*);
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     int size = packet->CopyData(buffer, packet->GetSize());
