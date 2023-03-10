@@ -129,7 +129,7 @@ class ModularTransport: public IpL4Protocol
      */
     void NotifyNewAggregate() override;
 
-  private:
+  public:
     //scheduler
     //dispatcher
     //context
