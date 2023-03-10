@@ -71,7 +71,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     newContext->m_Wnd += newContext->m_segmentsize;
-    newContext->m_Una = e->seq;
+    newContext->m_Una = event->seq;
     //SendEvent(time, flow_id)
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
