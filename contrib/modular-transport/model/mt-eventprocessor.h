@@ -12,7 +12,7 @@ class MTEvent;
 class MTContext;
 class Packet;
 struct EventProcessorOutput{
-     std::vector<MTEvent> newEvents;
+     std::vector<MTEvent*> newEvents;
      MTContext* updatedContext;
      std::vector<Packet> packetToSend;
  };

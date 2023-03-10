@@ -31,7 +31,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     //I call mt->SendPack here
     TCPContext* newContext = dynamic_cast<TCPContext*>(c);
     //A
-    std::vector<MTEvent> newEvents;
+    std::vector<MTEvent*> newEvents;
 
     //New Packets
     //Add window
@@ -67,7 +67,7 @@ AckHandler::IsValidEvent(MTEvent e)
 EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     TCPContext* newContext = dynamic_cast<TCPContext*>(c);
     AckEvent* event = dynamic_cast<AckEvent*>(e);
-    std::vector<MTEvent> newEvents;
+    std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
     newContext->m_Wnd += newContext->segmentsize;
