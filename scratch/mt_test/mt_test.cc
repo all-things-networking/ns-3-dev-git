@@ -140,7 +140,7 @@ main (int argc, char *argv[])
   context->data = data;
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   std::cout<<"mt_test: start finished"<<std::endl;
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < 0; i++){
 
      double now = Simulator::Now().GetSeconds();
      Time new_start_time = Time(now + 1);

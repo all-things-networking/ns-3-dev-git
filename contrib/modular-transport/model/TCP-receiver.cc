@@ -35,6 +35,7 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
         if(incomingIpHeader.GetSource() == "10.0.0.2"){
             std::cout<<"Ack recevied from"<<std::endl;
             std::cout<<incomingIpHeader.GetSource()<<std::endl;
+            std::cout<<"seqnum"<<recievedHeader.seqnum<<std::endl;
             //need to implement: int flow_id, int seq
              MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
              mt->scheduler->AddEvent(e);
