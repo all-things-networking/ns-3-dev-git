@@ -28,7 +28,7 @@ MTTCPHeader::~MTTCPHeader(){
 
 }
 uint32_t
-MTHeader::Deserialize(Buffer::Iterator start)
+MTTCPHeader::Deserialize(Buffer::Iterator start)
 {
     Buffer::Iterator i = start;
     m_f1 = i.ReadNtohU32();
