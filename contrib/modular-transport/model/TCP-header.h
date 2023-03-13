@@ -17,10 +17,13 @@ class MTTCPHeader : public MTHeader {
         char* data;
         MTTCPHeader();
         ~MTTCPHeader();
+        uint32_t Deserialize(Buffer::Iterator start) override;
         int GenPseudoHeader();
         int ComputeCheckSum();
         void OpsBeforeSend(); // Compute Hash, call by processor before send?
         void OpsAfterRecieved(); //Just produce event, leave verify hash to processor?
+    private:
+          uint32_t m_f1;
 
 };
 }
