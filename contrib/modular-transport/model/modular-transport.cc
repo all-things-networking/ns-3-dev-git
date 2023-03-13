@@ -61,18 +61,21 @@ void ModularTransport::Start(
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent* e = this->scheduler->CreateSendEvent(flow_id, time);
      this->scheduler->AddEvent(e);
+     std::cout<<"start finished"<<std::endl;
      Mainloop();
 }
 void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-       
+
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e->flow_id);
+         std::cout<<"processor started"<<std::endl;
          EventProcessorOutput* result = ep->Process(e, ctx);
+         std::cout<<"processor finished"<<std::endl;
          this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
