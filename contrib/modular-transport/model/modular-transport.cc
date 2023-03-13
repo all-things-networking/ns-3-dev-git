@@ -61,7 +61,7 @@ void ModularTransport::Start(
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent* e = this->scheduler->CreateSendEvent(flow_id, time);
      this->scheduler->AddEvent(e);
-     std::cout<<"start finished"<<std::endl;
+
      Mainloop();
 }
 void ModularTransport::Mainloop(){
