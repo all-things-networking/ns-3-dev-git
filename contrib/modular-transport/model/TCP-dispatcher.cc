@@ -11,6 +11,10 @@ MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
     std::cout<<(typeid(anything) == typeid(anything))<<std::endl;
     std::cout<<(typeid(anything) == typeid(SendEvent*))<<std::endl;
     std::cout<<(typeid(anything) == typeid(AckEvent*))<<std::endl;
+    std::cout<<(typeid(anything) == typeid(SendEvent))<<std::endl;
+    std::cout<<(typeid(anything) == typeid(AckEvent))<<std::endl;
+    std::cout<<(typeid(anything) == typeid(MTEvent))<<std::endl;
+    std::cout<<(typeid(anything) == typeid(MTEvent*))<<std::endl;
     if (typeid(anything) == typeid(SendEvent)){
         std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
