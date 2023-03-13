@@ -138,9 +138,12 @@ main (int argc, char *argv[])
       data[i]=i;
   }
   context->data = data;
-  //#TODO: Loop for gap after Send and before Ack
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
-  Simulator::Run ();
-
+  for (int i = 0; i < 4; i++){
+     double now = Simulator::Now().GetSeconds();
+     Time new_start_time = Time(now + 1);
+     Simulator::Schedule(new_start_time, &ModularTransport::MainLoop, transport);
+     Simulator::Run ();
+  }
   Simulator::Destroy ();
 }
