@@ -8,22 +8,20 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
-    std::cout<<(typeid(anything) == typeid(anything))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(SendEvent*))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(AckEvent*))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(SendEvent))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(AckEvent))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(MTEvent))<<std::endl;
-    std::cout<<(typeid(anything) == typeid(MTEvent*))<<std::endl;
-    if (typeid(anything) == typeid(SendEvent)){
+    if (anything->Type == TCPEventType::Send_Data){
         std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
         return SendProcessor;
     }
-    else{
+    else if(anything->Type == TCPEventType::Ack_Data){
         std::cout<<"dispatched AckEvent"<<std::endl;
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
+    }
+    else{
+    std::cout<<"undefined event"<<std::endl;
+    MTEventProcessor* AckProcessor = new AckHandler();
+            return AckProcessor;
     }
 }
 }

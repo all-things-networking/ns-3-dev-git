@@ -4,8 +4,13 @@
 namespace ns3{
 class MTHeader;
 class MTEvent;
+enum TCPEventType {
+    SEND_DATA,
+    ACK_DATA
+};
 class SendEvent: public MTEvent{
     public:
+    TCPEventType Type;
     SendEvent();
     ~SendEvent(){};
     SendEvent(long time, int flow_id);
@@ -13,6 +18,7 @@ class SendEvent: public MTEvent{
 
 class AckEvent: public MTEvent{
     public:
+    TCPEventType Type;
     int seq;
     AckEvent();
     ~AckEvent(){};
