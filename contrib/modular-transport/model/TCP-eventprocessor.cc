@@ -42,7 +42,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     for(;
      newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd;
      newContext->m_Nxt+=newContext->m_segmentsize){
-        std::cout<<"SendIfPossible loop"<<newContext->m_Nxt<<" "<<newContext->m_segmentsize<<" "<<newContext->m_Una<<" "
+        std::cout<<"SendIfPossible loop"<<newContext->m_Nxt<<" "<<newContext->m_segmentsize<<" "<<newContext->m_Una<<" "<<
         newContext->m_Wnd<<std::endl;
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
