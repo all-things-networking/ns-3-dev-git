@@ -8,7 +8,13 @@ enum TCPEventType {
     SEND_DATA,
     ACK_DATA
 };
-class SendEvent: public MTEvent{
+class TCPEvent: public MTEvent{
+    virtual TCPEvent()=0;
+    virtual ~TCPEvent()=0;
+    public:
+    TCPEventType Type;
+}
+class SendEvent: public TCPEvent{
     public:
     TCPEventType Type;
     SendEvent();
@@ -16,7 +22,7 @@ class SendEvent: public MTEvent{
     SendEvent(long time, int flow_id);
 };
 
-class AckEvent: public MTEvent{
+class AckEvent: public TCPEvent{
     public:
     TCPEventType Type;
     int seq;

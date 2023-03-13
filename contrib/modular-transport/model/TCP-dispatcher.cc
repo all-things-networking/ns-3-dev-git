@@ -8,12 +8,13 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
-    if (anything->Type == TCPEventType::Send_Data){
+    TCPEvent* tcpevent = dynamic_cast<TCPEvent*>(anything);
+    if (tcpevent->Type == TCPEventType::SEND_DATA){
         std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
         return SendProcessor;
     }
-    else if(anything->Type == TCPEventType::Ack_Data){
+    else if(tcpevent->Type == TCPEventType::ACK_DATA){
         std::cout<<"dispatched AckEvent"<<std::endl;
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
