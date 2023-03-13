@@ -13,7 +13,7 @@ class TCPEvent: public MTEvent{
     TCPEvent(){};
     ~TCPEvent(){};
     TCPEventType Type;
-}
+};
 class SendEvent: public TCPEvent{
     public:
     TCPEventType Type;
