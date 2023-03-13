@@ -11,7 +11,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
       m_Una{0},
       m_Nxt{0},
       m_start{0},
-      m_Wnd{32},
+      m_Wnd{4},
       m_Iss{0},
       m_Smss{1024},
       m_dupSeq{0},

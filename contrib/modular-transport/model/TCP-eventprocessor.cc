@@ -35,15 +35,22 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
 
     //New Packets
     //Add window
+    std::cout<<"SendIfPossible loop start"<<std::endl;
     std::vector<Packet> packetTobeSend;
-    if (newContext->m_Wnd<32)
-    for(; newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd; newContext->m_Nxt+=newContext->m_segmentsize){
+    if (newContext->m_Wnd<=32)
+    for(;
+     newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd;
+     newContext->m_Nxt+=newContext->m_segmentsize){
+        std::cout<<"SendIfPossible loop"<<newContext->m_Nxt<<" "<<newContext->m_segmentsize<<std::endl;
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
-        Packet P = Packet(newContext->data+newContext->m_Nxt, newContext->m_segmentsize);
+        Packet P = Packet(
+            newContext->data+newContext->m_Nxt,
+            newContext->m_segmentsize);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
      }
+      std::cout<<"SendIfPossible loop end"<<std::endl;
     //Create header here
 
     //Output
