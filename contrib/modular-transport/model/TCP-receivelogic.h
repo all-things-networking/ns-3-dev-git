@@ -7,10 +7,10 @@ namespace ns3{
 class MTReceiver;
 class ModularTransport;
 class Ipv4Interface;
-class TCPReceiver: public MTReceiver {
+class TCPReceiveLogic: public MTReceiveLogic {
 
     public:
-    TCPReceiver();
+    TCPReceiveLogic();
     enum IpL4Protocol::RxStatus Receive(ModularTransport* mt,
                                     Ptr<Packet> p,
                                     const Ipv4Header& incomingIpHeader,

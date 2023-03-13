@@ -15,7 +15,7 @@ class Node;
 class MTState;
 class MTScheduler;
 class MTDispatcher;
-class MTReceiver;
+class MTReceiveLogic;
 class MTContext;
 class ModularTransport: public IpL4Protocol
 {
@@ -26,8 +26,7 @@ class ModularTransport: public IpL4Protocol
      */
     static TypeId GetTypeId();
     static const uint8_t PROT_NUMBER = 0xcc; //!< protocol number (0xcc)
-    ModularTransport();
-    ModularTransport(MTScheduler*, MTDispatcher*, MTReceiver*);
+    ModularTransport(MTScheduler*, MTDispatcher*, MTReceiveLogic*);
     ~ModularTransport() override;
 
     // Delete copy constructor and assignment operator to avoid misuse
@@ -48,22 +47,6 @@ class ModularTransport: public IpL4Protocol
     */
     void Mainloop();
 
-    /**
-     * Set Dispatcher associated with this stack
-     * \param node the node
-     */
-    void SetDispatcher(MTDispatcher*);
-
-    /**
-     * Set Scheduler associated with this stack
-     * \param node the node
-     */
-    void SetScheduler(MTScheduler*);
-     /**
-         * Set Scheduler associated with this stack
-         * \param node the node
-      */
-     void SetReceiver(MTReceiver*);
 
     /**
      * Set node associated with this stack
@@ -136,7 +119,7 @@ class ModularTransport: public IpL4Protocol
     MTState table;
     MTScheduler* scheduler;
     MTDispatcher* dispatcher;
-    MTReceiver* receiver;
+    MTReceiveLogic* receiver;
     Ptr<Node> m_node;                                //!< the node this stack is associated with
     IpL4Protocol::DownTargetCallback m_downTarget;   //!< Callback to send packets over IPv4
     IpL4Protocol::DownTargetCallback6 m_downTarget6; //!< Callback to send packets over IPv6

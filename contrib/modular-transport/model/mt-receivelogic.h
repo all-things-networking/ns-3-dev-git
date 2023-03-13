@@ -10,9 +10,9 @@ class IpL4Protocol;
 class Ipv4Header;
 class Ipv4Interface;
 
-class MTReceiver{
+class MTReceiveLogic{
     public:
-    MTReceiver();
+    MTReceiveLogic();
     virtual enum IpL4Protocol::RxStatus Receive(
                                             ModularTransport* mt,
                                             Ptr<Packet> p,

@@ -1,5 +1,5 @@
-#include "TCP-receiver.h"
-#include "mt-receiver.h"
+#include "TCP-receivelogic.h"
+#include "mt-receivelogic.h"
 #include "modular-transport.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
@@ -9,10 +9,10 @@
 #include "ns3/node.h"
 namespace ns3{
 
-TCPReceiver::TCPReceiver(){
+TCPReceiveLogic::TCPReceiveLogic(){
 
 }
-enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
+enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
                                     Ptr<Packet> packet,
                                     const Ipv4Header& incomingIpHeader,
                                     Ptr<Ipv4Interface> incomingInterface){
