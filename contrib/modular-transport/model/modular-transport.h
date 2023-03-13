@@ -26,6 +26,7 @@ class ModularTransport: public IpL4Protocol
      */
     static TypeId GetTypeId();
     static const uint8_t PROT_NUMBER = 0xcc; //!< protocol number (0xcc)
+    ModularTransport();
     ModularTransport(MTScheduler*, MTDispatcher*, MTReceiveLogic*);
     ~ModularTransport() override;
 

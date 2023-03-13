@@ -28,6 +28,10 @@ ModularTransport::GetTypeId()
                             .AddConstructor<ModularTransport>();
     return tid;
 }
+ModularTransport::ModularTransport(){
+    this->table =  MTState(this);
+    NS_LOG_FUNCTION(this);
+}
 ModularTransport::ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher, MTReceiveLogic * receiver)
 {
     this->table =  MTState(this);
