@@ -83,10 +83,11 @@ main (int argc, char *argv[])
     MTScheduler* scheduler =new TCPScheduler();
     MTReceiver* receiver = new TCPReceiver();
     //TODO: Try CreateObject with parameter in ()
-    Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
-    transport->SetScheduler(scheduler);
-    transport->SetDispatcher(dispatcher);
-    transport->SetReceiver(receiver);
+    //Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
+    Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receiver);
+    //transport->SetScheduler(scheduler);
+    //transport->SetDispatcher(dispatcher);
+    //transport->SetReceiver(receiver);
     node->AggregateObject(transport);
   }
 

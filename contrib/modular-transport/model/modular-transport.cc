@@ -32,11 +32,12 @@ ModularTransport::ModularTransport(){
     this->table =  MTState(this);
     NS_LOG_FUNCTION(this);
 }
-ModularTransport::ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher)
+ModularTransport::ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher, MTReceiver * receiver)
 {
     this->table =  MTState(this);
     this->scheduler = scheduler;
     this->dispatcher = dispatcher;
+    this->receiver = receiver;
     NS_LOG_FUNCTION(this);
 }
 

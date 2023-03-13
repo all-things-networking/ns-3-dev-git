@@ -8,6 +8,7 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
+    //TODO: check if cast successful
     TCPEvent* tcpevent = dynamic_cast<TCPEvent*>(anything);
     if (tcpevent->Type == TCPEventType::SEND_DATA){
         std::cout<<"dispatched SendEvent"<<std::endl;
