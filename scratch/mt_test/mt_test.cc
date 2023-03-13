@@ -142,7 +142,7 @@ main (int argc, char *argv[])
   for (int i = 0; i < 4; i++){
      double now = Simulator::Now().GetSeconds();
      Time new_start_time = Time(now + 1);
-     Simulator::Schedule(new_start_time, &ModularTransport::MainLoop, transport);
+     Simulator::Schedule(new_start_time, &ModularTransport::Mainloop, transport);
      Simulator::Run ();
   }
   Simulator::Destroy ();
