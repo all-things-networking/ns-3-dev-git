@@ -16,7 +16,6 @@ class TCPEvent: public MTEvent{
 };
 class SendEvent: public TCPEvent{
     public:
-    TCPEventType Type;
     SendEvent();
     ~SendEvent(){};
     SendEvent(long time, int flow_id);
@@ -24,7 +23,6 @@ class SendEvent: public TCPEvent{
 
 class AckEvent: public TCPEvent{
     public:
-    TCPEventType Type;
     int seq;
     AckEvent();
     ~AckEvent(){};
