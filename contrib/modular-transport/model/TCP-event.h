@@ -7,6 +7,7 @@ class MTEvent;
 class SendEvent: public MTEvent{
     public:
     SendEvent();
+    ~SendEvent(){};
     SendEvent(long time, int flow_id);
 };
 
@@ -14,6 +15,7 @@ class AckEvent: public MTEvent{
     public:
     int seq;
     AckEvent();
+    ~AckEvent(){};
     AckEvent(int flow_id, int seq);
 };
 }

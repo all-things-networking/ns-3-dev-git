@@ -7,6 +7,7 @@ class MTEvent{
     long time;
     int flow_id;
     MTEvent();
+    virtual ~MTEvent();
     MTEvent(long time, int flow_id);
 };
 }
