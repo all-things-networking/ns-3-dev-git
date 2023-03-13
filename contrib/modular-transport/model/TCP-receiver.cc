@@ -18,7 +18,7 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
                                     Ptr<Ipv4Interface> incomingInterface){
     std::cout<<"inside received"<<std::endl;
     MTTCPHeader recievedHeader;
-    //packet->RemoveHeader(recievedHeader);
+    packet->RemoveHeader(recievedHeader);
     //TODO: Add Ack in header
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     int size = packet->CopyData(buffer, packet->GetSize());
@@ -36,8 +36,8 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
             std::cout<<"Ack recevied from"<<std::endl;
             std::cout<<incomingIpHeader.GetSource()<<std::endl;
             //need to implement: int flow_id, int seq
-             //MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
-             //mt->scheduler->AddEvent(e);
+             MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
+             mt->scheduler->AddEvent(e);
         }
         else{
             std::cout<<"Sending back Ack"<<std::endl;
