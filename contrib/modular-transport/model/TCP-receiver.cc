@@ -18,7 +18,7 @@ enum IpL4Protocol::RxStatus TCPReceiver::Receive(ModularTransport* mt,
                                     Ptr<Ipv4Interface> incomingInterface){
     std::cout<<"inside received"<<std::endl;
     MTHeader* recievedHeader=new MTTCPHeader();
-    packet->RemoveHeader(recievedHeader);
+    packet->RemoveHeader(recievedHeader*);
     auto recievedTCPHeader =  dynamic_cast<MTTCPHeader*>(recievedHeader);
     //TODO: Add Ack in header
     uint8_t *buffer = new uint8_t[packet->GetSize()];
