@@ -8,6 +8,10 @@
 namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
+    std::cout<<typeid(anything)<<std::endl;
+    std::cout<<typeid(anything*)<<std::endl;
+    std::cout<<typeid(SendEvent)<<std::endl;
+    std::cout<<typeid(AckEvent)<<std::endl;
     if (typeid(anything) == typeid(SendEvent)){
         std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
