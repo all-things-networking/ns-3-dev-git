@@ -9,10 +9,12 @@ namespace ns3{
 TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
     if (typeid(anything) == typeid(SendEvent)){
+        std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
         return SendProcessor;
     }
     else{
+        std::cout<<"dispatched AckEvent"<<std::endl;
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
     }
