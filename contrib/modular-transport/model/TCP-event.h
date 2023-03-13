@@ -9,9 +9,9 @@ enum TCPEventType {
     ACK_DATA
 };
 class TCPEvent: public MTEvent{
-    virtual TCPEvent()=0;
-    virtual ~TCPEvent()=0;
     public:
+    TCPEvent(){};
+    ~TCPEvent(){};
     TCPEventType Type;
 }
 class SendEvent: public TCPEvent{
