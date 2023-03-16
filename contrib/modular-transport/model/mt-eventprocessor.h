@@ -13,7 +13,7 @@ class MTEvent;
 class MTContext;
 class Packet;
 struct EventProcessorOutput{
-     std::vector<MTEvent> newEvents;
+     std::vector<MTEvent*> newEvents;
      MTContext* context;
      std::vector<Packet> packetToSend;
      IntermediateOutput intermOutput;
@@ -33,7 +33,7 @@ public:
      * \param c The context of the Mt connection.
      * \return The modified context and new generated event if exits.
      */
-    virtual EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut) = 0;
+    virtual EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut) = 0;
 
 
     /**
@@ -41,7 +41,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    virtual bool IsValidEvent(MTEvent e) = 0;
+    virtual bool IsValidEvent(MTEvent* e) = 0;
 };
 
 
@@ -64,7 +64,7 @@ public:
      * Timeout lost should be handled by other event processors.
      * Perform Mt congestion control.
      */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext c);
 
 
     /**
@@ -72,41 +72,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MTEvent e);
-};
-
-/**
- * \brief The processor managing congestion control algorithms.
-*/
-class TcpCongControl: public MTEventProcessor
-{
-public:
-    TcpCongControl();
-
-    /**
-     * \brief Process the event and return the processed results.
-     * \param e The input event to be processed.
-     * \param c The context of the Mt connection.
-     * \return The modified context and new generated event if exits.
-     *
-     * Perform Mt congestion control based on RFC5681.
-     */
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
-
-    /**
-     * \brief Check if the input event is valid event type for the processor.
-     * \param e The input event to be processed.
-     * \return True if input event type matches the processor type, false otherwise.
-     */
-    bool IsValidEvent(MTEvent e);
-};
-
-class SendIfPossible: public MTEventProcessor
-{
-public:
-    SendIfPossible();
-    EventProcessorOutput* Process(MTEvent e, MTContext c);
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
 };
 
 } // namespace ns3

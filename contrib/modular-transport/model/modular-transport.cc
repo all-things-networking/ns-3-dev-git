@@ -4,10 +4,12 @@
 #include "mt-eventprocessor.h"
 #include "mt-dispatcher.h"
 #include "QUIC-dispatcher.h"
-#include "TCP-scheduler.h"
+#include "QUIC-scheduler.h"
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
+#include "QUIC-context.h"
+#include "QUICPacket.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -47,16 +49,17 @@ void ModularTransport::Start(
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
-    MTContext context = TcpContext(flow_id);//Change to MTContext
+    MTContext context = QUICContext(flow_id);//Change to MTContext
     context.saddr = saddr;
     context.daddr = daddr;
     table.Write(flow_id, context);
-    auto scheduler = TCPscheduler();
+    auto scheduler = QUICScheduler();
 
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
-     MTEvent e = scheduler.CreateSendEvent(flow_id, time);
+     QUICPacket* pkg = new QUICPacket();
+     MTEvent* e = scheduler.CreateReceiveEvent(flow_id, time, pkg);
      scheduler.AddEvent(e);
      Mainloop(&scheduler);
 }
@@ -66,22 +69,28 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
        // to process events
     QUICDispatcher dispatcher = QUICDispatcher();
     while (!scheduler->isEmpty()){
-         MTEvent e = scheduler->GetNextEvent();
+         MTEvent* e = scheduler->GetNextEvent();
          std::vector<MTEventProcessor*> ep = dispatcher.dispatch(e);
-         MTContext ctx = this->table.GetVal(e.flow_id);
-         std::vector<MTEvent> newEvents;
+         MTContext ctx = this->table.GetVal(e->flow_id);
+         std::vector<MTEvent*> newEvents;
          MTContext* context;
          std::vector<Packet> packetToSend;
          IntermediateOutput intermOutput;
-         EventProcessorOutput initial = {newEvents, &ctx, packetToSend, intermOutput};
-         EventProcessorOutput* result = ep[0]->Process(e, initial);
-         for (auto newEvent : result->newEvents)
+         EventProcessorOutput* epout = new EventProcessorOutput{newEvents, &ctx, packetToSend, intermOutput};
+         
+         
+         for (auto processor : ep) 
+         {
+            epout = processor->Process(e, epout);
+            NS_LOG_UNCOND("In processor loop");
+         }
+
+         for (auto newEvent : epout->newEvents)
           {
                  scheduler->AddEvent(newEvent);
           }
 
-
-         for (auto packet : result->packetToSend)
+         for (auto packet : epout->packetToSend)
          {
                 MTHeader outgoing;
                 //recreate Header for outgoing
@@ -92,6 +101,7 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
          //Use rult's mtcontext to update table's context at id
          //addall every thing in first vector of result into schedular
     }
+    NS_LOG_UNCOND("Finished main loop");
 }
 void
 ModularTransport::DoDispose()

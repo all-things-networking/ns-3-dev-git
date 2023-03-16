@@ -22,7 +22,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
 
 
     /**
@@ -30,17 +30,17 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
 };
 
 class QUICPacketDemultiplexer: public MTEventProcessor
 {
 private:
-    QUICPacket recvPacket;
+    QUICPacket* recvPacket;
     std::vector<std::pair<uint64_t, QUICFrame>> FrameToStream;
 
     void demultiplexePacket();
-    void processFrame(EventProcessorOutput epOut);
+    void processFrame(EventProcessorOutput* epOut);
 public:
     QUICPacketDemultiplexer();
 
@@ -51,7 +51,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
 
 
     /**
@@ -59,7 +59,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
 };
 
 
@@ -75,7 +75,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
 
 
     /**
@@ -83,7 +83,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
 };
 
 /**
@@ -101,7 +101,7 @@ public:
      * \return The modified context and new generated event if exits.
      *
      */
-    EventProcessorOutput* Process(MTEvent e, EventProcessorOutput epOut);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
 
 
     /**
@@ -109,7 +109,7 @@ public:
      * \param e The input event to be processed.
      * \return True if input event type matches the processor type, false otherwise.
      */
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
 };
 
 

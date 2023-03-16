@@ -8,7 +8,7 @@ namespace ns3
 class QUICDispatcher:public MTDispatcher{
     public:
     QUICDispatcher();
-    std::vector<MTEventProcessor*> dispatch(MTEvent);
+    std::vector<MTEventProcessor*> dispatch(MTEvent*);
 };
 
 }

@@ -18,11 +18,12 @@ class QUICContext: public MTContext
 { 
 public:
 
+    int flow_id;
     uint32_t max_data; // maximum amount of data that can be sent on the connection
     uint32_t max_stream_data; // maximum amount of data that can be sent on a stream
     std::vector<QUICStream> streams;
 
-    QUICContext();
+    QUICContext(int flow_id);
 
 };
 } // namespace ns3

@@ -18,9 +18,9 @@ class ACKTimerEvent: public MTEvent{
 
 class ReceivePacketEvent: public MTEvent{
     public:
-    QUICPacket receivered;
+    QUICPacket* receivered;
     ReceivePacketEvent();
-    ReceivePacketEvent(long time, int flow_id);
+    ReceivePacketEvent(long time, int flow_id, MTPacket* rcv);
 };
 }
 #endif
