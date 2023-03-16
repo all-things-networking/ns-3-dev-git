@@ -18,10 +18,11 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
                                     Ptr<Ipv4Interface> incomingInterface){
     std::cout<<"inside received"<<std::endl;
     MTTCPHeader recievedHeader;
+    MTTCPHeader headerType;
     packet->RemoveHeader(recievedHeader);
-    //TODO: Add Ack in header
+    std::cout<<"seqnum"<<recievedHeader.seqnum<<std::endl;
     uint8_t *buffer = new uint8_t[packet->GetSize()];
-    int size = packet->CopyData(buffer, packet->GetSize());
+    uint32_t size = packet->CopyData(buffer, packet->GetSize());
     std::cout<<"Received: size"<<size<<std::endl;
         for(int i=0;i<packet->GetSize();i++){
             std::cout<<unsigned(buffer[i])<<std::endl;
@@ -29,21 +30,25 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
         //chosenScheduler.OpsAfterRecieved(recievedHeader);
         //chosenScheduler.GenerateEventOnReceive(recievedHeader);
         //recievedHeader.OpsAfterRecieved(); //THis one returns a event
-        std::cout<<mt << packet << incomingIpHeader << incomingInterface<<std::endl;
+    std::cout<<mt << packet << incomingIpHeader << incomingInterface<<std::endl;
 
-        std::cout<<"Received packet in ModularTransport"<<std::endl;
-        if(incomingIpHeader.GetSource() == "10.0.0.2"){
+    std::cout<<"Received packet in ModularTransport"<<std::endl;
+    if((recievedHeader.ControlBits&headerType.ackbit) > 0){
             std::cout<<"Ack recevied from"<<std::endl;
             std::cout<<incomingIpHeader.GetSource()<<std::endl;
-            std::cout<<"seqnum"<<recievedHeader.seqnum<<std::endl;
             //need to implement: int flow_id, int seq
              //MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
-             MTEvent* e = mt->scheduler->CreateAckEvent(1,0 + size);
+             MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.acknum);
              mt->scheduler->AddEvent(e);
-        }
-        else{
+    }
+    else{
             std::cout<<"Sending back Ack"<<std::endl;
             Packet P = Packet();
+            MTTCPHeader ACKHeader;
+            ACKHeader.acknum = recievedHeader.seqnum + size;
+            ACKHeader.seqnum = recievedHeader.seqnum + size;
+            ACKHeader.ControlBits|= headerType.ackbit;
+            P.AddHeader(ACKHeader);
             //recreate Header for outgoing
             mt->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
         }

@@ -5,11 +5,14 @@ class MTHeader;
 //#Modular transport TCP header
 class MTTCPHeader : public MTHeader {
     public:
-        int seqnum; //32 bits
-        int acknum; // 32 bits
+        uint32_t seqnum; //32 bits
+        uint32_t acknum; // 32 bits
         int DOffset; //4 bits
         int Reserved; //4 bits
-        int* ControlBits[6]; //1 bit each
+        uint32_t ControlBits; //1 bit each
+        uint32_t urgentbit = 1;
+        uint32_t ackbit = 2;
+        uint32_t PushFlag = 4;
         int Window; //16 bits
         int CheckSum; //16 bits
         int UrgentPointer; // 16 bits
@@ -17,6 +20,10 @@ class MTTCPHeader : public MTHeader {
         char* data;
         MTTCPHeader();
         ~MTTCPHeader();
+        TypeId GetInstanceTypeId() const override;
+        void Print(std::ostream& os) const override;
+        uint32_t GetSerializedSize() const override;
+        void Serialize(Buffer::Iterator start) const override;
         uint32_t Deserialize(Buffer::Iterator start) override;
         int GenPseudoHeader();
         int ComputeCheckSum();

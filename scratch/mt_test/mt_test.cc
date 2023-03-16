@@ -123,7 +123,6 @@ main (int argc, char *argv[])
   mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
-  std::cout<<"just to make sure it's my branch"<<std::endl;
   int flow_id=1; //flow_id here should be same
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
@@ -136,7 +135,7 @@ main (int argc, char *argv[])
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
   std::cout<<"mt_test: start finished"<<std::endl;
-  for (int i = 0; i < 1; i++){
+  for (int i = 0; i < 4; i++){
 
      double now = Simulator::Now().GetSeconds();
      Time new_start_time = Time(now + 1);

@@ -23,10 +23,10 @@ class SendEvent: public TCPEvent{
 
 class AckEvent: public TCPEvent{
     public:
-    int seq;
+    uint32_t seq;
     AckEvent();
     ~AckEvent(){};
-    AckEvent(int flow_id, int seq);
+    AckEvent(int flow_id,  uint32_t seq);
 };
 }
 #endif
