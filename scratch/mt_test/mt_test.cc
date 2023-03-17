@@ -138,7 +138,7 @@ main (int argc, char *argv[])
   }
   context->data = data;
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
-
   Simulator::Run ();
   Simulator::Destroy ();
+  std::cout<<"########## ENDING NOW ##########"<<std::endl;
 }

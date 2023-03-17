@@ -1,7 +1,9 @@
 #include "QUIC-Scheduler.h"
 #include "mt-event.h"
-
+#include "ns3/ipv4-l3-protocol.h"
+#include "ns3/node.h"
 namespace ns3{
+    
 QUICScheduler::QUICScheduler(){
 
 }
@@ -10,8 +12,11 @@ QUICScheduler::QUICScheduler(){
 // TODO: currently we allow the user to specify the type of stream event and the id
 // in the future, we can abstract this from the user
 MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
+    // Create random data for now
+    Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>("hello"), 5);
+
     // TODO: need to free this memory after?
-    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_DATA, 5); // pick random stream_id for now
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, 5, data); // pick random stream_id for now
     return streamEvent;
 }
 

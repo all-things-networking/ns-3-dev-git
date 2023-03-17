@@ -3,7 +3,9 @@
 #include "../mt-eventprocessor.h"
 #include <stdint.h>
 #include "QUIC-StreamHandler.h"
-
+#include "ns3/ipv4-l3-protocol.h"
+#include "QUIC-Frame.h"
+#include "../QUIC-Event.h"
 namespace ns3
 {
 
@@ -22,7 +24,7 @@ public:
     EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 
-    // void Send(Packet* pkt, uint32_t streamId);
+    EventProcessorOutput* SendDataFrame(QUICFrame* dataFrame, StreamEvent* e, QUICContext* c);
     // void Recv(Packet* pkt, uint32_t streamId);
     // void ChangeStreamState(uint32_t streamId);
     // uint32_t CreateStream(); // Creates QUIC stream and returns the ID

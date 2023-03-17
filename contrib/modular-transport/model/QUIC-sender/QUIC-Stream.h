@@ -1,5 +1,5 @@
-#ifndef QUIC_STREAM_CONTEXT_H
-#define QUIC_STREAM_CONTEXT_H
+#ifndef QUIC_STREAM_H
+#define QUIC_STREAM_H
 
 #include <ctime> // std::time_t
 #include <map>
@@ -23,11 +23,11 @@ enum QUICStreamState
  * \brief The class for maintaing the state variables for ONE QUIC stream.
  */
 // QUIC context
-class QUICStreamContext
+class QUICStream
 {
 public:
-    QUICStreamContext(int id);
-    ~QUICStreamContext();
+    QUICStream(int id);
+    ~QUICStream();
 
     // Self defined
     QUICStreamState state = QUICStreamState::NONE; // Current sender stream state

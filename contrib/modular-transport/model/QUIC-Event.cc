@@ -1,5 +1,7 @@
 #include "mt-event.h"
 #include "QUIC-Event.h"
+#include "ns3/ipv4-l3-protocol.h"
+
 namespace ns3{
 SendEvent::SendEvent(){
 
@@ -21,6 +23,14 @@ StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, int strea
     this->stream_id=stream_id;
     this->flow_id=flow_id;
     this->type = EventType::STREAM_EVENT;
+}
+
+StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id, Ptr<Packet> data){
+    this->streamEventType=streamEventType;
+    this->stream_id=stream_id;
+    this->flow_id=flow_id;
+    this->type = EventType::STREAM_EVENT;
+    this->data = data;
 }
 
 }

@@ -1,10 +1,15 @@
 #ifndef QUIC_EVENT_H
 #define QUIC_EVENT_H
 #include "mt-event.h"
+#include "ns3/ipv4-l3-protocol.h"
+
 namespace ns3{
 
+class Packet;
+
 enum StreamEventType {
-    SEND_DATA
+    ADD_DATA,
+    SEND_PACKET
 };
 
 class MTHeader;
@@ -28,6 +33,10 @@ class StreamEvent: public MTEvent{
     int stream_id;
     StreamEvent();
     StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id);
+
+    // Send Data 
+    Ptr<Packet> data;
+    StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id, Ptr<Packet> data);
 };
 
 }

@@ -6,9 +6,10 @@
 
 namespace ns3
 {
-QUICContext::QUICContext(int id)//, uint32_t timer_duration)
-    : data{NULL}    
+QUICContext::QUICContext(int id)//, uint32_t timer_duration) {
 {
+    this->data = NULL;
+    this->PacketBuffer = new QUICPacketBuffer;
 }
 QUICContext::~QUICContext(){}
 } // namespace ns3

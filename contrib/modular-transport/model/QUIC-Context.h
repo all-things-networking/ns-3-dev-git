@@ -5,12 +5,13 @@
 #include <map>
 #include "ns3/ipv4-address.h"
 #include "mt-context.h"
-#include "./QUIC-sender/QUIC-StreamContext.h"
+#include "./QUIC-sender/QUIC-Stream.h"
+#include "./QUIC-sender/QUIC-PacketBuffer.h"
 
 namespace ns3
 {
     
-class QUICStreamContext;
+class QUICStream;
 
 class MTContext;
 /**
@@ -23,7 +24,8 @@ public:
     QUICContext(int id);
     ~QUICContext();
     uint8_t* data;
-    std::map<int, QUICStreamContext*> quic_streams; // streams for this connection
+    std::map<int, QUICStream*> quic_streams; // streams for this connection
+    QUICPacketBuffer* PacketBuffer;
 };
 
 } // namespace ns3

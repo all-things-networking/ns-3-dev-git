@@ -7,6 +7,7 @@ namespace ns3{
 class MTScheduler;
 class MTEvent;
 class MTHeader;
+class Packet;
 class QUICScheduler: public MTScheduler{
     public:
     std::queue<MTEvent*> myqueue;

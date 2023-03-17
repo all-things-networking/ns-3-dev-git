@@ -1,44 +1,58 @@
 #include "QUIC-Receiver.h"
-#include "mt-receiver.h"
+
 #include "modular-transport.h"
+#include "mt-receiver.h"
+
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
-namespace ns3{
 
-QUICReceiver::QUICReceiver(){
+#include <string>
 
+namespace ns3
+{
+
+QUICReceiver::QUICReceiver()
+{
 }
-enum IpL4Protocol::RxStatus QUICReceiver::Receive(ModularTransport* mt,
-                                    Ptr<Packet> packet,
-                                    const Ipv4Header& incomingIpHeader,
-                                    Ptr<Ipv4Interface> incomingInterface){
-    std::cout<<"inside received"<<std::endl;;
+
+enum IpL4Protocol::RxStatus
+QUICReceiver::Receive(ModularTransport* mt,
+                      Ptr<Packet> packet,
+                      const Ipv4Header& incomingIpHeader,
+                      Ptr<Ipv4Interface> incomingInterface)
+{
+    std::cout << "########### Received ###########" << std::endl;
+    ;
     MTHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
-    uint8_t *buffer = new uint8_t[packet->GetSize()];
+    uint8_t* buffer = new uint8_t[packet->GetSize()];
     int size = packet->CopyData(buffer, packet->GetSize());
 
-    std::cout<<"Received: size"<<size<<std::endl;
-        for(int i=0;i<packet->GetSize();i++){
-            std::cout<<unsigned(buffer[i])<<std::endl;
-        }
-        //chosenScheduler.OpsAfterRecieved(recievedHeader);
-        //chosenScheduler.GenerateEventOnReceive(recievedHeader);
-        //recievedHeader.OpsAfterRecieved(); //THis one returns a event
-        std::cout<<mt << packet << incomingIpHeader << incomingInterface<<std::endl;
+    //
+    std::string s = std::string(buffer, buffer + packet->GetSize());
+    std::cout << "Received: " << s << std::endl;
 
-        std::cout<<"Received packet in ModularTransport"<<std::endl;
-        if(incomingIpHeader.GetSource() == "10.0.0.2"){
-            std::cout<<"Ack recevied from"<<std::endl;
-           std::cout<<incomingIpHeader.GetSource()<<std::endl;
-            //#how, function from scheduler?
-        }
-        else{
-            std::cout<<"Sending back Ack"<<std::endl;
-            Packet P = Packet();
-            //recreate Header for outgoing
-            mt->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
-        }
+    // chosenScheduler.OpsAfterRecieved(recievedHeader);
+    // chosenScheduler.GenerateEventOnReceive(recievedHeader);
+    // recievedHeader.OpsAfterRecieved(); //THis one returns a event
+    std::cout << mt << packet << incomingIpHeader << incomingInterface << std::endl;
+
+    std::cout << "Received packet in ModularTransport" << std::endl;
+    if (incomingIpHeader.GetSource() == "10.0.0.2")
+    {
+        std::cout << "Ack recevied from" << std::endl;
+        std::cout << incomingIpHeader.GetSource() << std::endl;
+        // #how, function from scheduler?
+    }
+    else
+    {
+        std::cout << "Sending back Ack" << std::endl;
+        Packet P = Packet();
+        // recreate Header for outgoing
+        mt->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
+    }
+    std::cout << "################################" << std::endl;
+    ;
     return IpL4Protocol::RX_OK;
 }
-}
+} // namespace ns3
