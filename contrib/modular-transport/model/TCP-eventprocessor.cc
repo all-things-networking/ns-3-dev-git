@@ -112,7 +112,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
         if (Simulator::Now().GetSeconds() > event.EndTime){
             MTTCPHeader outgoingHeader = MTTCPHeader();
             newContext->m_Wnd = std::max(newContext->m_Wnd/2, 1);
-            if (event->seqnum < newContext->m_Wnd + newContext->m_Una){
+            if (event->seq < newContext->m_Wnd + newContext->m_Una){
                 outgoingHeader.seqnum = newContext->m_Iss + event->seq; //Confirmed: first sequence number of a segment
                 std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
                 Packet P = Packet(
