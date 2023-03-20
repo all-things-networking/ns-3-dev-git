@@ -108,7 +108,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    if (newContext->m_Una <= newContext->m_Iss + event->seqnum) //check if Sack for this packet have been received
+    if (newContext->m_Una <= newContext->m_Iss + event->seqnum){ //check if Sack for this packet have been received
         if (Simulator::Now().GetSeconds() > event.EndTime){
             MTTCPHeader outgoingHeader = MTTCPHeader();
             newContext->m_Wnd = std::max(newContext->m_Wnd/2, 1);
@@ -127,6 +127,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
         //push it back
             newEvents.push_back(event);
          }
+    }
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
