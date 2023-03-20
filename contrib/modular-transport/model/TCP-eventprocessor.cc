@@ -28,10 +28,8 @@ SendIfPossible::IsValidEvent(MTEvent e)
 }
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
-    //I call mt->SendPack here
     std::cout<<"ok context"<<std::endl;
     TCPContext* newContext = dynamic_cast<TCPContext*>(c);
-    //A
     std::vector<MTEvent*> newEvents;
 
     //New Packets
@@ -50,8 +48,10 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
             newContext->m_segmentsize);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
+        TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
+        newEvents.push_back(timeevent);
      }
-      std::cout<<"SendIfPossible loop end"<<std::endl;
+     std::cout<<"SendIfPossible loop end"<<std::endl;
     //Create header here
 
     //Output
@@ -78,12 +78,55 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    //TODO: slow start
     newContext->m_Wnd += newContext->m_segmentsize;
+    //need an array here
     newContext->m_Una = event->seq;
     //SendEvent(time, flow_id)
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
+
+
+    EventProcessorOutput *Output = new EventProcessorOutput;
+    Output->newEvents=newEvents;
+    Output->updatedContext=newContext;
+    Output->packetToSend=packetTobeSend;
+    return Output;
+} // namespace ns3
+
+TimedResendHandler::TimedResendHandler():
+MTEventProcessor()
+{}
+bool
+TimedResendHandler::IsValidEvent(MTEvent e)
+{
+    return true;
+}
+
+EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
+    TCPContext* newContext = dynamic_cast<TCPContext*>(c);
+    TimeExpire* event = dynamic_cast<TimeExpire*>(e);
+    std::vector<MTEvent*> newEvents;
+    std::vector<Packet> packetTobeSend;
+
+    if (newContext->m_Una <= newContext->m_Iss + event->seqnum) //check if Sack for this packet have been received
+        if (Simulator::Now().GetSeconds() > event.EndTime){
+            MTTCPHeader outgoingHeader = MTTCPHeader();
+            newContext->m_Wnd = std::max(newContext->m_Wnd/2, 1);
+            if (event->seqnum < newContext->m_Wnd + newContext->m_Una){
+                outgoingHeader.seqnum = newContext->m_Iss + e->seq; //Confirmed: first sequence number of a segment
+                std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
+                Packet P = Packet(
+                    newContext->data+e->seq,
+                    newContext->m_segmentsize);
+                P.AddHeader(outgoingHeader);
+                packetTobeSend.emplace_back(P);
+                TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
+                newEvents.push_back(timeevent);
+            }//hmm else ? set Next back?
+         }else{
+        //push it back
+            newEvents.push_back(event);
+         }
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;

@@ -89,6 +89,11 @@ class AckHandler: public MTEventProcessor{
     bool IsValidEvent(MTEvent e);
 };
 
+class TimedResendHandler: public MTEventProcessor{
+    public:
+    TimedResendHandler();
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
+    bool IsValidEvent(MTEvent e);
 } // namespace ns3
 //#TODO: new event processor for ack
 #endif

@@ -6,7 +6,8 @@ class MTHeader;
 class MTEvent;
 enum TCPEventType {
     SEND_DATA,
-    ACK_DATA
+    ACK_DATA,
+    TIME_EXPIRE
 };
 class TCPEvent: public MTEvent{
     public:
@@ -26,8 +27,16 @@ class AckEvent: public TCPEvent{
     uint32_t seq;
     AckEvent();
     ~AckEvent(){};
-    AckEvent(int flow_id,  uint32_t seq);//TODO variable name
-    //TODO: Timer
+    AckEvent(int flow_id,  uint32_t acknum);
 };
+class TimeExpire: public TCPEvent{
+    public:
+    double EndTime;
+    uint32_t seq;
+    TimeExpire();
+    TimeExpire(int flow_id, uint32_t seq, double EndTime)
+    ~TimeExpire(){};
+};
+
 }
 #endif
