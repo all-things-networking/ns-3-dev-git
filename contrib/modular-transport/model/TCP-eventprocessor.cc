@@ -110,7 +110,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     if (newContext->m_Una <= newContext->m_Iss + event->seqnum){ //check if Sack for this packet have been received
 
            MTTCPHeader outgoingHeader = MTTCPHeader();
-            newContext->m_Wnd = std::max(newContext->m_Wnd/2, 1);
+            newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint_32)1);
             if (event->seqnum < newContext->m_Wnd + newContext->m_Una){
                 outgoingHeader.seqnum = newContext->m_Iss + event->seqnum; //Confirmed: first sequence number of a segment
                 std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;

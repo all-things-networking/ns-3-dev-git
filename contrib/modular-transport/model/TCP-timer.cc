@@ -14,7 +14,7 @@ namespace ns3{
     }
     TCPTimer::TCPTimer (int duration, TCPScheduler* scheduler){
         this->duration = duration;
-        this->Scheduler = scheduler;
+        this->scheduler = scheduler;
     }
 
     void TCPTimer::start(){
