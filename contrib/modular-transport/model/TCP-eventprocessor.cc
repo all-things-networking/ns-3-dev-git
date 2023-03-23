@@ -122,8 +122,8 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
                 //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
                 //newEvents.push_back(timeevent);
             }//hmm else ? set Next back?
-         }
     }
+
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
