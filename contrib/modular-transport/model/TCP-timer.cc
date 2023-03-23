@@ -9,6 +9,9 @@
 #include "ns3/modular-transport.h"
 
 namespace ns3{
+    Timer::Timer(){
+        //not usable
+    }
     Timer::Timer (int duration, TCPScheduler* scheduler){
         this->duration = duration;
         this->Scheduler = scheduler;

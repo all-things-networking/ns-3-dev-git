@@ -5,6 +5,7 @@
 namespace ns3{
 class Timer {
 public:
+     Timer();
      Timer (int duration, TCPScheduler*);
      void start();
      void reset();
