@@ -9,34 +9,26 @@ namespace ns3{
 
     void Timer::start(){
         double now = Simulator::Now().GetSeconds();
-        Time expiration_time = Time(now + duration);
-        EventID event_id = Simulator::Schedule(expiration_time, &expire, this);
+        Time expiration_time = Time(now + this->duration);
+        EventID event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     };
 
     void Timer::reset(){
 	    Simulator::Cancel(event_id);
 	    double now = Simulator::Now().GetSeconds();
-        Time expiration_time = Time(now + duration);
-        this->event_id = Simulator::Schedule(expiration_time, &expire, this);
+        Time expiration_time = Time(now + this->duration);
+        this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     }
 
     void Timer::reset(int duration){
-        Simulator::Cancel(event_id);
+        Simulator::Cancel(this->event_id);
         this->duration = duration;
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + duration);
-        this->event_id = Simulator::Schedule(expiration_time, &expire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     }
 
      void Timer::expire(){
-          //create TimerExpired event and add to scheduler
-
-          this->scheduler
+          //create TimerExpired event and add to schedule
      }
-
-private:
-     int duration;
-     EventID event_id;
-     scheduler;
-}
 }
