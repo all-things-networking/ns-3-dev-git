@@ -38,9 +38,9 @@ namespace ns3{
         this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
     }
 
- void TCPTimer::expire(TCPTimer* expiredTimer){
+ void TCPTimer::expire(){
     TimerExpire* newEvent = new TimerExpire(1,1,1);
-    expiredTimer->scheduler->AddEvent(newEvent);
+    this->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule
  }
 }
