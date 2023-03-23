@@ -3,10 +3,10 @@
 #include "TCP-scheduler.h"
 #include "ns3/event-id.h"
 namespace ns3{
-class Timer {
+class TCPTimer {
 public:
-     Timer();
-     Timer (int duration, TCPScheduler*);
+     TCPTimer();
+     TCPTimer (int duration, TCPScheduler*);
      void start();
      void reset();
      void reset(int duration);

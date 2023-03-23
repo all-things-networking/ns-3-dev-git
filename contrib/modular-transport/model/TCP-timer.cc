@@ -9,28 +9,28 @@
 #include "ns3/modular-transport.h"
 
 namespace ns3{
-    Timer::Timer(){
+    TCPTimer::TCPTimer(){
         //not usable
     }
-    Timer::Timer (int duration, TCPScheduler* scheduler){
+    TCPTimer::TCPTimer (int duration, TCPScheduler* scheduler){
         this->duration = duration;
         this->Scheduler = scheduler;
     }
 
-    void Timer::start(){
+    void TCPTimer::start(){
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
         this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     };
 
-    void Timer::reset(){
+    void TCPTimer::reset(){
 	    Simulator::Cancel(event_id);
 	    double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
         this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     }
 
-    void Timer::reset(int duration){
+    void TCPTimer::reset(int duration){
         Simulator::Cancel(this->event_id);
         this->duration = duration;
         double now = Simulator::Now().GetSeconds();
@@ -38,7 +38,7 @@ namespace ns3{
         this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
     }
 
-     void Timer::expire(){
+     void TCPTimer::expire(){
           //create TimerExpired event and add to schedule
      }
 }
