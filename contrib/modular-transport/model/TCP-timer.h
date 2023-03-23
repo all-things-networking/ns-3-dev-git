@@ -13,7 +13,8 @@ public:
      int duration;
      EventId event_id;
      TCPScheduler* scheduler;
+     void expire(TCPTimer*);
+
 };
-void TCPTimerexpire(TCPTimer*);
 }
 #endif

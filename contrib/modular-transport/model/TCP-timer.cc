@@ -20,14 +20,14 @@ namespace ns3{
     void TCPTimer::start(){
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
-        this->event_id = Simulator::Schedule(expiration_time, &TCPTimerexpire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
     };
 
     void TCPTimer::reset(){
 	    Simulator::Cancel(event_id);
 	    double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
-        this->event_id = Simulator::Schedule(expiration_time, &TCPTimerexpire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
     }
 
     void TCPTimer::reset(int duration){
@@ -35,10 +35,10 @@ namespace ns3{
         this->duration = duration;
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + duration);
-        this->event_id = Simulator::Schedule(expiration_time, &TCPTimerexpire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
     }
 
- void TCPTimerexpire(TCPTimer* expiredTimer){
+ void TCPTimer::expire(TCPTimer* expiredTimer){
     TimerExpire* newEvent = new TimerExpire(1,1,1);
     expiredTimer->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule

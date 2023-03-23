@@ -20,7 +20,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
       m_ssthresh{1048576}, // 2^20
       m_segmentsize{4},
       m_dupThreshold{3}
-      //duration, scheduler
+      //TODO: duration=1, scheduler
 {
 }
 TCPContext::~TCPContext(){}

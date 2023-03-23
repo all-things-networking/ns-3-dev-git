@@ -11,7 +11,7 @@ class Ipv4Interface;
 class TCPReceiveLogic: public MTReceiveLogic {
 
     public:
-    uint32_t next_acknum;
+    uint32_t next_acknum; //TODO: inital sequence nummber
     std::map<uint32_t, uint32_t> buffer;
     TCPReceiveLogic();
     enum IpL4Protocol::RxStatus Receive(ModularTransport* mt,
