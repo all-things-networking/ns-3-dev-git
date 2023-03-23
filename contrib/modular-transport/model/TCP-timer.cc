@@ -20,14 +20,14 @@ namespace ns3{
     void TCPTimer::start(){
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
-        this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &expire, this);
     };
 
     void TCPTimer::reset(){
 	    Simulator::Cancel(event_id);
 	    double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + this->duration);
-        this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &expire, this);
     }
 
     void TCPTimer::reset(int duration){
@@ -35,7 +35,7 @@ namespace ns3{
         this->duration = duration;
         double now = Simulator::Now().GetSeconds();
         Time expiration_time = Time(now + duration);
-        this->event_id = Simulator::Schedule(expiration_time, &this->expire, this);
+        this->event_id = Simulator::Schedule(expiration_time, &expire, this);
     }
 
      void TCPTimer::expire(){

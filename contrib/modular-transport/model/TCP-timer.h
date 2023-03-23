@@ -15,7 +15,7 @@ public:
     private:
         int duration;
         EventId event_id;
-        TCPScheduler scheduler;
+        TCPScheduler* scheduler;
 };
 }
 #endif
