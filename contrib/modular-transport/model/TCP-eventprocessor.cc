@@ -79,7 +79,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
 
     newContext->m_Wnd += newContext->m_segmentsize;
     //need an array here
-    newContext->m_Una = event->seq;
+    newContext->m_Una = event->seqnum;
     //SendEvent(time, flow_id)
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
@@ -108,8 +108,8 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     if (newContext->m_Una <= newContext->m_Iss + event->seqnum){ //check if Sack for this packet have been received
-        if (Simulator::Now().GetSeconds() > event.EndTime){
-            MTTCPHeader outgoingHeader = MTTCPHeader();
+
+           MTTCPHeader outgoingHeader = MTTCPHeader();
             newContext->m_Wnd = std::max(newContext->m_Wnd/2, 1);
             if (event->seqnum < newContext->m_Wnd + newContext->m_Una){
                 outgoingHeader.seqnum = newContext->m_Iss + event->seqnum; //Confirmed: first sequence number of a segment
@@ -122,9 +122,6 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
                 //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
                 //newEvents.push_back(timeevent);
             }//hmm else ? set Next back?
-         }else{
-        //push it back
-            newEvents.push_back(event);
          }
     }
 
