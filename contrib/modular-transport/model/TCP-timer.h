@@ -15,6 +15,6 @@ public:
         int duration;
         EventId event_id;
         TCPScheduler scheduler;
-    }
+};
 }
 #endif
