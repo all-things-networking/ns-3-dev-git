@@ -29,13 +29,13 @@ class AckEvent: public TCPEvent{
     ~AckEvent(){};
     AckEvent(int flow_id,  uint32_t acknum);
 };
-class TimeExpire: public TCPEvent{
+class TimerExpire: public TCPEvent{ //TODO timerExpried r
     public:
     double EndTime;
     uint32_t seq;
-    TimeExpire();
-    TimeExpire(int flow_id, uint32_t seq, double EndTime)
-    ~TimeExpire(){};
+    TimerExpire();
+    TimerExpire(int flow_id, uint32_t seq, double EndTime)
+    ~TimerExpire(){};
 };
 
 }

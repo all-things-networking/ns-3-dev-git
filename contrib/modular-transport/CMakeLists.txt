@@ -27,6 +27,7 @@ build_lib(
                  model/TCP-header.cc
                  model/TCP-receivelogic.cc
                  model/TCP-scheduler.cc
+                 model/TCP-timer.cc
 
     HEADER_FILES model/modular-transport.h
                  helper/modular-transport-helper.h
@@ -45,6 +46,7 @@ build_lib(
                  model/TCP-header.h
                  model/TCP-receivelogic.h
                  model/TCP-scheduler.h
+                 model/TCP-timer.h
     LIBRARIES_TO_LINK ${libinternet}
     TEST_SOURCES test/modular-transport-test-suite.cc
                  ${examples_as_tests_sources}

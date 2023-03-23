@@ -5,6 +5,7 @@
 #include <map>
 #include "ns3/ipv4-address.h"
 #include "mt-context.h"
+#include "TCP-timer.h"
 namespace ns3
 {
 class ModularTransport;
@@ -30,6 +31,7 @@ public:
     TCPContext(int tcpId);
     ~TCPContext();
     // rfc9293 - Sec 3.3.1
+    Timer RTOTimer;
     uint8_t* data;
     uint32_t m_Una;           // send unacknowledged
     //TODO: Una is start

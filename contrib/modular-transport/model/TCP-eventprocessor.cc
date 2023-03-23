@@ -48,8 +48,8 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
             newContext->m_segmentsize);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
-        TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
-        newEvents.push_back(timeevent);
+        //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
+        //newEvents.push_back(timeevent);
      }
      std::cout<<"SendIfPossible loop end"<<std::endl;
     //Create header here
@@ -104,7 +104,7 @@ TimedResendHandler::IsValidEvent(MTEvent e)
 
 EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     TCPContext* newContext = dynamic_cast<TCPContext*>(c);
-    TimeExpire* event = dynamic_cast<TimeExpire*>(e);
+    TimerExpire* event = dynamic_cast<TimerExpire*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
@@ -120,8 +120,8 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
                     newContext->m_segmentsize);
                 P.AddHeader(outgoingHeader);
                 packetTobeSend.emplace_back(P);
-                TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
-                newEvents.push_back(timeevent);
+                //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
+                //newEvents.push_back(timeevent);
             }//hmm else ? set Next back?
          }else{
         //push it back
