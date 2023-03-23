@@ -12,7 +12,7 @@ public:
 
     private:
         int duration;
-        EventID event_id;
+        EventId event_id;
         TCPScheduler scheduler;
     }
 }

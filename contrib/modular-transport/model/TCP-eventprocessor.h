@@ -94,7 +94,7 @@ class TimedResendHandler: public MTEventProcessor{
     TimedResendHandler();
     EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
-} // namespace ns3
+};// namespace ns3
 }
 //#TODO: new event processor for ack
 #endif

@@ -34,7 +34,7 @@ class TimerExpire: public TCPEvent{ //TODO timerExpried r
     double EndTime;
     uint32_t seq;
     TimerExpire();
-    TimerExpire(int flow_id, uint32_t seq, double EndTime)
+    TimerExpire(int flow_id, uint32_t seq, double EndTime);
     ~TimerExpire(){};
 };
 
