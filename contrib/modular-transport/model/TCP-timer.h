@@ -1,5 +1,5 @@
-#ifndef TCP_CONTEXT_H
-#define TCP_CONTEXT_H
+#ifndef TCP_TIMER_H
+#define TCP_TIMER_H
 #include "TCP-scheduler.h"
 namespace ns3{
 class Timer {
