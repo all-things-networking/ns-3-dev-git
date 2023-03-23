@@ -39,8 +39,8 @@ namespace ns3{
     }
 
  void TCPTimerexpire(TCPTimer* expiredTimer){
-    TimerExpired event = new TimerExpired(1,1,1);
-    expiredTimer->scheduler.AddEvent(MTEvent* newEvent);
+    TimerExpire newevent = new TimerExpired(1,1,1);
+    expiredTimer->scheduler->AddEvent(MTEvent* newEvent);
            //create TimerExpired event and add to schedule
  }
 }
