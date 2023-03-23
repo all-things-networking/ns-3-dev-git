@@ -30,6 +30,7 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     }
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     uint32_t size = packet->CopyData(buffer, packet->GetSize());
+    std::cout<<size<<std::endl;
     //std::cout<<"Received: size"<<size<<std::endl;
     //for(int i=0;i<packet->GetSize();i++){
     //    std::cout<<unsigned(buffer[i])<<std::endl;
@@ -50,9 +51,11 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     else{
             std::cout<<"Receiver Sending back Ack for acknum"<<" "<<recievedHeader.seqnum<<std::endl;
             Packet P = Packet();
+
             this->buffer[recievedHeader.seqnum] = size;
             while(this->buffer.count(next_acknum)){
-                std::cout<<(uint32_t)buffer[this->next_acknum]<<" "<<this->buffer.count(next_acknum)<<std::endl;
+            //0 1
+                //std::cout<<(uint32_t)buffer[this->next_acknum]<<" "<<this->buffer.count(next_acknum)<<std::endl;
                 this->next_acknum += (uint32_t)buffer[this->next_acknum];
             }
             MTTCPHeader ACKHeader;
