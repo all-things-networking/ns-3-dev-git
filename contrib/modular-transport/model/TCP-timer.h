@@ -10,11 +10,9 @@ public:
      void start();
      void reset();
      void reset(int duration);
-
-    private:
-        int duration;
-        EventId event_id;
-        TCPScheduler* scheduler;
+     int duration;
+     EventId event_id;
+     TCPScheduler* scheduler;
 };
 void TCPTimerexpire(TCPTimer*);
 }

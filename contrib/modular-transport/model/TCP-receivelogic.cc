@@ -11,7 +11,7 @@
 namespace ns3{
 
 TCPReceiveLogic::TCPReceiveLogic(){
-
+    this->next_acknum = 0;
 }
 enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
                                     Ptr<Packet> packet,
@@ -50,9 +50,13 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     else{
             std::cout<<"Receiver Sending back Ack for acknum"<<" "<<recievedHeader.seqnum<<std::endl;
             Packet P = Packet();
+            this->buffer[recievedHeader.seqnum] = size;
+            while(this->buffer.count(next_acknum)){
+                this->next_acknum += (uint32_t)buffer[this->next_acknum];
+            }
             MTTCPHeader ACKHeader;
-            ACKHeader.acknum = recievedHeader.seqnum + size;
-            ACKHeader.seqnum = recievedHeader.seqnum + size;
+            ACKHeader.acknum = this->next_acknum;
+            ACKHeader.seqnum = this->next_acknum;
             ACKHeader.ControlBits|= headerType.ackbit;
             P.AddHeader(ACKHeader);
             //recreate Header for outgoing
