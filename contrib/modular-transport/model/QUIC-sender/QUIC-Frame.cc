@@ -6,6 +6,12 @@
 namespace ns3
 {
 
+QUICFrame::QUICFrame(FrameType type, FrameFields fields)
+{
+    this->type = type;
+    this->fields = fields;
+}
+
 QUICFrame::QUICFrame(int size)
 {
     this->size = size;

@@ -6,6 +6,7 @@
 namespace ns3{
 
 class Packet;
+int NO_STREAM_ID = -1;
 
 enum StreamEventType {
     ADD_DATA,
@@ -32,11 +33,10 @@ class StreamEvent: public MTEvent{
     StreamEventType streamEventType;
     int stream_id;
     StreamEvent();
-    StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id);
 
     // Send Data 
     Ptr<Packet> data;
-    StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id, Ptr<Packet> data);
+    StreamEvent(int flow_id, StreamEventType streamEventType, Ptr<Packet> data, int stream_id = NO_STREAM_ID);
 };
 
 }

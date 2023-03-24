@@ -3,8 +3,12 @@
 
 #include <ctime> // std::time_t
 #include <map>
+#include <deque>
+#include "QUIC-Frame.h"
 namespace ns3
 {
+
+class QUICFrame;
 
 // RFC9000 Section 3
 enum QUICStreamState
@@ -33,6 +37,12 @@ public:
     QUICStreamState state = QUICStreamState::NONE; // Current sender stream state
     uint32_t id; // ID of the stream
     uint32_t offset; // Offset for frame
+
+    // Buffer frames associated for this stream\
+    std::deque<QUICFrame*> frames;
+    void AddFrame(QUICFrame* frame);
+    QUICFrame* RemoveFrame();
+    std::deque<QUICFrame*> frames;
 };
 
 } // namespace ns3

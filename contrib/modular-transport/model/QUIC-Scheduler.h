@@ -3,6 +3,7 @@
 #include "mt-scheduler.h"
 #include "QUIC-Event.h"
 #include <queue>
+#include <vector>
 namespace ns3{
 class MTScheduler;
 class MTEvent;
@@ -15,6 +16,7 @@ class QUICScheduler: public MTScheduler{
     MTEvent* GetNextEvent();
     void AddEvent(MTEvent*);
     MTEvent* CreateSendEvent(int, long);
+    std::vector<MTEvent*> SendString(int flow_id, long time, std::string text);
     bool isEmpty();
     };
 }

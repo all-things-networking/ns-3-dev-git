@@ -15,25 +15,82 @@ enum class FrameState {
   NOT_SENT
 };
 
-/**
- * \brief The class for a QUIC Frame
- */
-// QUIC Frame
+enum FrameType {
+    ACK,
+    RESET_STREAM,
+    STREAM
+};
+
+class FrameFields {
+public:
+  virtual ~FrameFields() {}
+};
+
+/*
+[RFC 9000]
+[https://www.rfc-editor.org/rfc/rfc9000.html#name-ack-frames]
+
+ACK Frame {
+  Type (i) = 0x02..0x03,
+  Largest Acknowledged (i),
+  ACK Delay (i),
+  ACK Range Count (i),
+  First ACK Range (i),
+  ACK Range (..) ...,
+  [ECN Counts (..)],
+}
+*/
+class ACKFrameFields : public FrameFields {
+    int LargestACKed;
+};
+
+/*
+[RFC 9000]
+[https://www.rfc-editor.org/rfc/rfc9000.html#name-stream-frames]
+
+STREAM Frame {
+  Type (i) = 0x08..0x0f,
+  Stream ID (i),
+  [Offset (i)],
+  [Length (i)],
+  Stream Data (..),
+}
+*/
+class StreamFrameFields : public FrameFields {
+    int Size;
+    int StreamID;
+    int Offset;
+    int Length;
+    std::string data; // TODO: modify this to general data type
+    bool Fin;
+};
+
+
+/*
+[RFC 9000]
+[https://www.rfc-editor.org/rfc/rfc9000.html#name-frames-and-frame-types]
+
+Frame {
+  Frame Type (i),
+  Type-Dependent Fields (..),
+}
+*/
 class QUICFrame
 {
 public:
+    QUICFrame(FrameType type, FrameFields fields);
     QUICFrame(int size);
     QUICFrame();
     ~QUICFrame();
-    
-    int GetSize();
 
     int size;
-    int seqnum; // 32 bits
+    int GetSize();
+
+    Ptr<Packet> data; // TODO: This will be replaced with "fields" below
+
     FrameState state;
-    Ptr<Packet> data;
-
-
+    FrameType type;
+    FrameFields fields;
 };
 
 } // namespace ns3

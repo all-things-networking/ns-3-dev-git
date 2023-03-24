@@ -18,14 +18,8 @@ AckEvent::AckEvent(int flow_id, int seq){
     this->flow_id=flow_id;
 }
 
-StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id){
-    this->streamEventType=streamEventType;
-    this->stream_id=stream_id;
-    this->flow_id=flow_id;
-    this->type = EventType::STREAM_EVENT;
-}
 
-StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, int stream_id, Ptr<Packet> data){
+StreamEvent::StreamEvent(int flow_id, StreamEventType streamEventType, Ptr<Packet> data, int stream_id = NO_STREAM_ID){
     this->streamEventType=streamEventType;
     this->stream_id=stream_id;
     this->flow_id=flow_id;
