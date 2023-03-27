@@ -48,6 +48,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
         //TODO: Add Timer
+        newContext->RTOTimer->start();
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }
@@ -79,9 +80,8 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     newContext->m_Wnd += newContext->m_segmentsize;
-    //need an array here
-    newContext->m_Una = event->seqnum;
-    //SendEvent(time, flow_id)
+    newContext->m_Una = event->acknum;
+
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
 
@@ -108,23 +108,11 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    if (newContext->m_Una <= newContext->m_Iss + event->seqnum){ //check if Sack for this packet have been received
-
-           MTTCPHeader outgoingHeader = MTTCPHeader();
-            newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
-            if (event->seqnum < newContext->m_Wnd + newContext->m_Una){
-                outgoingHeader.seqnum = newContext->m_Iss + event->seqnum; //Confirmed: first sequence number of a segment
-                std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
-                Packet P = Packet(
-                    newContext->data+event->seqnum,
-                    newContext->m_segmentsize);
-                P.AddHeader(outgoingHeader);
-                packetTobeSend.emplace_back(P);
-                //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
-                //newEvents.push_back(timeevent);
-            }//hmm else ? set Next back?
-    }
-
+    MTTCPHeader outgoingHeader = MTTCPHeader();
+    newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
+    newContext->m_Nxt = newContext->newContext_m_Una;
+    MTEvent* trySend = SendEvent(0,event->flow_id);
+    newEvents.push_back(trySend);
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;

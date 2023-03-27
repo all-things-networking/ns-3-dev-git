@@ -6,6 +6,7 @@
 #include "ns3/ipv4-address.h"
 #include "mt-context.h"
 #include "TCP-timer.h"
+#include "TCP-scheduler.h"
 namespace ns3
 {
 class ModularTransport;
@@ -29,6 +30,7 @@ class TCPContext: public MTContext
 {
 public:
     TCPContext(int tcpId);
+    SetTimer(int duration, TCPScheduler* scheduler);
     ~TCPContext();
     // rfc9293 - Sec 3.3.1
     TCPTimer RTOTimer;

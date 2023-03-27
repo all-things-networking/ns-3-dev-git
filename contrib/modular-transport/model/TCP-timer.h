@@ -14,6 +14,8 @@ public:
      EventId event_id;
      TCPScheduler* scheduler;
      void expire();
+private:
+    int notstarted = 1;
 
 };
 }

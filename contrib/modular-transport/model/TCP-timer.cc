@@ -18,9 +18,12 @@ namespace ns3{
     }
 
     void TCPTimer::start(){
-        double now = Simulator::Now().GetSeconds();
-        Time expiration_time = Time(now + this->duration);
-        this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
+        if (this->notstarted == 1){
+            double now = Simulator::Now().GetSeconds();
+            Time expiration_time = Time(now + this->duration);
+            this->event_id = Simulator::Schedule(expiration_time, &TCPTimer::expire, this);
+            this->notstarted = 0;
+        }
     };
 
     void TCPTimer::reset(){
@@ -39,7 +42,7 @@ namespace ns3{
     }
 
  void TCPTimer::expire(){
-    TimerExpire* newEvent = new TimerExpire(1,1,1);
+    TimerExpire* newEvent = new TimerExpire(1); //store flow_id
     this->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule
  }

@@ -1,12 +1,13 @@
 #include "mt-state.h"
 #include "mt-context.h"
 #include "TCP-context.h"
+#include "TCP-scheduler.h"
 #include <ctime>
 #include <map>
 
 namespace ns3
 {
-TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
+TCPContext::TCPContext(int tcpId, TCPScheduler* scheduler)//, uint32_t timer_duration)
     : data{NULL},
       m_Una{0},
       m_Nxt{0},
@@ -19,9 +20,15 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
       m_cnwd{4096}, // RFC5681, IW = 4 * SMSS bytes
       m_ssthresh{1048576}, // 2^20
       m_segmentsize{4},
-      m_dupThreshold{3}
+      m_dupThreshold{3},
+      RTOTimer{TCPTimer()}
       //TODO: duration=1, scheduler
 {
 }
+TCPContext::SetTimer(int duration, TCPScheduler* scheduler){
+    this->RTOTimer.duration = duration;
+    this->RTOTimer.scheduler = scheduler;
+}
+
 TCPContext::~TCPContext(){}
 } // namespace ns3

@@ -13,16 +13,14 @@ AckEvent::AckEvent(){
 
 }
 AckEvent::AckEvent(int flow_id,  uint32_t acknum){
-    this->seqnum=acknum;
+    this->acknum=acknum;
     this->flow_id=flow_id;
     this->Type=TCPEventType::ACK_DATA;
 }
 TimerExpire::TimerExpire(){
 
 }
-TimerExpire::TimerExpire(int flow_id, uint32_t seqnum, double EndTime){
-    this->EndTime = EndTime;
-    this->seqnum = seqnum;
+TimerExpire::TimerExpire(int flow_id){
     this->flow_id = flow_id;
     this->Type = TCPEventType::TIME_EXPIRE;
 }

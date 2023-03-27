@@ -53,10 +53,12 @@ void ModularTransport::Start(
     // pick a constant for flow id. Context can include anything you need
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
-    //TODO: is flow_id universal?
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
+    //Should I initialize context up on createobject of transport?
+    StartContext.SetTimer(1, this->scheduler);
     table.Write(flow_id, StartContext);
+
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor

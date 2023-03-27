@@ -24,17 +24,15 @@ class SendEvent: public TCPEvent{
 
 class AckEvent: public TCPEvent{
     public:
-    uint32_t seqnum;
+    uint32_t acknum;
     AckEvent();
     ~AckEvent(){};
     AckEvent(int flow_id,  uint32_t acknum);
 };
 class TimerExpire: public TCPEvent{ //TODO timerExpried r
     public:
-    double EndTime;
-    uint32_t seqnum;
     TimerExpire();
-    TimerExpire(int flow_id, uint32_t seqnum, double EndTime);
+    TimerExpire(int flow_id);
     ~TimerExpire(){};
 };
 
