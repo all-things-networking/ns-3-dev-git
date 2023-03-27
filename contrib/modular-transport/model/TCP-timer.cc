@@ -12,7 +12,7 @@ namespace ns3{
     TCPTimer::TCPTimer(){
         //not usable
     }
-    TCPTimer::TCPTimer (int duration, TCPScheduler* scheduler){
+    TCPTimer::TCPTimer (int duration, MTScheduler* scheduler){
         this->duration = duration;
         this->scheduler = scheduler;
     }

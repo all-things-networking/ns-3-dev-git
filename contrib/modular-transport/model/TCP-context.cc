@@ -26,7 +26,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
 {
 }
 TCPContext::~TCPContext(){}
-void TCPContext::SetTimer(int duration, TCPScheduler* scheduler){
+void TCPContext::SetTimer(int duration, MTScheduler* scheduler){
     this->RTOTimer.duration = duration;
     this->RTOTimer.scheduler = scheduler;
 }

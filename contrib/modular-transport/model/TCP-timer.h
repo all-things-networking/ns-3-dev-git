@@ -6,13 +6,13 @@ namespace ns3{
 class TCPTimer {
 public:
      TCPTimer();
-     TCPTimer (int duration, TCPScheduler*);
+     TCPTimer (int duration, MTScheduler*);
      void start();
      void reset();
      void reset(int duration);
      int duration;
      EventId event_id;
-     TCPScheduler* scheduler;
+     MTScheduler* scheduler;
      void expire();
 private:
     int notstarted = 1;
