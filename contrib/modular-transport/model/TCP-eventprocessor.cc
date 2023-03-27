@@ -104,7 +104,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     TimerExpire* event = dynamic_cast<TimerExpire*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
-
+    std::cout<<"Timer Expired"<<std::endl;
     MTTCPHeader outgoingHeader = MTTCPHeader();
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
     newContext->m_Nxt = newContext->m_Una;
