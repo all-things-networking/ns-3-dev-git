@@ -20,14 +20,13 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
       m_cnwd{4096}, // RFC5681, IW = 4 * SMSS bytes
       m_ssthresh{1048576}, // 2^20
       m_segmentsize{4},
-      m_dupThreshold{3},
-      RTOTimer{NULL}
+      m_dupThreshold{3}
       //TODO: duration=1, scheduler
 {
 }
 TCPContext::~TCPContext(){}
 void TCPContext::SetTimer(int duration, MTScheduler* scheduler){
-    this->RTOTimer.duration = duration;
-    this->RTOTimer.scheduler = scheduler;
+    this->RTOTimer->duration = duration;
+    this->RTOTimer->scheduler = scheduler;
 }
 } // namespace ns3

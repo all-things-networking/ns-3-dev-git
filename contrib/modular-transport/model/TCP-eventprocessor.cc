@@ -46,7 +46,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
         //TODO: Add Timer
-        newContext->RTOTimer.start();
+        newContext->RTOTimer->start();
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }
@@ -79,10 +79,9 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
 
     newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = event->acknum;
-
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
-
+    newContext->RTOTimer->reset();
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
@@ -111,6 +110,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     newContext->m_Nxt = newContext->m_Una;
     MTEvent* trySend = new SendEvent(0,event->flow_id);
     newEvents.push_back(trySend);
+    newContext->RTOTimer->reset();
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;

@@ -56,7 +56,7 @@ public:
     //MtTimer m_time_out;       // time when timeout occurs
     uint32_t m_segmentsize;
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
-    TCPTimer RTOTimer;
+    TCPTimer* RTOTimer = NULL;
 };
 
 } // namespace ns3
