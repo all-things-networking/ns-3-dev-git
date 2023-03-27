@@ -7,7 +7,7 @@
 
 namespace ns3
 {
-TCPContext::TCPContext(int tcpId, TCPScheduler* scheduler)//, uint32_t timer_duration)
+TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
     : data{NULL},
       m_Una{0},
       m_Nxt{0},
