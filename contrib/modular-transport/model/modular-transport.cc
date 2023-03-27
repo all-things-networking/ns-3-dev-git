@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-
+#include "TCP-context.h" //TODO: ok need MT timer class, and add this function to MT context
 #include "modular-transport.h"
 #include "mt-eventprocessor.h"
 #include "mt-dispatcher.h"
@@ -56,8 +56,13 @@ void ModularTransport::Start(
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
     //Should I initialize context up on createobject of transport?
-    StartContext->SetTimer(1, this->scheduler);
-    table.Write(flow_id, StartContext);
+    //Temporary solution
+    //a place that's got a pointer scheduler
+    //timer is only in TCP-context and not MT-context
+    TCPContext* newContext = dynamic_cast<TCPContext*>(StartContext);
+    newContext->SetTimer(1, this->scheduler);
+
+    table.Write(flow_id, newContext);
 
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this

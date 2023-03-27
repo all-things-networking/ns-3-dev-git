@@ -28,11 +28,9 @@ SendIfPossible::IsValidEvent(MTEvent e)
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     std::cout<<"ok context"<<std::endl;
-    TCPContext* newContext = dynamic_cast<TCPContext*>(c);
+    TCPContext* newContext = dynamic_cast<TCPContext*>(c); //This is only a pointer, not a copy right?
     std::vector<MTEvent*> newEvents;
 
-    //New Packets
-    //Add window
     std::cout<<"SendIfPossible loop start"<<std::endl;
     std::vector<Packet> packetTobeSend;
     if (newContext->m_Wnd<=64)
@@ -48,7 +46,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
         //TODO: Add Timer
-        newContext->RTOTimer->start();
+        newContext->RTOTimer.start();
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }

@@ -21,7 +21,7 @@ TCPContext::TCPContext(int tcpId, TCPScheduler* scheduler)//, uint32_t timer_dur
       m_ssthresh{1048576}, // 2^20
       m_segmentsize{4},
       m_dupThreshold{3},
-      RTOTimer{TCPTimer()}
+      RTOTimer{NULL}
       //TODO: duration=1, scheduler
 {
 }
