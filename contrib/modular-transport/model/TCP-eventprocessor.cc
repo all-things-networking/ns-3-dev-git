@@ -110,8 +110,8 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
 
     MTTCPHeader outgoingHeader = MTTCPHeader();
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
-    newContext->m_Nxt = newContext->newContext_m_Una;
-    MTEvent* trySend = SendEvent(0,event->flow_id);
+    newContext->m_Nxt = newContext->m_Una;
+    MTEvent* trySend = new SendEvent(0,event->flow_id);
     newEvents.push_back(trySend);
 
     EventProcessorOutput *Output = new EventProcessorOutput;

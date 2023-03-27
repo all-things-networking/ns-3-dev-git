@@ -56,7 +56,7 @@ void ModularTransport::Start(
     int flow_id = 1;
     //this->table =  MTState(this); move this line to constructor
     //Should I initialize context up on createobject of transport?
-    StartContext.SetTimer(1, this->scheduler);
+    StartContext->SetTimer(1, this->scheduler);
     table.Write(flow_id, StartContext);
 
     long time = 1;

@@ -30,10 +30,10 @@ class TCPContext: public MTContext
 {
 public:
     TCPContext(int tcpId);
-    SetTimer(int duration, TCPScheduler* scheduler);
+    void SetTimer(int duration, TCPScheduler* scheduler);
     ~TCPContext();
     // rfc9293 - Sec 3.3.1
-    TCPTimer RTOTimer;
+
     uint8_t* data;
     uint32_t m_Una;           // send unacknowledged
     //TODO: Una is start
@@ -56,6 +56,7 @@ public:
     //MtTimer m_time_out;       // time when timeout occurs
     uint32_t m_segmentsize;
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
+    TCPTimer RTOTimer;
 };
 
 } // namespace ns3
