@@ -31,10 +31,10 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     uint32_t size = packet->CopyData(buffer, packet->GetSize());
     std::cout<<size<<std::endl;
-    //std::cout<<"Received: size"<<size<<std::endl;
-    //for(int i=0;i<packet->GetSize();i++){
-    //    std::cout<<unsigned(buffer[i])<<std::endl;
-    //}
+    std::cout<<"Received: size"<<size<<std::endl;
+    for(int i=0;i<packet->GetSize();i++){
+        std::cout<<unsigned(buffer[i])<<std::endl;
+    }
     //chosenScheduler.OpsAfterRecieved(recievedHeader);
     //chosenScheduler.GenerateEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
