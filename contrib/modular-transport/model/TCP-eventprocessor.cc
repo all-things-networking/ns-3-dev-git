@@ -107,9 +107,13 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::cout<<"Timer Expired"<<std::endl;
     MTTCPHeader outgoingHeader = MTTCPHeader();
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
-   //TODO: only set last unachknoweldged
-    //TODO: set notstarted to 1
+
     newContext->RTOTimer->reset();
+    Packet P = Packet(
+    newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
+    newContext->m_segmentsize);
+    P.AddHeader(outgoingHeader);
+    packetTobeSend.emplace_back(P);
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;

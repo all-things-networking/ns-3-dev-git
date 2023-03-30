@@ -14,7 +14,6 @@ public:
      EventId event_id;
      MTScheduler* scheduler;
      void expire();
-private:
     int notstarted = 1;
 
 };
