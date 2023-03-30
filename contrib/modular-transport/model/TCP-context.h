@@ -57,6 +57,10 @@ public:
     uint32_t m_segmentsize;
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
     TCPTimer* RTOTimer = NULL;
+    std::map<uint32_t, float> startTime;
+    float SRTT = 0;
+    float RTTVAR = 0;
+    float RTO = 1;
 };
 
 } // namespace ns3

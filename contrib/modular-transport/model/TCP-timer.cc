@@ -12,7 +12,7 @@ namespace ns3{
     TCPTimer::TCPTimer(){
         //not usable
     }
-    TCPTimer::TCPTimer (int duration, MTScheduler* scheduler){
+    TCPTimer::TCPTimer (float duration, MTScheduler* scheduler){
         this->duration = duration;
         this->scheduler = scheduler;
     }
@@ -29,7 +29,7 @@ namespace ns3{
         this->event_id = Simulator::Schedule(Seconds(this->duration), &TCPTimer::expire, this);
     }
 
-    void TCPTimer::reset(int duration){
+    void TCPTimer::reset(float duration){
         Simulator::Cancel(this->event_id);
         this->duration = duration;
         this->event_id = Simulator::Schedule(Seconds(this->duration), &TCPTimer::expire, this);

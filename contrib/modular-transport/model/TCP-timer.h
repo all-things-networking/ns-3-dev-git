@@ -10,7 +10,7 @@ public:
      void start();
      void reset();
      void reset(int duration);
-     int duration;
+     float duration;
      EventId event_id;
      MTScheduler* scheduler;
      void expire();

@@ -47,6 +47,9 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         packetTobeSend.emplace_back(P);
         std::cout<<"Send ifpossible:"<<newContext->m_Iss + newContext->m_Nxt<<" to "<<newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize<<std::endl;
         newContext->RTOTimer->start();
+        //TODO: packet id other than seqnum
+        double now = Simulator::Now().GetSeconds();
+        newContext->startTime[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize]=now;
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }
@@ -70,19 +73,39 @@ AckHandler::IsValidEvent(MTEvent e)
 {
     return true;
 }
-
 EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     TCPContext* newContext = dynamic_cast<TCPContext*>(c);
     AckEvent* event = dynamic_cast<AckEvent*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
+    //Calculates ROT:
+    double now = Simulator::Now().GetSeconds();
+    float R = now - newContext->startTime[event->acknum];
+
+    if (newContext->SRTT == 0){//first time
+        newContext->SRTT = R;
+        newContext->RTTVAR = R/2;
+        //max (G, 4*RTTVAR), G is Clock Granularity
+        newContext->ROT = newContext->SRTT + 4 *newContext->RTTVAR;
+    }
+    else{
+        float alpha=1.0/8.0;
+        float beta=1.0/4.0;
+        newContext->RTTVAR  = (1 - beta) * newContext->RTTVAR + beta * max(newContext->SRTT - R);
+        newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
+        newContext->ROT = newContext->SRTT + 4 *newContext->RTTVAR;
+    }
+    newContext->ROT = max(1, newContext->ROT);
+    std::cout<<"Set ROT to "<<newContext->ROT<<std::endl;
+
     newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = event->acknum;
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
-    newContext->RTOTimer->reset();
+    newContext->RTOTimer->reset(newContext->ROT);
+
 
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
