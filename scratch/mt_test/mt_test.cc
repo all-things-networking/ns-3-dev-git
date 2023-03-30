@@ -144,7 +144,8 @@ main (int argc, char *argv[])
 
      double now = Simulator::Now().GetSeconds();
      std::cout<<"time:"<<now<<std::endl;
-     Simulator::Schedule(Seconds(now+1), &ModularTransport::Mainloop, transport);
+     //First parameter is the wait time (relative increment), not absolute time
+     Simulator::Schedule(Seconds(1), &ModularTransport::Mainloop, transport);
      Simulator::Run ();
      std::cout<<"=========================mt_test: loop"<<i<<std::endl;
   }
