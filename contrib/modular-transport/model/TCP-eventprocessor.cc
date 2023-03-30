@@ -105,9 +105,12 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
     std::cout<<"Timer Expired"<<std::endl;
-    MTTCPHeader outgoingHeader = MTTCPHeader();
+    //Update windowsize
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
 
+    //Resend first segment (first segment only)
+    MTTCPHeader outgoingHeader = MTTCPHeader();
+    outgoingHeader.seqnum = newContext->m_Una;
     newContext->RTOTimer->reset();
     Packet P = Packet(
     newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
