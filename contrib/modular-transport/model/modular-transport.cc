@@ -74,7 +74,8 @@ void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-
+    double now = Simulator::Now().GetSeconds();
+    std::cout<<"loop start time:"<<now<<std::endl;
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
