@@ -42,6 +42,7 @@ main (int argc, char *argv[])
   NetDeviceContainer devs = p2p.Install(nodes);
 
   // Install the stack
+  MTScheduler* firstScheduler = NULL;
   for (NodeContainer::Iterator i = nodes.Begin (); i != nodes.End (); ++i){
     Ptr<Node> node = *i;
 
@@ -80,6 +81,9 @@ main (int argc, char *argv[])
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
+    if(firstScheduler == NULL){
+        firstScheduler = scheduler;
+    }
     MTReceiveLogic* receiver = new TCPReceiveLogic();
     Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receiver);
     node->AggregateObject(transport);
@@ -121,12 +125,13 @@ main (int argc, char *argv[])
   Ptr<Packet> packet = Create<Packet> (100);
   MTHeader mth = MTTCPHeader();
   mth.SetF1(2);
-  Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
+  Ptr<ModularTransport> transport = src->GetObject<ModularTransport>(); //TODO: Get scheduler of first node here
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   int flow_id=1; //flow_id here should be same
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
+  context->SetTimer(1, firstScheduler); //flow_id, poiinter to scheduler
   uint8_t data [128];
   for(int i=0;i<128;i++){
       data[i]=i;

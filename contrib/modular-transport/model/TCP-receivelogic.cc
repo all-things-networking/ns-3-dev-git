@@ -49,7 +49,7 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
              mt->scheduler->AddEvent(e);
     }
     else{
-            std::cout<<"Receiver Sending back Ack for acknum"<<" "<<recievedHeader.seqnum<<std::endl;
+            std::cout<<"Receiver recieved sequence numebr"<<" "<<recievedHeader.seqnum<<std::endl;
             Packet P = Packet();
 
             this->packetbuffer[recievedHeader.seqnum] = size;

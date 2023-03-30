@@ -107,11 +107,9 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::cout<<"Timer Expired"<<std::endl;
     MTTCPHeader outgoingHeader = MTTCPHeader();
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
-    newContext->m_Nxt = newContext->m_Una;
-    MTEvent* trySend = new SendEvent(0,event->flow_id);
-    newEvents.push_back(trySend);
+   //TODO: only set last unachknoweldged
+    //TODO: set notstarted to 1
     newContext->RTOTimer->reset();
-
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;
