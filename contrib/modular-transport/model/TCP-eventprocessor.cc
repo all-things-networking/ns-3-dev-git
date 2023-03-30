@@ -87,17 +87,17 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
         newContext->SRTT = R;
         newContext->RTTVAR = R/2;
         //max (G, 4*RTTVAR), G is Clock Granularity
-        newContext->ROT = newContext->SRTT + 4 *newContext->RTTVAR;
+        newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
     }
     else{
         float alpha=1.0/8.0;
         float beta=1.0/4.0;
-        newContext->RTTVAR  = (1 - beta) * newContext->RTTVAR + beta * max(newContext->SRTT - R);
+        newContext->RTTVAR  = (1 - beta) * newContext->RTTVAR + beta * std::abs(newContext->SRTT - R);
         newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
-        newContext->ROT = newContext->SRTT + 4 *newContext->RTTVAR;
+        newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
     }
-    newContext->ROT = max(1, newContext->ROT);
-    std::cout<<"Set ROT to "<<newContext->ROT<<std::endl;
+    newContext->RTO = std::max(1, newContext->ROT);
+    std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
 
     newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = event->acknum;
