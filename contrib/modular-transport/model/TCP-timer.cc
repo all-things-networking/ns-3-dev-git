@@ -42,6 +42,7 @@ namespace ns3{
     }
 
  void TCPTimer::expire(){
+    //TODO: do we need any locks, ore simlulator scheduler solves that for us?
     TimerExpire* newEvent = new TimerExpire(1); //store flow_id
     this->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule
