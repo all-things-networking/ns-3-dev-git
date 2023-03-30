@@ -31,6 +31,7 @@ QUICReceiver::Receive(ModularTransport* mt,
     //
     std::string s = std::string(buffer, buffer + packet->GetSize());
     std::cout << "Received: " << s << std::endl;
+    std::cout << "Length: " << packet->GetSize() << std::endl;
 
     // chosenScheduler.OpsAfterRecieved(recievedHeader);
     // chosenScheduler.GenerateEventOnReceive(recievedHeader);

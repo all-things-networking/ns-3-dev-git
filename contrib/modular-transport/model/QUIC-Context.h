@@ -25,6 +25,7 @@ public:
     ~QUICContext();
     uint8_t* data;
     std::map<int, QUICStream*> quic_streams; // streams for this connection
+    int CurrentStream = 0; // Current stream used for multiplexing. This is the INDEX in quic_streams
     QUICPacketBuffer* PacketBuffer;
 };
 

@@ -40,61 +40,52 @@ QUICStreamHandler::Process(MTEvent* e, MTContext* c)
     // I call mt->SendPack here
     QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(e);
-    int stream_id = streamEvent->stream_id;
-
-    // Check if stream (stream_id) exists, if not create it
-    auto it = newContext->quic_streams.find(stream_id);
-    if (it == newContext->quic_streams.end())
-    {
-        QUICStream* stream = new QUICStream(stream_id);
-        newContext->quic_streams[stream_id] = stream;
-        std::cout << "Created new stream with ID: "
-                  << newContext->quic_streams.find(stream_id)->second->id << std::endl;
-    }
-
-    QUICStream* stream = newContext->quic_streams[stream_id];
-
-    // If we have a ADD_DATA event, create a dataFrame and send it
-    if (streamEvent->streamEventType == StreamEventType::ADD_DATA)
-    {
-        QUICFrame* dataFrame = new QUICFrame;
-        dataFrame->data = streamEvent->data;
-        dataFrame->state = FrameState::NOT_SENT;
-        stream->AddFrame(dataFrame);
-
-        EventProcessorOutput* res = TrySendPacket(streamEvent, newContext);
-        return res;
-    }
 
     // If we have a SEND_PACKET event we will send the packet
     if (streamEvent->streamEventType == StreamEventType::SEND_PACKET)
     {
-        //////////////////// PLACEHOLDER CODE FOR NOW ////////////////////
-        std::vector<MTEvent*> newEvents;
-
-        // New Packets
-        // Add window
-        std::vector<Packet> packetTobeSend;
-        Packet P = Packet(newContext->data, 4);
-        packetTobeSend.emplace_back(P);
-
-        // Output
-        EventProcessorOutput* Output = new EventProcessorOutput;
-        Output->newEvents = newEvents;
-        Output->updatedContext = newContext;
-        Output->packetToSend = packetTobeSend;
-        return Output;
-        //////////////////// PLACEHOLDER CODE FOR NOW ////////////////////
+        EventProcessorOutput* res = TrySendPacket(streamEvent, newContext);
+        return res;
     }
 
-    // A
-    std::vector<MTEvent*> newEvents;
+    // If we have a ADD_DATA event, create a dataFrame and send it
+    if (streamEvent->streamEventType == StreamEventType::ADD_DATA)
+    {
+        int stream_id = streamEvent->stream_id;
 
-    // New Packets
-    // Add window
+        // Check if stream (stream_id) exists, if not create it
+        auto it = newContext->quic_streams.find(stream_id);
+        if (it == newContext->quic_streams.end())
+        {
+            // We have no stream id provided so we choose one
+            if (stream_id == NO_STREAM_ID)
+            {
+                /*
+                [RFC 9000]
+                Before a stream is created, all streams of the same type with lower-numbered stream
+                IDs MUST be created. This ensures that the creation order for streams is consistent
+                on both endpoints.”
+                */
+                stream_id = newContext->quic_streams.size() + 1;
+            }
+
+            QUICStream* stream = new QUICStream(stream_id);
+            newContext->quic_streams[stream_id] = stream;
+            std::cout << "Created new stream with ID: "
+                      << newContext->quic_streams.find(stream_id)->second->id << std::endl;
+        }
+
+        QUICStream* stream = newContext->quic_streams[stream_id];
+
+        QUICFrame* dataFrame = new QUICFrame;
+        dataFrame->data = streamEvent->data;
+        dataFrame->state = FrameState::NOT_SENT;
+        stream->AddFrame(dataFrame);
+    }
+
+    // Empty Event
+    std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
-    Packet P = Packet(newContext->data, 4);
-    // packetTobeSend.emplace_back(P);
 
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
@@ -119,42 +110,48 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
     // For now we will just iterate over the map of streams and add frames for the associated stream
     // TODO: this may lead to starvation for some streams so we should change this implementation in
     // the future
-    for (const auto& pair : c->quic_streams)
+
+    // If buffer CAN'T fit our dataFrame we will create a packet and create a
+    // SendPacketEvent
+    while (PacketBuffer->frames.size() != 4)
     {
-        int streamId = pair.first;
-        QUICStream* stream = pair.second;
+        // For now just do round robin
+        auto it = c->quic_streams.begin();
+        std::advance(it, c->CurrentStream);
+        QUICStream* stream = it->second;
 
-        // For now just add all the frames for the current stream
-        while (stream->frames.size() > 0)
+        // TODO: this way of iterating is super inefficient. We should optimize this later
+        while (stream->frames.size() == 0)
         {
-            QUICFrame* currFrame = stream->frames.front();
-            stream->frames.pop_front();
-
-            // If buffer CAN'T fit our dataFrame we will create a packet and create a
-            // SendPacketEvent
-            if (PacketBuffer->IsFull() || !PacketBuffer->CanAddFrame(currFrame) ||
-                PacketBuffer->frames.size() == 2)
-            {
-                std::cout << "Creating packet and sending" << std::endl;
-                Ptr<Packet> pkt = PacketBuffer->CreatePacket();
-                PacketBuffer->sent.push_back(pkt);
-
-                // TODO: right now this only outputs a new EventProcessorOutput for chaining
-                // but maybe we want to send the SendPacketEvent to the queue instead. In that case
-                // we need to change this to add to queue intead
-
-                // Technically we are already sending the packet when we add to packetTobeSend so we
-                // don't need to creata new event called SEND_PACKET MTEvent* sendPacketEvent = new
-                // StreamEvent(e->flow_id, StreamEventType::SEND_PACKET, 0); // stream_id doesn't
-                // really matter newEvents.emplace_back(sendPacketEvent);
-
-                Packet P = *pkt;
-                packetTobeSend.emplace_back(P);
-            }
-
-            PacketBuffer->AddFrame(currFrame);
+            c->CurrentStream = (c->CurrentStream + 1) % c->quic_streams.size();
+            it = c->quic_streams.begin();
+            std::advance(it, c->CurrentStream);
+            stream = it->second;
         }
+
+        QUICFrame* currFrame = stream->frames.front();
+        stream->frames.pop_front();
+
+        PacketBuffer->AddFrame(currFrame);
+        c->CurrentStream = (c->CurrentStream + 1) %
+                           c->quic_streams.size(); // Move onto next stream for round robin
     }
+
+    std::cout << "Creating packet and sending" << std::endl;
+    Ptr<Packet> pkt = PacketBuffer->CreatePacket();
+    PacketBuffer->sent.push_back(pkt);
+
+    // TODO: right now this only outputs a new EventProcessorOutput for chaining
+    // but maybe we want to send the SendPacketEvent to the queue instead. In that case
+    // we need to change this to add to queue intead
+
+    // Technically we are already sending the packet when we add to packetTobeSend so we
+    // don't need to creata new event called SEND_PACKET MTEvent* sendPacketEvent = new
+    // StreamEvent(e->flow_id, StreamEventType::SEND_PACKET, 0); // stream_id doesn't
+    // really matter newEvents.emplace_back(sendPacketEvent);
+
+    Packet P = *pkt;
+    packetTobeSend.emplace_back(P);
 
     Output->newEvents = newEvents;
     Output->updatedContext = c;

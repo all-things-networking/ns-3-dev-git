@@ -12,11 +12,6 @@ QUICFrame::QUICFrame(FrameType type, FrameFields fields)
     this->fields = fields;
 }
 
-QUICFrame::QUICFrame(int size)
-{
-    this->size = size;
-}
-
 QUICFrame::QUICFrame()
 {
 }
@@ -27,7 +22,7 @@ QUICFrame::~QUICFrame()
 
 int QUICFrame::GetSize()
 {
-    return this->size;
+    return this->data->GetSize();
 }
 
 

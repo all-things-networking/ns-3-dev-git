@@ -79,11 +79,9 @@ class QUICFrame
 {
 public:
     QUICFrame(FrameType type, FrameFields fields);
-    QUICFrame(int size);
     QUICFrame();
     ~QUICFrame();
 
-    int size;
     int GetSize();
 
     Ptr<Packet> data; // TODO: This will be replaced with "fields" below

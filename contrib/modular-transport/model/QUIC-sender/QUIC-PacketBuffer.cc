@@ -41,6 +41,8 @@ Ptr<Packet> QUICPacketBuffer::CreatePacket()
         // TODO: handle headers and sequence numbers n stuff
     }
 
+    CurrentBufferSize = 0;
+
     return res;
 }
 

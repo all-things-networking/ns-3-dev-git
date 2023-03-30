@@ -15,7 +15,9 @@ class MTScheduler{
     //virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent* GetNextEvent()=0;
     virtual void AddEvent(MTEvent*)=0;
-    virtual MTEvent* CreateSendEvent(int flow_id, long time, std::string text)=0;
+    virtual MTEvent* CreateSendEvent(int flow_id, long time)=0;
+    virtual MTEvent* SendPacket(int flow_id, long time)=0;
+    virtual std::vector<MTEvent*> SendString(int flow_id, long time, std::string text, int stream)=0;
     //#TODO ACK
     virtual bool isEmpty()=0;
 };

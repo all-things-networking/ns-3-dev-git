@@ -6,7 +6,7 @@
 namespace ns3{
 
 class Packet;
-int NO_STREAM_ID = -1;
+const int NO_STREAM_ID = -1;
 
 enum StreamEventType {
     ADD_DATA,
