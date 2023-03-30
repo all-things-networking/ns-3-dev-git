@@ -45,7 +45,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
             newContext->m_segmentsize);
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
-        std::cout<<"Send:"<<newContext->m_Iss + newContext->m_Nxt<<" to "<<newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize<<std::endl;
+        std::cout<<"Send ifpossible:"<<newContext->m_Iss + newContext->m_Nxt<<" to "<<newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize<<std::endl;
         newContext->RTOTimer->start();
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
@@ -116,10 +116,11 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     Packet P = Packet(
     newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
     newContext->m_segmentsize);
-    std::cout<<"Send:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
+    std::cout<<"Send Timer:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
     P.AddHeader(outgoingHeader);
     packetTobeSend.emplace_back(P);
     EventProcessorOutput *Output = new EventProcessorOutput;
+
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;
     Output->packetToSend=packetTobeSend;
