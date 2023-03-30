@@ -147,7 +147,7 @@ main (int argc, char *argv[])
      Time new_start_time = Time(now + 1);
      Simulator::Schedule(new_start_time, &ModularTransport::Mainloop, transport);
      Simulator::Run ();
-     std::cout<<"mt_test: loop"<<i<<std::endl;
+     std::cout<<"=========================mt_test: loop"<<i<<std::endl;
   }
   Simulator::Destroy ();
 }
