@@ -79,7 +79,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    //Calculates ROT:
+    //Calculates RTO:
     double now = Simulator::Now().GetSeconds();
     float R = now - newContext->startTime[event->acknum];
 
@@ -96,7 +96,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
         newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
         newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
     }
-    newContext->RTO = std::max(1, newContext->ROT);
+    newContext->RTO = std::max(1, newContext->RTO);
     std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
 
     newContext->m_Wnd += newContext->m_segmentsize;
@@ -104,7 +104,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
-    newContext->RTOTimer->reset(newContext->ROT);
+    newContext->RTOTimer->reset(newContext->RTO);
 
 
     EventProcessorOutput *Output = new EventProcessorOutput;
