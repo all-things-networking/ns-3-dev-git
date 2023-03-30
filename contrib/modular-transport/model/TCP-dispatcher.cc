@@ -10,21 +10,21 @@ TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
     TCPEvent* tcpevent = dynamic_cast<TCPEvent*>(anything);
     if (tcpevent == NULL){
-        std::cout<<"cast unsuccessful"<<std::endl;
+        //std::cout<<"cast unsuccessful"<<std::endl;
         int a = 0/0; //raise an exception here
     }
     if (tcpevent->Type == TCPEventType::SEND_DATA){
-        std::cout<<"dispatched SendEvent"<<std::endl;
+        //std::cout<<"dispatched SendEvent"<<std::endl;
         MTEventProcessor* SendProcessor = new SendIfPossible();
         return SendProcessor;
     }
     else if(tcpevent->Type == TCPEventType::ACK_DATA){
-        std::cout<<"dispatched AckEvent"<<std::endl;
+        //std::cout<<"dispatched AckEvent"<<std::endl;
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
     }
     else if(tcpevent->Type == TCPEventType::TIME_EXPIRE){
-            std::cout<<"dispatched TimerEvent"<<std::endl;
+            //std::cout<<"dispatched TimerEvent"<<std::endl;
             TimedResendHandler* TimerProcessor = new TimedResendHandler();
             return TimerProcessor;
     }
