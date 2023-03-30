@@ -30,8 +30,6 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     }
     uint8_t *buffer = new uint8_t[packet->GetSize()];
     uint32_t size = packet->CopyData(buffer, packet->GetSize());
-    std::cout<<size<<std::endl;
-    std::cout<<"Received: size"<<size<<std::endl;
     for(int i=0;i<packet->GetSize();i++){
         std::cout<<unsigned(buffer[i])<<std::endl;
     }
@@ -42,20 +40,18 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
 
     //std::cout<<"Received packet in ModularTransport"<<std::endl;
     if((recievedHeader.ControlBits&headerType.ackbit) > 0){
-            std::cout<<"Ack recevied for acknum"<<recievedHeader.acknum<<std::endl;
+            std::cout<<"Sender: Ack recevied for acknum"<<recievedHeader.acknum<<std::endl;
             //need to implement: int flow_id, int seq
              //MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
              MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.acknum);
              mt->scheduler->AddEvent(e);
     }
     else{
-            std::cout<<"Receiver recieved sequence numebr"<<" "<<recievedHeader.seqnum<<std::endl;
+            std::cout<<"Receiver: recieved sequence numebr"<<" "<<recievedHeader.seqnum<<std::endl;
             Packet P = Packet();
 
             this->packetbuffer[recievedHeader.seqnum] = size;
             while(this->packetbuffer.count(next_acknum)){
-            //0 1
-                std::cout<<(uint32_t)packetbuffer[this->next_acknum]<<" "<<this->packetbuffer.count(next_acknum)<<std::endl;
                 this->next_acknum += (uint32_t)(this->packetbuffer[this->next_acknum]);
             }
             MTTCPHeader ACKHeader;
