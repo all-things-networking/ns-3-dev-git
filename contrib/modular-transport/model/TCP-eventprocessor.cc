@@ -27,11 +27,11 @@ SendIfPossible::IsValidEvent(MTEvent e)
 }
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
-    std::cout<<"ok context"<<std::endl;
+    //std::cout<<"ok context"<<std::endl;
     TCPContext* newContext = dynamic_cast<TCPContext*>(c); //This is only a pointer, not a copy right?
     std::vector<MTEvent*> newEvents;
 
-    std::cout<<"SendIfPossible loop start"<<std::endl;
+    //std::cout<<"SendIfPossible loop start"<<std::endl;
     std::vector<Packet> packetTobeSend;
     if (newContext->m_Wnd<=64)
     for(;
@@ -39,7 +39,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
      newContext->m_Nxt+=newContext->m_segmentsize){
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
-        std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
+        //std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
         Packet P = Packet(
             newContext->data+newContext->m_Nxt,
             newContext->m_segmentsize);
@@ -50,7 +50,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }
-     std::cout<<"SendIfPossible loop end"<<std::endl;
+     //std::cout<<"SendIfPossible loop end"<<std::endl;
     //Create header here
 
     //Output

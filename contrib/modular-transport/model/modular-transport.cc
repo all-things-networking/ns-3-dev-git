@@ -79,9 +79,9 @@ void ModularTransport::Mainloop(){
          MTEvent* e = this->scheduler->GetNextEvent();
          MTEventProcessor* ep = this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e->flow_id);
-         std::cout<<"processor started"<<std::endl;
+         //std::cout<<"processor started"<<std::endl;
          EventProcessorOutput* result = ep->Process(e, ctx);
-         std::cout<<"processor finished"<<std::endl;
+         //std::cout<<"processor finished"<<std::endl;
          this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
