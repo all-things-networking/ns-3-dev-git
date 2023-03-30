@@ -96,7 +96,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
         newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
         newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
     }
-    newContext->RTO = std::max(1.0, newContext->RTO);
+    // max (rto,1)
     std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
 
     newContext->m_Wnd += newContext->m_segmentsize;
