@@ -144,8 +144,6 @@ main (int argc, char *argv[])
 
      double now = Simulator::Now().GetSeconds();
      std::cout<<"time:"<<now<<std::endl;
-
-     std::cout<<"start time:"<<new_start_time<<std::endl;
      Simulator::Schedule(Seconds(now+1), &ModularTransport::Mainloop, transport);
      Simulator::Run ();
      std::cout<<"=========================mt_test: loop"<<i<<std::endl;
