@@ -25,7 +25,7 @@ namespace ns3{
     };
 
     void TCPTimer::reset(){
-	    Simulator::Cancel(event_id);
+	    Simulator::Cancel(this->event_id);
         this->event_id = Simulator::Schedule(Seconds(this->duration), &TCPTimer::expire, this);
     }
 
@@ -36,7 +36,7 @@ namespace ns3{
     }
 
  void TCPTimer::expire(){
-    //TODO: do we need any locks, ore simlulator scheduler solves that for us?
+    std::cout<<"Timer Expire Added to Queue"<<std::endl;
     TimerExpire* newEvent = new TimerExpire(1); //store flow_id
     this->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule

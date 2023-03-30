@@ -79,7 +79,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
 
     newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = event->acknum;
-    std::cout<<"Acknum"<<event->acknum<<std::endl;
+    std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
     newContext->RTOTimer->reset();
@@ -105,7 +105,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     TimerExpire* event = dynamic_cast<TimerExpire*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
-    std::cout<<"Timer Expired"<<std::endl;
+    std::cout<<"Timer Expired being processed"<<std::endl;
     //Update windowsize
     newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
 
