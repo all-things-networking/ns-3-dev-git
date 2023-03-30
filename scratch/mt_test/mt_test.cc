@@ -143,6 +143,7 @@ main (int argc, char *argv[])
   for (int i = 0; i < 20; i++){
 
      double now = Simulator::Now().GetSeconds();
+     std::cout<<"time:"<<now<<std:endl;
      Time new_start_time = Time(now + 1);
      Simulator::Schedule(new_start_time, &ModularTransport::Mainloop, transport);
      Simulator::Run ();
