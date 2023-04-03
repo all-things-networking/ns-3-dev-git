@@ -84,7 +84,7 @@ void ModularTransport::Mainloop(){
          this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
-                 this->scheduler->AddEvent(newEvent);
+                 this->scheduler->AddEvent(newEvent,this); //TODO: variable indicate empty, cannot based on queue
          }
          for (auto packet : result->packetToSend)
          {
