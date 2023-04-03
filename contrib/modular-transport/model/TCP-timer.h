@@ -4,6 +4,7 @@
 #include "ns3/event-id.h"
 namespace ns3{
 class TCPTimer {
+class ModularTransport;
 public:
      TCPTimer();
      TCPTimer (float duration, MTScheduler*);
@@ -13,6 +14,7 @@ public:
      float duration;
      EventId event_id;
      MTScheduler* scheduler;
+     ModularTransport * mt;
      void expire();
     int notstarted = 1;
 
