@@ -1,4 +1,6 @@
 #include "mt-scheduler.h"
+#include "ns3/core-module.h"
+#include "modular-transport.h"
 namespace ns3{
     void MTScheduler::SetModularTransport(ModularTransport* mt){
         this->mt = mt;
