@@ -82,6 +82,7 @@ main (int argc, char *argv[])
     MTScheduler* scheduler =new TCPScheduler();
     MTReceiveLogic* receivelogic = new TCPReceiveLogic();
     Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receivelogic);
+    scheduler->SetModularTransport(transport);
     node->AggregateObject(transport);
   }
 
