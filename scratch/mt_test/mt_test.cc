@@ -125,13 +125,13 @@ main (int argc, char *argv[])
   Ptr<Packet> packet = Create<Packet> (100);
   MTHeader mth = MTTCPHeader();
   mth.SetF1(2);
-  Ptr<ModularTransport> transport = src->GetObject<ModularTransport>(); //TODO: Get scheduler of first node here
+  Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   int flow_id=1; //flow_id here should be same
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
-  context->SetTimer(2, firstScheduler, transport); //timout, poiinter to scheduler, pointer to modular transport
+  context->SetTimer(2, firstScheduler, &(*transport)); //timout, poiinter to scheduler, pointer to modular transport
   uint8_t data [128];
   for(int i=0;i<128;i++){
       data[i]=i;
