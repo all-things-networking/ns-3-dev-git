@@ -16,17 +16,8 @@ class MTScheduler{
     //virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     //virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent* GetNextEvent()=0;
-    virtual void AddEvent(MTEvent* newEvent, ModularTransport* mt){
-        if(this->myqueue.empty()){
-            this->enqueue(newEvent);
-            mt->Mainloop();
-        }else{
-            this->enqueue(newEvent);
-        }
-    } // //TODO: call enqueu, Restart the loop if stopped.
-
+    virtual void AddEvent(MTEvent* newEvent, ModularTransport* mt)=0;
     virtual void enqueue(MTEvent*) =0;
-
     virtual MTEvent* CreateSendEvent(int, long)=0;
     virtual MTEvent* CreateAckEvent(int, int)=0;
     virtual bool isEmpty()=0;
