@@ -3,8 +3,8 @@
 #include "TCP-scheduler.h"
 #include "ns3/event-id.h"
 namespace ns3{
-class TCPTimer {
 class ModularTransport;
+class TCPTimer {
 public:
      TCPTimer();
      TCPTimer (float duration, MTScheduler*);
