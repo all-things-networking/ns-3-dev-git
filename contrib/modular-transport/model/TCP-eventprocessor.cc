@@ -80,7 +80,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     //Calculates RTO:
-    if (newContext->isResend[event->acknum]){
+    if (!newContext->isResend[event->acknum]){
         double now = Simulator::Now().GetSeconds();
         float R = now - newContext->startTime[event->acknum];
         if (newContext->SRTT == 0){//first time
