@@ -19,6 +19,7 @@ build_lib(
                  model/mt-event.cc
                  model/mt-header.cc
                  model/mt-receivelogic.cc
+                 model/mt-scheduler.cc
                  model/mt-state.cc
                  model/TCP-context.cc
                  model/TCP-event.cc
