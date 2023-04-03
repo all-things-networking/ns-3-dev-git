@@ -1,6 +1,7 @@
 //Schedular add generate events, and add them to queue?
 #ifndef MT_SCHEDULER_H
 #define MT_SCHEDULER_H
+#include <queue>
 namespace ns3{
 class MTEvent;
 class MTEventQueue;
