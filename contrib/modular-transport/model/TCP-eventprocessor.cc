@@ -27,11 +27,8 @@ SendIfPossible::IsValidEvent(MTEvent e)
 }
 
 EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
-    //std::cout<<"ok context"<<std::endl;
     TCPContext* newContext = dynamic_cast<TCPContext*>(c); //This is only a pointer, not a copy right?
     std::vector<MTEvent*> newEvents;
-
-    //std::cout<<"SendIfPossible loop start"<<std::endl;
     std::vector<Packet> packetTobeSend;
     for(; //m_Nxt
      (newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd)&&(newContext->m_Nxt<128);
@@ -130,21 +127,21 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
     std::cout<<"Timer Expired being processed"<<std::endl;
     //Update windowsize
-    newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
-
-    //Resend first segment (first segment only)
-    MTTCPHeader outgoingHeader = MTTCPHeader();
-    outgoingHeader.seqnum = newContext->m_Una;
-    newContext->isResend[newContext->m_Una+newContext->m_segmentsize]=true; //TODO: should be min(len(data))
-    newContext->RTOTimer->reset();
-    Packet P = Packet(
-    newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
-    newContext->m_segmentsize);
-    std::cout<<"Send Timer:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
-    P.AddHeader(outgoingHeader);
-    packetTobeSend.emplace_back(P);
-    EventProcessorOutput *Output = new EventProcessorOutput;
-
+    if(newContext->m_Una<128){//TODO: should be min(len(data))
+        newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
+        //Resend first segment (first segment only)
+        MTTCPHeader outgoingHeader = MTTCPHeader();
+        outgoingHeader.seqnum = newContext->m_Una;
+        newContext->isResend[newContext->m_Una+newContext->m_segmentsize]=true;
+        newContext->RTOTimer->reset();
+        Packet P = Packet(
+        newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
+        newContext->m_segmentsize);
+        std::cout<<"Send Timer:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
+        P.AddHeader(outgoingHeader);
+        packetTobeSend.emplace_back(P);
+        EventProcessorOutput *Output = new EventProcessorOutput;
+    }
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;
     Output->packetToSend=packetTobeSend;
