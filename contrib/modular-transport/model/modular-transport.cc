@@ -66,9 +66,7 @@ void ModularTransport::Start(
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent* e = this->scheduler->CreateSendEvent(flow_id, time);
-     this->scheduler->AddEvent(e);
-
-     Mainloop();
+     this->scheduler->AddEvent(e, this);
 }
 void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
