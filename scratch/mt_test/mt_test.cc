@@ -127,7 +127,7 @@ main (int argc, char *argv[])
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
-  context->SetTimer(2, transport->GetScheduler(), &(*transport)); //timout, poiinter to scheduler, pointer to modular transport
+  context->SetTimer(2, transport->GetScheduler()); //timout, poiinter to scheduler, pointer to modular transport
   uint8_t data [128];
   for(int i=0;i<128;i++){
       data[i]=i;

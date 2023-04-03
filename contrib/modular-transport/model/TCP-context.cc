@@ -26,7 +26,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
 {
 }
 TCPContext::~TCPContext(){}
-void TCPContext::SetTimer(int duration, MTScheduler* scheduler, ModularTransport * mt){
-    this->RTOTimer=new TCPTimer(duration, scheduler, mt);
+void TCPContext::SetTimer(int duration, MTScheduler* scheduler){
+    this->RTOTimer=new TCPTimer(duration, scheduler);
 }
 } // namespace ns3

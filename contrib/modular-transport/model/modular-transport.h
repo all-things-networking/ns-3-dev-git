@@ -52,7 +52,10 @@ class ModularTransport: public IpL4Protocol
 
     */
     MTScheduler* GetScheduler();
+    /*
 
+    */
+    bool IsActive();
     /**
      * Set node associated with this stack
      * \param node the node
@@ -121,6 +124,7 @@ class ModularTransport: public IpL4Protocol
     //scheduler
     //dispatcher
     //context
+    bool active=false;
     MTState table;
     MTScheduler* scheduler;
     MTDispatcher* dispatcher;

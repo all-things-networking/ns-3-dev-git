@@ -66,12 +66,14 @@ void ModularTransport::Start(
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
      MTEvent* e = this->scheduler->CreateSendEvent(flow_id, time);
-     this->scheduler->AddEvent(e, this);
+     this->scheduler->AddEvent(e);
+
 }
 void ModularTransport::Mainloop(){
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
+    this->active=true;
     double now = Simulator::Now().GetSeconds();
     std::cout<<"loop start time:"<<now<<std::endl;
     while (!this->scheduler->isEmpty()){
@@ -84,7 +86,7 @@ void ModularTransport::Mainloop(){
          this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
-                 this->scheduler->AddEvent(newEvent,this); //TODO: variable indicate empty, cannot based on queue
+                 this->scheduler->AddEvent(newEvent); //TODO: variable indicate empty, cannot based on queue
          }
          for (auto packet : result->packetToSend)
          {
@@ -93,9 +95,13 @@ void ModularTransport::Mainloop(){
          //Use rult's mtcontext to update table's context at id
          //addall every thing in first vector of result into schedular
     }
+    this->active=false;
 }
 MTScheduler* ModularTransport::GetScheduler(){
     return this->scheduler;
+}
+bool ModularTransport::IsActive(){
+    return this->active;
 }
 void
 ModularTransport::DoDispose()

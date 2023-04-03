@@ -9,18 +9,17 @@ class MTHeader;
 class ModularTransport;
 class MTScheduler{
     public:
-    std::queue<MTEvent*> myqueue;
     MTScheduler(){}
-    // virtual void OpsBeforeSend(); // Compute Hash
-   // virtual void OpsAfterRecieved(); //Verify Hash, then return a event
-    //virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
-    //virtual MTEvent GenerateEventOnInitate(MTHeader);
+    void SetModularTransport(ModularTransport* mt);
     virtual MTEvent* GetNextEvent()=0;
-    virtual void AddEvent(MTEvent* newEvent, ModularTransport* mt)=0; //call enqueue
+    void AddEvent(MTEvent* newEvent);
     virtual void enqueue(MTEvent*) =0;
     virtual MTEvent* CreateSendEvent(int, long)=0;
     virtual MTEvent* CreateAckEvent(int, int)=0;
     virtual bool isEmpty()=0;
+    protected:
+        ModularTransport * mt = NULL;
+
 };
 }
 #endif
