@@ -43,7 +43,7 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
             std::cout<<"Sender: Ack recevied for acknum"<<recievedHeader.acknum<<std::endl;
             //need to implement: int flow_id, int seq
              //MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.seqnum + size);
-             MTEvent* e = mt->scheduler->CreateAckEvent(1,recievedHeader.acknum);
+             MTEvent* e = mt->GetScheduler()->CreateAckEvent(1,recievedHeader.acknum);
              mt->GetScheduler()->AddEvent(e,mt);
     }
     else{
