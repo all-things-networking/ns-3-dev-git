@@ -2,7 +2,7 @@
 #ifndef MT_SCHEDULER_H
 #define MT_SCHEDULER_H
 #include <queue>
-#include "moduler-transport.h"
+#include "modular-transport.h"
 namespace ns3{
 class MTEvent;
 class MTEventQueue;
