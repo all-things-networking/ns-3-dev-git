@@ -94,6 +94,9 @@ void ModularTransport::Mainloop(){
          //addall every thing in first vector of result into schedular
     }
 }
+MTScheduler* GetScheduler(){
+    return this->scheduler;
+}
 void
 ModularTransport::DoDispose()
 {

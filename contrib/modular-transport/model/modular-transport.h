@@ -48,6 +48,10 @@ class ModularTransport: public IpL4Protocol
     */
     void Mainloop();
 
+    /*
+
+    */
+    MTScheduler* GetScheduler();
 
     /**
      * Set node associated with this stack
@@ -113,7 +117,7 @@ class ModularTransport: public IpL4Protocol
      */
     void NotifyNewAggregate() override;
 
-  public:
+  private:
     //scheduler
     //dispatcher
     //context

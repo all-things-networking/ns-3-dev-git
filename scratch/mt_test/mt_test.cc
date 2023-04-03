@@ -42,7 +42,6 @@ main (int argc, char *argv[])
   NetDeviceContainer devs = p2p.Install(nodes);
 
   // Install the stack
-  MTScheduler* firstScheduler = NULL;
   for (NodeContainer::Iterator i = nodes.Begin (); i != nodes.End (); ++i){
     Ptr<Node> node = *i;
 
@@ -81,11 +80,8 @@ main (int argc, char *argv[])
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
     MTDispatcher* dispatcher =new TCPDispatcher();
     MTScheduler* scheduler =new TCPScheduler();
-    if(firstScheduler == NULL){
-        firstScheduler = scheduler;
-    }
-    MTReceiveLogic* receiver = new TCPReceiveLogic();
-    Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receiver);
+    MTReceiveLogic* receivelogic = new TCPReceiveLogic();
+    Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receivelogic);
     node->AggregateObject(transport);
   }
 
@@ -131,7 +127,7 @@ main (int argc, char *argv[])
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
-  context->SetTimer(2, firstScheduler, &(*transport)); //timout, poiinter to scheduler, pointer to modular transport
+  context->SetTimer(2, transport->GetScheduler(), &(*transport)); //timout, poiinter to scheduler, pointer to modular transport
   uint8_t data [128];
   for(int i=0;i<128;i++){
       data[i]=i;

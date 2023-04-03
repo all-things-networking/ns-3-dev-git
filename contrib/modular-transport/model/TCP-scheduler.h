@@ -9,7 +9,7 @@ class MTHeader;
 class ModularTransport;
 class TCPScheduler: public MTScheduler{
     public:
-
+    //TODO: Need pointer to MT
     TCPScheduler();
     //void OpsBeforeSend(); // Compute Hash
     //void OpsAfterRecieved(); //Verify Hash, then return a event

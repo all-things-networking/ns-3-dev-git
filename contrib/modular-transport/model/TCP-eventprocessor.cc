@@ -141,7 +141,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
     }
-    
+
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;

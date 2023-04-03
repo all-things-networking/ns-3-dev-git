@@ -16,7 +16,7 @@ class MTScheduler{
     //virtual MTEvent GenerateEventOnRecive(MTHeader); //Produce event to be added to EventQueue
     //virtual MTEvent GenerateEventOnInitate(MTHeader);
     virtual MTEvent* GetNextEvent()=0;
-    virtual void AddEvent(MTEvent* newEvent, ModularTransport* mt)=0;
+    virtual void AddEvent(MTEvent* newEvent, ModularTransport* mt)=0; //call enqueue
     virtual void enqueue(MTEvent*) =0;
     virtual MTEvent* CreateSendEvent(int, long)=0;
     virtual MTEvent* CreateAckEvent(int, int)=0;
