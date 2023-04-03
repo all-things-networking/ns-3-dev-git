@@ -140,8 +140,9 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
         std::cout<<"Send Timer:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
-        EventProcessorOutput *Output = new EventProcessorOutput;
     }
+    
+    EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=newContext;
     Output->packetToSend=packetTobeSend;
