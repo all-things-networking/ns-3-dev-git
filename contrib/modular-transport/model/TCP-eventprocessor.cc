@@ -49,7 +49,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         newContext->RTOTimer->start();
         //TODO: packet id other than seqnum
         double now = Simulator::Now().GetSeconds();
-        newContext->startTime[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize]=now;
+        newContext->startTime[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize] = now;
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }

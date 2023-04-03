@@ -139,7 +139,7 @@ main (int argc, char *argv[])
   context->data = data;
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
-  //TODO: Run will make timer expire (run all events unitl no more), need Run(time)
+  /*
   std::cout<<"mt_test: start finished"<<std::endl;
   for (int i = 0; i < 20; i++){
 
@@ -150,5 +150,6 @@ main (int argc, char *argv[])
      Simulator::Run ();
      std::cout<<"=========================mt_test: loop"<<i<<std::endl;
   }
+  */
   Simulator::Destroy ();
 }
