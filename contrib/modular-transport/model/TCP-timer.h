@@ -7,7 +7,7 @@ class ModularTransport;
 class TCPTimer {
 public:
      TCPTimer();
-     TCPTimer (float duration, MTScheduler*);
+     TCPTimer (float duration, MTScheduler*, ModularTransport* mt);
      void start();
      void reset();
      void reset(float duration);
