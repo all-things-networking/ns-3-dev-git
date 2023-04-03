@@ -49,6 +49,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         //TODO: packet id other than seqnum
         double now = Simulator::Now().GetSeconds();
         newContext->startTime[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize] = now;
+        newContext->isResend[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize] = false;
         //TimeExpire * timeevent = TimeExpire(0, newContext->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
         //newEvents.push_back(timeevent);
      }
@@ -79,25 +80,25 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     //Calculates RTO:
-    double now = Simulator::Now().GetSeconds();
-    float R = now - newContext->startTime[event->acknum];
-
-    if (newContext->SRTT == 0){//first time
-        newContext->SRTT = R;
-        newContext->RTTVAR = R/2;
-        //max (G, 4*RTTVAR), G is Clock Granularity
-        newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
-    }
-    else{
-        float alpha=1.0/8.0;
-        float beta=1.0/4.0;
-        newContext->RTTVAR  = (1 - beta) * newContext->RTTVAR + beta * std::abs(newContext->SRTT - R);
-        newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
-        newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
-    }
+    if (newContext->isResend[event->acknum]){
+        double now = Simulator::Now().GetSeconds();
+        float R = now - newContext->startTime[event->acknum];
+        if (newContext->SRTT == 0){//first time
+            newContext->SRTT = R;
+            newContext->RTTVAR = R/2;
+            //max (G, 4*RTTVAR), G is Clock Granularity
+            newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
+        }
+        else{
+            float alpha=1.0/8.0;
+            float beta=1.0/4.0;
+            newContext->RTTVAR  = (1 - beta) * newContext->RTTVAR + beta * std::abs(newContext->SRTT - R);
+            newContext->SRTT  =(1 - alpha) * newContext->SRTT + alpha * R;
+            newContext->RTO = newContext->SRTT + 4 *newContext->RTTVAR;
+        }
     // max (rto,1)
-    std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
-
+        std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
+    }
     newContext->m_Wnd += newContext->m_segmentsize;
     newContext->m_Una = event->acknum;
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
@@ -134,6 +135,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     //Resend first segment (first segment only)
     MTTCPHeader outgoingHeader = MTTCPHeader();
     outgoingHeader.seqnum = newContext->m_Una;
+    newContext->isResend[newContext->m_Una+newContext->m_segmentsize]=true; //TODO: should be min(len(data))
     newContext->RTOTimer->reset();
     Packet P = Packet(
     newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
