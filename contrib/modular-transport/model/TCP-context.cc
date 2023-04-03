@@ -2,6 +2,7 @@
 #include "mt-context.h"
 #include "TCP-context.h"
 #include "TCP-scheduler.h"
+#include "modular-transport.h"
 #include <ctime>
 #include <map>
 
@@ -25,7 +26,7 @@ TCPContext::TCPContext(int tcpId)//, uint32_t timer_duration)
 {
 }
 TCPContext::~TCPContext(){}
-void TCPContext::SetTimer(int duration, MTScheduler* scheduler){
-    this->RTOTimer=new TCPTimer(duration, scheduler);
+void TCPContext::SetTimer(int duration, MTScheduler* scheduler, ModularTransport * mt){
+    this->RTOTimer=new TCPTimer(duration, scheduler, mt);
 }
 } // namespace ns3
