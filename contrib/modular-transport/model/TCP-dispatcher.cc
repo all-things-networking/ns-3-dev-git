@@ -10,8 +10,9 @@ TCPDispatcher::TCPDispatcher(){}
 MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
     TCPEvent* tcpevent = dynamic_cast<TCPEvent*>(anything);
     if (tcpevent == NULL){
-        //std::cout<<"cast unsuccessful"<<std::endl;
-        int a = 0/0; //raise an exception here
+        std::cout<<"TCPDispatcher::dispatch: invalid event type"<<std::endl;
+        //raise an exception here
+        throw;
     }
     if (tcpevent->Type == TCPEventType::SEND_DATA){
         //std::cout<<"dispatched SendEvent"<<std::endl;
@@ -30,8 +31,11 @@ MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
     }
     else{
         std::cout<<"undefined event"<<std::endl;
+        throw;
+        /*
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
+        */
     }
 }
 }

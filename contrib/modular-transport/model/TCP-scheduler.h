@@ -16,6 +16,7 @@ class TCPScheduler: public MTScheduler{
     MTEvent* CreateAckEvent(int, int);
     bool isEmpty();
     private:
+        //TODO: seperate queues for different types of events
         std::queue<MTEvent*> myqueue;
     };
 }

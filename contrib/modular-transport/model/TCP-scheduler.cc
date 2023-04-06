@@ -8,7 +8,6 @@ TCPScheduler::TCPScheduler(){
 }
 
 MTEvent* TCPScheduler::CreateSendEvent(int flow_id, long time){
-    //#Add type here?
     MTEvent* send = new SendEvent(flow_id, time);
     return send;
 }

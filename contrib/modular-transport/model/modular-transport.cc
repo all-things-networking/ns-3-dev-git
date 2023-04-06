@@ -53,13 +53,6 @@ void ModularTransport::Start(
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
-    //this->table =  MTState(this); move this line to constructor
-    //Should I initialize context up on createobject of transport?
-
-    //Temporary solution
-    //a place that's got a pointer scheduler
-    //timer is only in TCP-context and not MT-context
-    //TODO: RTT mesurement
     table.Write(flow_id, StartContext);
 
     long time = 1;
@@ -86,14 +79,12 @@ void ModularTransport::Mainloop(){
          this->table.Write(e->flow_id, result->updatedContext);
          for (auto newEvent : result->newEvents)
          {
-                 this->scheduler->AddEvent(newEvent); //TODO: variable indicate empty, cannot based on queue
+                 this->scheduler->AddEvent(newEvent);
          }
          for (auto packet : result->packetToSend)
          {
                 this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }
-         //Use rult's mtcontext to update table's context at id
-         //addall every thing in first vector of result into schedular
     }
     this->active=false;
 }
