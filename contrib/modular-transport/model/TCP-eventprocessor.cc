@@ -43,7 +43,6 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         packetTobeSend.emplace_back(P);
         std::cout<<"Send ifpossible:"<<newContext->m_Iss + newContext->m_Nxt<<" to "<<newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize<<std::endl;
         newContext->RTOTimer->start();
-        //TODO: packet id other than seqnum
         double now = Simulator::Now().GetSeconds();
         newContext->startTime[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize] = now;
         newContext->isResend[newContext->m_Iss + newContext->m_Nxt+newContext->m_segmentsize] = false;
@@ -146,7 +145,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
             newContext->RTO = 3.0;
         }
         Packet P = Packet(
-        newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
+        newContext->data + newContext->m_Una, //this assumes data's start is at 0 seqnum
         newContext->m_segmentsize);
         std::cout<<"Send Timer:"<<newContext->m_Una<<" to "<<newContext->m_Una+newContext->m_segmentsize<<std::endl;
         P.AddHeader(outgoingHeader);
