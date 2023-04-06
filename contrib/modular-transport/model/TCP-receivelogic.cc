@@ -21,9 +21,9 @@ enum IpL4Protocol::RxStatus TCPReceiveLogic::Receive(ModularTransport* mt,
     MTTCPHeader recievedHeader;
     MTTCPHeader headerType;
     packet->RemoveHeader(recievedHeader);
-    int drop = rand()%10;
-    if(drop > 7 && (recievedHeader.ControlBits&headerType.ackbit) == 0){
-        //8 , 9 20% chance
+    int drop = rand()%100;
+    if(drop > 97 && (recievedHeader.ControlBits&headerType.ackbit) == 0){
+        //98 99 2% chance
         //on receiver side
         std::cout<<"Receiver dropped"<<" "<<recievedHeader.seqnum<<std::endl;
         return IpL4Protocol::RX_OK;

@@ -77,6 +77,12 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     //Calculates RTO:
+    if (newContext->m_Una < event->acknum){
+        //new ack (what if latter arrive first)
+        newContext->m_Wnd += newContext->m_segmentsize;
+        newContext->m_Una = event->acknum;
+        newContext->RTOTimer->reset(newContext->RTO);
+    }
     if (!newContext->isResend[event->acknum]){
         double now = Simulator::Now().GetSeconds();
         float R = now - newContext->startTime[event->acknum];
@@ -96,12 +102,10 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     // max (rto,1)
         std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
     }
-    newContext->m_Wnd += newContext->m_segmentsize;
-    newContext->m_Una = event->acknum;
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
     newEvents.push_back(newEvent);
-    newContext->RTOTimer->reset(newContext->RTO);
+
 
 
     EventProcessorOutput *Output = new EventProcessorOutput;
@@ -134,6 +138,10 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
         outgoingHeader.seqnum = newContext->m_Una;
         newContext->isResend[newContext->m_Una+newContext->m_segmentsize]=true;
         newContext->RTOTimer->reset();
+        newContext->RTO = newContext->RTO * 2;
+        if(newContext->RTO < 3){
+            newContext->RTO = 3.0;
+        }
         Packet P = Packet(
         newContext->data+newContext->m_Una, //this assumes data's start is at 0 seqnum
         newContext->m_segmentsize);
