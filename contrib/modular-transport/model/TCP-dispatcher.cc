@@ -30,12 +30,8 @@ MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
             return TimerProcessor;
     }
     else{
-        std::cout<<"undefined event"<<std::endl;
+        std::cout<<"TCPDispatcher::dispatch: undefined event"<<std::endl;
         throw;
-        /*
-        MTEventProcessor* AckProcessor = new AckHandler();
-        return AckProcessor;
-        */
     }
 }
 }
