@@ -77,13 +77,9 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
 
     //Calculates RTO:
-    if (newContext->m_Una < event->acknum){
-        //new ack (what if latter arrive first)
-        newContext->m_Wnd += newContext->m_segmentsize;
-        newContext->m_Una = event->acknum;
-        newContext->RTOTimer->reset(newContext->RTO);
-    }
-    if (!newContext->isResend[event->acknum]){
+
+    //Update if I got 2 consecutive new acks without a timeout, update RTO based on second packet
+    if (!newContext->timeouthappend && newContext->m_Una < event->acknum){
         double now = Simulator::Now().GetSeconds();
         float R = now - newContext->startTime[event->acknum];
         if (newContext->SRTT == 0){//first time
@@ -101,6 +97,12 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
         }
     // max (rto,1)
         std::cout<<"Set RTO to "<<newContext->RTO<<std::endl;
+    }
+    if (newContext->m_Una < event->acknum){
+            newContext->m_Wnd += newContext->m_segmentsize;
+            newContext->m_Una = event->acknum;
+            newContext->RTOTimer->reset(newContext->RTO);
+            newContext->timeouthappend = false;
     }
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     MTEvent* newEvent = new SendEvent(0, event->flow_id);
@@ -131,6 +133,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::vector<Packet> packetTobeSend;
     std::cout<<"Timer Expired being processed"<<std::endl;
     //Update windowsize
+    newContext->timeouthappend = true;
     if(newContext->m_Una<128){//TODO: should be min(len(data))
         newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
         //Resend first segment (first segment only)

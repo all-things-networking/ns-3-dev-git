@@ -62,6 +62,7 @@ public:
     float SRTT = 0;
     float RTTVAR = 0;
     float RTO = 1;
+    bool timeouthappend = false;
 };
 
 } // namespace ns3
