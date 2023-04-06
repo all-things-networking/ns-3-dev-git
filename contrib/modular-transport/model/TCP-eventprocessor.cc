@@ -29,11 +29,12 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     TCPContext* ctx = dynamic_cast<TCPContext*>(c); //This is only a pointer, not a copy right?
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
+    //Send any data between m_Nxt to the end of the window
     for(; //m_Nxt
      (ctx->m_Nxt < ctx->m_Una + ctx->m_Wnd)&&(ctx->m_Nxt<ctx->flow_size);
      ctx->m_Nxt += ctx->m_segmentsize){
         MTTCPHeader outgoingHeader = MTTCPHeader();
-        outgoingHeader.seqnum = ctx->m_Iss + ctx->m_Nxt; //Confirmed: first sequence number of a segment
+        outgoingHeader.seqnum = ctx->m_Iss + ctx->m_Nxt;
         //std::cout<<"set seqnum to"<<outgoingHeader.seqnum<<std::endl;
         Packet P = Packet(
             ctx->data+ctx->m_Nxt,
@@ -41,24 +42,19 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
         std::cout<<"Send ifpossible:"<<ctx->m_Iss + ctx->m_Nxt<<" to "<<ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize<<std::endl;
+        //Restart the timer if it is stopped or not started yet
         ctx->RTOTimer->start();
+        //Tracking RTT
         double now = Simulator::Now().GetSeconds();
         ctx->startTime[ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize] = now;
         ctx->isResend[ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize] = false;
-        //TimeExpire * timeevent = TimeExpire(0, ctx->m_Nxt, ns3::Simulator::Now().GetSeconds()+2)
-        //newEvents.push_back(timeevent);
      }
-     //std::cout<<"SendIfPossible loop end"<<std::endl;
-    //Create header here
-
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=ctx;
     Output->packetToSend=packetTobeSend;
     return Output;
-    //store packets to send as vector in class
-    //call get packet to retrieve it later, and clear vector in class, use temp vector
 }
 AckHandler::AckHandler():
 MTEventProcessor()
@@ -74,7 +70,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
 
-    //Calculates RTO:
+    //Calculates RTTVAR, SRTT and RTO:
 
     //Update if I got 2 consecutive new acks without a timeout, update RTO based on second packet
     if (!ctx->timeouthappend && ctx->m_Una < event->acknum){
@@ -93,21 +89,23 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
             ctx->SRTT  =(1 - alpha) * ctx->SRTT + alpha * R;
             ctx->RTO = ctx->SRTT + 4 *ctx->RTTVAR;
         }
-    // max (rto,1)
+        if (ctx->RTO<1){
+            ctx->RTO=1;
+        }
         std::cout<<"Set RTO to "<<ctx->RTO<<std::endl;
     }
+    //Update the window here when a new ack for new segment arrives
     if (ctx->m_Una < event->acknum){
+            //TODO: expand the window update function
             ctx->m_Wnd += ctx->m_segmentsize;
             ctx->m_Una = event->acknum;
             ctx->RTOTimer->reset(ctx->RTO);
             ctx->timeouthappend = false;
+            //Now the window size is increased, check if you can send new data
+            MTEvent* newEvent = new SendEvent(0, event->flow_id);
+            newEvents.push_back(newEvent);
     }
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
-    MTEvent* newEvent = new SendEvent(0, event->flow_id);
-    newEvents.push_back(newEvent);
-
-
-
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
     Output->updatedContext=ctx;
