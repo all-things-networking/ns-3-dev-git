@@ -63,6 +63,7 @@ public:
     float RTTVAR = 0;
     float RTO = 1;
     bool timeouthappend = false;
+    int flow_size;
 };
 
 } // namespace ns3

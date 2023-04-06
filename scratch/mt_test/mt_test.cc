@@ -119,34 +119,20 @@ main (int argc, char *argv[])
   Ipv4Address daddr = dst->GetObject<Ipv4L3Protocol>()->GetInterface(1)->GetAddress(0).GetAddress();
   NS_LOG_UNCOND("Destination address: " << daddr);
 
-  Ptr<Packet> packet = Create<Packet> (100);
-  MTHeader mth = MTTCPHeader();
-  mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
-  //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   int flow_id=1; //flow_id here should be same
   auto context =new TCPContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
   context->SetTimer(2, transport->GetScheduler()); //timout, poiinter to scheduler, pointer to modular transport
-  uint8_t data [128];
-  for(int i=0;i<128;i++){
+  const int flow_size = 128;
+  uint8_t data [flow_size];
+  for(int i=0;i<flow_size;i++){
       data[i]=i;
   }
   context->data = data;
+  context->flow_size = flow_size;
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
-  /*
-  std::cout<<"mt_test: start finished"<<std::endl;
-  for (int i = 0; i < 20; i++){
-
-     double now = Simulator::Now().GetSeconds();
-     std::cout<<"time:"<<now<<std::endl;
-     //First parameter is the wait time (relative increment), not absolute time
-     Simulator::Schedule(Seconds(1), &ModularTransport::Mainloop, transport);
-     Simulator::Run ();
-     std::cout<<"=========================mt_test: loop"<<i<<std::endl;
-  }
-  */
   Simulator::Destroy ();
 }

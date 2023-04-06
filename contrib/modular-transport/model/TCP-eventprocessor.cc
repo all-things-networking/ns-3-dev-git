@@ -31,7 +31,7 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
     for(; //m_Nxt
-     (newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd)&&(newContext->m_Nxt<128);
+     (newContext->m_Nxt < newContext->m_Una + newContext->m_Wnd)&&(newContext->m_Nxt<newContext->flow_size);
      newContext->m_Nxt += newContext->m_segmentsize){
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = newContext->m_Iss + newContext->m_Nxt; //Confirmed: first sequence number of a segment
@@ -133,7 +133,7 @@ EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
     std::cout<<"Timer Expired being processed"<<std::endl;
     //Update windowsize
     newContext->timeouthappend = true;
-    if(newContext->m_Una<128){//TODO: should be min(len(data))
+    if(newContext->m_Una<newContext->flow_size){//TODO: should be min(len(data))
         newContext->m_Wnd = std::max(newContext->m_Wnd/2, (uint32_t)1);
         //Resend first segment (first segment only)
         MTTCPHeader outgoingHeader = MTTCPHeader();
