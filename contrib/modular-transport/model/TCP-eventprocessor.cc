@@ -47,7 +47,6 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
         //Tracking RTT
         double now = Simulator::Now().GetSeconds();
         ctx->startTime[ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize] = now;
-        ctx->isResend[ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize] = false;
      }
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
@@ -127,7 +126,7 @@ EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, MTContext* c){
     Timeout* event = dynamic_cast<Timeout*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
-    std::cout<<"Timer Expired being processed"<<std::endl;
+    std::cout<<"Timeout being processed"<<std::endl;
     //Update windowsize
     ctx->timeouthappend = true;
     if(ctx->m_Una<ctx->flow_size){//TODO: should be min(len(data))
@@ -135,7 +134,6 @@ EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, MTContext* c){
         //Resend first segment (first segment only)
         MTTCPHeader outgoingHeader = MTTCPHeader();
         outgoingHeader.seqnum = ctx->m_Una;
-        ctx->isResend[ctx->m_Una+ctx->m_segmentsize]=true;
         ctx->RTOTimer->reset();
         ctx->RTO = ctx->RTO * 2;
         if(ctx->RTO < 3){

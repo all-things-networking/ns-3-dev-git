@@ -58,7 +58,6 @@ public:
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
     TCPTimer* RTOTimer = NULL;
     std::map<uint32_t, float> startTime;
-    std::map<uint32_t, bool> isResend;
     float SRTT = 0;
     float RTTVAR = 0;
     float RTO = 1;
