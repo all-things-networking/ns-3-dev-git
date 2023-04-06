@@ -113,7 +113,7 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     return Output;
 } // namespace ns3
 
-TimeoutHandler::TimedResendHandler():
+TimeoutHandler::TimeoutHandler():
 MTEventProcessor()
 {}
 bool

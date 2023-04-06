@@ -17,7 +17,7 @@ AckEvent::AckEvent(int flow_id,  uint32_t acknum){
     this->flow_id=flow_id;
     this->Type=TCPEventType::ACK_DATA;
 }
-TimerExpire::TimerExpire(){
+Timeout::Timeout(){
 
 }
 Timeout::Timeout(int flow_id){
