@@ -7,7 +7,7 @@ class MTEvent;
 enum TCPEventType {
     SEND_DATA,
     ACK_DATA,
-    TIME_EXPIRE
+    TIMEOUT
 };
 class TCPEvent: public MTEvent{
     public:
@@ -29,11 +29,11 @@ class AckEvent: public TCPEvent{
     ~AckEvent(){};
     AckEvent(int flow_id,  uint32_t acknum);
 };
-class TimerExpire: public TCPEvent{ //TODO timerExpried r
+class Timeout: public TCPEvent{
     public:
-    TimerExpire();
-    TimerExpire(int flow_id);
-    ~TimerExpire(){};
+    Timeout();
+    Timeout(int flow_id);
+    ~Timeout(){};
 };
 
 }

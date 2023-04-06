@@ -30,9 +30,9 @@ class AckHandler: public MTEventProcessor{
     bool IsValidEvent(MTEvent e);
 };
 
-class TimedResendHandler: public MTEventProcessor{
+class TimeoutHandler: public MTEventProcessor{
     public:
-    TimedResendHandler();
+    TimeoutHandler();
     EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 };// namespace ns3

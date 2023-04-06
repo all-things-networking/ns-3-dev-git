@@ -113,18 +113,18 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
     return Output;
 } // namespace ns3
 
-TimedResendHandler::TimedResendHandler():
+TimeoutHandler::TimedResendHandler():
 MTEventProcessor()
 {}
 bool
-TimedResendHandler::IsValidEvent(MTEvent e)
+TimeoutHandler::IsValidEvent(MTEvent e)
 {
     return true;
 }
 
-EventProcessorOutput* TimedResendHandler::Process(MTEvent* e, MTContext* c){
+EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, MTContext* c){
     TCPContext* ctx = dynamic_cast<TCPContext*>(c);
-    TimerExpire* event = dynamic_cast<TimerExpire*>(e);
+    Timeout* event = dynamic_cast<Timeout*>(e);
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
     std::cout<<"Timer Expired being processed"<<std::endl;

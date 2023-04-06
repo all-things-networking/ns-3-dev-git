@@ -20,8 +20,8 @@ AckEvent::AckEvent(int flow_id,  uint32_t acknum){
 TimerExpire::TimerExpire(){
 
 }
-TimerExpire::TimerExpire(int flow_id){
+Timeout::Timeout(int flow_id){
     this->flow_id = flow_id;
-    this->Type = TCPEventType::TIME_EXPIRE;
+    this->Type = TCPEventType::TIMEOUT;
 }
 }

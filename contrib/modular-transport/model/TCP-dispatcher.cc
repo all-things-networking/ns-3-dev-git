@@ -24,9 +24,9 @@ MTEventProcessor* TCPDispatcher::dispatch(MTEvent* anything){
         MTEventProcessor* AckProcessor = new AckHandler();
         return AckProcessor;
     }
-    else if(tcpevent->Type == TCPEventType::TIME_EXPIRE){
+    else if(tcpevent->Type == TCPEventType::TIMEOUT){
             //std::cout<<"dispatched TimerEvent"<<std::endl;
-            TimedResendHandler* TimerProcessor = new TimedResendHandler();
+            TimeoutHandler* TimerProcessor = new TimeoutHandler();
             return TimerProcessor;
     }
     else{

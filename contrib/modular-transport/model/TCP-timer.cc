@@ -37,7 +37,7 @@ namespace ns3{
 
  void TCPTimer::expire(){
     std::cout<<"Timer Expire Added to Queue"<<std::endl;
-    TimerExpire* newEvent = new TimerExpire(1); //store flow_id
+    Timeout* newEvent = new Timeout(1); //store flow_id
     this->scheduler->AddEvent(newEvent);
            //create TimerExpired event and add to schedule
  }
