@@ -59,6 +59,8 @@ void ModularTransport::Start(
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
+
+    // Create and send first packet (hellogooodworldbye)
     MTEvent* event1 = this->scheduler->AddData(flow_id, time, "helloworld", 1);
     this->scheduler->AddEvent(event1);
 
@@ -67,6 +69,17 @@ void ModularTransport::Start(
     
     MTEvent* event3 = this->scheduler->SendPacket(flow_id, time);
     this->scheduler->AddEvent(event3);
+
+    // Create and send second packet (applepizzabreaddance)
+    MTEvent* event4 = this->scheduler->AddData(flow_id, time, "applebread", 1);
+    this->scheduler->AddEvent(event4);
+
+    MTEvent* event5 = this->scheduler->AddData(flow_id, time, "pizzadance", 2);
+    this->scheduler->AddEvent(event5);
+    
+    MTEvent* event6 = this->scheduler->SendPacket(flow_id, time);
+    this->scheduler->AddEvent(event6);
+
     Mainloop();
 }
 void ModularTransport::Mainloop(){

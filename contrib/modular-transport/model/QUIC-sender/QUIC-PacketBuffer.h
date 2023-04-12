@@ -31,10 +31,6 @@ public:
     int MaxBufferSize = 1000; // Need to change this
     int MaxPacketSize = 20; 
     std::deque<QUICFrame*> frames;
-
-    // This is in case we need to retransmit packets
-    std::deque<Ptr<Packet>> sent;
-
 };
 
 } // namespace ns3

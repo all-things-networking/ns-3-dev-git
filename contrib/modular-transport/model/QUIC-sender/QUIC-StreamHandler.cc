@@ -162,7 +162,8 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
 
     std::cout << "Creating packet and sending" << std::endl;
     Ptr<Packet> pkt = PacketBuffer->CreatePacket();
-    PacketBuffer->sent.push_back(pkt);
+    std::pair<Ptr<Packet>, PacketState> sent = std::make_pair(PacketBuffer->CreatePacket(), PacketState::SENT);
+    c->sentPackets.push_back(sent);
 
     // TODO: right now this only outputs a new EventProcessorOutput for chaining
     // but maybe we want to send the SendPacketEvent to the queue instead. In that case
