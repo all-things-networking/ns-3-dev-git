@@ -22,7 +22,6 @@ void QUICPacketBuffer::AddFrame(QUICFrame* frame)
         CurrentBufferSize += frame->GetSize();
         frames.emplace_back(frame);
     }
-    
 }
 
 Ptr<Packet> QUICPacketBuffer::CreatePacket()

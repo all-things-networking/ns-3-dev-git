@@ -22,4 +22,9 @@ QUICFrame* QUICStream::RemoveFrame()
     return currFrame;
 }
 
+void QUICStream::AddToDataBuffer(std::string data)
+{
+    databuffer.emplace_back(data);
+}
+
 } // namespace ns3

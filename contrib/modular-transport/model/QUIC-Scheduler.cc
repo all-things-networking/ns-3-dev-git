@@ -14,7 +14,7 @@ QUICScheduler::QUICScheduler(){
 // in the future, we can abstract this from the user
 MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
     // Create random data for now
-    Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>("hello"), 5);
+    std::string data = "hello";
 
     // TODO: need to free this memory after?
     MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, 5); // pick random stream_id for now
@@ -22,28 +22,13 @@ MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
 }
 
 MTEvent* QUICScheduler::SendPacket(int flow_id, long time){
-
-    // TODO: need to free this memory after?
-    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, nullptr); // pick random stream_id for now
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, "", -1); // pick random stream_id for now
     return streamEvent;
 }
 
-std::vector<MTEvent*> QUICScheduler::SendString(int flow_id, long time, std::string text, int stream){
-    int MAX_STREAM_DATA = 5; // Temporary for now
-
-    std::vector<MTEvent*> events;
-
-    for (size_t i = 0; i < text.length(); i += MAX_STREAM_DATA) {
-        std::string substr = text.substr(i, MAX_STREAM_DATA);
-
-        // This is not a packet, it is just used to temporarily hold the data
-        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substr.data()), substr.size());
-        MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, stream);
-
-        events.push_back(streamEvent);
-    }
-
-    return events;
+MTEvent* QUICScheduler::AddData(int flow_id, long time, std::string data, int stream){
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, stream);
+    return streamEvent;
 }
 
 void QUICScheduler::AddEvent(MTEvent* newEvent){

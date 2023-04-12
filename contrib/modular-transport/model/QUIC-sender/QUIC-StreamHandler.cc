@@ -76,11 +76,7 @@ QUICStreamHandler::Process(MTEvent* e, MTContext* c)
         }
 
         QUICStream* stream = newContext->quic_streams[stream_id];
-
-        QUICFrame* dataFrame = new QUICFrame;
-        dataFrame->data = streamEvent->data;
-        dataFrame->state = FrameState::NOT_SENT;
-        stream->AddFrame(dataFrame);
+        stream->AddToDataBuffer(streamEvent->data);
     }
 
     // Empty Event
@@ -107,12 +103,11 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
     EventProcessorOutput* Output = new EventProcessorOutput;
 
     // [RFC 9000] - Stream prioritization and multiplexing are left to the application.
-    // For now we will just iterate over the map of streams and add frames for the associated stream
-    // TODO: this may lead to starvation for some streams so we should change this implementation in
-    // the future
+    // For now just do round robin
 
     // If buffer CAN'T fit our dataFrame we will create a packet and create a
     // SendPacketEvent
+
     while (PacketBuffer->frames.size() != 4)
     {
         // For now just do round robin
@@ -121,17 +116,45 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
         QUICStream* stream = it->second;
 
         // TODO: this way of iterating is super inefficient. We should optimize this later
-        while (stream->frames.size() == 0)
+        size_t streamCount = 0;
+        while (stream->databuffer.size() == 0 && streamCount < c->quic_streams.size())
         {
             c->CurrentStream = (c->CurrentStream + 1) % c->quic_streams.size();
             it = c->quic_streams.begin();
             std::advance(it, c->CurrentStream);
             stream = it->second;
+            streamCount += 1;
         }
 
+        // None of our streams have data left to be sent 
+        if (streamCount >= c->quic_streams.size()) {
+            break;
+        }
+
+        // Current stream has some data in databuffer, we should create a frame 
+        std::string curr_data = stream->databuffer.front();
+
+        int MAX_STREAM_DATA = 5; // TODO: Temporary for now
+        
+        // Create a frame of size MAX_STREAM_DATA
+        std::string substr = curr_data.substr(0, MAX_STREAM_DATA);
+        QUICFrame* dataFrame = new QUICFrame;
+        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substr.data()), substr.size());
+        dataFrame->data = data;
+        dataFrame->state = FrameState::NOT_SENT;
+        stream->AddFrame(dataFrame);
+
+        // If there is remaining data, we add it back to the databuffer 
+        stream->databuffer.pop_front();
+        curr_data.erase(0, MAX_STREAM_DATA);
+        if (!curr_data.empty()) {
+            stream->databuffer.push_front(curr_data);
+        }
+
+        // Now we have some frames we can add 1 frame from this stream to our packet buffer (round robin)
         QUICFrame* currFrame = stream->frames.front();
         stream->frames.pop_front();
-
+        
         PacketBuffer->AddFrame(currFrame);
         c->CurrentStream = (c->CurrentStream + 1) %
                            c->quic_streams.size(); // Move onto next stream for round robin

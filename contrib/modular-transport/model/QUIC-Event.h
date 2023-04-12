@@ -35,8 +35,8 @@ class StreamEvent: public MTEvent{
     StreamEvent();
 
     // Send Data 
-    Ptr<Packet> data;
-    StreamEvent(int flow_id, StreamEventType streamEventType, Ptr<Packet> data, int stream_id = NO_STREAM_ID);
+    std::string data;
+    StreamEvent(int flow_id, StreamEventType streamEventType, std::string data, int stream_id = NO_STREAM_ID);
 };
 
 }

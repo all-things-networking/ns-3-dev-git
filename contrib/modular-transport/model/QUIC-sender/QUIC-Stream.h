@@ -42,6 +42,9 @@ public:
     std::deque<QUICFrame*> frames;
     void AddFrame(QUICFrame* frame);
     QUICFrame* RemoveFrame();
+
+    std::deque<std::string> databuffer;
+    void AddToDataBuffer(std::string data);
 };
 
 } // namespace ns3

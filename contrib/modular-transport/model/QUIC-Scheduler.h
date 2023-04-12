@@ -17,7 +17,7 @@ class QUICScheduler: public MTScheduler{
     void AddEvent(MTEvent*);
     MTEvent* CreateSendEvent(int, long);
     MTEvent* SendPacket(int flow_id, long time);
-    std::vector<MTEvent*> SendString(int flow_id, long time, std::string text, int stream);
+    MTEvent* AddData(int flow_id, long time, std::string data, int stream);
     bool isEmpty();
     };
 }

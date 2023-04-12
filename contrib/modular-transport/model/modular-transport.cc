@@ -59,16 +59,12 @@ void ModularTransport::Start(
     long time = 1;
        // Then, create a "send" event to send the first window of packets for this
        // flow. This event will be processed by "Send if Possible" event processor
-    std::vector<MTEvent*> events = this->scheduler->SendString(flow_id, time, "helloworld", 1);
-    for (auto e : events) {
-        this->scheduler->AddEvent(e);
-    }
+    MTEvent* event1 = this->scheduler->AddData(flow_id, time, "helloworld", 1);
+    this->scheduler->AddEvent(event1);
 
-    std::vector<MTEvent*> events2 = this->scheduler->SendString(flow_id, time, "gooodbye", 2);
-    for (auto e : events2) {
-        this->scheduler->AddEvent(e);
-    }
-
+    MTEvent* event2 = this->scheduler->AddData(flow_id, time, "gooodbye", 2);
+    this->scheduler->AddEvent(event2);
+    
     MTEvent* event3 = this->scheduler->SendPacket(flow_id, time);
     this->scheduler->AddEvent(event3);
     Mainloop();
