@@ -57,12 +57,14 @@ STREAM Frame {
 }
 */
 class StreamFrameFields : public FrameFields {
+  public:
     int Size;
     int StreamID;
     int Offset;
     int Length;
     std::string data; // TODO: modify this to general data type
     bool Fin;
+    int BufferIndex; // used for retransmission
 };
 
 
@@ -83,6 +85,8 @@ public:
     ~QUICFrame();
 
     int GetSize();
+
+    std::string generateHeader();
 
     Ptr<Packet> data; // TODO: This will be replaced with "fields" below
 

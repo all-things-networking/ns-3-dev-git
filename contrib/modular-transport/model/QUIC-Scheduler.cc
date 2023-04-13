@@ -14,7 +14,8 @@ QUICScheduler::QUICScheduler(){
 // in the future, we can abstract this from the user
 MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
     // Create random data for now
-    std::string data = "hello";
+    StreamEventData data;
+    data.text = "hello";
 
     // TODO: need to free this memory after?
     MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, 5); // pick random stream_id for now
@@ -22,11 +23,17 @@ MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
 }
 
 MTEvent* QUICScheduler::SendPacket(int flow_id, long time){
-    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, "", -1); // pick random stream_id for now
+    StreamEventData data;
+    data.text = "";
+
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, data, -1);
     return streamEvent;
 }
 
-MTEvent* QUICScheduler::AddData(int flow_id, long time, std::string data, int stream){
+MTEvent* QUICScheduler::AddData(int flow_id, long time, std::string text, int stream){
+    StreamEventData data;
+    data.text = text;
+
     MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, stream);
     return streamEvent;
 }
@@ -37,6 +44,15 @@ void QUICScheduler::AddEvent(MTEvent* newEvent){
 
 bool QUICScheduler::isEmpty(){
     return this->myqueue.empty();
+}
+
+MTEvent* QUICScheduler::ACKPacket(int flow_id, long time, int packetNum){
+    ResponseEventData data;
+    data.text = "";
+    data.packetNum = packetNum;
+
+    MTEvent* streamEvent = new ResponseEvent(flow_id, ResponseEventType::ACK_PACKET, data, -1);
+    return streamEvent;
 }
 
 MTEvent* QUICScheduler::GetNextEvent(){

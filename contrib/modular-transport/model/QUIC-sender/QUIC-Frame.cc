@@ -25,6 +25,17 @@ int QUICFrame::GetSize()
     return this->data->GetSize();
 }
 
+// TODO: super simplified right now, will need to modify later
+std::string QUICFrame::generateHeader()
+{
+    if (this->type == FrameType::STREAM) {
+        StreamFrameFields streamFields = static_cast<StreamFrameFields&>(this->fields);
+        return "HEADER: " + std::to_string(streamFields.StreamID) + "-" + std::to_string(streamFields.BufferIndex);
+    }
+    
+    return "";
+}
+
 
 
 

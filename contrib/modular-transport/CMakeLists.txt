@@ -28,6 +28,7 @@ build_lib(
                  model/QUIC-Scheduler.cc
                  model/QUIC-sender/QUIC-SendIfPossible.cc
                  model/QUIC-sender/QUIC-StreamHandler.cc
+                 model/QUIC-sender/QUIC-LossDetection.cc
                  model/QUIC-sender/QUIC-Stream.cc
                  model/QUIC-sender/QUIC-Frame.cc
                  model/QUIC-sender/QUIC-Packet.cc
@@ -51,6 +52,7 @@ build_lib(
                  model/QUIC-Scheduler.h
                  model/QUIC-sender/QUIC-SendIfPossible.h
                  model/QUIC-sender/QUIC-StreamHandler.h
+                 model/QUIC-sender/QUIC-LossDetection.h
                  model/QUIC-sender/QUIC-Stream.h
                  model/QUIC-sender/QUIC-Frame.h
                  model/QUIC-sender/QUIC-Packet.h

@@ -1,6 +1,6 @@
 #ifndef QUIC_LOSS_DETECTION_H
 #define QUIC_LOSS_DETECTION_H
-#include "../../mt-eventprocessor.h"
+#include "../mt-eventprocessor.h"
 
 namespace ns3
 {
@@ -15,10 +15,10 @@ class QUICLossDetection: public MTEventProcessor
 {
 public:
     QUICLossDetection();
-    EventProcessorOutput* Process(MTEvent e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
     bool IsValidEvent(MTEvent e);
 
-    void HandleRecieveACK(Packet* pkt);
+    EventProcessorOutput* HandleReceiveACK(ResponseEvent* e, QUICContext* c);
 
     Packet* CreateProbePacket();
     Packet* CreateRetryPacket();

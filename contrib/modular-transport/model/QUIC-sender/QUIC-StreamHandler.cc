@@ -76,7 +76,7 @@ QUICStreamHandler::Process(MTEvent* e, MTContext* c)
         }
 
         QUICStream* stream = newContext->quic_streams[stream_id];
-        stream->AddToDataBuffer(streamEvent->data);
+        stream->AddToDataBuffer(streamEvent->data.text);
     }
 
     // Empty Event
@@ -89,8 +89,6 @@ QUICStreamHandler::Process(MTEvent* e, MTContext* c)
     Output->updatedContext = newContext;
     Output->packetToSend = packetTobeSend;
     return Output;
-    // store packets to send as vector in class
-    // call get packet to retrieve it later, and clear vector in class, use temp vector
 }
 
 EventProcessorOutput*
@@ -137,11 +135,22 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
         int MAX_STREAM_DATA = 5; // TODO: Temporary for now
         
         // Create a frame of size MAX_STREAM_DATA
-        std::string substr = curr_data.substr(0, MAX_STREAM_DATA);
         QUICFrame* dataFrame = new QUICFrame;
-        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substr.data()), substr.size());
-        dataFrame->data = data;
+
+        // Headers/fields for the frame
+        StreamFrameFields streamFrameFields;
+        streamFrameFields.StreamID = c->CurrentStream;
+        streamFrameFields.BufferIndex = stream->frames.size();
+        
         dataFrame->state = FrameState::NOT_SENT;
+        dataFrame->type = FrameType::STREAM;
+        dataFrame->fields = streamFrameFields;
+
+        std::string substrWithHeader = dataFrame->generateHeader() + curr_data.substr(0, MAX_STREAM_DATA);
+
+
+        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substrWithHeader.data()), substrWithHeader.size());
+        dataFrame->data = data;
         stream->AddFrame(dataFrame);
 
         // If there is remaining data, we add it back to the databuffer 

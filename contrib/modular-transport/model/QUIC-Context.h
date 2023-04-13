@@ -36,6 +36,11 @@ public:
 
     // Keep track of sent packets for loss detection and error handling;
     std::deque<std::pair<Ptr<Packet>, PacketState>> sentPackets;
+    int sendBase = 0; // Sequence number of OLDEST in-flight and unACKED packet
+    int windowSize = 1; // [sendBase, sendBase + windowSize] is the range of packets in-flight (each may or may not be ACKED)
+    int PTO_Timer;
+    int k_packet_threshold = 1;
+    
 };
 
 } // namespace ns3

@@ -4,7 +4,8 @@ namespace ns3{
 
 enum EventType {
     EMPTY,
-    STREAM_EVENT
+    STREAM_EVENT,
+    RESPONSE_EVENT
 };
 
 class MTHeader;

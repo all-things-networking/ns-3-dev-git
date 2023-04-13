@@ -10,7 +10,24 @@ const int NO_STREAM_ID = -1;
 
 enum StreamEventType {
     ADD_DATA,
-    SEND_PACKET
+    SEND_PACKET,
+};
+
+class StreamEventData {
+    public:
+    int packetNum;
+    std::string text;
+};
+
+class ResponseEventData {
+    public:
+    int packetNum;
+    std::string text;
+};
+
+enum ResponseEventType {
+    ACK_PACKET,
+    NACK_PACKET
 };
 
 class MTHeader;
@@ -34,9 +51,18 @@ class StreamEvent: public MTEvent{
     int stream_id;
     StreamEvent();
 
-    // Send Data 
-    std::string data;
-    StreamEvent(int flow_id, StreamEventType streamEventType, std::string data, int stream_id = NO_STREAM_ID);
+    StreamEventData data;
+    StreamEvent(int flow_id, StreamEventType streamEventType, StreamEventData data, int stream_id = NO_STREAM_ID);
+};
+
+class ResponseEvent: public MTEvent{
+    public:
+    ResponseEventType responseEventType;
+    int stream_id; // Might not be needed in response event
+    ResponseEventData data;
+
+    ResponseEvent();
+    ResponseEvent(int flow_id, ResponseEventType responseEventType, ResponseEventData data, int stream_id = NO_STREAM_ID);
 };
 
 }
