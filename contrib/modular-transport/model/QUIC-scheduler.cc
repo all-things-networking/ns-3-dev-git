@@ -1,6 +1,8 @@
 #include "QUIC-scheduler.h"
 #include "mt-event.h"
 #include "QUIC-event.h"
+#include "ns3/ipv4-l3-protocol.h"
+#include "ns3/node.h"
 
 
 namespace ns3{
@@ -15,7 +17,7 @@ MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
 
 }
 
-MTEvent* QUICScheduler::CreateReceiveEvent(int flow_id, long time, MTPacket* pkg){
+MTEvent* QUICScheduler::CreateReceiveEvent(int flow_id, long time, Packet* pkg){
     MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkg); 
     return RCVPacketEvent;
 }

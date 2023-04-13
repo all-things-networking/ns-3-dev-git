@@ -6,7 +6,7 @@
 #include <vector>
 #include "ns3/ipv4-address.h"
 #include "mt-state.h"
-#include "QUICStream.h"
+#include "QUIC-Stream.h"
 
 
 namespace ns3

@@ -111,7 +111,7 @@ main (int argc, char *argv[])
   NS_LOG_UNCOND("Destination address: " << daddr);
 
   Ptr<Packet> packet = Create<Packet> (100);
-  MTHeader mth = MTTCPHeader();
+  MTHeader mth = MTQUICShortHeader();
   mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);

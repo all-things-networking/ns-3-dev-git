@@ -2,7 +2,6 @@
 #define MT_QUIC_SCHEDULER_H
 #include "mt-scheduler.h"
 #include "QUIC-event.h"
-#include "QUICPacket.h"
 #include <queue>
 namespace ns3{
 class MTScheduler;
@@ -15,7 +14,7 @@ class QUICScheduler: public MTScheduler{
     MTEvent* GetNextEvent();
     void AddEvent(MTEvent*);
     MTEvent* CreateSendEvent(int, long);
-    MTEvent* CreateReceiveEvent(int, long, MTPacket* pkg);
+    MTEvent* CreateReceiveEvent(int, long, Packet* pkg);
     bool isEmpty();
     };
 }

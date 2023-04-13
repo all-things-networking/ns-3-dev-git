@@ -5,12 +5,13 @@
 #include <vector>
 
 #include "mt-intermediate_output.h"
-#include "QUICFrame.h"
+#include "QUIC-Frame.h"
 
 namespace ns3
 {
 class QUICIntermediateOutput: public IntermediateOutput {
 public:
+    // intermediate output for PacketDemultiplexer: a mapping of frames to streams
     std::vector<std::pair<uint64_t, QUICFrame>> PacketDemultiplexerOut;
 
     QUICIntermediateOutput(){};

@@ -1,5 +1,5 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-
+#include <iostream>
 #include "modular-transport.h"
 #include "mt-eventprocessor.h"
 #include "mt-dispatcher.h"
@@ -9,7 +9,7 @@
 #include "mt-event.h"
 #include "mt-state.h"
 #include "QUIC-context.h"
-#include "QUICPacket.h"
+#include "QUIC-header.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 
@@ -56,9 +56,9 @@ void ModularTransport::Start(
     auto scheduler = QUICScheduler();
 
     long time = 1;
-       // Then, create a "send" event to send the first window of packets for this
-       // flow. This event will be processed by "Send if Possible" event processor
-     QUICPacket* pkg = new QUICPacket();
+    // Then, create a "Receive" event. 
+    // This event will be processed by "QUICPacketDemultiplexer", "QUICBufferManagement" and "QUICAckHandler" event processor
+     Packet* pkg = new Packet();
      MTEvent* e = scheduler.CreateReceiveEvent(flow_id, time, pkg);
      scheduler.AddEvent(e);
      Mainloop(&scheduler);
@@ -70,19 +70,22 @@ void ModularTransport::Mainloop(MTScheduler* scheduler){
     QUICDispatcher dispatcher = QUICDispatcher();
     while (!scheduler->isEmpty()){
          MTEvent* e = scheduler->GetNextEvent();
+
+         // get the chain of event processors
          std::vector<MTEventProcessor*> ep = dispatcher.dispatch(e);
          MTContext ctx = this->table.GetVal(e->flow_id);
          std::vector<MTEvent*> newEvents;
          MTContext* context;
          std::vector<Packet> packetToSend;
+
+         // intermediate output for the chain of processors
          IntermediateOutput intermOutput;
          EventProcessorOutput* epout = new EventProcessorOutput{newEvents, &ctx, packetToSend, intermOutput};
          
-         
+         // run through all processors
          for (auto processor : ep) 
          {
             epout = processor->Process(e, epout);
-            NS_LOG_UNCOND("In processor loop");
          }
 
          for (auto newEvent : epout->newEvents)
@@ -189,14 +192,18 @@ ModularTransport::Receive(Ptr<Packet> packet,
                           Ptr<Ipv4Interface> incomingInterface)
                           //MTScheduler chosenScheduler)
 {
-    MTHeader recievedHeader;
+    MTQUICShortHeader recievedHeader;
     packet->RemoveHeader(recievedHeader);
     //chosenScheduler.OpsAfterRecieved(recievedHeader);
     //chosenScheduler.GenerateEventOnReceive(recievedHeader);
     //recievedHeader.OpsAfterRecieved(); //THis one returns a event
-    NS_LOG_FUNCTION(this << packet << incomingIpHeader << incomingInterface);
-
+    NS_LOG_UNCOND(recievedHeader);
+    uint8_t* buffer = new uint8_t[packet->GetSize()];
+    packet->CopyData(buffer, packet->GetSize());
+    
     NS_LOG_UNCOND("Received packet in ModularTransport");
+    NS_LOG_UNCOND("Content of the packet:");
+    NS_LOG_UNCOND((int)buffer[packet->GetSize()-1]);
     return IpL4Protocol::RX_OK;
 }
 

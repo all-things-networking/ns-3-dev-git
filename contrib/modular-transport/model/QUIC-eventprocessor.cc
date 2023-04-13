@@ -1,10 +1,9 @@
 #include "QUIC-eventprocessor.h"
 #include "mt-state.h"
 #include "QUIC-event.h"
-#include "QUICPacket.h"
 #include "QUIC-context.h"
 #include "QUIC-intermediate_output.h"
-#include "TCP-header.h"
+#include "QUIC-header.h"
 #include <vector>
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
@@ -55,7 +54,6 @@ QUICPacketDemultiplexer::IsValidEvent(MTEvent* e)
 }
 
 EventProcessorOutput* QUICPacketDemultiplexer::Process(MTEvent* e, EventProcessorOutput* epOut){
-
     ReceivePacketEvent* rpe = static_cast<ReceivePacketEvent*>(e);
     recvPacket = rpe->receivered;
 
@@ -128,7 +126,7 @@ QUICAckHandler::IsValidEvent(MTEvent* e)
 EventProcessorOutput* QUICAckHandler::Process(MTEvent* e, EventProcessorOutput* epOut){
 
     ReceivePacketEvent* rpe = static_cast<ReceivePacketEvent*>(e);
-    QUICPacket* recvPacket = rpe->receivered;
+    Packet* recvPacket = rpe->receivered;
 
     //update the context if needed
     MTContext newContext = *(epOut->context);
@@ -136,10 +134,21 @@ EventProcessorOutput* QUICAckHandler::Process(MTEvent* e, EventProcessorOutput* 
     //add any new events (e.g. application wants to terminate connection)
     std::vector<MTEvent*> newEvents;
 
-    Packet ackPacket = Packet();
-    //USING TCP HEADER FOR NOW, NEED TO CHANGE!!
-    MTTCPHeader outgoingHeader = MTTCPHeader();
+    // Create an ACK frame
+    ACKFrameFields* fields = new ACKFrameFields();
+    fields->LargestACKed = 20;
+    QUICFrame ackFrame = QUICFrame(ACK, fields);
+    uint8_t buffer[ackFrame.GetSize()];
+    // Serialize the ACK frame
+    ackFrame.Serialize(buffer);
+
+    // Put frame into packet
+    Packet ackPacket = Packet(buffer, ackFrame.GetSize());
+    // Add a header for the packet
+    MTQUICShortHeader outgoingHeader = MTQUICShortHeader();
+    outgoingHeader.pckNum = 20;
     ackPacket.AddHeader(outgoingHeader);
+    
     //update packet to be send (e.g. connection termination, state change)
     std::vector<Packet> packetTobeSend;
     packetTobeSend.emplace_back(ackPacket);
