@@ -3,6 +3,8 @@
 #define MODULAR_TRANSPORT_H
 #include "mt-state.h"
 #include "mt-header.h"
+#include "mt-dispatcher.h"
+#include "mt-receivelogic.h"
 #include "QUIC-header.h"
 #include "ns3/ip-l4-protocol.h"
 
@@ -27,7 +29,10 @@ class ModularTransport: public IpL4Protocol
     static TypeId GetTypeId();
     static const uint8_t PROT_NUMBER = 0xcc; //!< protocol number (0xcc)
 
+    MTScheduler* GetScheduler();
+
     ModularTransport();
+    ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher, MTReceiveLogic * receiver);
     ~ModularTransport() override;
 
     // Delete copy constructor and assignment operator to avoid misuse
@@ -41,7 +46,8 @@ class ModularTransport: public IpL4Protocol
     */
     void Start(
                const Ipv4Address& saddr,
-               const Ipv4Address& daddr);
+               const Ipv4Address& daddr,
+               MTContext* StartContext);
     /**
     main of simulation
     */
@@ -112,6 +118,10 @@ class ModularTransport: public IpL4Protocol
     void NotifyNewAggregate() override;
 
   private:
+    MTScheduler* scheduler;
+    MTDispatcher* dispatcher;
+    MTReceiveLogic* receiver;
+
     Ptr<Node> m_node;                                //!< the node this stack is associated with
     IpL4Protocol::DownTargetCallback m_downTarget;   //!< Callback to send packets over IPv4
     IpL4Protocol::DownTargetCallback6 m_downTarget6; //!< Callback to send packets over IPv6

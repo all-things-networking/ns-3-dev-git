@@ -27,6 +27,8 @@ build_lib(
                  model/QUIC-header.cc
                  model/QUIC-Frame.cc
                  model/QUIC-Stream.cc
+                 model/mt-receivelogic.cc
+                 model/QUIC-receivelogic.cc
 
     HEADER_FILES model/modular-transport.h
                  helper/modular-transport-helper.h
@@ -47,6 +49,8 @@ build_lib(
                  model/QUIC-scheduler.h
                  model/mt-packet.h
                  model/QUIC-header.h
+                 model/mt-receivelogic.h
+                 model/QUIC-receivelogic.h
 
 
     LIBRARIES_TO_LINK ${libinternet}

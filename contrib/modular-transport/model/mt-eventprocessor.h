@@ -5,7 +5,6 @@
 #include <utility> // std::pair
 #include "mt-intermediate_output.h"
 
-//mostly copied from eric's branch, though send if possible is mine
 namespace ns3
 {
 

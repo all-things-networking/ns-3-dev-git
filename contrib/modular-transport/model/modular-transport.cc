@@ -8,6 +8,7 @@
 #include "mt-scheduler.h"
 #include "mt-event.h"
 #include "mt-state.h"
+#include "mt-receivelogic.h"
 #include "QUIC-context.h"
 #include "QUIC-header.h"
 #include "ns3/ipv4-l3-protocol.h"
@@ -30,9 +31,17 @@ ModularTransport::GetTypeId()
     return tid;
 }
 
-ModularTransport::ModularTransport()
+ModularTransport::ModularTransport(){
+    this->table =  MTState(this);
+    NS_LOG_FUNCTION(this);
+}
+
+ModularTransport::ModularTransport(MTScheduler* scheduler, MTDispatcher* dispatcher, MTReceiveLogic * receiver)
 {
     this->table =  MTState(this);
+    this->scheduler = scheduler;
+    this->dispatcher = dispatcher;
+    this->receiver = receiver;
     NS_LOG_FUNCTION(this);
 }
 
@@ -42,26 +51,21 @@ ModularTransport::~ModularTransport()
 }
 void ModularTransport::Start(
                              const Ipv4Address& saddr,
-                             const Ipv4Address& daddr){
+                             const Ipv4Address& daddr, MTContext* StartContext){
     // initiate a flow by adding its state/context to the state table.
     // pick a constant for flow id. Context can include anything you need
     // for processing TCP packets, e.g., initial sequence number,
     // window size, beginning of the window, total number of bytes to send, etc.
     int flow_id = 1;
-    //this->table =  MTState(this); move this line to constructor
-    MTContext context = QUICContext(flow_id);//Change to MTContext
-    context.saddr = saddr;
-    context.daddr = daddr;
-    table.Write(flow_id, context);
-    auto scheduler = QUICScheduler();
+    table.Write(flow_id, *StartContext);
 
     long time = 1;
     // Then, create a "Receive" event. 
     // This event will be processed by "QUICPacketDemultiplexer", "QUICBufferManagement" and "QUICAckHandler" event processor
      Packet* pkg = new Packet();
-     MTEvent* e = scheduler.CreateReceiveEvent(flow_id, time, pkg);
-     scheduler.AddEvent(e);
-     Mainloop(&scheduler);
+     MTEvent* e = this->scheduler->CreateReceiveEvent(flow_id, time, pkg);
+     this->scheduler->AddEvent(e);
+     Mainloop(this->scheduler);
 }
 void ModularTransport::Mainloop(MTScheduler* scheduler){
     // This is the main loop of the transport layer
@@ -192,18 +196,7 @@ ModularTransport::Receive(Ptr<Packet> packet,
                           Ptr<Ipv4Interface> incomingInterface)
                           //MTScheduler chosenScheduler)
 {
-    MTQUICShortHeader recievedHeader;
-    packet->RemoveHeader(recievedHeader);
-    //chosenScheduler.OpsAfterRecieved(recievedHeader);
-    //chosenScheduler.GenerateEventOnReceive(recievedHeader);
-    //recievedHeader.OpsAfterRecieved(); //THis one returns a event
-    NS_LOG_UNCOND(recievedHeader);
-    uint8_t* buffer = new uint8_t[packet->GetSize()];
-    packet->CopyData(buffer, packet->GetSize());
-    
-    NS_LOG_UNCOND("Received packet in ModularTransport");
-    NS_LOG_UNCOND("Content of the packet:");
-    NS_LOG_UNCOND((int)buffer[packet->GetSize()-1]);
+    this->receiver->Receive(this, packet, incomingIpHeader, incomingInterface);
     return IpL4Protocol::RX_OK;
 }
 

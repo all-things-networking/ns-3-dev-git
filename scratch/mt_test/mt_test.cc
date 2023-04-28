@@ -20,6 +20,11 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
 #include "ns3/modular-transport.h"
+#include "ns3/QUIC-dispatcher.h"
+#include "ns3/QUIC-scheduler.h"
+#include "ns3/QUIC-context.h"
+#include "ns3/QUIC-header.h"
+#include "ns3/QUIC-receivelogic.h"
 
 using namespace ns3;
 
@@ -73,7 +78,10 @@ main (int argc, char *argv[])
     arp->SetTrafficControl(tc);
 
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
-    Ptr<ModularTransport> transport = CreateObject<ModularTransport>();
+    MTDispatcher* dispatcher =new QUICDispatcher();
+    MTScheduler* scheduler =new QUICScheduler();
+    MTReceiveLogic* receivelogic = new QUICReceiveLogic();
+    Ptr<ModularTransport> transport = CreateObject<ModularTransport>(scheduler,dispatcher,receivelogic);
     node->AggregateObject(transport);
   }
 
@@ -110,14 +118,12 @@ main (int argc, char *argv[])
   Ipv4Address daddr = dst->GetObject<Ipv4L3Protocol>()->GetInterface(1)->GetAddress(0).GetAddress();
   NS_LOG_UNCOND("Destination address: " << daddr);
 
-  Ptr<Packet> packet = Create<Packet> (100);
-  MTHeader mth = MTQUICShortHeader();
-  mth.SetF1(2);
   Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
-  //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
-  std::cout<<"just to make sure it's my branch"<<std::endl;
-  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr);
-
+  int flow_id=1; //flow_id here should be same
+  auto context =new QUICContext(flow_id);
+  context->saddr = saddr;
+  context->daddr = daddr;
+  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
   Simulator::Destroy ();
 }
