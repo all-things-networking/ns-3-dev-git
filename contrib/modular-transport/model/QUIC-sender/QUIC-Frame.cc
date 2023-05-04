@@ -7,7 +7,7 @@
 namespace ns3
 {
 
-QUICFrame::QUICFrame(FrameType type, FrameFields fields)
+QUICFrame::QUICFrame(FrameType type, FrameFields * fields)
 {
     this->type = type;
     this->fields = fields;
@@ -39,11 +39,16 @@ int QUICFrame::GetSize()
     return this->data->GetSize();
 }
 
+std::string QUICFrame::GetData()
+{
+    return "";
+}
+
 // TODO: super simplified right now, will need to modify later
 std::string QUICFrame::generateHeader()
 {
     if (this->type == FrameType::STREAM) {
-        StreamFrameFields streamFields = static_cast<StreamFrameFields&>(this->fields);
+        StreamFrameFields streamFields = static_cast<StreamFrameFields&>(*this->fields);
         return "HEADER: " + std::to_string(streamFields.StreamID);
     }
     

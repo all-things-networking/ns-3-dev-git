@@ -79,13 +79,13 @@ Frame {
 class QUICFrame
 {
 public:
-    QUICFrame(FrameType type, FrameFields fields);
+    QUICFrame(FrameType type, FrameFields * fields);
     QUICFrame(std::string frame);
     QUICFrame();
     ~QUICFrame();
 
     int GetSize();
-    std::string getData();
+    std::string GetData();
 
     std::string generateHeader();
 

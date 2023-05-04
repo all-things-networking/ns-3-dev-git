@@ -105,7 +105,7 @@ EventProcessorOutput* QUICLossDetection::HandleReceiveACK(ResponseEvent* e, QUIC
             QUICStream* stream = c->quic_streams[streamFrameFields->StreamID];
 
             // Add to front of stream data buffer
-            stream->databuffer = dataFrame->getData() + stream->databuffer;
+            stream->databuffer = dataFrame->GetData() + stream->databuffer;
         }
     }
     

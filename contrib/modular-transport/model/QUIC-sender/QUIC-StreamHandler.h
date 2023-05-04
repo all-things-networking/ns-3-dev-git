@@ -2,7 +2,6 @@
 #define QUIC_STREAM_HANDLER_H
 #include "../mt-eventprocessor.h"
 #include <stdint.h>
-#include "QUIC-StreamHandler.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "QUIC-Frame.h"
 #include "../QUIC-Event.h"
