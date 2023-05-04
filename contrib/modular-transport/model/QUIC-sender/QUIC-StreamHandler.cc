@@ -130,41 +130,31 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
         }
 
         // Current stream has some data in databuffer, we should create a frame 
-        std::string curr_data = stream->databuffer.front();
-
-        int MAX_STREAM_DATA = 5; // TODO: Temporary for now
+        std::string curr_data = stream->databuffer;
         
-        // Create a frame of size MAX_STREAM_DATA
+        //////////////////// Create a frame of size MAX_STREAM_DATA ////////////////////
+        int MAX_STREAM_DATA = 5;
         QUICFrame* dataFrame = new QUICFrame;
 
         // Headers/fields for the frame
-        StreamFrameFields streamFrameFields;
-        streamFrameFields.StreamID = c->CurrentStream;
-        streamFrameFields.BufferIndex = stream->frames.size();
+        StreamFrameFields * streamFrameFields = new StreamFrameFields;
+        streamFrameFields->StreamID = c->CurrentStream;
         
-        dataFrame->state = FrameState::NOT_SENT;
         dataFrame->type = FrameType::STREAM;
         dataFrame->fields = streamFrameFields;
 
-        std::string substrWithHeader = dataFrame->generateHeader() + curr_data.substr(0, MAX_STREAM_DATA);
-
+        // The "-" is used to seperate header and "_" is used to seperate frames
+        std::string substrWithHeader = dataFrame->generateHeader() + "-" + curr_data.substr(0, MAX_STREAM_DATA) + "_";
 
         Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substrWithHeader.data()), substrWithHeader.size());
         dataFrame->data = data;
-        stream->AddFrame(dataFrame);
+        /////////////////////////////////////////////////////////////////////////////////
 
-        // If there is remaining data, we add it back to the databuffer 
-        stream->databuffer.pop_front();
-        curr_data.erase(0, MAX_STREAM_DATA);
-        if (!curr_data.empty()) {
-            stream->databuffer.push_front(curr_data);
-        }
+        // We need to update the buffer by erasing the first MAX_STREAM_DATA characters
+        stream->databuffer = curr_data.erase(0, MAX_STREAM_DATA);
 
-        // Now we have some frames we can add 1 frame from this stream to our packet buffer (round robin)
-        QUICFrame* currFrame = stream->frames.front();
-        stream->frames.pop_front();
-        
-        PacketBuffer->AddFrame(currFrame);
+        // Add the frame to the packet buffer
+        PacketBuffer->AddFrame(dataFrame);
         c->CurrentStream = (c->CurrentStream + 1) %
                            c->quic_streams.size(); // Move onto next stream for round robin
     }

@@ -64,7 +64,6 @@ class StreamFrameFields : public FrameFields {
     int Length;
     std::string data; // TODO: modify this to general data type
     bool Fin;
-    int BufferIndex; // used for retransmission
 };
 
 
@@ -81,10 +80,12 @@ class QUICFrame
 {
 public:
     QUICFrame(FrameType type, FrameFields fields);
+    QUICFrame(std::string frame);
     QUICFrame();
     ~QUICFrame();
 
     int GetSize();
+    std::string getData();
 
     std::string generateHeader();
 
@@ -92,7 +93,7 @@ public:
 
     FrameState state;
     FrameType type;
-    FrameFields fields;
+    FrameFields * fields;
 };
 
 } // namespace ns3

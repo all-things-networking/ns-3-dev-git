@@ -10,21 +10,9 @@ QUICStream::QUICStream(int id)//, uint32_t timer_duration)
 }
 QUICStream::~QUICStream(){}
 
-void QUICStream::AddFrame(QUICFrame* frame)
-{
-    frames.emplace_back(frame);
-}
-
-QUICFrame* QUICStream::RemoveFrame()
-{
-    QUICFrame* currFrame = frames.front();
-    frames.pop_front();
-    return currFrame;
-}
-
 void QUICStream::AddToDataBuffer(std::string data)
 {
-    databuffer.emplace_back(data);
+    databuffer = databuffer + data;
 }
 
 } // namespace ns3

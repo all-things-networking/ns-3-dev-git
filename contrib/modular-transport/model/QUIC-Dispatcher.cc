@@ -21,7 +21,8 @@ MTEventProcessor* QUICDispatcher::dispatch(MTEvent* event){
         return ChosenProcessor;
     }
 
-    MTEventProcessor* ChosenProcessor = new QUICSendIfPossible();
-    return ChosenProcessor;
+    // MTEventProcessor* ChosenProcessor = new QUICSendIfPossible();
+    // return ChosenProcessor;
+    return nullptr;
 }
 }

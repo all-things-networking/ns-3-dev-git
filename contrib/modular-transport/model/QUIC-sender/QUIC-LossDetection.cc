@@ -13,7 +13,7 @@
 #include <iostream>
 #include <utility> // std::pair
 #include <vector>
-
+#include <sstream>
 namespace ns3
 {
 
@@ -66,7 +66,7 @@ EventProcessorOutput* QUICLossDetection::HandleReceiveACK(ResponseEvent* e, QUIC
     ResponseEventData responseData = e->data;
     std::deque<std::pair<Ptr<Packet>, PacketState>> sentPackets = c->sentPackets;
 
-    // Should be in range
+    // ACKed packed be in range [sendBase, sendBase + windowSize]
     if (responseData.packetNum >= c->sendBase && responseData.packetNum <= c->sendBase + c->windowSize) {
         if (responseData.packetNum == c->sendBase) {
             c->sendBase += 1;
@@ -74,7 +74,6 @@ EventProcessorOutput* QUICLossDetection::HandleReceiveACK(ResponseEvent* e, QUIC
         }
         else {
             sentPackets.at(responseData.packetNum).second = PacketState::ACKED;
-            // WIP need to update frame buffers to acked
         }
     }
 
@@ -88,8 +87,26 @@ EventProcessorOutput* QUICLossDetection::HandleReceiveACK(ResponseEvent* e, QUIC
     int lostIndex = responseData.packetNum - c->k_packet_threshold - 1;
     while (lostIndex > c->sendBase) {
         Ptr<Packet> lostPacket = sentPackets.at(responseData.packetNum).first;
-        // WIP, need to seperate into frames again and add the frames to head of frame buffers for retransmission
+        // WIP, need to seperate into data again and add the data to head of data buffers for retransmission
 
+        uint8_t* buffer = new uint8_t[lostPacket->GetSize()];
+        int size = lostPacket->CopyData(buffer, lostPacket->GetSize());
+        std::string s = std::string(buffer, buffer + lostPacket->GetSize());
+
+        std::cout << "Retransmitting: " << s << std::endl;
+
+        std::stringstream retransmitPacket(s);
+        std::string frame;
+
+        while(std::getline(retransmitPacket, frame, '_'))
+        {
+            QUICFrame* dataFrame = new QUICFrame(frame);
+            StreamFrameFields* streamFrameFields = static_cast<StreamFrameFields*>(dataFrame->fields);
+            QUICStream* stream = c->quic_streams[streamFrameFields->StreamID];
+
+            // Add to front of stream data buffer
+            stream->databuffer = dataFrame->getData() + stream->databuffer;
+        }
     }
     
 

@@ -2,6 +2,7 @@
 #define MT_EVENT_H
 namespace ns3{
 
+// this will choose the event processor (from dispatcher)
 enum EventType {
     EMPTY,
     STREAM_EVENT,
