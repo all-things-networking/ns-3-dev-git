@@ -1,6 +1,6 @@
 #ifndef QUIC_SEND_IF_POSSIBLE_H
 #define QUIC_SEND_IF_POSSIBLE_H
-#include "../mt-eventprocessor.h"
+#include "ns3/mt-eventprocessor.h"
 
 namespace ns3
 {

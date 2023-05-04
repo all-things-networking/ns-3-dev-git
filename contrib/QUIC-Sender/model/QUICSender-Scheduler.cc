@@ -1,5 +1,5 @@
-#include "QUIC-Scheduler.h"
-#include "mt-event.h"
+#include "QUICSender-Scheduler.h"
+#include "ns3/mt-event.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
 #include <string>

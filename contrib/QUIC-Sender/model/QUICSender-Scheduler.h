@@ -1,7 +1,7 @@
 #ifndef MT_QUIC_SCHEDULER_H
 #define MT_QUIC_SCHEDULER_H
-#include "mt-scheduler.h"
-#include "QUIC-Event.h"
+#include "ns3/mt-scheduler.h"
+#include "QUICSender-Event.h"
 #include <queue>
 #include <vector>
 namespace ns3{

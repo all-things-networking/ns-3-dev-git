@@ -1,13 +1,12 @@
-#include "QUIC-LossDetection.h"
-
-#include "../QUIC-Context.h"
-#include "../QUIC-Event.h"
-#include "../mt-event.h"
-#include "../mt-eventprocessor.h"
-#include "../mt-state.h"
-#include "QUIC-Stream.h"
-
+#include "../model/QUICSender-Context.h"
+#include "../model/QUICSender-Event.h"
+#include "ns3/mt-event.h"
+#include "ns3/mt-eventprocessor.h"
+#include "ns3/mt-state.h"
 #include "ns3/node.h"
+
+#include "QUIC-Stream.h"
+#include "QUIC-LossDetection.h"
 
 #include <algorithm> // std::min, std::max
 #include <iostream>

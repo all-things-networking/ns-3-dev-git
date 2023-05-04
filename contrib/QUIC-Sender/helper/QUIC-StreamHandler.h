@@ -1,10 +1,12 @@
 #ifndef QUIC_STREAM_HANDLER_H
 #define QUIC_STREAM_HANDLER_H
-#include "../mt-eventprocessor.h"
-#include <stdint.h>
+#include "ns3/mt-eventprocessor.h"
 #include "ns3/ipv4-l3-protocol.h"
+
+#include <stdint.h>
+
 #include "QUIC-Frame.h"
-#include "../QUIC-Event.h"
+#include "../model/QUICSender-Event.h"
 namespace ns3
 {
 

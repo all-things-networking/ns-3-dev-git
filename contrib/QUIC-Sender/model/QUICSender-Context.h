@@ -1,12 +1,12 @@
-#ifndef QUIC_CONTEXT_H
-#define QUIC_CONTEXT_H
+#ifndef QUICSENDER_CONTEXT_H
+#define QUICSENDER_CONTEXT_H
 
 #include <ctime> // std::time_t
 #include <map>
 #include "ns3/ipv4-address.h"
-#include "mt-context.h"
-#include "./QUIC-sender/QUIC-Stream.h"
-#include "./QUIC-sender/QUIC-PacketBuffer.h"
+#include "ns3/mt-context.h"
+#include "../helper/QUIC-Stream.h"
+#include "../helper/QUIC-PacketBuffer.h"
 
 namespace ns3
 {

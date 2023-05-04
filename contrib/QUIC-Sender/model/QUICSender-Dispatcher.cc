@@ -1,11 +1,13 @@
-#include "mt-dispatcher.h"
-#include "QUIC-Dispatcher.h"
-#include "mt-event.h"
-#include "QUIC-Event.h"
-#include "mt-eventprocessor.h"
-#include "./QUIC-sender/QUIC-SendIfPossible.h"
-#include "./QUIC-sender/QUIC-StreamHandler.h"
-#include "./QUIC-sender/QUIC-LossDetection.h"
+#include "ns3/mt-dispatcher.h"
+#include "ns3/mt-eventprocessor.h"
+#include "ns3/mt-event.h"
+
+#include "QUICSender-Dispatcher.h"
+#include "QUICSender-Event.h"
+
+#include "../helper/QUIC-SendIfPossible.h"
+#include "../helper/QUIC-StreamHandler.h"
+#include "../helper/QUIC-LossDetection.h"
 #include <iostream>
 namespace ns3{
 QUICDispatcher::QUICDispatcher(){}

@@ -1,6 +1,6 @@
-#ifndef QUIC_DISPATCHER_H
-#define QUIC_DISPATCHER_H
-#include "mt-dispatcher.h"
+#ifndef QUICSENDER_DISPATCHER_H
+#define QUICSENDER_DISPATCHER_H
+#include "ns3/mt-dispatcher.h"
 namespace ns3
 {
 class MTEvent;

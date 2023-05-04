@@ -1,7 +1,7 @@
 #ifndef QUIC_LOSS_DETECTION_H
 #define QUIC_LOSS_DETECTION_H
-#include "../mt-eventprocessor.h"
-#include "../QUIC-Event.h"
+#include "ns3/mt-eventprocessor.h"
+#include "../model/QUICSender-Event.h"
 #include "QUIC-Frame.h"
 namespace ns3
 {
