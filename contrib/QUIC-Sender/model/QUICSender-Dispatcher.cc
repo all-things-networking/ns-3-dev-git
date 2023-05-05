@@ -5,26 +5,27 @@
 #include "QUICSender-Dispatcher.h"
 #include "QUICSender-Event.h"
 
-#include "../helper/QUIC-SendIfPossible.h"
-#include "../helper/QUIC-StreamHandler.h"
-#include "../helper/QUIC-LossDetection.h"
+#include "../helper/QUICSender-SendIfPossible.h"
+#include "../helper/QUICSender-StreamHandler.h"
+#include "../helper/QUICSender-LossDetection.h"
 #include <iostream>
 namespace ns3{
 QUICDispatcher::QUICDispatcher(){}
 
-MTEventProcessor* QUICDispatcher::dispatch(MTEvent* event){
+std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
+    std::vector<MTEventProcessor*> ChosenProcessors;
     if (event->type == EventType::STREAM_EVENT) {
         MTEventProcessor* ChosenProcessor = new QUICStreamHandler();
-        return ChosenProcessor;
+        ChosenProcessors.push_back(ChosenProcessor);
     }
 
     if (event->type == EventType::RESPONSE_EVENT) {
         MTEventProcessor* ChosenProcessor = new QUICLossDetection();
-        return ChosenProcessor;
+        ChosenProcessors.push_back(ChosenProcessor);
     }
 
     // MTEventProcessor* ChosenProcessor = new QUICSendIfPossible();
     // return ChosenProcessor;
-    return nullptr;
+    return ChosenProcessors;
 }
 }

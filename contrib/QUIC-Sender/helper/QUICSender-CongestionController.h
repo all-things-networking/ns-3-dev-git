@@ -1,7 +1,7 @@
 #ifndef QUIC_CONGESTION_CONTROLLER_H
 #define QUIC_CONGESTION_CONTROLLER_H
 #include "../model/QUIC-Dispatcher.h"
-#include "QUIC-EventProcessor.h"
+#include "QUICSender-EventProcessor.h"
 
 namespace ns3
 {
@@ -31,7 +31,7 @@ private:
 public:
     QUICCongestionController();
     EventProcessorOutput* Process(MTEvent e, MTContext* c);
-    bool IsValidEvent(MTEvent e);
+    bool IsValidEvent(MTEvent* e);
     void SetWindowSize(int value);
     int GetWindowSize();
     void SetCongestionControlAlgorithm(TcpCongestionControlAlgorithm algorithm);

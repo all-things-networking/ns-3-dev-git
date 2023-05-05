@@ -12,26 +12,26 @@ endif()
 
 build_lib(
     LIBNAME QUIC-Sender
-    SOURCE_FILES helper/QUIC-SendIfPossible.cc
-                 helper/QUIC-StreamHandler.cc
-                 helper/QUIC-LossDetection.cc
-                 helper/QUIC-Stream.cc
-                 helper/QUIC-Frame.cc
-                 helper/QUIC-Packet.cc
-                 helper/QUIC-PacketBuffer.cc
+    SOURCE_FILES helper/QUICSender-SendIfPossible.cc
+                 helper/QUICSender-StreamHandler.cc
+                 helper/QUICSender-LossDetection.cc
+                 helper/QUICSender-Stream.cc
+                 helper/QUICSender-Frame.cc
+                 helper/QUICSender-Packet.cc
+                 helper/QUICSender-PacketBuffer.cc
                  model/QUICSender-Receiver.cc
                  model/QUICSender-Context.cc
                  model/QUICSender-Event.cc
                  model/QUICSender-Dispatcher.cc
                  model/QUICSender-Scheduler.cc
 
-    HEADER_FILES helper/QUIC-SendIfPossible.h
-                 helper/QUIC-StreamHandler.h
-                 helper/QUIC-LossDetection.h
-                 helper/QUIC-Stream.h
-                 helper/QUIC-Frame.h
-                 helper/QUIC-Packet.h
-                 helper/QUIC-PacketBuffer.h
+    HEADER_FILES helper/QUICSender-SendIfPossible.h
+                 helper/QUICSender-StreamHandler.h
+                 helper/QUICSender-LossDetection.h
+                 helper/QUICSender-Stream.h
+                 helper/QUICSender-Frame.h
+                 helper/QUICSender-Packet.h
+                 helper/QUICSender-PacketBuffer.h
                  model/QUICSender-Receiver.h
                  model/QUICSender-Context.h
                  model/QUICSender-Event.h

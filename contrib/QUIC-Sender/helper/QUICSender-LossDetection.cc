@@ -5,8 +5,8 @@
 #include "ns3/mt-state.h"
 #include "ns3/node.h"
 
-#include "QUIC-Stream.h"
-#include "QUIC-LossDetection.h"
+#include "QUICSender-Stream.h"
+#include "QUICSender-LossDetection.h"
 
 #include <algorithm> // std::min, std::max
 #include <iostream>
@@ -28,14 +28,16 @@ QUICLossDetection::QUICLossDetection()
 }
 
 bool
-QUICLossDetection::IsValidEvent(MTEvent e)
+QUICLossDetection::IsValidEvent(MTEvent * e)
 {
     return true;
 }
 
 EventProcessorOutput*
-QUICLossDetection::Process(MTEvent* e, MTContext* c)
+QUICLossDetection::Process(MTEvent* e, EventProcessorOutput* epOut)
 {
+    MTContext * c = epOut->context;
+
     // I call mt->SendPack here
     QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     ResponseEvent* responseEvent = dynamic_cast<ResponseEvent*>(e);
@@ -54,7 +56,7 @@ QUICLossDetection::Process(MTEvent* e, MTContext* c)
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->updatedContext = newContext;
+    Output->context = newContext;
     Output->packetToSend = packetTobeSend;
     return Output;
 }
@@ -116,7 +118,7 @@ EventProcessorOutput* QUICLossDetection::HandleReceiveACK(ResponseEvent* e, QUIC
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->updatedContext = c;
+    Output->context = c;
     Output->packetToSend = packetTobeSend;
     return Output;
 }

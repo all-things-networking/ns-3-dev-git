@@ -20,6 +20,7 @@ build_lib(
                  model/mt-header.cc
                  model/mt-receiver.cc
                  model/mt-state.cc
+                 model/mt-receivelogic.cc
                  model/TCP-header.cc
 
     HEADER_FILES model/modular-transport.h
@@ -32,6 +33,8 @@ build_lib(
                  model/mt-scheduler.h
                  model/mt-header.h
                  model/mt-state.h
+                 model/mt-receivelogic.h
+                 model/mt-intermediateoutput.h
                  model/TCP-header.h
                  
     LIBRARIES_TO_LINK ${libinternet}

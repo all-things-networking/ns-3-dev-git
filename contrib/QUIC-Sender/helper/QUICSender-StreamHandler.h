@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include "QUIC-Frame.h"
+#include "QUICSender-Frame.h"
 #include "../model/QUICSender-Event.h"
 namespace ns3
 {
@@ -22,8 +22,8 @@ class QUICStreamHandler: public MTEventProcessor
 {
 public:
     QUICStreamHandler();
-    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
-    bool IsValidEvent(MTEvent e);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    bool IsValidEvent(MTEvent * e);
 
     EventProcessorOutput* TrySendPacket(StreamEvent* e, QUICContext* c);
     // void Recv(Packet* pkt, uint32_t streamId);

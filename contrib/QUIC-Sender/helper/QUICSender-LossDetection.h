@@ -2,7 +2,7 @@
 #define QUIC_LOSS_DETECTION_H
 #include "ns3/mt-eventprocessor.h"
 #include "../model/QUICSender-Event.h"
-#include "QUIC-Frame.h"
+#include "QUICSender-Frame.h"
 namespace ns3
 {
 class MTEvent;
@@ -17,8 +17,8 @@ class QUICLossDetection: public MTEventProcessor
 {
 public:
     QUICLossDetection();
-    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
-    bool IsValidEvent(MTEvent e);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    bool IsValidEvent(MTEvent* e);
 
     EventProcessorOutput* HandleReceiveACK(ResponseEvent* e, QUICContext* c);
 

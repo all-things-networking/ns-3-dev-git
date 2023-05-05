@@ -1,7 +1,7 @@
 #ifndef QUIC_FLOW_CONTROLLER_H
 #define QUIC_FLOW_CONTROLLER_H
 #include "../model/QUICSender-Dispatcher.h"
-#include "QUIC-EventProcessor.h"
+#include "QUICSender-EventProcessor.h"
 
 namespace ns3
 {

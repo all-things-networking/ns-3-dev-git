@@ -5,8 +5,8 @@
 #include <map>
 #include "ns3/ipv4-address.h"
 #include "ns3/mt-context.h"
-#include "../helper/QUIC-Stream.h"
-#include "../helper/QUIC-PacketBuffer.h"
+#include "../helper/QUICSender-Stream.h"
+#include "../helper/QUICSender-PacketBuffer.h"
 
 namespace ns3
 {

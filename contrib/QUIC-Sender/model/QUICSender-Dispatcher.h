@@ -9,7 +9,7 @@ class MTDispatcher;
 class QUICDispatcher:public MTDispatcher{
     public:
         QUICDispatcher();
-        MTEventProcessor* dispatch(MTEvent* event);
+        std::vector<MTEventProcessor*> dispatch(MTEvent* event);
 };
 }
 #endif

@@ -9,7 +9,7 @@
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
 
-#include "QUIC-SendIfPossible.h"
+#include "QUICSender-SendIfPossible.h"
 namespace ns3
 {
 
@@ -23,12 +23,15 @@ QUICSendIfPossible::QUICSendIfPossible():
 MTEventProcessor()
 {}
 bool
-QUICSendIfPossible::IsValidEvent(MTEvent e)
+QUICSendIfPossible::IsValidEvent(MTEvent * e)
 {
     return true;
 }
 
-EventProcessorOutput* QUICSendIfPossible::Process(MTEvent* e, MTContext* c){
+EventProcessorOutput* QUICSendIfPossible::Process(MTEvent* e, EventProcessorOutput* epOut)
+{
+    MTContext * c = epOut->context;
+
     //I call mt->SendPack here
     QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     //A
@@ -43,7 +46,7 @@ EventProcessorOutput* QUICSendIfPossible::Process(MTEvent* e, MTContext* c){
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
     Output->newEvents=newEvents;
-    Output->updatedContext=newContext;
+    Output->context=newContext;
     Output->packetToSend=packetTobeSend;
     return Output;
     //store packets to send as vector in class

@@ -88,14 +88,29 @@ void ModularTransport::Mainloop(){
        // to process events
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
-         MTEventProcessor* ep = this->dispatcher->dispatch(e);
+         std::vector<MTEventProcessor*> ep= this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e->flow_id);
-         EventProcessorOutput* result = ep->Process(e, ctx);
-         for (auto newEvent : result->newEvents)
+
+         std::vector<MTEvent*> newEvents;
+         MTContext* context;
+         std::vector<Packet> packetToSend;
+
+         // intermediate output for the chain of processors
+         IntermediateOutput intermOutput;
+         EventProcessorOutput* epout = new EventProcessorOutput{newEvents, ctx, packetToSend, intermOutput};
+
+         // run through all processors
+         for (auto processor : ep) 
          {
-                 this->scheduler->AddEvent(newEvent);
+            epout = processor->Process(e, epout);
          }
-         for (auto packet : result->packetToSend)
+
+         for (auto newEvent : epout->newEvents)
+         {
+                scheduler->AddEvent(newEvent);
+         }
+        
+         for (auto packet : epout->packetToSend)
          {
                 //recreate Header for outgoing
                 std::cout<<"Sending"<<std::endl;

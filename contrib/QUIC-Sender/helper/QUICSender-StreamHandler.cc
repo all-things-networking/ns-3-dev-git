@@ -1,5 +1,5 @@
-#include "QUIC-StreamHandler.h"
-#include "QUIC-Stream.h"
+#include "QUICSender-StreamHandler.h"
+#include "QUICSender-Stream.h"
 
 #include "../model/QUICSender-Context.h"
 #include "../model/QUICSender-Event.h"
@@ -29,14 +29,16 @@ QUICStreamHandler::QUICStreamHandler()
 }
 
 bool
-QUICStreamHandler::IsValidEvent(MTEvent e)
+QUICStreamHandler::IsValidEvent(MTEvent * e)
 {
     return true;
 }
 
 EventProcessorOutput*
-QUICStreamHandler::Process(MTEvent* e, MTContext* c)
+QUICStreamHandler::Process(MTEvent* e, EventProcessorOutput* epOut)
 {
+    MTContext * c = epOut->context;
+
     // I call mt->SendPack here
     QUICContext* newContext = dynamic_cast<QUICContext*>(c);
     StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(e);
@@ -86,7 +88,7 @@ QUICStreamHandler::Process(MTEvent* e, MTContext* c)
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->updatedContext = newContext;
+    Output->context = newContext;
     Output->packetToSend = packetTobeSend;
     return Output;
 }
@@ -177,7 +179,7 @@ QUICStreamHandler::TrySendPacket(StreamEvent* e, QUICContext* c)
     packetTobeSend.emplace_back(P);
 
     Output->newEvents = newEvents;
-    Output->updatedContext = c;
+    Output->context = c;
     Output->packetToSend = packetTobeSend;
     return Output;
 }
