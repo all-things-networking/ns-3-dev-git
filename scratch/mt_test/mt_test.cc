@@ -24,7 +24,7 @@
 #include "ns3/QUIC-Scheduler.h"
 #include "ns3/QUIC-Context.h"
 #include "ns3/TCP-header.h"
-#include "ns3/QUICSender-Receiver.h"
+#include "ns3/QUIC-Receiver.h"
 
 using namespace ns3;
 
