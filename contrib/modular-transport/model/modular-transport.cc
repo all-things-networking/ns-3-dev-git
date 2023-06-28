@@ -10,6 +10,7 @@
 #include "mt-receivelogic.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
+#include <vector>
 
 namespace ns3
 {
@@ -71,17 +72,28 @@ void ModularTransport::Mainloop(){
     std::cout<<"loop start time:"<<now<<std::endl;
     while (!this->scheduler->isEmpty()){
          MTEvent* e = this->scheduler->GetNextEvent();
-         MTEventProcessor* ep = this->dispatcher->dispatch(e);
+         std::vector<MTEventProcessor*> ep = this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e->flow_id);
-         //std::cout<<"processor started"<<std::endl;
-         EventProcessorOutput* result = ep->Process(e, ctx);
-         //std::cout<<"processor finished"<<std::endl;
-         this->table.Write(e->flow_id, result->updatedContext);
-         for (auto newEvent : result->newEvents)
+
+         std::vector<MTEvent*> newEvents;
+         std::vector<Packet> packetToSend;
+         EventProcessorOutput* epout = new EventProcessorOutput{newEvents, ctx, packetToSend};
+
+         for (auto processor : ep)
+         {
+             //std::cout<<"processor started"<<std::endl;
+             epout = processor->Process(e, epout);
+         }
+
+          //std::cout<<"processor finished"<<std::endl;
+         this->table.Write(e->flow_id, epout->updatedContext);
+
+         for (auto newEvent : epout->newEvents)
          {
                  this->scheduler->AddEvent(newEvent);
          }
-         for (auto packet : result->packetToSend)
+
+         for (auto packet : epout->packetToSend)
          {
                 this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }

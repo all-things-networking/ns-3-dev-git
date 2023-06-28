@@ -25,10 +25,10 @@ SendIfPossible::IsValidEvent(MTEvent e)
     return true;
 }
 
-EventProcessorOutput* SendIfPossible::Process(MTEvent* e, MTContext* c){
-    TCPContext* ctx = dynamic_cast<TCPContext*>(c); //This is only a pointer, not a copy right?
-    std::vector<MTEvent*> newEvents;
-    std::vector<Packet> packetTobeSend;
+EventProcessorOutput* SendIfPossible::Process(MTEvent* e, EventProcessorOutput* epOut){
+    TCPContext* ctx = dynamic_cast<TCPContext*>(epOut->updatedContext); //This is only a pointer, not a copy right?
+    std::vector<MTEvent*> newEvents = epOut->newEvents;
+    std::vector<Packet> packetTobeSend = epOut->packetToSend;;
     //Send any data between m_Nxt to the end of the window
     for(; //m_Nxt
      (ctx->m_Nxt < ctx->m_Una + ctx->m_Wnd)&&(ctx->m_Nxt<ctx->flow_size);
@@ -63,11 +63,11 @@ AckHandler::IsValidEvent(MTEvent e)
 {
     return true;
 }
-EventProcessorOutput* AckHandler::Process(MTEvent* e, MTContext* c){
-    TCPContext* ctx = dynamic_cast<TCPContext*>(c);
+EventProcessorOutput* AckHandler::Process(MTEvent* e, EventProcessorOutput* epOut){
+    TCPContext* ctx = dynamic_cast<TCPContext*>(epOut->updatedContext);
     AckEvent* event = dynamic_cast<AckEvent*>(e);
-    std::vector<MTEvent*> newEvents;
-    std::vector<Packet> packetTobeSend;
+    std::vector<MTEvent*> newEvents = epOut->newEvents;
+    std::vector<Packet> packetTobeSend = epOut->packetToSend;
 
     //Calculates RTTVAR, SRTT and RTO:
 
@@ -121,11 +121,11 @@ TimeoutHandler::IsValidEvent(MTEvent e)
     return true;
 }
 
-EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, MTContext* c){
-    TCPContext* ctx = dynamic_cast<TCPContext*>(c);
+EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, EventProcessorOutput* epOut){
+    TCPContext* ctx = dynamic_cast<TCPContext*>(epOut->updatedContext);
     Timeout* event = dynamic_cast<Timeout*>(e);
-    std::vector<MTEvent*> newEvents;
-    std::vector<Packet> packetTobeSend;
+    std::vector<MTEvent*> newEvents = epOut->newEvents;
+    std::vector<Packet> packetTobeSend = epOut->packetToSend;
     std::cout<<"Timeout being processed"<<std::endl;
     //Update windowsize
     ctx->timeouthappend = true;

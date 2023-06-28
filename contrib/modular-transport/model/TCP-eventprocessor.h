@@ -19,21 +19,21 @@ class SendIfPossible: public MTEventProcessor
 {
 public:
     SendIfPossible();
-    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
     bool IsValidEvent(MTEvent e);
 };
 
 class AckHandler: public MTEventProcessor{
     public:
     AckHandler();
-    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
     bool IsValidEvent(MTEvent e);
 };
 
 class TimeoutHandler: public MTEventProcessor{
     public:
     TimeoutHandler();
-    EventProcessorOutput* Process(MTEvent* e, MTContext* c);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
     bool IsValidEvent(MTEvent e);
 };// namespace ns3
 }
