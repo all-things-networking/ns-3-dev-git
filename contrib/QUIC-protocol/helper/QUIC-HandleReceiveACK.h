@@ -30,7 +30,8 @@ public:
     QUICHandleReceiveACK();
     ~QUICHandleReceiveACK();
 
-    EventProcessorOutput* TryHandleReceiveACK(ResponseEvent* e, QUICContext* c);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    bool IsValidEvent(MTEvent * e);
 };
 
 } // namespace ns3

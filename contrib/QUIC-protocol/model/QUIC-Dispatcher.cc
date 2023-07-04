@@ -10,6 +10,10 @@
 #include "../helper/QUIC-PacketDemultiplexer.h"
 #include "../helper/QUIC-BufferManagement.h"
 #include "../helper/QUIC-ReceiverAckHandler.h"
+#include "../helper/QUIC-SendPacket.h"
+#include "../helper/QUIC-AddStreamData.h"
+#include "../helper/QUIC-HandleReceiveACK.h"
+
 
 namespace ns3{
 QUICDispatcher::QUICDispatcher(){}
@@ -18,14 +22,34 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
 
     //////////////////////////// Sender ////////////////////////////
     std::vector<MTEventProcessor*> ChosenProcessors;
-    if (event->type == EventType::STREAM_EVENT) {
-        MTEventProcessor* ChosenProcessor = new QUICStreamHandler();
+    QUICEvent* quicEvent = dynamic_cast<QUICEvent*>(event);
+    MTEventProcessor* ChosenProcessor;
+
+    if (quicEvent->type == EventType::STREAM_EVENT) {
+        StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(event);
+
+        // If we have a SEND_PACKET event we will send the packet
+        if (streamEvent->streamEventType == StreamEventType::SEND_PACKET)
+        {
+            ChosenProcessor = new QUICSendPacket();
+        }
+
+        // If we have a ADD_DATA event, create a dataFrame and send it
+        if (streamEvent->streamEventType == StreamEventType::ADD_DATA)
+        {
+            ChosenProcessor = new QUICAddStreamData();
+        }
+
         ChosenProcessors.push_back(ChosenProcessor);
         return ChosenProcessors;
     }
 
-    if (event->type == EventType::RESPONSE_EVENT) {
-        MTEventProcessor* ChosenProcessor = new QUICLossDetection();
+    if (quicEvent->type == EventType::RESPONSE_EVENT) {
+        ResponseEvent* responseEvent = dynamic_cast<ResponseEvent*>(event);
+        if (responseEvent->responseEventType == ResponseEventType::ACK_PACKET)
+        {
+            ChosenProcessor = new QUICLossDetection();
+        }
         ChosenProcessors.push_back(ChosenProcessor);
         return ChosenProcessors;
     }

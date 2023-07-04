@@ -15,14 +15,26 @@ QUICAddStreamData::~QUICAddStreamData()
 {
 }
 
-EventProcessorOutput*
-QUICAddStreamData::TryAddStreamData(StreamEvent* streamEvent, QUICContext* newContext)
+bool QUICAddStreamData::IsValidEvent(MTEvent * e)
 {
+    return true;
+}
+
+
+EventProcessorOutput*
+QUICAddStreamData::Process(MTEvent* e, EventProcessorOutput* epOut)
+{
+    MTContext * context = epOut->context;
+
+    // I call mt->SendPack here
+    QUICContext* c = dynamic_cast<QUICContext*>(context);
+    StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(e);
+
     int stream_id = streamEvent->stream_id;
 
     // Check if stream (stream_id) exists, if not create it
-    auto it = newContext->quic_streams.find(stream_id);
-    if (it == newContext->quic_streams.end())
+    auto it = c->quic_streams.find(stream_id);
+    if (it == c->quic_streams.end())
     {
         // We have no stream id provided so we choose one
         if (stream_id == NO_STREAM_ID)
@@ -33,16 +45,16 @@ QUICAddStreamData::TryAddStreamData(StreamEvent* streamEvent, QUICContext* newCo
             IDs MUST be created. This ensures that the creation order for streams is consistent
             on both endpoints.”
             */
-            stream_id = newContext->quic_streams.size() + 1;
+            stream_id = c->quic_streams.size() + 1;
         }
 
         QUICStream* stream = new QUICStream(stream_id);
-        newContext->quic_streams[stream_id] = stream;
+        c->quic_streams[stream_id] = stream;
         std::cout << "Created new stream with ID: "
-                    << newContext->quic_streams.find(stream_id)->second->id << std::endl;
+                    << c->quic_streams.find(stream_id)->second->id << std::endl;
     }
 
-    QUICStream* stream = newContext->quic_streams[stream_id];
+    QUICStream* stream = c->quic_streams[stream_id];
     stream->AddToDataBuffer(streamEvent->data.text);
 
     // Empty Event
@@ -52,7 +64,7 @@ QUICAddStreamData::TryAddStreamData(StreamEvent* streamEvent, QUICContext* newCo
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->context = newContext;
+    Output->context = c;
     Output->packetToSend = packetTobeSend;
 
     return Output;

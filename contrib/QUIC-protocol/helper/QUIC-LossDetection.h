@@ -11,7 +11,7 @@ class MTHeader;
 class QUICContext;
 
 /**
- * \brief The processor handling the loss detection events.
+ * \brief The processor handling the loss detection events. This class is not currently used ... maybe can delete this
  */
 class QUICLossDetection: public MTEventProcessor
 {

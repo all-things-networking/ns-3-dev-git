@@ -37,19 +37,6 @@ QUICLossDetection::IsValidEvent(MTEvent * e)
 EventProcessorOutput*
 QUICLossDetection::Process(MTEvent* e, EventProcessorOutput* epOut)
 {
-    MTContext * c = epOut->context;
-
-    // I call mt->SendPack here
-    QUICContext* newContext = dynamic_cast<QUICContext*>(c);
-    ResponseEvent* responseEvent = dynamic_cast<ResponseEvent*>(e);
-
-    // If we have a SEND_PACKET event we will send the packet
-    if (responseEvent->responseEventType == ResponseEventType::ACK_PACKET)
-    {
-        QUICHandleReceiveACK processor;
-        EventProcessorOutput* res = processor.TryHandleReceiveACK(responseEvent, newContext);
-        return res;
-    }
 
     // Empty Event
     std::vector<MTEvent*> newEvents;
@@ -58,7 +45,6 @@ QUICLossDetection::Process(MTEvent* e, EventProcessorOutput* epOut)
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->context = newContext;
     Output->packetToSend = packetTobeSend;
     return Output;
 }

@@ -25,13 +25,14 @@ class Packet;
  * \brief The class for a QUIC AddStreamData
  */
 // QUIC AddStreamData
-class QUICAddStreamData
+class QUICAddStreamData : public MTEventProcessor
 {
 public:
     QUICAddStreamData();
     ~QUICAddStreamData();
-
-    EventProcessorOutput* TryAddStreamData(StreamEvent* e, QUICContext* c);
+    
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    bool IsValidEvent(MTEvent * e);
 };
 
 } // namespace ns3

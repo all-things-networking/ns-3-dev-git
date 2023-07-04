@@ -80,4 +80,16 @@ MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet
     MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkg); 
     return RCVPacketEvent;
 }
+
+QUICEvent::QUICEvent(){
+
+}
+
+QUICEvent::QUICEvent(long time, int flow_id, EventType type){
+    this->time=time;
+    this->flow_id=flow_id;
+    this->type = type;
+}
+
+
 }

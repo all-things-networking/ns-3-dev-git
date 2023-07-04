@@ -39,28 +39,6 @@ QUICStreamHandler::IsValidEvent(MTEvent * e)
 EventProcessorOutput*
 QUICStreamHandler::Process(MTEvent* e, EventProcessorOutput* epOut)
 {
-    MTContext * c = epOut->context;
-
-    // I call mt->SendPack here
-    QUICContext* newContext = dynamic_cast<QUICContext*>(c);
-    StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(e);
-
-    // If we have a SEND_PACKET event we will send the packet
-    if (streamEvent->streamEventType == StreamEventType::SEND_PACKET)
-    {
-        QUICSendPacket processor;
-        EventProcessorOutput* res = processor.TrySendPacket(streamEvent, newContext);
-        return res;
-    }
-
-    // If we have a ADD_DATA event, create a dataFrame and send it
-    if (streamEvent->streamEventType == StreamEventType::ADD_DATA)
-    {
-        QUICAddStreamData processor;
-        EventProcessorOutput* res = processor.TryAddStreamData(streamEvent, newContext);
-        return res;
-    }
-
     // Empty Event
     std::vector<MTEvent*> newEvents;
     std::vector<Packet> packetTobeSend;
@@ -68,7 +46,6 @@ QUICStreamHandler::Process(MTEvent* e, EventProcessorOutput* epOut)
     // Output
     EventProcessorOutput* Output = new EventProcessorOutput;
     Output->newEvents = newEvents;
-    Output->context = newContext;
     Output->packetToSend = packetTobeSend;
 
     return Output;
