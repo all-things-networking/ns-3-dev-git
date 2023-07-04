@@ -22,11 +22,14 @@ build_lib(
                  helper/QUIC-Packet.cc
                  helper/QUIC-PacketBuffer.cc
                  helper/QUIC-Header.cc
-                 helper/QUIC-ReceiveLogic.cc
+                 helper/QUIC-ReceiveProcessor.cc
                  helper/QUIC-PacketDemultiplexer.cc
                  helper/QUIC-BufferManagement.cc
                  helper/QUIC-ReceiverAckHandler.cc
-                 model/QUIC-Receiver.cc
+                 helper/QUIC-SendPacket.cc
+                 helper/QUIC-AddStreamData.cc
+                 helper/QUIC-HandleReceiveACK.cc
+                 model/QUIC-ReceiveLogic.cc
                  model/QUIC-Context.cc
                  model/QUIC-Event.cc
                  model/QUIC-Dispatcher.cc
@@ -42,11 +45,14 @@ build_lib(
                  helper/QUIC-Packet.h
                  helper/QUIC-PacketBuffer.h
                  helper/QUIC-Header.h
-                 helper/QUIC-ReceiveLogic.h
+                 helper/QUIC-ReceiveProcessor.h
                  helper/QUIC-PacketDemultiplexer.h
                  helper/QUIC-BufferManagement.h
                  helper/QUIC-ReceiverAckHandler.h
-                 model/QUIC-Receiver.h
+                 helper/QUIC-SendPacket.h
+                 helper/QUIC-AddStreamData.h
+                 helper/QUIC-HandleReceiveACK.h
+                 model/QUIC-ReceiveLogic.h
                  model/QUIC-Context.h
                  model/QUIC-Event.h
                  model/QUIC-Dispatcher.h

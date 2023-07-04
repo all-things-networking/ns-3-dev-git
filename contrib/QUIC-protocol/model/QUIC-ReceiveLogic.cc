@@ -1,4 +1,4 @@
-#include "QUIC-Receiver.h"
+#include "QUIC-ReceiveLogic.h"
 
 #include "ns3/modular-transport.h"
 #include "ns3/mt-receiver.h"
@@ -11,12 +11,12 @@
 namespace ns3
 {
 
-QUICReceiver::QUICReceiver()
+QUICReceiveLogic::QUICReceiveLogic()
 {
 }
 
 enum IpL4Protocol::RxStatus
-QUICReceiver::Receive(ModularTransport* mt,
+QUICReceiveLogic::Receive(ModularTransport* mt,
                       Ptr<Packet> packet,
                       const Ipv4Header& incomingIpHeader,
                       Ptr<Ipv4Interface> incomingInterface)
@@ -38,6 +38,7 @@ QUICReceiver::Receive(ModularTransport* mt,
     // recievedHeader.OpsAfterRecieved(); //THis one returns a event
     std::cout << mt << packet << incomingIpHeader << incomingInterface << std::endl;
 
+    // Right now we are just hard-coding a response ACK for testing purposes
     std::cout << "Received packet in ModularTransport" << std::endl;
     if (incomingIpHeader.GetSource() == "10.0.0.2")
     {

@@ -4,7 +4,6 @@
 #include "mt-eventprocessor.h"
 #include "mt-dispatcher.h"
 #include "mt-scheduler.h"
-#include "mt-event.h"
 #include "mt-state.h"
 #include "mt-context.h"
 #include "mt-dispatcher.h"
@@ -44,52 +43,18 @@ ModularTransport::~ModularTransport()
 {
     NS_LOG_FUNCTION(this);
 }
+
+void ModularTransport::AddEventToScheduler(MTEvent* e) {
+    this->scheduler->AddEvent(e);
+}
+
+void ModularTransport::WriteToTable(int flow_id, MTContext* context) {
+    this->table.Write(flow_id, context);
+}
 void ModularTransport::Start(
                              const Ipv4Address& saddr,
                              const Ipv4Address& daddr,
                              MTContext* StartContext){
-    // initiate a flow by adding its state/context to the state table.
-    // pick a constant for flow id. Context can include anything you need
-    // for processing TCP packets, e.g., initial sequence number,
-    // window size, beginning of the window, total number of bytes to send, etc.
-    //TODO: is flow_id universal?
-    int flow_id = 1;
-    // ------------
-    // TODO: for quic this is connection id, (protocol specific)
-    // ------------
-    //this->table =  MTState(this); move this line to constructor
-    table.Write(flow_id, StartContext);
-    long time = 1;
-       // Then, create a "send" event to send the first window of packets for this
-       // flow. This event will be processed by "Send if Possible" event processor
-
-    // Create and send first packet (hellogooodworldbye)
-    MTEvent* event1 = this->scheduler->AddData(flow_id, time, "helloworld", 1);
-    this->scheduler->AddEvent(event1);
-
-    MTEvent* event2 = this->scheduler->AddData(flow_id, time, "gooodbye", 2);
-    this->scheduler->AddEvent(event2);
-    
-    MTEvent* event3 = this->scheduler->SendPacket(flow_id, time);
-    this->scheduler->AddEvent(event3);
-
-    // Create and send second packet (applepizzabreaddance)
-    MTEvent* event4 = this->scheduler->AddData(flow_id, time, "applebread", 1);
-    this->scheduler->AddEvent(event4);
-
-    MTEvent* event5 = this->scheduler->AddData(flow_id, time, "pizzadance", 2);
-    this->scheduler->AddEvent(event5);
-    
-    MTEvent* event6 = this->scheduler->SendPacket(flow_id, time);
-    this->scheduler->AddEvent(event6);
-
-    // Receiver side testing -------------------
-    Packet* fakePacket = this->scheduler->CreateFakePacket();
-    MTEvent* event7 = this->scheduler->CreateReceiveEvent(flow_id, time, fakePacket);
-    this->scheduler->AddEvent(event7);
-    // which I think the addReceiveData is only used in testing case
-    // create a RECEIVEPKT_EVENT: ReceivePacketEvent
-    // use something similar to trySendPacket
 
     Mainloop();
 }
