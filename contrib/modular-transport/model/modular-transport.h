@@ -3,6 +3,7 @@
 #define MODULAR_TRANSPORT_H
 #include "mt-state.h"
 #include "mt-header.h"
+#include "mt-event.h"
 #include "ns3/ip-l4-protocol.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/ipv6-address.h"
@@ -53,6 +54,10 @@ class ModularTransport: public IpL4Protocol
      * \param node the node
      */
     void SetDispatcher(MTDispatcher*);
+
+    void AddEventToScheduler(MTEvent* e);
+
+    void WriteToTable(int flow_id, MTContext* context);
 
     /**
      * Set Scheduler associated with this stack

@@ -13,6 +13,8 @@ class MTDispatcher;
 class QUICDispatcher:public MTDispatcher{
     public:
     QUICDispatcher();
+
+    // Dispatches the appropriate event processor based on the event type
     std::vector<MTEventProcessor*> dispatch(MTEvent*);
 };
 

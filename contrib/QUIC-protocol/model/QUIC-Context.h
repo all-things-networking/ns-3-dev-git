@@ -16,13 +16,14 @@ namespace ns3
 
 class ModularTransport;
 class QUICStream;
+
+// Used to packet tracking in case re-transmission is needed
 enum class PacketState {
   SENT,
   ACKED,
   NOT_SENT
 };
 
-// QUIC context
 class QUICContext: public MTContext
 { 
 public:

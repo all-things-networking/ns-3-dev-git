@@ -25,7 +25,6 @@ public:
     EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
     bool IsValidEvent(MTEvent * e);
 
-    EventProcessorOutput* TrySendPacket(StreamEvent* e, QUICContext* c);
     // void Recv(Packet* pkt, uint32_t streamId);
     // void ChangeStreamState(uint32_t streamId);
     // uint32_t CreateStream(); // Creates QUIC stream and returns the ID

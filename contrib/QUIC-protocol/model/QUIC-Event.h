@@ -8,6 +8,7 @@ namespace ns3{
 //////////////////////////// Sender ////////////////////////////
 const int NO_STREAM_ID = -1;
 
+// Stream level event type
 enum StreamEventType {
     ADD_DATA,
     SEND_PACKET,
@@ -25,6 +26,7 @@ class ResponseEventData {
     std::string text;
 };
 
+// Reponse event type from the receiver
 enum ResponseEventType {
     ACK_PACKET,
     NACK_PACKET
@@ -47,7 +49,7 @@ class AckEvent: public MTEvent{
 
 class StreamEvent: public MTEvent{
     public:
-    StreamEventType streamEventType;
+    StreamEventType streamEventType; // This is used to identify the type of stream event
     int stream_id;
     StreamEvent();
 
@@ -57,12 +59,21 @@ class StreamEvent: public MTEvent{
 
 class ResponseEvent: public MTEvent{
     public:
-    ResponseEventType responseEventType;
+    ResponseEventType responseEventType; // This is used to identify the type of response event
     int stream_id; // Might not be needed in response event
     ResponseEventData data;
 
     ResponseEvent();
     ResponseEvent(int flow_id, ResponseEventType responseEventType, ResponseEventData data, int stream_id = NO_STREAM_ID);
+};
+
+class SenderEventCreator {
+    public:
+    // These events are used mainly for testing right now - it creates the specific event based on input
+    MTEvent* CreateSendEvent(int, long);
+    MTEvent* CreateSendPacketEvent(int flow_id, long time);
+    MTEvent* CreateAddDataEvent(int flow_id, long time, std::string text, int stream);
+    MTEvent* CreateACKPacketEvent(int flow_id, long time, int packetNum);
 };
 ////////////////////////////////////////////////////////////////
 
@@ -94,6 +105,13 @@ class ReceivePacketEvent: public MTEvent{
     ReceivePacketEvent();
     ReceivePacketEvent(long time, int flow_id, Packet* rcv);
 };
+
+class ReceiverEventCreator {
+    public:
+    // These events are used mainly for testing right now - it creates the specific event based on input
+    MTEvent* CreateReceiveEvent(int, long, Packet* pkg);
+};
+
 /////////////////////////////////////////////////////////////
 }
 #endif

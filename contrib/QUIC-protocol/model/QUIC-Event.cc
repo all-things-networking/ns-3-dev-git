@@ -40,4 +40,44 @@ ReceivePacketEvent::ReceivePacketEvent(long time, int flow_id, Packet* rcv){
     this->time = time;
     this->receivered = rcv;
 }
+
+MTEvent* SenderEventCreator::CreateSendEvent(int flow_id, long time){
+    // Create random data for now
+    StreamEventData data;
+    data.text = "hello";
+
+    // TODO: need to free this memory after?
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, 5); // pick random stream_id for now
+    return streamEvent;
+}
+
+MTEvent* SenderEventCreator::CreateSendPacketEvent(int flow_id, long time){
+    StreamEventData data;
+    data.text = "";
+
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, data, -1);
+    return streamEvent;
+}
+
+MTEvent* SenderEventCreator::CreateAddDataEvent(int flow_id, long time, std::string text, int stream){
+    StreamEventData data;
+    data.text = text;
+
+    MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, stream);
+    return streamEvent;
+}
+
+MTEvent* SenderEventCreator::CreateACKPacketEvent(int flow_id, long time, int packetNum){
+    ResponseEventData data;
+    data.text = "";
+    data.packetNum = packetNum;
+
+    MTEvent* streamEvent = new ResponseEvent(flow_id, ResponseEventType::ACK_PACKET, data, -1);
+    return streamEvent;
+}
+
+MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet* pkg){
+    MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkg); 
+    return RCVPacketEvent;
+}
 }

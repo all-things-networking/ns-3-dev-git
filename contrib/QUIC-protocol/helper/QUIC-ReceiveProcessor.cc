@@ -7,15 +7,15 @@
 
 #include "../model/QUIC-Event.h"
 #include "QUIC-Header.h"
-#include "QUIC-ReceiveLogic.h"
+#include "QUIC-ReceiveProcessor.h"
 
 #include <stdlib.h>
 namespace ns3{
 
-QUICReceiveLogic::QUICReceiveLogic(){
+QUICReceiveProcessor::QUICReceiveProcessor(){
     this->next_acknum = 0;
 }
-enum IpL4Protocol::RxStatus QUICReceiveLogic::Receive(ModularTransport* mt,
+enum IpL4Protocol::RxStatus QUICReceiveProcessor::Receive(ModularTransport* mt,
                                     Ptr<Packet> packet,
                                     const Ipv4Header& incomingIpHeader,
                                     Ptr<Ipv4Interface> incomingInterface){

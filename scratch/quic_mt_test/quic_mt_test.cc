@@ -24,7 +24,8 @@
 #include "ns3/QUIC-Scheduler.h"
 #include "ns3/QUIC-Context.h"
 #include "ns3/TCP-header.h"
-#include "ns3/QUIC-Receiver.h"
+#include "ns3/QUIC-ReceiveLogic.h"
+#include "ns3/QUIC-Event.h"
 
 using namespace ns3;
 
@@ -81,11 +82,11 @@ main (int argc, char *argv[])
     //TODO:create private memebers
     MTDispatcher* dispatcher = new QUICDispatcher();
     MTScheduler* scheduler = new QUICScheduler();
-    MTReceiver* receiver = new QUICReceiver();
+    MTReceiver* receiveLogic = new QUICReceiveLogic();
     Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
     transport->SetScheduler(scheduler);
     transport->SetDispatcher(dispatcher);
-    transport->SetReceiver(receiver);
+    transport->SetReceiver(receiveLogic);
     node->AggregateObject(transport);
   }
 
@@ -137,6 +138,41 @@ main (int argc, char *argv[])
       data[i]=i;
   }
   context->data = data;
+
+  // initiate a flow by adding its state/context to the state table.
+  // pick a constant for flow id. Context can include anything you need
+  // for processing TCP packets, e.g., initial sequence number,
+  // window size, beginning of the window, total number of bytes to send, etc.
+
+  transport->WriteToTable(flow_id, context);
+  long time = 1;
+  // Then, create a "send" event to send the first window of packets for this
+  // flow. This event will be processed by "Send if Possible" event processor
+
+  SenderEventCreator senderEventCreator;
+
+
+  // Create and send first packet (hellogooodworldbye)
+  MTEvent* event1 = senderEventCreator.CreateAddDataEvent(flow_id, time, "helloworld", 1);
+  transport->AddEventToScheduler(event1);
+
+  MTEvent* event2 = senderEventCreator.CreateAddDataEvent(flow_id, time, "gooodbye", 2);
+  transport->AddEventToScheduler(event2);
+  
+  MTEvent* event3 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
+  transport->AddEventToScheduler(event3);
+
+  // Create and send second packet (applepizzabreaddance)
+  MTEvent* event4 = senderEventCreator.CreateAddDataEvent(flow_id, time, "applebread", 1);
+  transport->AddEventToScheduler(event4);
+
+  MTEvent* event5 = senderEventCreator.CreateAddDataEvent(flow_id, time, "pizzadance", 2);
+  transport->AddEventToScheduler(event5);
+  
+  MTEvent* event6 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
+  transport->AddEventToScheduler(event6);
+
+
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
   Simulator::Destroy ();
