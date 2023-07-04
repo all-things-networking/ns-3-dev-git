@@ -15,7 +15,7 @@ struct EventProcessorOutput{
      std::vector<MTEvent*> newEvents;
      MTContext* context;
      std::vector<Packet> packetToSend;
-     IntermediateOutput intermOutput;
+     IntermediateOutput* intermOutput;
  };
  
 /**

@@ -55,6 +55,7 @@ std::string QUICFrame::generateHeader()
     return "";
 }
 
+// looks like the Serialize is used in Sender
 void QUICFrame::Serialize(uint8_t* buffer){
 
 

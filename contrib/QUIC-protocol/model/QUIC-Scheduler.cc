@@ -25,8 +25,11 @@ MTEvent* QUICScheduler::CreateSendEvent(int flow_id, long time){
     return streamEvent;
 }
 
-MTEvent* QUICScheduler::CreateReceiveEvent(int flow_id, long time, Packet* pkg){
-    MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkg); 
+// TODO: we need some Packet builder
+
+
+MTEvent* QUICScheduler::CreateReceiveEvent(int flow_id, long time, Packet* pkt){
+    MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkt); 
     return RCVPacketEvent;
 }
 
@@ -69,4 +72,45 @@ bool QUICScheduler::isEmpty(){
     return this->myqueue.empty();
 }
 
+Packet* QUICScheduler::CreateFakePacket(){
+    // re-use the packetBuffer from Context?
+
+    QUICPacketBuffer* PacketBuffer = new QUICPacketBuffer;
+
+    std::vector<std::string> data = { "hello", "goood", "world", "bye" };
+    int MAX_STREAM_DATA = 5;
+
+    for(unsigned i = 0; i < 4; i++){
+        std::string curr_data = data[i];
+
+        //////////////////// Create a frame of size MAX_STREAM_DATA ////////////////////
+        QUICFrame* dataFrame = new QUICFrame;
+
+        // Headers/fields for the frame
+        StreamFrameFields * streamFrameFields = new StreamFrameFields;
+        streamFrameFields->StreamID = i % 2 + 1;
+        std::cout << "stream ID: " << streamFrameFields->StreamID << std::endl;
+        
+        dataFrame->type = FrameType::STREAM;
+        dataFrame->fields = streamFrameFields;
+
+        // The "-" is used to seperate header and "_" is used to seperate frames
+        // TODO: this is temporary, need to change to approriate headers
+        std::string substrWithHeader = dataFrame->generateHeader() + "-" + curr_data.substr(0, MAX_STREAM_DATA) + "_";
+
+        // Current stream has some data in databuffer, we should create a frame 
+        // Note that Packet is used as a frame as well
+        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substrWithHeader.data()), substrWithHeader.size());
+        dataFrame->data = data;
+        /////////////////////////////////////////////////////////////////////////////////
+        PacketBuffer->AddFrame(dataFrame);
+    }
+
+    std::cout << "Creating Fake Receiving Packet" << std::endl;
+    Ptr<Packet> ptrPacket = PacketBuffer->CreatePacket();
+    Packet* pkt = GetPointer( ptrPacket );
+    std::cout << *ptrPacket << std::endl;
+    // std::cout << pkt->GetSize() << std::endl;
+    return pkt;
+}
 }

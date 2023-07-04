@@ -12,6 +12,7 @@
 #include <vector>
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
+#include <iostream>
 
 namespace ns3
 {
@@ -30,6 +31,16 @@ QUICAckHandler::IsValidEvent(MTEvent* e)
 }
 
 EventProcessorOutput* QUICAckHandler::Process(MTEvent* e, EventProcessorOutput* epOut){
+
+    std::cout << "QUICAckHandler::Process called" << std::endl;
+    // az:
+    //  if we have received a frame with 
+    // we need streamID and offset to send back to sender ACK
+    // streamID -> we can get it from either kevin's approach or properly set up
+    // offset -> get it from header
+    // or fin bit is received
+
+    // to ack on packet, we need the packet number
 
     ReceivePacketEvent* rpe = static_cast<ReceivePacketEvent*>(e);
     Packet* recvPacket = rpe->receivered;

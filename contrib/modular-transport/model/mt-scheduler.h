@@ -21,6 +21,8 @@ class MTScheduler{
     virtual MTEvent* ACKPacket(int flow_id, long time, int packetNum)=0;
     //#TODO ACK
     virtual bool isEmpty()=0;
+    virtual Packet* CreateFakePacket()=0;
+    virtual MTEvent* CreateReceiveEvent(int, long, Packet* pkt)=0;
 };
 }
 #endif

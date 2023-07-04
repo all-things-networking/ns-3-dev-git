@@ -38,6 +38,7 @@ ResponseEvent::ResponseEvent(int flow_id, ResponseEventType responseEventType, R
 ReceivePacketEvent::ReceivePacketEvent(long time, int flow_id, Packet* rcv){
     this->flow_id = flow_id;
     this->time = time;
+    this->type = EventType::RECEIVEPKT_EVENT;
     this->receivered = rcv;
 }
 }

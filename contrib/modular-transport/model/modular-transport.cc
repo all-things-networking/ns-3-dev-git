@@ -54,6 +54,9 @@ void ModularTransport::Start(
     // window size, beginning of the window, total number of bytes to send, etc.
     //TODO: is flow_id universal?
     int flow_id = 1;
+    // ------------
+    // TODO: for quic this is connection id, (protocol specific)
+    // ------------
     //this->table =  MTState(this); move this line to constructor
     table.Write(flow_id, StartContext);
     long time = 1;
@@ -80,6 +83,14 @@ void ModularTransport::Start(
     MTEvent* event6 = this->scheduler->SendPacket(flow_id, time);
     this->scheduler->AddEvent(event6);
 
+    // Receiver side testing -------------------
+    Packet* fakePacket = this->scheduler->CreateFakePacket();
+    MTEvent* event7 = this->scheduler->CreateReceiveEvent(flow_id, time, fakePacket);
+    this->scheduler->AddEvent(event7);
+    // which I think the addReceiveData is only used in testing case
+    // create a RECEIVEPKT_EVENT: ReceivePacketEvent
+    // use something similar to trySendPacket
+
     Mainloop();
 }
 void ModularTransport::Mainloop(){
@@ -96,7 +107,7 @@ void ModularTransport::Mainloop(){
          std::vector<Packet> packetToSend;
 
          // intermediate output for the chain of processors
-         IntermediateOutput intermOutput;
+         IntermediateOutput* intermOutput;
          EventProcessorOutput* epout = new EventProcessorOutput{newEvents, ctx, packetToSend, intermOutput};
 
          // run through all processors

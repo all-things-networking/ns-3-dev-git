@@ -2,12 +2,14 @@
 #define QUIC_SCHEDULER_H
 #include "ns3/mt-scheduler.h"
 #include "QUIC-Event.h"
+#include "../helper/QUIC-PacketBuffer.h"
 #include <queue>
 #include <vector>
 namespace ns3{
 class MTScheduler;
 class MTEvent;
 class MTHeader;
+class QUICPacketBuffer;
 class QUICScheduler: public MTScheduler{
     public:
     std::queue<MTEvent*> myqueue;
@@ -23,7 +25,8 @@ class QUICScheduler: public MTScheduler{
     //////////////////////////////////////////////////////////////
 
     //////////////////////////// Receiver ////////////////////////
-    MTEvent* CreateReceiveEvent(int, long, Packet* pkg);
+    Packet* CreateFakePacket();
+    MTEvent* CreateReceiveEvent(int, long, Packet* pkt);
     //////////////////////////////////////////////////////////////
 
     bool isEmpty();

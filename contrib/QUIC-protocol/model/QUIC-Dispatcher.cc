@@ -11,6 +11,8 @@
 #include "../helper/QUIC-BufferManagement.h"
 #include "../helper/QUIC-ReceiverAckHandler.h"
 
+#include <iostream>
+
 namespace ns3{
 QUICDispatcher::QUICDispatcher(){}
 
@@ -32,10 +34,14 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
     ////////////////////////////////////////////////////////////////
 
     //////////////////////////// Receiver //////////////////////////
-    // for now, just returning the 3 processors to process a receivepkg event
-    ChosenProcessors.push_back(new QUICPacketDemultiplexer());
-    ChosenProcessors.push_back(new QUICBufferManagement());
-    ChosenProcessors.push_back(new QUICAckHandler());
+    // for now, just returning the 3 processors to process a receivepkt event
+    if (event->type == EventType::RECEIVEPKT_EVENT) {
+        ChosenProcessors.push_back(new QUICPacketDemultiplexer());
+        ChosenProcessors.push_back(new QUICBufferManagement());
+        ChosenProcessors.push_back(new QUICAckHandler());
+        std::cout << " --------- ----- RECEIVEPKT_EVENT REACHED -------" << std::endl;
+        return ChosenProcessors;
+    }
     ////////////////////////////////////////////////////////////////
 
 

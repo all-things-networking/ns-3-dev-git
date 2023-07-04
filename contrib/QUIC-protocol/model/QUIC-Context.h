@@ -19,7 +19,8 @@ class QUICStream;
 enum class PacketState {
   SENT,
   ACKED,
-  NOT_SENT
+  NOT_SENT,
+  RECEIVED
 };
 
 // QUIC context
@@ -49,6 +50,21 @@ public:
     ///////////////////////////////////////////////////////////////
 
     //////////////////////////// Receiver /////////////////////////
+    // flow_id         (common)
+    // max_data        (common)
+    // max_stream_data (common)
+    uint8_t* receiver_data;
+
+    // quic_stream     (common)
+    // PacketBuffer    (common)
+    
+    // std::deque<std::pair<Ptr<Packet>, PacketState>> receivedPackets;
+    std::map<int, QUICStream*> receiverBuffer;
+    int ackBase = 0; // sequence number of oldest acked packet
+    // windowSize      (common)
+    // PTO_Timer  only used in sender
+    // k_packet_threshold?
+    // add other things as needed
     ///////////////////////////////////////////////////////////////
 
 };
