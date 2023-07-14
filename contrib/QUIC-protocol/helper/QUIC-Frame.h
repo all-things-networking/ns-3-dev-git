@@ -3,6 +3,7 @@
 #include <ctime> // std::time_t
 #include <map>
 #include "ns3/ipv4-l3-protocol.h"
+#include "ns3/mt-header.h"
 
 namespace ns3
 {
@@ -57,6 +58,7 @@ STREAM Frame {
   Stream Data (..),
 }
 */
+// Not being used anymore
 class StreamFrameFields : public FrameFields {
   public:
     int Size;
@@ -67,6 +69,22 @@ class StreamFrameFields : public FrameFields {
     bool Fin;
 };
 
+class QUICFrameHeader : public MTHeader {
+  public:
+    uint32_t offset; // TODO: figure out what it should be in RFC9000
+    uint32_t streamID;
+    uint32_t length; // size of data
+    // fin bit
+    // int type;
+    QUICFrameHeader(uint32_t offset, uint32_t streamID, uint32_t length);
+    QUICFrameHeader();
+
+    TypeId GetInstanceTypeId() const override;
+    void Print(std::ostream& os) const override;
+    uint32_t GetSerializedSize() const override;
+    void Serialize(Buffer::Iterator start) const override;
+    uint32_t Deserialize(Buffer::Iterator start) override;
+};
 
 /*
 [RFC 9000]
@@ -77,15 +95,29 @@ Frame {
   Type-Dependent Fields (..),
 }
 */
-class QUICFrame
+class QUICFrame : public Packet
 {
+  // az comment: new QUICFrame structure, it can be just a packet
+  // Probably it needs to have some kind of type -> e.g. Data to be Send or ACK Frame
+  /*
+    RFC9000
+    Some Frame Types
+    MAX_STREAM_DATA:
+      - Used by receiver to advertise a larger limit for a stream
+      - needs a stream ID
+      - indicates the maximum absolute byte offset of a stream
+
+  */
 public:
     QUICFrame(FrameType type, FrameFields * fields);
     QUICFrame(std::string frame);
+    
     QUICFrame();
     ~QUICFrame();
 
+    QUICFrameHeader header;
     Ptr<Packet> data; // TODO: This will be replaced with "fields" below
+    // NS3 Packet has AddHeader Function
 
     FrameState state;
     FrameType type;
@@ -98,8 +130,11 @@ public:
     /**
      * Turn the frame into a byte buffer
     */
+    // currently the following two are not used
     void Serialize(uint8_t* buffer);
     void Deserialize();
+    
+    // void AddHeader(QUICFrameHeader &)
 };
 
 } // namespace ns3

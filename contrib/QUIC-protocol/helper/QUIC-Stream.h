@@ -39,6 +39,7 @@ public:
     uint32_t offset; // Offset for frame
 
     std::string databuffer;
+    // Buffer should be better
     void AddToDataBuffer(std::string data);
 };
 

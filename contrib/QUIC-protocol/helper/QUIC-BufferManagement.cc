@@ -43,33 +43,35 @@ EventProcessorOutput* QUICBufferManagement::Process(MTEvent* e, EventProcessorOu
     QUICContext* qc = static_cast<QUICContext*>(epOut->context);
     
     for( unsigned int i = 0; i < intermOutput->PacketDemultiplexerOut.size(); i++ ){
-        QUICFrame currentFrame = intermOutput->PacketDemultiplexerOut[i].second;
+        QUICFrameHeader header = intermOutput->PacketDemultiplexerOut[i].first;
+        std::cout << header.streamID << " " << header.offset << " " << header.length << std::endl;
+        // QUICFrame currentFrame = intermOutput->PacketDemultiplexerOut[i].second;
 
-        Ptr<Packet> copy = currentFrame.data->Copy();
-        uint8_t buffer[copy->GetSize()];
-        copy->CopyData(buffer, copy->GetSize());
+        // Ptr<Packet> copy = currentFrame.data->Copy();
+        // uint8_t buffer[copy->GetSize()];
+        // copy->CopyData(buffer, copy->GetSize());
 
-        std::string currentFrameData;
-        for (auto c : buffer ) currentFrameData += c;
+        // std::string currentFrameData;
+        // for (auto c : buffer ) currentFrameData += c;
 
-        int start = currentFrameData.find("HEADER: ") + 8;
-        int end = currentFrameData.find("-");
+        // int start = currentFrameData.find("HEADER: ") + 8;
+        // int end = currentFrameData.find("-");
 
-        int streamID = std::stoi(currentFrameData.substr(start, end - start));
-        std::string currentData = currentFrameData.substr(end + 1);
+        // int streamID = std::stoi(currentFrameData.substr(start, end - start));
+        // std::string currentData = currentFrameData.substr(end + 1);
         
-        // it shouldn't be like this as the stream should be set up
-        // when openning the connection
-        // look at RFC 9000 ******
-        if ( qc->receiverBuffer.find( streamID ) == qc->receiverBuffer.end() ){
-            // create an entry in the receiverBuffer
-            QUICStream* stream = new QUICStream( streamID );
-            qc->receiverBuffer[ streamID ] = stream;
-            std::cout << "Created new stream with ID: "
-                      << qc->receiverBuffer.find(streamID)->second->id << std::endl;
-        }
+        // // it shouldn't be like this as the stream should be set up
+        // // when openning the connection
+        // // look at RFC 9000 ******
+        // if ( qc->receiverBuffer.find( streamID ) == qc->receiverBuffer.end() ){
+        //     // create an entry in the receiverBuffer
+        //     QUICStream* stream = new QUICStream( streamID );
+        //     qc->receiverBuffer[ streamID ] = stream;
+        //     std::cout << "Created new stream with ID: "
+        //               << qc->receiverBuffer.find(streamID)->second->id << std::endl;
+        // }
 
-        qc->receiverBuffer[ streamID ]->AddToDataBuffer( currentData );
+        // qc->receiverBuffer[ streamID ]->AddToDataBuffer( currentData );
     }
 
     std::cout << qc->receiverBuffer[ 1 ]->databuffer << std::endl;

@@ -3,6 +3,7 @@
 #include <ctime>
 #include <map>
 #include <sstream>
+#include <iostream>
 
 namespace ns3
 {
@@ -57,6 +58,7 @@ std::string QUICFrame::generateHeader()
 
 // looks like the Serialize is used in Sender
 void QUICFrame::Serialize(uint8_t* buffer){
+    std::cout << "QUICFRAME SERIALIZE CALLED" << std::endl;
 
 
     // currently only for ACK packets
@@ -73,6 +75,46 @@ void QUICFrame::Serialize(uint8_t* buffer){
     }
 }
 
+// Constructors
+QUICFrameHeader::QUICFrameHeader(uint32_t offset, uint32_t streamID, uint32_t length){
+    this->offset = offset;
+    this->streamID = streamID;
+    this->length = length;
+    // std::cout << " QUICFrameHeader Constructor ";
+    // std::cout << offset << " " << streamID << std::endl;
+}
+
+QUICFrameHeader::QUICFrameHeader(){
+}
+
+TypeId QUICFrameHeader::GetInstanceTypeId() const {
+    return GetTypeId();
+}
+
+void QUICFrameHeader::Print(std::ostream& os) const {
+    os << "Hello World from Print" << std::endl;
+}
+
+uint32_t QUICFrameHeader::GetSerializedSize() const {
+    return 12; // TODO: Need to Change
+}
+
+void QUICFrameHeader::Serialize(Buffer::Iterator start) const {
+    // std::cout << "Serialize CALLED::::: " << streamID << " " << offset << std::endl;
+    Buffer::Iterator i = start;
+    i.WriteHtonU32(streamID);
+    i.WriteHtonU32(offset);
+    i.WriteHtonU32(length);
+}
+
+uint32_t QUICFrameHeader::Deserialize(Buffer::Iterator start){
+    Buffer::Iterator i = start;
+    streamID = i.ReadNtohU32();
+    offset = i.ReadNtohU32();
+    length = i.ReadNtohU32();
+    // std::cout << "Deserialize Called::::: " << streamID << " " << offset << std::endl;
+    return GetSerializedSize();
+}
 
 
 

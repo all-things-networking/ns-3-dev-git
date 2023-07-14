@@ -152,25 +152,25 @@ main (int argc, char *argv[])
   SenderEventCreator senderEventCreator;
 
 
-  // Create and send first packet (hellogooodworldbye)
-  MTEvent* event1 = senderEventCreator.CreateAddDataEvent(flow_id, time, "helloworld", 1);
-  transport->AddEventToScheduler(event1);
+  // // Create and send first packet (hellogooodworldbye)
+  // MTEvent* event1 = senderEventCreator.CreateAddDataEvent(flow_id, time, "helloworld", 1);
+  // transport->AddEventToScheduler(event1);
 
-  MTEvent* event2 = senderEventCreator.CreateAddDataEvent(flow_id, time, "gooodbye", 2);
-  transport->AddEventToScheduler(event2);
+  // MTEvent* event2 = senderEventCreator.CreateAddDataEvent(flow_id, time, "gooodbye", 2);
+  // transport->AddEventToScheduler(event2);
   
-  MTEvent* event3 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
-  transport->AddEventToScheduler(event3);
+  // MTEvent* event3 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
+  // transport->AddEventToScheduler(event3);
 
-  // Create and send second packet (applepizzabreaddance)
-  MTEvent* event4 = senderEventCreator.CreateAddDataEvent(flow_id, time, "applebread", 1);
-  transport->AddEventToScheduler(event4);
+  // // Create and send second packet (applepizzabreaddance)
+  // MTEvent* event4 = senderEventCreator.CreateAddDataEvent(flow_id, time, "applebread", 1);
+  // transport->AddEventToScheduler(event4);
 
-  MTEvent* event5 = senderEventCreator.CreateAddDataEvent(flow_id, time, "pizzadance", 2);
-  transport->AddEventToScheduler(event5);
+  // MTEvent* event5 = senderEventCreator.CreateAddDataEvent(flow_id, time, "pizzadance", 2);
+  // transport->AddEventToScheduler(event5);
   
-  MTEvent* event6 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
-  transport->AddEventToScheduler(event6);
+  // MTEvent* event6 = senderEventCreator.CreateSendPacketEvent(flow_id, time);
+  // transport->AddEventToScheduler(event6);
 
   // Receiver side testing -------------------
   ReceiverEventCreator ReceiverEventCreator;

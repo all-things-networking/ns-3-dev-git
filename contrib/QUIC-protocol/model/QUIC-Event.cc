@@ -89,39 +89,43 @@ Packet* ReceiverEventCreator::CreateFakePacket(){
     QUICPacketBuffer* PacketBuffer = new QUICPacketBuffer;
 
     std::vector<std::string> data = { "hello", "goood", "world", "bye" };
+    std::vector<int> offset = { 1, 1, 2, 2 };
     int MAX_STREAM_DATA = 5;
 
+    Ptr<Packet> QUICPacket = Create<Packet>();
+
     for(unsigned i = 0; i < 4; i++){
-        std::string curr_data = data[i];
+        std::string currentData = data[i];
 
         //////////////////// Create a frame of size MAX_STREAM_DATA ////////////////////
-        QUICFrame* dataFrame = new QUICFrame;
+        QUICFrame* currentFrame = new QUICFrame;
+        // see if it is possible to add the currentData from this line
 
-        // Headers/fields for the frame
-        StreamFrameFields * streamFrameFields = new StreamFrameFields;
-        streamFrameFields->StreamID = i % 2 + 1;
-        std::cout << "stream ID: " << streamFrameFields->StreamID << std::endl;
+        // Headers for the frame
+        QUICFrameHeader currentFrameHeader = QUICFrameHeader(i % 2 + 1, offset[ i ], currentData.size());
         
-        dataFrame->type = FrameType::STREAM;
-        dataFrame->fields = streamFrameFields;
 
-        // The "-" is used to seperate header and "_" is used to seperate frames
-        // TODO: this is temporary, need to change to approriate headers
-        std::string substrWithHeader = dataFrame->generateHeader() + "-" + curr_data.substr(0, MAX_STREAM_DATA) + "_";
+        // dataFrame->type = FrameType::STREAM;
+        // dataFrame->fields = streamFrameFields;
 
         // Current stream has some data in databuffer, we should create a frame 
         // Note that Packet is used as a frame as well
-        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(substrWithHeader.data()), substrWithHeader.size());
-        dataFrame->data = data;
+        // create the data
+        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(currentData.data()), currentData.size());
+
+        // Ptr<Packet> newQUICFrame = Create<Packet>();
+        
+        currentFrame->AddHeader( currentFrameHeader );
+        currentFrame->AddAtEnd( data );
+        // dataFrame->data = data;
         /////////////////////////////////////////////////////////////////////////////////
-        PacketBuffer->AddFrame(dataFrame);
+        // PacketBuffer->AddFrame(dataFrame);
+        QUICPacket->AddAtEnd( currentFrame );
     }
 
     std::cout << "Creating Fake Receiving Packet" << std::endl;
-    Ptr<Packet> ptrPacket = PacketBuffer->CreatePacket();
-    Packet* pkt = GetPointer( ptrPacket );
-    std::cout << *ptrPacket << std::endl;
-    // std::cout << pkt->GetSize() << std::endl;
+    // Ptr<Packet> ptrPacket = PacketBuffer->CreatePacket();
+    Packet* pkt = GetPointer( QUICPacket );
     return pkt;
 }
 }

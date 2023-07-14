@@ -13,7 +13,10 @@ class QUICPacketDemultiplexer: public MTEventProcessor
 {
 private:
     Packet* recvPacket;
-    std::vector<std::pair<uint64_t, QUICFrame>> FrameToStream;
+    // std::vector<std::pair<uint64_t, QUICFrame>> FrameToStream;
+    
+    // az new structure pair<header, data>
+    std::vector<std::pair<QUICFrameHeader, std::string>> FrameToStream;
     // std::vector<QUICFrame> FrameToStream;
 
     /**
