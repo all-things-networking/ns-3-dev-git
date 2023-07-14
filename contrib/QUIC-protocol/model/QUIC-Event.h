@@ -8,6 +8,21 @@ namespace ns3{
 //////////////////////////// Sender ////////////////////////////
 const int NO_STREAM_ID = -1;
 
+// this will choose the event processor (from dispatcher)
+enum EventType {
+    EMPTY,
+    STREAM_EVENT,
+    RESPONSE_EVENT
+};
+
+// This is the base event for QUIC. It uses an EventType for further filtering in the dispatcher
+class QUICEvent: public MTEvent{
+    public:
+    QUICEvent();
+    QUICEvent(long time, int flow_id, EventType type = EventType::EMPTY);
+    EventType type = EventType::EMPTY;
+};
+
 // Stream level event type
 enum StreamEventType {
     ADD_DATA,
@@ -34,20 +49,20 @@ enum ResponseEventType {
 
 class MTHeader;
 class MTEvent;
-class SendEvent: public MTEvent{
+class SendEvent: public QUICEvent{
     public:
     SendEvent();
     SendEvent(long time, int flow_id);
 };
 
-class AckEvent: public MTEvent{
+class AckEvent: public QUICEvent{
     public:
     int seq;
     AckEvent();
     AckEvent(int flow_id, int seq);
 };
 
-class StreamEvent: public MTEvent{
+class StreamEvent: public QUICEvent{
     public:
     StreamEventType streamEventType; // This is used to identify the type of stream event
     int stream_id;
@@ -57,7 +72,7 @@ class StreamEvent: public MTEvent{
     StreamEvent(int flow_id, StreamEventType streamEventType, StreamEventData data, int stream_id = NO_STREAM_ID);
 };
 
-class ResponseEvent: public MTEvent{
+class ResponseEvent: public QUICEvent{
     public:
     ResponseEventType responseEventType; // This is used to identify the type of response event
     int stream_id; // Might not be needed in response event
@@ -81,7 +96,7 @@ class SenderEventCreator {
 /**
  * Event for application layer updates
 */
-class AppUpdateEvent: public MTEvent{
+class AppUpdateEvent: public QUICEvent{
     public:
     AppUpdateEvent();
     AppUpdateEvent(long time, int flow_id);
@@ -90,7 +105,7 @@ class AppUpdateEvent: public MTEvent{
 /**
  * Event for tracking ACK time
 */
-class ACKTimerEvent: public MTEvent{
+class ACKTimerEvent: public QUICEvent{
     public:
     ACKTimerEvent();
     ACKTimerEvent(long time, int flow_id);
@@ -99,7 +114,7 @@ class ACKTimerEvent: public MTEvent{
 /**
  * Event for receiving a packet
 */
-class ReceivePacketEvent: public MTEvent{
+class ReceivePacketEvent: public QUICEvent{
     public:
     Packet* receivered;
     ReceivePacketEvent();
@@ -112,6 +127,7 @@ class ReceiverEventCreator {
     MTEvent* CreateReceiveEvent(int, long, Packet* packet);
     Packet* CreateFakePacket();
 };
+
 
 /////////////////////////////////////////////////////////////
 }

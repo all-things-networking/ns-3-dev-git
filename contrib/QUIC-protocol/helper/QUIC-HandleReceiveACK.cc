@@ -15,11 +15,22 @@ QUICHandleReceiveACK::~QUICHandleReceiveACK()
 {
 }
 
-EventProcessorOutput*
-QUICHandleReceiveACK::TryHandleReceiveACK(ResponseEvent* e, QUICContext* c)
+bool QUICHandleReceiveACK::IsValidEvent(MTEvent * e)
 {
+    return true;
+}
+
+EventProcessorOutput*
+QUICHandleReceiveACK::Process(MTEvent* e, EventProcessorOutput* epOut)
+{
+    MTContext * context = epOut->context;
+
+    // I call mt->SendPack here
+    QUICContext* c = dynamic_cast<QUICContext*>(context);
+    ResponseEvent* responseEvent = dynamic_cast<ResponseEvent*>(e);
+
    // Update the state of the sent packet to ACKED
-    ResponseEventData responseData = e->data;
+    ResponseEventData responseData = responseEvent->data;
     std::deque<std::pair<Ptr<Packet>, PacketState>> sentPackets = c->sentPackets;
 
     // ACKed packed be in range [sendBase, sendBase + windowSize]

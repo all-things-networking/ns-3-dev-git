@@ -16,7 +16,7 @@ class Packet;
 
 
 /**
- * \brief The processor handling the stream events.
+ * \brief The processor handling the stream events. This class is not currently used ... maybe can delete this
  */
 class QUICStreamHandler: public MTEventProcessor
 {
@@ -25,10 +25,6 @@ public:
     EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
     bool IsValidEvent(MTEvent * e);
 
-    // void Recv(Packet* pkt, uint32_t streamId);
-    // void ChangeStreamState(uint32_t streamId);
-    // uint32_t CreateStream(); // Creates QUIC stream and returns the ID
-    // void DeleteStream(uint32_t streamId); // Creates QUIC stream and returns the ID
     
 };
 } // namespace ns3

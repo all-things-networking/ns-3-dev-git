@@ -8,6 +8,7 @@
 #include "QUIC-StreamHandler.h"
 #include "QUIC-Stream.h"
 #include "QUIC-SendPacket.h"
+#include "QUIC-PacketBuffer.h"
 
 #include "../model/QUIC-Context.h"
 #include "../model/QUIC-Event.h"
@@ -19,19 +20,21 @@ namespace ns3
 {
 
 class QUICFrame;
+class QUICPacketBuffer;
 class Packet;
 
 /**
  * \brief The class for a QUIC SendPacket
  */
 // QUIC SendPacket
-class QUICSendPacket
+class QUICSendPacket : public MTEventProcessor
 {
 public:
     QUICSendPacket();
     ~QUICSendPacket();
 
-    EventProcessorOutput* TrySendPacket(StreamEvent* e, QUICContext* c);
+    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    bool IsValidEvent(MTEvent * e);
 };
 
 } // namespace ns3

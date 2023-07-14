@@ -15,9 +15,21 @@ QUICSendPacket::~QUICSendPacket()
 {
 }
 
-EventProcessorOutput*
-QUICSendPacket::TrySendPacket(StreamEvent* e, QUICContext* c)
+bool QUICSendPacket::IsValidEvent(MTEvent * e)
 {
+    return true;
+}
+
+
+EventProcessorOutput*
+QUICSendPacket::Process(MTEvent* e, EventProcessorOutput* epOut)
+{
+    MTContext * context = epOut->context;
+
+    // I call mt->SendPack here
+    QUICContext* c = dynamic_cast<QUICContext*>(context);
+    StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(e);
+
     QUICPacketBuffer* PacketBuffer = c->PacketBuffer;
 
     std::vector<MTEvent*> newEvents;

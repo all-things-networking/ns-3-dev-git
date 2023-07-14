@@ -84,6 +84,7 @@ MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet
     return RCVPacketEvent;
 }
 
+// <<<<<<< HEAD
 Packet* ReceiverEventCreator::CreateFakePacket(){
 
     QUICPacketBuffer* PacketBuffer = new QUICPacketBuffer;
@@ -128,4 +129,17 @@ Packet* ReceiverEventCreator::CreateFakePacket(){
     Packet* pkt = GetPointer( QUICPacket );
     return pkt;
 }
-}
+// =======
+// QUICEvent::QUICEvent(){
+
+// }
+
+// QUICEvent::QUICEvent(long time, int flow_id, EventType type){
+//     this->time=time;
+//     this->flow_id=flow_id;
+//     this->type = type;
+// }
+
+
+// >>>>>>> origin/Kevin-Bian
+// }
