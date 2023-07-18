@@ -19,7 +19,10 @@ enum class FrameState {
 enum FrameType {
     ACK,
     RESET_STREAM,
-    STREAM
+    STREAM,
+    MAX_DATA, // max data can be sent on the connection as a whole
+    MAX_STREAM_DATA, // max data can be sent on a stream
+    MAX_STREAM, // max cumulative number of streams on a given type it is permitted to open
 };
 
 class FrameFields {
@@ -61,22 +64,38 @@ STREAM Frame {
 // Not being used anymore
 class StreamFrameFields : public FrameFields {
   public:
-    int Size;
+    int Size; // don't know what this is yet
     int StreamID;
-    int Offset;
-    int Length;
-    std::string data; // TODO: modify this to general data type
+    int Offset;                 // offset from stream beginning
+    int Length;                 // current frame's size
+    std::string data;           // TODO: modify this to general data type
     bool Fin;
 };
+
+// somewhere to store the frame type
 
 class QUICFrameHeader : public MTHeader {
   public:
     uint32_t offset; // TODO: figure out what it should be in RFC9000
     uint32_t streamID;
-    uint32_t length; // size of data
+    uint32_t length; // size of data, right now only STREAM frame use this
+    uint32_t frameType;
     // fin bit
-    // int type;
-    QUICFrameHeader(uint32_t offset, uint32_t streamID, uint32_t length);
+    bool fin;
+
+    // if frameType is ACK, the following field are used
+    uint32_t largestACKed;
+    uint32_t ackRangeCount;
+    uint32_t firstACKRange;
+
+    // the currentFrameSize can vary depending on which FrameType it is
+    // currently, for ACK -> something
+    // others -> 20
+    int currentFrameSize;
+
+
+    QUICFrameHeader(uint32_t streamID, uint32_t offset, uint32_t length, FrameType frameType, bool finBit,
+      uint32_t largestAcked, uint32_t ackRangeCount, uint32_t firstACKRange);
     QUICFrameHeader();
 
     TypeId GetInstanceTypeId() const override;
@@ -85,6 +104,30 @@ class QUICFrameHeader : public MTHeader {
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
 };
+
+///////////////// try out new way /////////////////////
+// class QUICStreamFrameHeader : public QUICFrameHeader {
+//   public:
+//     uint32_t offset; // TODO: figure out what it should be in RFC9000
+//     uint32_t streamID;
+//     uint32_t length; // size of data, right now only STREAM frame use this
+//     uint32_t frameType;
+//     bool fin;
+
+//     int currentFrameSize = 20;
+
+//     TypeId GetInstanceTypeId() const override;
+//     void Print(std::ostream& os) const override;
+//     uint32_t GetSerializedSize() const override;
+//     void Serialize(Buffer::Iterator start) const override;
+//     uint32_t Deserialize(Buffer::Iterator start) override;
+
+// };
+
+// class QUICACKFrameHeader : public QUICFrameHeader {
+
+// }
+///////////////// try out new way end /////////////////////
 
 /*
 [RFC 9000]
