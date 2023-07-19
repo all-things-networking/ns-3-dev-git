@@ -75,7 +75,10 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, EventProcessorOutput* epOu
     if (!ctx->timeouthappend && ctx->m_Una < event->acknum){
         double now = Simulator::Now().GetSeconds();
         float R = now - ctx->startTime[event->acknum];
-        if (ctx->SRTT == 0){//first time
+        if (ctx->startTime[event->acknum] == 0) {
+            // packet was retransmitted and should be ignored
+        }
+        else if (ctx->SRTT == 0){//first time
             ctx->SRTT = R;
             ctx->RTTVAR = R/2;
             //max (G, 4*RTTVAR), G is Clock Granularity
@@ -145,6 +148,12 @@ EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, EventProcessorOutput* 
         std::cout<<"Send Timer:"<<ctx->m_Una<<" to "<<ctx->m_Una+ctx->m_segmentsize<<std::endl;
         P.AddHeader(outgoingHeader);
         packetTobeSend.emplace_back(P);
+
+        // As per Karns algorithm, if a packet is retransmitted then it should be 
+        // ignored from RTO calculations on ACK reciept
+        // Setting startTime[outgoingHeader.seqnum] = 0 to denote that this packet
+        // was retransmitted
+        ctx->startTime[outgoingHeader.seqnum] = 0;
     }
 
     EventProcessorOutput *Output = new EventProcessorOutput;
