@@ -35,10 +35,17 @@ EventProcessorOutput* QUICPacketDemultiplexer::Process(MTEvent* e, EventProcesso
     recvPacket = rpe->receivered;
     std::cout << recvPacket->GetSize() << std::endl;
 
-    demultiplexePacket();
+
+    // probably we can get the packet number here by reading the header first
+    MTQUICShortHeader QUICHeader;
+    recvPacket->RemoveHeader(QUICHeader);
+    // since we get the packet number now, we can update the receivedPackets in context
 
     //update the context if needed
     QUICContext* newContext = static_cast<QUICContext*>(epOut->context);
+
+    updateContextReceivePackets(QUICHeader, newContext);
+    demultiplexePacket();
 
     //add any new events (e.g. application wants to terminate connection)
     std::vector<MTEvent*> newEvents;
@@ -61,27 +68,45 @@ EventProcessorOutput* QUICPacketDemultiplexer::Process(MTEvent* e, EventProcesso
 void QUICPacketDemultiplexer::demultiplexePacket() {
     while (recvPacket->GetSize() > 0 ){ 
         QUICFrameHeader header;
-        uint32_t res = recvPacket->RemoveHeader(header);
+        recvPacket->RemoveHeader(header);
         
-        uint8_t buffer[header.length];
+        uint8_t buffer[header.length]; // length becomes unknown if we use sub classes
         recvPacket->CopyData(buffer, header.length);
 
+        // TODO: for ACK Frame we probably don't want to deal with the following
         std::string currentData;
         for (auto a : buffer ){
             currentData += a;
         }
-        std::cout << currentData << std::endl;
-
+        ///////// Testing ///////////
+        // std::cout << currentData << std::endl;
+        ///////// Testing End //////
         recvPacket->RemoveAtStart( header.length );
 
 
-        // restructure:::::
-        // new pair of <QUICFrameHeader, frameData>
         std::pair<QUICFrameHeader, std::string> currentPair = std::make_pair<QUICFrameHeader, std::string>( std::move(header), std::move(currentData) );
         
         // add to FrameToStream
         FrameToStream.push_back( currentPair );
     }
     return;
+}
+
+void QUICPacketDemultiplexer::updateContextReceivePackets(MTQUICShortHeader& QUICHeader, QUICContext* newContext){
+    
+    std::cout << "QUICPacketDemultiplexer Processing Packet number: " << QUICHeader.pckNum << std::endl;
+    int currentPacketNumber = QUICHeader.pckNum;
+
+    std::vector<std::pair<int, int>>& receivedPackets = newContext->receivedPackets;
+    int receivedPacketsLength = receivedPackets.size();
+    if ( receivedPacketsLength == 0 
+        || receivedPackets[ receivedPacketsLength - 1 ].second + 1 != currentPacketNumber ){
+        
+        receivedPackets.push_back( std::make_pair(currentPacketNumber, currentPacketNumber) );
+    
+    } else {
+        int start = receivedPackets[ receivedPacketsLength - 1 ].first;
+        receivedPackets[ receivedPacketsLength - 1 ] = std::make_pair( start, currentPacketNumber );
+    }
 }
 } // namespace ns3

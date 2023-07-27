@@ -2,6 +2,8 @@
 #define QUIC_PACKET_DEMULTIPLEXER_H
 #include "ns3/mt-eventprocessor.h"
 #include "QUIC-Frame.h"
+#include "QUIC-Header.h"
+#include "../model/QUIC-Context.h"
 #include <vector>
 #include <utility>
 
@@ -24,6 +26,7 @@ private:
      * TODO: implement this
     */
     void demultiplexePacket();
+    void updateContextReceivePackets(MTQUICShortHeader& QUICHeader, QUICContext* newContext);
 public:
     QUICPacketDemultiplexer();
     ~QUICPacketDemultiplexer();
