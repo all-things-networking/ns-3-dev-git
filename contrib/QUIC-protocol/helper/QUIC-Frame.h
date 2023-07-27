@@ -123,30 +123,6 @@ class QUICFrameHeader : public MTHeader {
     uint32_t Deserialize(Buffer::Iterator start) override;
 };
 
-///////////////// try out new way /////////////////////
-// class QUICStreamFrameHeader : public QUICFrameHeader {
-//   public:
-//     uint32_t offset; // TODO: figure out what it should be in RFC9000
-//     uint32_t streamID;
-//     uint32_t length; // size of data, right now only STREAM frame use this
-//     uint32_t frameType;
-//     bool fin;
-
-//     int currentFrameSize = 20;
-
-//     TypeId GetInstanceTypeId() const override;
-//     void Print(std::ostream& os) const override;
-//     uint32_t GetSerializedSize() const override;
-//     void Serialize(Buffer::Iterator start) const override;
-//     uint32_t Deserialize(Buffer::Iterator start) override;
-
-// };
-
-// class QUICACKFrameHeader : public QUICFrameHeader {
-
-// }
-///////////////// try out new way end /////////////////////
-
 /*
 [RFC 9000]
 [https://www.rfc-editor.org/rfc/rfc9000.html#name-frames-and-frame-types]
