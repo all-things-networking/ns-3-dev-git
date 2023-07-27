@@ -2,6 +2,8 @@
 #define QUIC_FRAME_H
 #include <ctime> // std::time_t
 #include <map>
+#include <utility>   // std::pair
+#include <vector>
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/mt-header.h"
 
@@ -75,6 +77,12 @@ class StreamFrameFields : public FrameFields {
 // somewhere to store the frame type
 
 class QUICFrameHeader : public MTHeader {
+  void SerializeStreamFrame(Buffer::Iterator i) const;
+  void SerializeACKFrame(Buffer::Iterator i) const;
+
+  void DeserializeStreamFrame(Buffer::Iterator i);
+  void DeserializeACKFrame(Buffer::Iterator i);
+
   public:
     uint32_t offset; // TODO: figure out what it should be in RFC9000
     uint32_t streamID;
@@ -87,6 +95,9 @@ class QUICFrameHeader : public MTHeader {
     uint32_t largestACKed;
     uint32_t ackRangeCount;
     uint32_t firstACKRange;
+    std::vector<std::pair<uint32_t, uint32_t>> ACKRanges; // gap, ack range
+
+    
 
     // the currentFrameSize can vary depending on which FrameType it is
     // currently, for ACK -> something
@@ -95,8 +106,15 @@ class QUICFrameHeader : public MTHeader {
 
 
     QUICFrameHeader(uint32_t streamID, uint32_t offset, uint32_t length, FrameType frameType, bool finBit,
-      uint32_t largestAcked, uint32_t ackRangeCount, uint32_t firstACKRange);
+      uint32_t largestACKed, uint32_t ackRangeCount, uint32_t firstACKRange);
     QUICFrameHeader();
+
+    void setACKFrameHeader(uint32_t largestACKed, uint32_t ackRangeCount, uint32_t firstACKRange);
+    void setStreamFrameHeader(uint32_t streamID, uint32_t offset, uint32_t length, bool finBit);
+    void setMaxStreamFrameHeader();
+    void setMaxDataFrameHeader();
+
+    void ACKRangesPush(uint32_t gap, uint32_t length);
 
     TypeId GetInstanceTypeId() const override;
     void Print(std::ostream& os) const override;

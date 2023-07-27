@@ -4,6 +4,7 @@
 #include <map>
 #include <sstream>
 #include <iostream>
+#include <utility>   // std::pair
 
 namespace ns3
 {
@@ -75,10 +76,10 @@ void QUICFrame::Serialize(uint8_t* buffer){
     }
 }
 
-// Constructors
+// Constructors, deprecating soon
 QUICFrameHeader::QUICFrameHeader(
     uint32_t streamID, uint32_t offset, uint32_t length, FrameType frameType, bool finBit,
-    uint32_t largestAcked, uint32_t ackRangeCount, uint32_t firstACKRange
+    uint32_t largestACKed, uint32_t ackRangeCount, uint32_t firstACKRange
     ){
     this->offset = offset;
     this->streamID = streamID;
@@ -116,19 +117,55 @@ uint32_t QUICFrameHeader::GetSerializedSize() const {
     return this->currentFrameSize;
 }
 
+void QUICFrameHeader::SerializeStreamFrame(Buffer::Iterator i) const {
+    i.WriteHtonU32(streamID);
+    i.WriteHtonU32(offset);
+    i.WriteHtonU32(length);
+    i.WriteHtonU32(fin);
+}
+
+void QUICFrameHeader::SerializeACKFrame(Buffer::Iterator i) const {
+    i.WriteHtonU32(largestACKed);
+    i.WriteHtonU32(ackRangeCount);
+    i.WriteHtonU32(firstACKRange);
+    for(int j = 0; j < ackRangeCount; j++ ){
+        uint32_t gap = ACKRanges[ j ].first;
+        uint32_t ackRange = ACKRanges[ j ].second;
+        i.WriteHtonU32( gap );
+        i.WriteHtonU32( ackRange );
+    }
+}
+
 void QUICFrameHeader::Serialize(Buffer::Iterator start) const {
     // std::cout << "Serialize CALLED::::: " << streamID << " " << offset << std::endl;
     Buffer::Iterator i = start;
     i.WriteHtonU32(frameType);
     if ( frameType == FrameType::STREAM ){
-        i.WriteHtonU32(streamID);
-        i.WriteHtonU32(offset);
-        i.WriteHtonU32(length);
-        i.WriteHtonU32(fin);
+        SerializeStreamFrame(i);
     } else if ( frameType == FrameType::ACK ){
-        i.WriteHtonU32(largestACKed);
-        i.WriteHtonU32(ackRangeCount);
-        i.WriteHtonU32(firstACKRange);
+        SerializeACKFrame(i);
+    }
+}
+
+void QUICFrameHeader::DeserializeStreamFrame(Buffer::Iterator i){
+    streamID = i.ReadNtohU32();
+    offset = i.ReadNtohU32();
+    length = i.ReadNtohU32();
+    fin = i.ReadNtohU32();
+    currentFrameSize = 20;
+}
+
+void QUICFrameHeader::DeserializeACKFrame(Buffer::Iterator i){
+    largestACKed = i.ReadNtohU32();
+    ackRangeCount = i.ReadNtohU32();
+    firstACKRange = i.ReadNtohU32();
+    currentFrameSize = 16;
+    // use AckRangeCount to read out ackranges
+    for(int j = 0; j < ackRangeCount; j++ ){
+        currentFrameSize += 8;
+        uint32_t gap = i.ReadNtohU32();
+        uint32_t ackRange = i.ReadNtohU32();
+        ACKRanges.push_back( std::make_pair(gap, ackRange) );
     }
 }
 
@@ -136,19 +173,40 @@ uint32_t QUICFrameHeader::Deserialize(Buffer::Iterator start){
     Buffer::Iterator i = start;
     frameType = i.ReadNtohU32();
     if ( frameType == FrameType::STREAM ){
-        streamID = i.ReadNtohU32();
-        offset = i.ReadNtohU32();
-        length = i.ReadNtohU32();
-        fin = i.ReadNtohU32();
-        currentFrameSize = 20;
+        DeserializeStreamFrame(i);
     } else if ( frameType == FrameType::ACK ){
-        largestACKed = i.ReadNtohU32();
-        ackRangeCount = i.ReadNtohU32();
-        firstACKRange = i.ReadNtohU32();
-        currentFrameSize = 16;
+        DeserializeACKFrame(i);
     }
     return GetSerializedSize();
 }
+
+void QUICFrameHeader::setACKFrameHeader(uint32_t largestACKed, uint32_t ackRangeCount, uint32_t firstACKRange){
+    this->frameType = FrameType::ACK;
+    this->largestACKed = largestACKed;
+    this->ackRangeCount = ackRangeCount;
+    this->firstACKRange = firstACKRange;
+
+    this->currentFrameSize = 16;
+}
+
+void QUICFrameHeader::setMaxStreamFrameHeader(){
+    // stream ID
+    // Max absolute byte offset of a stream
+
+    // A receiver could determine the flow control offset to be advertised 
+    // based on the current offset of data consumed on that stream.   
+}
+
+void QUICFrameHeader::setMaxDataFrameHeader(){
+    // for the whole connection
+    // the maximum data can be send
+}
+
+void QUICFrameHeader::ACKRangesPush(uint32_t gap, uint32_t length){
+    ACKRanges.push_back( std::make_pair(gap, length) );
+    this->currentFrameSize += 8;
+}
+
 
 ///////////////// try out new way /////////////////////
 // QUICStreamFrameHeader::QUICStreamFrameHeader( uint32_t streamID, uint32_t offset, uint32_t length, FrameType frameType, bool finBit ){
