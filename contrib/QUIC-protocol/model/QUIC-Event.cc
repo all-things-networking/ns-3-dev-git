@@ -3,6 +3,7 @@
 #include "ns3/node.h"
 #include "ns3/QUIC-Frame.h"
 #include "ns3/QUIC-PacketBuffer.h"
+#include "ns3/QUIC-Header.h"
 
 namespace ns3{
 
@@ -84,62 +85,81 @@ MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet
     return RCVPacketEvent;
 }
 
-// <<<<<<< HEAD
-Packet* ReceiverEventCreator::CreateFakePacket(){
+
+Packet* ReceiverEventCreator::CreateFakePacket(std::vector<std::string>& data, int packetNumber, bool setFinBit, int streamOffset, int streamContentOffset ){
+    // TODO: make this more flexible
 
     QUICPacketBuffer* PacketBuffer = new QUICPacketBuffer;
 
-    std::vector<std::string> data = { "hello", "goood", "world", "bye" };
-    std::vector<int> offset = { 1, 1, 2, 2 };
-    int MAX_STREAM_DATA = 5;
+    int MAX_STREAM_DATA = 5; // hard coded
+    std::vector<int> offset( data.size(), 0 + streamContentOffset );
 
     Ptr<Packet> QUICPacket = Create<Packet>();
 
-    for(unsigned i = 0; i < 4; i++){
-        std::string currentData = data[i];
+    // create short header
+    // QUICPacket should have a short header
+    // long header -> used for packets sent prior to establishment of 1-RTT keys
+    MTQUICShortHeader quicHeader = MTQUICShortHeader();
+    quicHeader.pckNum = packetNumber;
+    QUICPacket->AddHeader( quicHeader );
 
-        //////////////////// Create a frame of size MAX_STREAM_DATA ////////////////////
+    int totalLength = 0;
+    for ( auto& streamData : data ){
+        totalLength += streamData.size();
+    }
+    
+    int processedLength = 0;
+    int i = 0;
+    while ( true ){
+        if ( processedLength == totalLength ) break;
+
+        int currentIdx = i % data.size();
+        std::string& currentData = data[ currentIdx ];
+        
+        if ( currentData.size() == 0 ){
+            i++;
+            continue;
+        }
+        
+        std::string currentFrameData = currentData.substr( 0, MAX_STREAM_DATA );
+        
+        // process input
+        currentData = currentData.substr( currentFrameData.length() );
+        processedLength += currentFrameData.size();
+
+        int currentStreamNumber = currentIdx + 1 + streamOffset;
         QUICFrame* currentFrame = new QUICFrame;
-        // see if it is possible to add the currentData from this line
+        int finBit = currentData.size() == 0 && setFinBit ? 1 : 0;
 
-        // Headers for the frame
-        QUICFrameHeader currentFrameHeader = QUICFrameHeader(i % 2 + 1, offset[ i ], currentData.size());
+        // std::cout << offset[ currentIdx ] << std::endl;
+        std::cout << currentFrameData << " " << currentStreamNumber << " " << offset[ currentIdx ] << std::endl;
+        QUICFrameHeader currentFrameHeader = QUICFrameHeader(currentStreamNumber, offset[ currentIdx ], currentFrameData.size(), FrameType::STREAM, finBit,
+            0, 0, 0);
         
+        offset[ currentIdx ] += currentFrameData.size();
 
-        // dataFrame->type = FrameType::STREAM;
-        // dataFrame->fields = streamFrameFields;
-
-        // Current stream has some data in databuffer, we should create a frame 
-        // Note that Packet is used as a frame as well
-        // create the data
-        Ptr<Packet> data = Create<Packet>(reinterpret_cast<const uint8_t*>(currentData.data()), currentData.size());
-
-        // Ptr<Packet> newQUICFrame = Create<Packet>();
-        
+        Ptr<Packet> currentFrameDataPacket = Create<Packet>(reinterpret_cast<const uint8_t*>(currentFrameData.data()), currentFrameData.size());
         currentFrame->AddHeader( currentFrameHeader );
-        currentFrame->AddAtEnd( data );
-        // dataFrame->data = data;
-        /////////////////////////////////////////////////////////////////////////////////
-        // PacketBuffer->AddFrame(dataFrame);
+        currentFrame->AddAtEnd( currentFrameDataPacket );
         QUICPacket->AddAtEnd( currentFrame );
+        i++;
     }
 
-    std::cout << "Creating Fake Receiving Packet" << std::endl;
+    std::cout << "Creating Fake Receiving Packet, packet number: " << quicHeader.pckNum << std::endl;
     // Ptr<Packet> ptrPacket = PacketBuffer->CreatePacket();
     Packet* pkt = GetPointer( QUICPacket );
     return pkt;
 }
-// =======
-// QUICEvent::QUICEvent(){
 
-// }
+QUICEvent::QUICEvent(){
 
-// QUICEvent::QUICEvent(long time, int flow_id, EventType type){
-//     this->time=time;
-//     this->flow_id=flow_id;
-//     this->type = type;
-// }
+}
+
+QUICEvent::QUICEvent(long time, int flow_id, EventType type){
+    this->time=time;
+    this->flow_id=flow_id;
+    this->type = type;
+}
 
 
-// >>>>>>> origin/Kevin-Bian
-// }
+}

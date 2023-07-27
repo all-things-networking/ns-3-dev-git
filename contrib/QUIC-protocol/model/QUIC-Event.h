@@ -12,7 +12,8 @@ const int NO_STREAM_ID = -1;
 enum EventType {
     EMPTY,
     STREAM_EVENT,
-    RESPONSE_EVENT
+    RESPONSE_EVENT,
+    RECEIVEPKT_EVENT
 };
 
 // This is the base event for QUIC. It uses an EventType for further filtering in the dispatcher
@@ -125,7 +126,7 @@ class ReceiverEventCreator {
     public:
     // These events are used mainly for testing right now - it creates the specific event based on input
     MTEvent* CreateReceiveEvent(int, long, Packet* packet);
-    Packet* CreateFakePacket();
+    Packet* CreateFakePacket(std::vector<std::string>& data, int packetNumber, bool setFinBit, int streamOffset, int streamContentOffset = 0);
 };
 
 
