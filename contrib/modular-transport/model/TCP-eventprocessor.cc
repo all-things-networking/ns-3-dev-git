@@ -47,6 +47,12 @@ EventProcessorOutput* SendIfPossible::Process(MTEvent* e, EventProcessorOutput* 
         //Tracking RTT
         double now = Simulator::Now().GetSeconds();
         ctx->startTime[ctx->m_Iss + ctx->m_Nxt+ctx->m_segmentsize] = now;
+        // if packet is not being retransmitted then reset retransmittedPackets
+        // for that seq number
+	if (!ctx->retransmittedPackets.count(outgoingHeader.seqnum) ||
+            !ctx->retransmittedPackets[outgoingHeader.seqnum]) {
+            ctx->retransmittedPackets[outgoingHeader.seqnum] = false;
+        }
      }
     //Output
     EventProcessorOutput *Output = new EventProcessorOutput;
@@ -68,32 +74,43 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, EventProcessorOutput* epOu
     AckEvent* event = dynamic_cast<AckEvent*>(e);
     std::vector<MTEvent*> newEvents = epOut->newEvents;
     std::vector<Packet> packetTobeSend = epOut->packetToSend;
+    const float THRESHOLD = 1;
+    const float G = 0.1;
 
     //Calculates RTTVAR, SRTT and RTO:
-
+    std::cout << "ACKNUM: " << event->acknum << std::endl;
     //Update if I got 2 consecutive new acks without a timeout, update RTO based on second packet
     if (!ctx->timeouthappend && ctx->m_Una < event->acknum){
         double now = Simulator::Now().GetSeconds();
         float R = now - ctx->startTime[event->acknum];
-        if (ctx->startTime[event->acknum] == 0) {
-            // packet was retransmitted and should be ignored
+        if (ctx->retransmittedPackets[event->acknum]) {
+            // packet was retranmitted, so do nothing
+            std::cout << "packet was retrasmitted" << std::endl;
         }
         else if (ctx->SRTT == 0){//first time
             ctx->SRTT = R;
             ctx->RTTVAR = R/2;
             //max (G, 4*RTTVAR), G is Clock Granularity
-            ctx->RTO = ctx->SRTT + 4 *ctx->RTTVAR;
+            ctx->RTO = ctx->SRTT + std::max(G, 4 * ctx->RTTVAR);
+            std::cout << "SRTT: " << ctx->SRTT << std::endl;
+            std::cout << "RTTVAR: " << ctx->RTTVAR << std::endl;
+            std::cout << "RT0: " << ctx->RTO << std::endl;
         }
         else{
             float alpha=1.0/8.0;
             float beta=1.0/4.0;
             ctx->RTTVAR  = (1 - beta) * ctx->RTTVAR + beta * std::abs(ctx->SRTT - R);
             ctx->SRTT  =(1 - alpha) * ctx->SRTT + alpha * R;
-            ctx->RTO = ctx->SRTT + 4 *ctx->RTTVAR;
+            ctx->RTO = ctx->SRTT + std::max(G, 4 * ctx->RTTVAR);
+            std::cout << "SRTT: " << ctx->SRTT << std::endl;
+            std::cout << "RTTVAR: " << ctx->RTTVAR << std::endl;
+            std::cout << "RT0: " << ctx->RTO << std::endl;
         }
-        if (ctx->RTO<1){
-            ctx->RTO=1;
+        if (ctx->RTO < THRESHOLD){
+            ctx->RTO = THRESHOLD;
         }
+        // ACK for packet recieved, reset retransmittion status
+        ctx->retransmittedPackets[event->acknum] = false;
         std::cout<<"Set RTO to "<<ctx->RTO<<std::endl;
     }
     //Update the window here when a new ack for new segment arrives
@@ -103,9 +120,6 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, EventProcessorOutput* epOu
             ctx->m_Una = event->acknum;
             ctx->RTOTimer->reset(ctx->RTO);
             ctx->timeouthappend = false;
-            //Now the window size is increased, check if you can send new data
-            MTEvent* newEvent = new SendEvent(0, event->flow_id);
-            newEvents.push_back(newEvent);
     }
     std::cout<<"m_Una increased to: "<<event->acknum<<std::endl;
     EventProcessorOutput *Output = new EventProcessorOutput;
@@ -151,9 +165,7 @@ EventProcessorOutput* TimeoutHandler::Process(MTEvent* e, EventProcessorOutput* 
 
         // As per Karns algorithm, if a packet is retransmitted then it should be 
         // ignored from RTO calculations on ACK reciept
-        // Setting startTime[outgoingHeader.seqnum] = 0 to denote that this packet
-        // was retransmitted
-        ctx->startTime[outgoingHeader.seqnum] = 0;
+        ctx->retransmittedPackets[outgoingHeader.seqnum] = true;
     }
 
     EventProcessorOutput *Output = new EventProcessorOutput;

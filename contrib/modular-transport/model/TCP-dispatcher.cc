@@ -28,6 +28,10 @@ std::vector<MTEventProcessor*> TCPDispatcher::dispatch(MTEvent* anything){
         //std::cout<<"dispatched AckEvent"<<std::endl;
         MTEventProcessor* AckProcessor = new AckHandler();
         chosenProcessors.push_back(AckProcessor);
+
+        // Chaining of events
+        MTEventProcessor* SendProcessor = new SendIfPossible();
+        chosenProcessors.push_back(SendProcessor);
         return chosenProcessors;
     }
     else if(tcpevent->Type == TCPEventType::TIMEOUT){
