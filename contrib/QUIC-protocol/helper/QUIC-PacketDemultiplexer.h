@@ -26,7 +26,6 @@ private:
      * TODO: implement this
     */
     void demultiplexePacket();
-    void updateContextReceivePackets(MTQUICShortHeader& QUICHeader, QUICContext* newContext);
 public:
     QUICPacketDemultiplexer();
     ~QUICPacketDemultiplexer();

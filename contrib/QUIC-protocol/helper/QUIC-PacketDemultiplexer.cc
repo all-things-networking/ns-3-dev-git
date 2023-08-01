@@ -44,7 +44,6 @@ EventProcessorOutput* QUICPacketDemultiplexer::Process(MTEvent* e, EventProcesso
     //update the context if needed
     QUICContext* newContext = static_cast<QUICContext*>(epOut->context);
 
-    updateContextReceivePackets(QUICHeader, newContext);
     demultiplexePacket();
 
     //add any new events (e.g. application wants to terminate connection)
@@ -54,6 +53,7 @@ EventProcessorOutput* QUICPacketDemultiplexer::Process(MTEvent* e, EventProcesso
     std::vector<Packet> packetTobeSend;
 
     QUICIntermediateOutput* intermOutput = new QUICIntermediateOutput;
+    intermOutput->currentPacketNumber = QUICHeader.pckNum;
     intermOutput->PacketDemultiplexerOut = FrameToStream;
 
     std::cout << "FrameToStream Size: " << FrameToStream.size() << std::endl;
@@ -78,9 +78,6 @@ void QUICPacketDemultiplexer::demultiplexePacket() {
         for (auto a : buffer ){
             currentData += a;
         }
-        ///////// Testing ///////////
-        // std::cout << currentData << std::endl;
-        ///////// Testing End //////
         recvPacket->RemoveAtStart( header.length );
 
 
@@ -92,21 +89,4 @@ void QUICPacketDemultiplexer::demultiplexePacket() {
     return;
 }
 
-void QUICPacketDemultiplexer::updateContextReceivePackets(MTQUICShortHeader& QUICHeader, QUICContext* newContext){
-    
-    std::cout << "QUICPacketDemultiplexer Processing Packet number: " << QUICHeader.pckNum << std::endl;
-    int currentPacketNumber = QUICHeader.pckNum;
-
-    std::vector<std::pair<int, int>>& receivedPackets = newContext->receivedPackets;
-    int receivedPacketsLength = receivedPackets.size();
-    if ( receivedPacketsLength == 0 
-        || receivedPackets[ receivedPacketsLength - 1 ].second + 1 != currentPacketNumber ){
-        
-        receivedPackets.push_back( std::make_pair(currentPacketNumber, currentPacketNumber) );
-    
-    } else {
-        int start = receivedPackets[ receivedPacketsLength - 1 ].first;
-        receivedPackets[ receivedPacketsLength - 1 ] = std::make_pair( start, currentPacketNumber );
-    }
-}
 } // namespace ns3
