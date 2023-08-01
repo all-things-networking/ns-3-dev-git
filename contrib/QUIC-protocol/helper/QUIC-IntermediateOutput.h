@@ -13,6 +13,9 @@ class QUICIntermediateOutput: public IntermediateOutput {
 public:
     // intermediate output for PacketDemultiplexer: a mapping of frames to streams
     std::vector<std::pair<QUICFrameHeader, std::string>> PacketDemultiplexerOut;
+    std::vector<QUICFrame*> QUICFrameBuffer;
+    bool ackEliciting;
+    int currentPacketNumber;
 
     QUICIntermediateOutput(){};
 };
