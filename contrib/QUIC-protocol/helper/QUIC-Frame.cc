@@ -128,7 +128,7 @@ void QUICFrameHeader::SerializeACKFrame(Buffer::Iterator i) const {
     i.WriteHtonU32(largestACKed);
     i.WriteHtonU32(ackRangeCount);
     i.WriteHtonU32(firstACKRange);
-    for(int j = 0; j < ackRangeCount; j++ ){
+    for(unsigned j = 0; j < ackRangeCount; j++ ){
         uint32_t gap = ACKRanges[ j ].first;
         uint32_t ackRange = ACKRanges[ j ].second;
         i.WriteHtonU32( gap );
@@ -136,14 +136,32 @@ void QUICFrameHeader::SerializeACKFrame(Buffer::Iterator i) const {
     }
 }
 
+void QUICFrameHeader::SerializeMaxDataFrame(Buffer::Iterator i) const {
+    i.WriteHtonU32(maxData);
+}
+
+void QUICFrameHeader::SerializeMaxStreamDataFrame(Buffer::Iterator i) const {
+    i.WriteHtonU32(streamID);
+    i.WriteHtonU32(maxStreamData);
+}
+
 void QUICFrameHeader::Serialize(Buffer::Iterator start) const {
     // std::cout << "Serialize CALLED::::: " << streamID << " " << offset << std::endl;
     Buffer::Iterator i = start;
     i.WriteHtonU32(frameType);
-    if ( frameType == FrameType::STREAM ){
-        SerializeStreamFrame(i);
-    } else if ( frameType == FrameType::ACK ){
-        SerializeACKFrame(i);
+    switch( frameType ){
+        case FrameType::STREAM:
+            SerializeStreamFrame(i);
+            break;
+        case FrameType::ACK:
+            SerializeACKFrame(i); 
+            break;
+        case FrameType::MAX_DATA:
+            SerializeMaxDataFrame(i);
+            break;
+        case FrameType::MAX_STREAM_DATA:
+            SerializeMaxStreamDataFrame(i);
+            break;
     }
 }
 
@@ -161,7 +179,7 @@ void QUICFrameHeader::DeserializeACKFrame(Buffer::Iterator i){
     firstACKRange = i.ReadNtohU32();
     currentFrameSize = 16;
     // use AckRangeCount to read out ackranges
-    for(int j = 0; j < ackRangeCount; j++ ){
+    for(unsigned j = 0; j < ackRangeCount; j++ ){
         currentFrameSize += 8;
         uint32_t gap = i.ReadNtohU32();
         uint32_t ackRange = i.ReadNtohU32();
@@ -169,13 +187,33 @@ void QUICFrameHeader::DeserializeACKFrame(Buffer::Iterator i){
     }
 }
 
+void QUICFrameHeader::DeserializeMaxDataFrame(Buffer::Iterator i){
+    maxData = i.ReadNtohU32();
+    currentFrameSize = 8;
+}
+
+void QUICFrameHeader::DeserializeMaxStreamDataFrame(Buffer::Iterator i){
+    streamID = i.ReadNtohU32();
+    maxStreamData = i.ReadNtohU32();
+    currentFrameSize = 12;
+}
+
 uint32_t QUICFrameHeader::Deserialize(Buffer::Iterator start){
     Buffer::Iterator i = start;
     frameType = i.ReadNtohU32();
-    if ( frameType == FrameType::STREAM ){
-        DeserializeStreamFrame(i);
-    } else if ( frameType == FrameType::ACK ){
-        DeserializeACKFrame(i);
+    switch( frameType ){
+        case FrameType::STREAM:
+            DeserializeStreamFrame(i);
+            break;
+        case FrameType::ACK:
+            DeserializeACKFrame(i);
+            break;
+        case FrameType::MAX_DATA:
+            DeserializeMaxDataFrame(i);
+            break;
+        case FrameType::MAX_STREAM_DATA:
+            DeserializeMaxStreamDataFrame(i);
+            break;
     }
     return GetSerializedSize();
 }
@@ -189,17 +227,24 @@ void QUICFrameHeader::setACKFrameHeader(uint32_t largestACKed, uint32_t ackRange
     this->currentFrameSize = 16;
 }
 
-void QUICFrameHeader::setMaxStreamFrameHeader(){
+void QUICFrameHeader::setMaxStreamFrameHeader(uint32_t streamID, uint32_t maxStreamData){
     // stream ID
     // Max absolute byte offset of a stream
 
     // A receiver could determine the flow control offset to be advertised 
-    // based on the current offset of data consumed on that stream.   
+    // based on the current offset of data consumed on that stream.
+    this->frameType = FrameType::MAX_STREAM_DATA;
+    this->streamID = streamID;
+    this->maxStreamData = maxStreamData;
+    this->currentFrameSize = 12;
 }
 
-void QUICFrameHeader::setMaxDataFrameHeader(){
+void QUICFrameHeader::setMaxDataFrameHeader(uint32_t maxData){
     // for the whole connection
     // the maximum data can be send
+    this->frameType = FrameType::MAX_DATA;
+    this->maxData = maxData;
+    this->currentFrameSize = 8;
 }
 
 void QUICFrameHeader::ACKRangesPush(uint32_t gap, uint32_t length){

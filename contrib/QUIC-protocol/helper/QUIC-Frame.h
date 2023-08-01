@@ -77,18 +77,23 @@ class StreamFrameFields : public FrameFields {
 // somewhere to store the frame type
 
 class QUICFrameHeader : public MTHeader {
-  void SerializeStreamFrame(Buffer::Iterator i) const;
   void SerializeACKFrame(Buffer::Iterator i) const;
+  void SerializeStreamFrame(Buffer::Iterator i) const;
+  void SerializeMaxDataFrame(Buffer::Iterator i) const;
+  void SerializeMaxStreamDataFrame(Buffer::Iterator i) const;
 
-  void DeserializeStreamFrame(Buffer::Iterator i);
   void DeserializeACKFrame(Buffer::Iterator i);
+  void DeserializeStreamFrame(Buffer::Iterator i);
+  void DeserializeMaxDataFrame(Buffer::Iterator i);
+  void DeserializeMaxStreamDataFrame(Buffer::Iterator i);
 
   public:
-    uint32_t offset; // TODO: figure out what it should be in RFC9000
+    int currentFrameSize;
     uint32_t streamID;
+
+    uint32_t offset;
     uint32_t length; // size of data, right now only STREAM frame use this
     uint32_t frameType;
-    // fin bit
     bool fin;
 
     // if frameType is ACK, the following field are used
@@ -97,12 +102,17 @@ class QUICFrameHeader : public MTHeader {
     uint32_t firstACKRange;
     std::vector<std::pair<uint32_t, uint32_t>> ACKRanges; // gap, ack range
 
+    // MAX_DATA frame
+    uint32_t maxData;
+
+    // MAX_STREAM_DATA frame
+    uint32_t maxStreamData;
+
     
 
     // the currentFrameSize can vary depending on which FrameType it is
     // currently, for ACK -> something
     // others -> 20
-    int currentFrameSize;
 
 
     QUICFrameHeader(uint32_t streamID, uint32_t offset, uint32_t length, FrameType frameType, bool finBit,
@@ -111,8 +121,8 @@ class QUICFrameHeader : public MTHeader {
 
     void setACKFrameHeader(uint32_t largestACKed, uint32_t ackRangeCount, uint32_t firstACKRange);
     void setStreamFrameHeader(uint32_t streamID, uint32_t offset, uint32_t length, bool finBit);
-    void setMaxStreamFrameHeader();
-    void setMaxDataFrameHeader();
+    void setMaxStreamFrameHeader(uint32_t streamID, uint32_t maxStreamData);
+    void setMaxDataFrameHeader(uint32_t maxData);
 
     void ACKRangesPush(uint32_t gap, uint32_t length);
 
