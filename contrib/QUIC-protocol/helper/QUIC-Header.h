@@ -68,7 +68,7 @@ class MTQUICShortHeader : public MTHeader {
         uint8_t keyPhase; 
         uint8_t pckNumLength; 
         uint8_t destConnID[20]; //0-160 bits 
-        uint32_t pckNum;
+        uint32_t pckNum; // used in determing the cryptographic nonce for packet protection
 
         MTQUICShortHeader();
         ~MTQUICShortHeader();

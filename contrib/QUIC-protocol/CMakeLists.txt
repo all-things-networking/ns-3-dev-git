@@ -29,6 +29,7 @@ build_lib(
                  helper/QUIC-SendPacket.cc
                  helper/QUIC-AddStreamData.cc
                  helper/QUIC-HandleReceiveACK.cc
+                 helper/QUIC-ReceiverPacketGenerator.cc
                  model/QUIC-ReceiveLogic.cc
                  model/QUIC-Context.cc
                  model/QUIC-Event.cc
@@ -52,6 +53,7 @@ build_lib(
                  helper/QUIC-SendPacket.h
                  helper/QUIC-AddStreamData.h
                  helper/QUIC-HandleReceiveACK.h
+                 helper/QUIC-ReceiverPacketGenerator.h
                  model/QUIC-ReceiveLogic.h
                  model/QUIC-Context.h
                  model/QUIC-Event.h

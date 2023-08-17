@@ -173,14 +173,50 @@ main (int argc, char *argv[])
   // transport->AddEventToScheduler(event6);
 
   // Receiver side testing -------------------
+  // TODO: comment back the sender back and make both sender test and receiver test working at the same time
   ReceiverEventCreator ReceiverEventCreator;
-  // TODO:::::::::::::::Need to change to WHERE Kevin Made changes to 
-  Packet* fakePacket = ReceiverEventCreator.CreateFakePacket();
+  
+  // normal case:
+  std::vector<std::string> fakeData = { "helloworld", "gooodbye" };
+  Packet* fakePacket = ReceiverEventCreator.CreateFakePacket(fakeData, 1, true, 0, 0);
+
   MTEvent* event7 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket);
   transport->AddEventToScheduler(event7);
-  // which I think the addReceiveData is only used in testing case
-  // create a RECEIVEPKT_EVENT: ReceivePacketEvent
-  // use something similar to trySendPacket
+
+
+  // normal case with two packets
+  fakeData = { "anotherOneRandom", "anotherTwoRamdom" };
+  Packet* fakePacket1 = ReceiverEventCreator.CreateFakePacket(fakeData, 2, false, 2, 0);
+  MTEvent* event8 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket1);
+  transport->AddEventToScheduler(event8);
+  
+  fakeData = { "text", "text" };
+  Packet* fakePacket2 = ReceiverEventCreator.CreateFakePacket(fakeData, 3, true, 2, 16);
+  MTEvent* event9 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket2);
+  transport->AddEventToScheduler(event9);
+
+
+  // packet loss case
+  fakeData = { "world", "bye" };
+  Packet* fakePacket3 = ReceiverEventCreator.CreateFakePacket(fakeData, 6, true, 4, 5);
+
+  MTEvent* event10 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket3);
+  transport->AddEventToScheduler(event10);
+  
+
+  fakeData = { "12345", "12345" };
+  Packet* fakePacket4 = ReceiverEventCreator.CreateFakePacket(fakeData, 5, false, 4, 0);
+
+  MTEvent* event11 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket4);
+  transport->AddEventToScheduler(event11);
+  
+  fakeData = { "ReciverTesting", "AnotherOneForTest" };
+  Packet* fakePacket5 = ReceiverEventCreator.CreateFakePacket(fakeData, 4, true, 6, 0);
+
+  MTEvent* event12 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket5);
+  transport->AddEventToScheduler(event12);
+
+
 
 
   Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);

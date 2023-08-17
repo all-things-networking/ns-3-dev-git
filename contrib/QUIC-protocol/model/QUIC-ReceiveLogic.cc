@@ -5,6 +5,8 @@
 
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
+#include "ns3/QUIC-Header.h"
+#include "ns3/QUIC-Frame.h"
 
 #include <string>
 
@@ -23,20 +25,47 @@ QUICReceiveLogic::Receive(ModularTransport* mt,
 {
     std::cout << "########### Received ###########" << std::endl;
     ;
-    MTHeader recievedHeader;
-    packet->RemoveHeader(recievedHeader);
-    uint8_t* buffer = new uint8_t[packet->GetSize()];
-    int size = packet->CopyData(buffer, packet->GetSize());
+    // MTHeader recievedHeader;
+    // packet->RemoveHeader(recievedHeader);
+    // uint8_t* buffer = new uint8_t[packet->GetSize()];
+    // int size = packet->CopyData(buffer, packet->GetSize());
 
     //
-    std::string s = std::string(buffer, buffer + packet->GetSize());
-    std::cout << "Received: " << s << std::endl;
-    std::cout << "Length: " << packet->GetSize() << std::endl;
+    MTQUICShortHeader shortHeader;
+    packet->RemoveHeader( shortHeader );
+    std::cout << "Packet Number:" << shortHeader.pckNum << std::endl;
 
+    while( packet->GetSize() > 0 ){
+        QUICFrameHeader frameHeader;
+        packet->RemoveHeader( frameHeader );
+        if ( frameHeader.frameType == FrameType::ACK ){
+            std::cout << "--- Received ACK frame ---" << std::endl;
+            
+            std::cout << "    largestACK: " << frameHeader.largestACKed << std::endl;
+            std::cout << "    ackRangeCount: " << frameHeader.ackRangeCount << std::endl;
+            std::cout << "    firstACKRange: " << frameHeader.firstACKRange << std::endl;
+            for(int i = 0; i < frameHeader.ackRangeCount; i++ ){
+                uint32_t gap = frameHeader.ACKRanges[ i ].first;
+                uint32_t range = frameHeader.ACKRanges[ i ].second;
+                std::cout << "    ackRange Gap: " << gap << ", range: " << range << std::endl;
+            }
+
+        } else if (frameHeader.frameType == FrameType::MAX_DATA) {
+            std::cout << "--- Received MAX_DATA frame ---" << std::endl;
+            std::cout << "    maxData: " << frameHeader.maxData << std::endl;
+        } else if (frameHeader.frameType == FrameType::MAX_STREAM_DATA) {
+            std::cout << "--- Received MAX_STREAM_DATA frame ---" << std::endl;
+            std::cout << "    stream ID: " << frameHeader.streamID << std::endl;
+            std::cout << "    maxStreamData: " << frameHeader.maxStreamData << std::endl;
+        }else {
+            std::cout << "--- received other types ---" << std::endl;
+        }
+    }
+    
     // chosenScheduler.OpsAfterRecieved(recievedHeader);
     // chosenScheduler.GenerateEventOnReceive(recievedHeader);
     // recievedHeader.OpsAfterRecieved(); //THis one returns a event
-    std::cout << mt << packet << incomingIpHeader << incomingInterface << std::endl;
+    // std::cout << mt << packet << incomingIpHeader << incomingInterface << std::endl;
 
     // Right now we are just hard-coding a response ACK for testing purposes
     std::cout << "Received packet in ModularTransport" << std::endl;
@@ -48,10 +77,10 @@ QUICReceiveLogic::Receive(ModularTransport* mt,
     }
     else
     {
-        std::cout << "Sending back Ack" << std::endl;
-        Packet P = Packet();
-        // recreate Header for outgoing
-        mt->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
+        // std::cout << "Sending back Ack" << std::endl;
+        // Packet P = Packet();
+        // // recreate Header for outgoing
+        // mt->SendPacket(&P, incomingIpHeader.GetDestination(), incomingIpHeader.GetSource());
     }
     std::cout << "################################" << std::endl;
     ;

@@ -89,7 +89,7 @@ void ModularTransport::Mainloop(){
          for (auto packet : epout->packetToSend)
          {
                 //recreate Header for outgoing
-                std::cout<<"Sending"<<std::endl;
+                std::cout << "Sending Packets out" << std::endl;
                 this->SendPacket(&packet, ctx->saddr, ctx->daddr);
          }
 

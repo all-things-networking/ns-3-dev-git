@@ -13,6 +13,7 @@
 #include <utility>   // std::pair
 #include <algorithm> // std::min, std::max
 #include <iostream>
+#include <unordered_set>
 
 namespace ns3
 {
@@ -31,65 +32,117 @@ QUICBufferManagement::IsValidEvent(MTEvent* e)
 }
 
 EventProcessorOutput* QUICBufferManagement::Process(MTEvent* e, EventProcessorOutput* epOut){
-    // seperate queues for each packet
-    // size for each queue
-    // what to send back
-
     // az: this is a chained function, so we care about epOut for now
     std::cout << "QUICBufferManagement::Process start" << std::endl;
 
-    // QUICIntermediateOutput intermOutput = static_cast<QUICIntermediateOutput>(epOut->intermOutput);
     QUICIntermediateOutput* intermOutput = static_cast<QUICIntermediateOutput*>(epOut->intermOutput);
     QUICContext* qc = static_cast<QUICContext*>(epOut->context);
     
+    std::unordered_set<int> updatedStreamIDs;
+
     for( unsigned int i = 0; i < intermOutput->PacketDemultiplexerOut.size(); i++ ){
         QUICFrameHeader header = intermOutput->PacketDemultiplexerOut[i].first;
-        std::cout << header.streamID << " " << header.offset << " " << header.length << std::endl;
-        // QUICFrame currentFrame = intermOutput->PacketDemultiplexerOut[i].second;
 
-        // Ptr<Packet> copy = currentFrame.data->Copy();
-        // uint8_t buffer[copy->GetSize()];
-        // copy->CopyData(buffer, copy->GetSize());
+        uint32_t streamID = header.streamID;
+        uint32_t offset = header.offset;
+        bool finBit = header.fin;
 
-        // std::string currentFrameData;
-        // for (auto c : buffer ) currentFrameData += c;
-
-        // int start = currentFrameData.find("HEADER: ") + 8;
-        // int end = currentFrameData.find("-");
-
-        // int streamID = std::stoi(currentFrameData.substr(start, end - start));
-        // std::string currentData = currentFrameData.substr(end + 1);
+        std::string currentData = intermOutput->PacketDemultiplexerOut[i].second;
         
-        // // it shouldn't be like this as the stream should be set up
-        // // when openning the connection
-        // // look at RFC 9000 ******
-        // if ( qc->receiverBuffer.find( streamID ) == qc->receiverBuffer.end() ){
-        //     // create an entry in the receiverBuffer
-        //     QUICStream* stream = new QUICStream( streamID );
-        //     qc->receiverBuffer[ streamID ] = stream;
-        //     std::cout << "Created new stream with ID: "
-        //               << qc->receiverBuffer.find(streamID)->second->id << std::endl;
-        // }
+        if ( header.frameType == FrameType::STREAM ){
+            intermOutput->ackEliciting = true;
+            // check if stream exists. If not, create one according to RFC 9000
+            if ( qc->receiverBuffer.find( streamID ) == qc->receiverBuffer.end() ){
+                QUICStream* stream = new QUICStream( streamID );
+                qc->receiverBuffer[ streamID ] = stream;
+                std::cout << "Created new stream with ID: "
+                        << qc->receiverBuffer.find(streamID)->second->id << std::endl;
+            }
 
-        // qc->receiverBuffer[ streamID ]->AddToDataBuffer( currentData );
+            QUICStream* currentStream = qc->receiverBuffer[ streamID ];
+            currentStream->AddToDataBuffer( currentData, offset );
+            currentStream->SetFin( finBit );
+            // if fin bit is not set, also send a maxStreamData Frame
+            //  and maxData Frame
+            // update streamDataSize
+            if ( currentStream->fin == false ){
+                if (currentStream->offset > qc->streamDataSize[ streamID ]) {
+                    qc->streamDataSize[ streamID ] = currentStream->offset;
+                }
+                std::cout << qc->streamDataSize[ streamID ] << std::endl;
+                updatedStreamIDs.insert( streamID );
+            } else {
+                updatedStreamIDs.erase( streamID );
+                // std::cout << "Remove stream id: " << streamID << std::endl;
+            }
+        }
     }
 
-    std::cout << qc->receiverBuffer[ 1 ]->databuffer << std::endl;
-    std::cout << qc->receiverBuffer[ 2 ]->databuffer << std::endl;
+    std::vector<Packet> packetTobeSend;
+    generateFlowControlFrames(qc, updatedStreamIDs, intermOutput);
+
+    /////////////////////////// TESTING ReceiverBuffer START ///////////////////////////////////////////////////////
+    for( unsigned long i = 0; i < qc->receiverBuffer.size(); i++ ){
+        if ( qc->receiverBuffer[ i + 1 ] == nullptr ) continue;
+        std::cout << "Testing receiverBuffer " << i + 1 << " ";
+        std::cout << qc->receiverBuffer[ i + 1 ]->databuffer << std::endl;
+        std::cout << "Testing receiverBuffer " << i + 1 << " ";
+        for(auto a: qc->receiverBuffer[ i + 1 ]->is_received ) std::cout << a;
+        std::cout << std::endl;
+    }
+    /////////////////////////// TESTING ReceiverBuffer END ///////////////////////////////////////////////////////
     // check the buffer for each stream, and the whole connection
 
-    //update the context if needed
-    // MTContext newContext = *(epOut->context);
 
     std::vector<MTEvent*> newEvents;
 
     // worry about newEvent and packetTobeSend later
     // no packet from buffer management is created, it will be handled in ACK
-    std::vector<Packet> packetTobeSend;
+    std::cout << "packetToBeSend size: " << packetTobeSend.size() << std::endl;    
     EventProcessorOutput *Output = new EventProcessorOutput;
         Output->newEvents=newEvents;
         Output->context = qc;
         Output->packetToSend=packetTobeSend;
+        Output->intermOutput = intermOutput;
     return Output;
+}
+
+void QUICBufferManagement::generateFlowControlFrames( 
+    QUICContext* qc, 
+    std::unordered_set<int>& updatedStreamIDs,
+    QUICIntermediateOutput* intermOutput) {
+    // generate MAX_DATA frame
+    int totalData = 0;
+    for(auto& dataSize : qc->streamDataSize ) totalData += dataSize.second;
+    qc->currentTotalDataSize = totalData;
+    std::cout << "current total stream data: " << totalData << std::endl;
+    std::cout << "updatedStreamIDs size: " << updatedStreamIDs.size() << std::endl;
+
+    int updatedStreamCount = updatedStreamIDs.size();
+    uint32_t newMaxData = updatedStreamCount * 20 + totalData;
+    if ( newMaxData >= qc->maxData ){
+        std::cout << "Cannot receive more data for the connection..." << std::endl;
+    } else {
+        // create maxData Frame and append to the quicPacket
+        QUICFrame* maxDataFrame = new QUICFrame;
+        QUICFrameHeader frameHeader = QUICFrameHeader();
+        frameHeader.setMaxDataFrameHeader( qc->maxData );
+        maxDataFrame->AddHeader( frameHeader );
+
+        intermOutput->QUICFrameBuffer.push_back( maxDataFrame );
+    }
+
+
+    // generate MAX_STREAM_DATA frame
+    for( auto& streamID : updatedStreamIDs ){
+        QUICFrame* maxStreamDataFrame = new QUICFrame;
+        
+        QUICFrameHeader frameHeader = QUICFrameHeader();
+        uint32_t maxFrameData = qc->streamDataSize[ streamID ] + 10;
+        frameHeader.setMaxStreamFrameHeader( streamID, maxFrameData );
+        maxStreamDataFrame->AddHeader( frameHeader );
+
+        intermOutput->QUICFrameBuffer.push_back( maxStreamDataFrame );
+    }
 }
 } // namespace ns3

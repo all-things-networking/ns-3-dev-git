@@ -13,6 +13,7 @@
 #include "../helper/QUIC-SendPacket.h"
 #include "../helper/QUIC-AddStreamData.h"
 #include "../helper/QUIC-HandleReceiveACK.h"
+#include "../helper/QUIC-ReceiverPacketGenerator.h"
 
 
 #include <iostream>
@@ -59,10 +60,11 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
 
     //////////////////////////// Receiver //////////////////////////
     // for now, just returning the 3 processors to process a receivepkt event
-    if (quicEvent->type == EventType::RECEIVEPKT_EVENT) {
+    if ( quicEvent->type == EventType::RECEIVEPKT_EVENT ) {
         ChosenProcessors.push_back(new QUICPacketDemultiplexer());
         ChosenProcessors.push_back(new QUICBufferManagement());
         ChosenProcessors.push_back(new QUICAckHandler());
+        ChosenProcessors.push_back(new QUICReceiverPacketGenerator());
         return ChosenProcessors;
     }
     ////////////////////////////////////////////////////////////////

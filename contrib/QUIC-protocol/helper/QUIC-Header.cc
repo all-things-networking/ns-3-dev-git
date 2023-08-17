@@ -48,8 +48,6 @@ MTQUICShortHeader::Serialize(Buffer::Iterator start) const
 uint32_t
 MTQUICShortHeader::Deserialize(Buffer::Iterator start)
 {   
-    uint32_t skip = MTHeader::GetSerializedSize();
-    start.Next(skip);
 
     Buffer::Iterator i = start;
     uint8_t firstByte = i.ReadU8();
@@ -60,7 +58,7 @@ MTQUICShortHeader::Deserialize(Buffer::Iterator start)
     keyPhase = (firstByte % 8) / 4;
     pckNumLength = (firstByte % 4);
     i.Read(destConnID, 20);
-    pckNum = i.ReadNtohU32 ();
+    pckNum = i.ReadNtohU32();
     return GetSerializedSize();
 }
 

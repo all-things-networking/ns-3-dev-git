@@ -3,7 +3,9 @@
 
 #include <ctime> // std::time_t
 #include <map>
+#include <unordered_map>
 #include <vector>
+#include <queue>
 #include "ns3/ipv4-address.h"
 #include "ns3/mt-state.h"
 
@@ -51,21 +53,20 @@ public:
     ///////////////////////////////////////////////////////////////
 
     //////////////////////////// Receiver /////////////////////////
-    // flow_id         (common)
-    // max_data        (common)
-    // max_stream_data (common)
-    uint8_t* receiver_data;
-
-    // quic_stream     (common)
-    // PacketBuffer    (common)
+    int maxData = 10000;      // hard coded limit
+    const int frameLimit = 5;
+    // uint8_t* receiver_data;
     
-    // std::deque<std::pair<Ptr<Packet>, PacketState>> receivedPackets;
     std::map<int, QUICStream*> receiverBuffer;
     int ackBase = 0; // sequence number of oldest acked packet
-    // windowSize      (common)
-    // PTO_Timer  only used in sender
-    // k_packet_threshold?
-    // add other things as needed
+    std::vector<std::pair<int, int>> receivedPackets;
+    int ackElicitingPacketCount = 0;
+
+    // TODO: put hard-coded constant data here
+
+    std::unordered_map<int, int> streamDataSize;
+    int currentTotalDataSize;
+    int receiverPacketNumber = 1;
     ///////////////////////////////////////////////////////////////
 
 };
