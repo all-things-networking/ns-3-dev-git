@@ -57,6 +57,8 @@ public:
     uint32_t m_segmentsize;
     uint32_t m_dupThreshold;  // Threshold for triggler packet loss, usually 3
     TCPTimer* RTOTimer = NULL;
+    uint32_t m_curAckNum;     // ACK number for the most recently recieved ACK
+    uint32_t m_dupCount = 0;    // current duplicate ACK count
     std::map<uint32_t, float> startTime;
     std::map<uint32_t, bool> retransmittedPackets;
     float SRTT = 0;

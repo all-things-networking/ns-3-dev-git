@@ -79,6 +79,32 @@ EventProcessorOutput* AckHandler::Process(MTEvent* e, EventProcessorOutput* epOu
 
     //Calculates RTTVAR, SRTT and RTO:
     std::cout << "ACKNUM: " << event->acknum << std::endl;
+
+    // check if the ACK is a duplicate
+    if (ctx->m_curAckNum == event->acknum) {
+        ctx->m_dupCount += 1;
+    } else {
+        ctx->m_curAckNum = event->acknum;
+        ctx->m_dupCount = 0;
+    }
+
+    // if m_dupThreshold number of duplicate ACK's are recieved for a given packet, fast 
+    // retransmit it
+    if (ctx->m_dupCount >= ctx->m_dupThreshold) {
+        std::cout << "Fast Retransmit: " << event->acknum << std::endl;
+        //Resend first segment (first segment only)
+        MTTCPHeader outgoingHeader = MTTCPHeader();
+        outgoingHeader.seqnum = ctx->m_Una;
+        ctx->RTOTimer->reset();
+        Packet P = Packet(
+            ctx->data + ctx->m_Una, //this assumes data's start is at 0 seqnum
+            ctx->m_segmentsize
+        );
+        std::cout<<"Send Timer:"<<ctx->m_Una<<" to "<<ctx->m_Una+ctx->m_segmentsize<<std::endl;
+        P.AddHeader(outgoingHeader);
+        packetTobeSend.emplace_back(P);
+    }
+
     //Update if I got 2 consecutive new acks without a timeout, update RTO based on second packet
     if (!ctx->timeouthappend && ctx->m_Una < event->acknum){
         double now = Simulator::Now().GetSeconds();
