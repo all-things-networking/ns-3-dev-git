@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -21,9 +20,10 @@
 #ifndef UAN_NOISE_MODEL_DEFAULT_H
 #define UAN_NOISE_MODEL_DEFAULT_H
 
+#include "uan-noise-model.h"
+
 #include "ns3/attribute.h"
 #include "ns3/object.h"
-#include "ns3/uan-noise-model.h"
 
 namespace ns3
 {

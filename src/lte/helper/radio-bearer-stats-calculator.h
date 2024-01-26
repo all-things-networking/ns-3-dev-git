@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,9 +21,10 @@
 #ifndef RADIO_BEARER_STATS_CALCULATOR_H_
 #define RADIO_BEARER_STATS_CALCULATOR_H_
 
+#include "lte-stats-calculator.h"
+
 #include "ns3/basic-data-calculators.h"
 #include "ns3/lte-common.h"
-#include "ns3/lte-stats-calculator.h"
 #include "ns3/object.h"
 #include "ns3/uinteger.h"
 
@@ -89,8 +89,8 @@ class RadioBearerStatsCalculator : public LteStatsCalculator
 
     // Inherited from ns3::Object
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
     void DoDispose() override;

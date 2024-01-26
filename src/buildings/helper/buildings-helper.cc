@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 CTTC
  *
@@ -36,7 +35,7 @@ NS_LOG_COMPONENT_DEFINE("BuildingsHelper");
 void
 BuildingsHelper::Install(NodeContainer c)
 {
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Install(*i);
     }

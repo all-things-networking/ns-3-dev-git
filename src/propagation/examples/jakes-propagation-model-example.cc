@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
@@ -29,7 +28,7 @@ using namespace ns3;
 /**
  * \ingroup propagation
  * \brief Constructs a JakesPropagationlossModel and print the loss value as a function of time into
- * std::cout. Distribution and correlation statistics is compared woth a theoretical ones using R
+ * std::cout. Distribution and correlation statistics is compared with a theoretical ones using R
  * package (http://www.r-project.org/). Scripts are presented within comments.
  */
 class JakesPropagationExample

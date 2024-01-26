@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
@@ -30,7 +29,6 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/dsdv-helper.h"
 #include "ns3/internet-module.h"
@@ -177,7 +175,7 @@ main(int argc, char** argv)
                  CSVfileName);
     cmd.Parse(argc, argv);
 
-    std::ofstream out(CSVfileName.c_str());
+    std::ofstream out(CSVfileName);
     out << "SimulationSecond,"
         << "ReceiveRate,"
         << "PacketsReceived,"
@@ -231,7 +229,7 @@ DsdvManetExample::CheckThroughput()
     double kbs = (bytesTotal * 8.0) / 1000;
     bytesTotal = 0;
 
-    std::ofstream out(m_CSVfileName.c_str(), std::ios::app);
+    std::ofstream out(m_CSVfileName, std::ios::app);
 
     out << (Simulator::Now()).GetSeconds() << "," << kbs << "," << packetsReceived << ","
         << m_nSinks << std::endl;
@@ -378,7 +376,7 @@ DsdvManetExample::InstallInternetStack(std::string tr_name)
     {
         Ptr<OutputStreamWrapper> routingStream =
             Create<OutputStreamWrapper>((tr_name + ".routes"), std::ios::out);
-        dsdv.PrintRoutingTableAllAt(Seconds(m_periodicUpdateInterval), routingStream);
+        Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(m_periodicUpdateInterval), routingStream);
     }
 }
 

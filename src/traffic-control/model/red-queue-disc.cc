@@ -1,4 +1,3 @@
-// /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright © 2011 Marcos Talau
  *
@@ -652,7 +651,7 @@ RedQueueDisc::Estimator(uint32_t nQueued, uint32_t m, double qAvg, double qW)
 }
 
 // Check if packet p needs to be dropped due to probability mark
-uint32_t
+bool
 RedQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
 {
     NS_LOG_FUNCTION(this << item << qSize);
@@ -674,7 +673,7 @@ RedQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
         if ((double)qSize < fraction * m_qAvg)
         {
             // Queue could have been empty for 0.05 seconds
-            return 0;
+            return false;
         }
     }
 
@@ -707,10 +706,10 @@ RedQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
         m_countBytes = 0;
         /// \todo Implement set bit to mark
 
-        return 1; // drop
+        return true; // drop
     }
 
-    return 0; // no drop/mark
+    return false; // no drop/mark
 }
 
 // Returns a probability using these function parameters for the DropEarly function
@@ -764,7 +763,7 @@ double
 RedQueueDisc::ModifyP(double p, uint32_t size)
 {
     NS_LOG_FUNCTION(this << p << size);
-    double count1 = (double)m_count;
+    auto count1 = (double)m_count;
 
     if (GetMaxSize().GetUnit() == QueueSizeUnit::BYTES)
     {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -59,7 +58,7 @@ TagBuffer::WriteU32(uint32_t data)
 }
 
 uint8_t
-TagBuffer::ReadU8(void)
+TagBuffer::ReadU8()
 {
     NS_LOG_FUNCTION(this);
     NS_ASSERT(m_current + 1 <= m_end);
@@ -70,7 +69,7 @@ TagBuffer::ReadU8(void)
 }
 
 uint16_t
-TagBuffer::ReadU16(void)
+TagBuffer::ReadU16()
 {
     NS_LOG_FUNCTION(this);
     uint8_t byte0 = ReadU8();
@@ -82,7 +81,7 @@ TagBuffer::ReadU16(void)
 }
 
 uint32_t
-TagBuffer::ReadU32(void)
+TagBuffer::ReadU32()
 {
     NS_LOG_FUNCTION(this);
     uint8_t byte0 = ReadU8();
@@ -119,7 +118,7 @@ void
 TagBuffer::WriteDouble(double v)
 {
     NS_LOG_FUNCTION(this << v);
-    uint8_t* buf = (uint8_t*)&v;
+    auto buf = (uint8_t*)&v;
     for (uint32_t i = 0; i < sizeof(double); ++i, ++buf)
     {
         WriteU8(*buf);
@@ -172,7 +171,7 @@ TagBuffer::ReadDouble()
 {
     NS_LOG_FUNCTION(this);
     double v;
-    uint8_t* buf = (uint8_t*)&v;
+    auto buf = (uint8_t*)&v;
     for (uint32_t i = 0; i < sizeof(double); ++i, ++buf)
     {
         *buf = ReadU8();

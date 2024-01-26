@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA
  *
@@ -75,7 +74,7 @@ main(int argc, char* argv[])
     NetDeviceContainer d = csma.Install(n);
 
     NS_LOG_INFO("Assign IP Addresses.");
-    if (useV6 == false)
+    if (!useV6)
     {
         Ipv4AddressHelper ipv4;
         ipv4.SetBase("10.1.1.0", "255.255.255.0");

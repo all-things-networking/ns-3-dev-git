@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -74,8 +73,7 @@ Reservation::Reservation(std::list<std::pair<Ptr<Packet>, Mac8Address>>& list,
 
 Reservation::~Reservation()
 {
-    std::list<std::pair<Ptr<Packet>, Mac8Address>>::iterator it;
-    for (it = m_pktList.begin(); it != m_pktList.end(); it++)
+    for (auto it = m_pktList.begin(); it != m_pktList.end(); it++)
     {
         it->first = Ptr<Packet>((Packet*)nullptr);
     }
@@ -144,7 +142,7 @@ Reservation::IncrementRetry()
 }
 
 void
-Reservation::SetTransmitted([[maybe_unused]] bool t)
+Reservation::SetTransmitted(bool /* t */)
 {
     m_transmitted = true;
 }
@@ -186,8 +184,7 @@ UanMacRc::Clear()
         m_phy->Clear();
         m_phy = nullptr;
     }
-    std::list<std::pair<Ptr<Packet>, Mac8Address>>::iterator it;
-    for (it = m_pktQueue.begin(); it != m_pktQueue.end(); it++)
+    for (auto it = m_pktQueue.begin(); it != m_pktQueue.end(); it++)
     {
         it->first = nullptr;
     }
@@ -325,7 +322,7 @@ UanMacRc::AttachPhy(Ptr<UanPhy> phy)
 }
 
 void
-UanMacRc::ReceiveOkFromPhy(Ptr<Packet> pkt, [[maybe_unused]] double sinr, UanTxMode mode)
+UanMacRc::ReceiveOkFromPhy(Ptr<Packet> pkt, double /* sinr */, UanTxMode mode)
 {
     UanHeaderCommon ch;
     pkt->RemoveHeader(ch);
@@ -350,7 +347,7 @@ UanMacRc::ReceiveOkFromPhy(Ptr<Packet> pkt, [[maybe_unused]] double sinr, UanTxM
         break;
     case TYPE_RTS:
         // Currently don't respond to RTS packets at non-gateway nodes
-        // (Code assumes single network neighberhood)
+        // (Code assumes single network neighborhood)
         break;
     case TYPE_CTS: {
         uint32_t ctsBytes = ch.GetSerializedSize() + pkt->GetSize();
@@ -425,7 +422,7 @@ UanMacRc::ScheduleData(const UanHeaderRcCts& ctsh,
 {
     NS_ASSERT(m_state == RTSSENT || m_state == GWPSENT);
 
-    std::list<Reservation>::iterator it = m_resList.begin();
+    auto it = m_resList.begin();
     for (; it != m_resList.end(); it++)
     {
         if (it->GetFrameNo() == ctsh.GetFrameNo())
@@ -456,8 +453,7 @@ UanMacRc::ScheduleData(const UanHeaderRcCts& ctsh,
     Time frameDelay = Seconds(0);
 
     const std::list<std::pair<Ptr<Packet>, Mac8Address>> l = it->GetPktList();
-    std::list<std::pair<Ptr<Packet>, Mac8Address>>::const_iterator pit;
-    pit = l.begin();
+    auto pit = l.begin();
 
     for (uint8_t i = 0; i < it->GetNoFrames(); i++, pit++)
     {
@@ -545,7 +541,7 @@ UanMacRc::ProcessAck(Ptr<Packet> ack)
     UanHeaderRcAck ah;
     ack->RemoveHeader(ah);
 
-    std::list<Reservation>::iterator it = m_resList.begin();
+    auto it = m_resList.begin();
     for (; it != m_resList.end(); it++)
     {
         if (it->GetFrameNo() == ah.GetFrameNo())
@@ -566,11 +562,10 @@ UanMacRc::ProcessAck(Ptr<Packet> ack)
     if (ah.GetNoNacks() > 0)
     {
         const std::list<std::pair<Ptr<Packet>, Mac8Address>> l = it->GetPktList();
-        std::list<std::pair<Ptr<Packet>, Mac8Address>>::const_iterator pit;
-        pit = l.begin();
+        auto pit = l.begin();
 
         const std::set<uint8_t>& nacks = ah.GetNackedFrames();
-        std::set<uint8_t>::iterator nit = nacks.begin();
+        auto nit = nacks.begin();
         uint8_t pnum = 0;
         for (; nit != nacks.end(); nit++)
         {
@@ -618,7 +613,7 @@ UanMacRc::Associate()
     m_resList.push_back(res);
     Ptr<UanPhyDual> phyDual = m_phy->GetObject<UanPhyDual>();
     bool phy1ok = IsPhy1Ok();
-    if (phy1ok && !phyDual->IsPhy2Tx() & !m_rtsBlocked)
+    if (phy1ok && !phyDual->IsPhy2Tx() && !m_rtsBlocked)
     {
         Ptr<Packet> pkt = Create<Packet>(0);
         pkt->AddHeader(CreateRtsHeader(res));

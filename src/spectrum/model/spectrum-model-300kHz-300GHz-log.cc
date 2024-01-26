@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -18,7 +17,7 @@
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/spectrum-model-300kHz-300GHz-log.h>
+#include "spectrum-model-300kHz-300GHz-log.h"
 
 namespace ns3
 {

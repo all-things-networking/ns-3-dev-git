@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -80,8 +79,8 @@ ShannonSpectrumErrorModel::EvaluateChunk(const SpectrumValue& sinr, Time duratio
     SpectrumValue CapacityPerHertz = Log2(1 + sinr);
     double capacity = 0;
 
-    Bands::const_iterator bi = CapacityPerHertz.ConstBandsBegin();
-    Values::const_iterator vi = CapacityPerHertz.ConstValuesBegin();
+    auto bi = CapacityPerHertz.ConstBandsBegin();
+    auto vi = CapacityPerHertz.ConstValuesBegin();
 
     while (bi != CapacityPerHertz.ConstBandsEnd())
     {

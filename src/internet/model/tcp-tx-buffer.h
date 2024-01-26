@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010-2015 Adrian Sai-wah Tam
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
@@ -22,10 +21,11 @@
 #ifndef TCP_TX_BUFFER_H
 #define TCP_TX_BUFFER_H
 
+#include "tcp-option-sack.h"
+#include "tcp-tx-item.h"
+
 #include "ns3/object.h"
 #include "ns3/sequence-number.h"
-#include "ns3/tcp-option-sack.h"
-#include "ns3/tcp-tx-item.h"
 #include "ns3/traced-value.h"
 
 namespace ns3

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Apoorva Bhargava <apoorvabhargava13@gmail.com>
  *
@@ -32,7 +31,6 @@ NS_LOG_COMPONENT_DEFINE("TcpLinuxRenoTest");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * This unit test checks that the slow start and congestion avoidance
  * behavior matches Linux behavior as follows:
@@ -196,7 +194,6 @@ TcpLinuxRenoSSTest::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * This unit test checks that the slow start and congestion avoidance
  * behavior matches Linux behavior as follows:
@@ -373,7 +370,6 @@ TcpLinuxRenoCongAvoidTest::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite for the behavior of Linux Reno
  */

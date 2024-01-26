@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -104,7 +103,7 @@ class OriginatorRxStatus
         m_fragments.push_back(packet);
         m_defragmenting = false;
         Ptr<Packet> full = Create<Packet>();
-        for (FragmentsCI i = m_fragments.begin(); i != m_fragments.end(); i++)
+        for (auto i = m_fragments.begin(); i != m_fragments.end(); i++)
         {
             full->AddAtEnd(*i);
         }
@@ -135,15 +134,8 @@ class OriginatorRxStatus
      */
     bool IsNextFragment(uint16_t sequenceControl) const
     {
-        if ((sequenceControl >> 4) == (m_lastSequenceControl >> 4) &&
-            (sequenceControl & 0x0f) == ((m_lastSequenceControl & 0x0f) + 1))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (sequenceControl >> 4) == (m_lastSequenceControl >> 4) &&
+               (sequenceControl & 0x0f) == ((m_lastSequenceControl & 0x0f) + 1);
     }
 
     /**
@@ -175,12 +167,12 @@ MacRxMiddle::MacRxMiddle()
 MacRxMiddle::~MacRxMiddle()
 {
     NS_LOG_FUNCTION_NOARGS();
-    for (OriginatorsI i = m_originatorStatus.begin(); i != m_originatorStatus.end(); i++)
+    for (auto i = m_originatorStatus.begin(); i != m_originatorStatus.end(); i++)
     {
         delete (*i).second;
     }
     m_originatorStatus.erase(m_originatorStatus.begin(), m_originatorStatus.end());
-    for (QosOriginatorsI i = m_qosOriginatorStatus.begin(); i != m_qosOriginatorStatus.end(); i++)
+    for (auto i = m_qosOriginatorStatus.begin(); i != m_qosOriginatorStatus.end(); i++)
     {
         delete (*i).second;
     }
@@ -231,11 +223,7 @@ bool
 MacRxMiddle::IsDuplicate(const WifiMacHeader* hdr, OriginatorRxStatus* originator) const
 {
     NS_LOG_FUNCTION(hdr << originator);
-    if (hdr->IsRetry() && originator->GetLastSequenceControl() == hdr->GetSequenceControl())
-    {
-        return true;
-    }
-    return false;
+    return hdr->IsRetry() && originator->GetLastSequenceControl() == hdr->GetSequenceControl();
 }
 
 Ptr<const Packet>
@@ -302,7 +290,8 @@ void
 MacRxMiddle::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
 {
     NS_LOG_FUNCTION(*mpdu << +linkId);
-    const WifiMacHeader* hdr = &mpdu->GetHeader();
+    // consider the MAC header of the original MPDU (makes a difference for data frames only)
+    const WifiMacHeader* hdr = &mpdu->GetOriginal()->GetHeader();
     NS_ASSERT(hdr->IsData() || hdr->IsMgt());
 
     OriginatorRxStatus* originator = Lookup(hdr);

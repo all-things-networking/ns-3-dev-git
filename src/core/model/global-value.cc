@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -20,15 +19,13 @@
 #include "global-value.h"
 
 #include "attribute.h"
+#include "environment-variable.h"
 #include "fatal-error.h"
 #include "log.h"
 #include "string.h"
 #include "uinteger.h"
 
 #include "ns3/core-config.h"
-
-#include <cstdlib> // getenv
-#include <cstring> // strlen
 
 /**
  * \file
@@ -71,35 +68,15 @@ GlobalValue::InitializeFromEnv()
 {
     NS_LOG_FUNCTION(this);
 
-    const char* envVar = getenv("NS_GLOBAL_VALUE");
-    if (envVar == nullptr || std::strlen(envVar) == 0)
+    auto [found, value] = EnvironmentVariable::Get("NS_GLOBAL_VALUE", m_name);
+    if (found)
     {
-        return;
-    }
-    std::string env = envVar;
-    std::string::size_type cur = 0;
-    std::string::size_type next = 0;
-    while (next != std::string::npos)
-    {
-        next = env.find(';', cur);
-        std::string tmp = std::string(env, cur, next - cur);
-        std::string::size_type equal = tmp.find('=');
-        if (equal != std::string::npos)
+        Ptr<AttributeValue> v = m_checker->CreateValidValue(StringValue(value));
+        if (v)
         {
-            std::string name = tmp.substr(0, equal);
-            std::string value = tmp.substr(equal + 1, tmp.size() - equal - 1);
-            if (name == m_name)
-            {
-                Ptr<AttributeValue> v = m_checker->CreateValidValue(StringValue(value));
-                if (v)
-                {
-                    m_initialValue = v;
-                    m_currentValue = v;
-                }
-                return;
-            }
+            m_initialValue = v;
+            m_currentValue = v;
         }
-        cur = next + 1;
     }
 }
 
@@ -126,7 +103,7 @@ GlobalValue::GetValue(AttributeValue& value) const
     {
         return;
     }
-    StringValue* str = dynamic_cast<StringValue*>(&value);
+    auto str = dynamic_cast<StringValue*>(&value);
     if (str == nullptr)
     {
         NS_FATAL_ERROR("GlobalValue name=" << m_name << ": input value is not a string");
@@ -150,7 +127,7 @@ GlobalValue::SetValue(const AttributeValue& value)
     Ptr<AttributeValue> v = m_checker->CreateValidValue(value);
     if (!v)
     {
-        return 0;
+        return false;
     }
     m_currentValue = v;
     return true;
@@ -161,7 +138,7 @@ GlobalValue::Bind(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
 
-    for (Iterator i = Begin(); i != End(); i++)
+    for (auto i = Begin(); i != End(); i++)
     {
         if ((*i)->GetName() == name)
         {
@@ -172,7 +149,7 @@ GlobalValue::Bind(std::string name, const AttributeValue& value)
             return;
         }
     }
-    NS_FATAL_ERROR("Non-existant global value: " << name);
+    NS_FATAL_ERROR("Non-existent global value: " << name);
 }
 
 bool
@@ -180,7 +157,7 @@ GlobalValue::BindFailSafe(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
 
-    for (Iterator i = Begin(); i != End(); i++)
+    for (auto i = Begin(); i != End(); i++)
     {
         if ((*i)->GetName() == name)
         {
@@ -216,7 +193,7 @@ bool
 GlobalValue::GetValueByNameFailSafe(std::string name, AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
-    for (GlobalValue::Iterator gvit = GlobalValue::Begin(); gvit != GlobalValue::End(); ++gvit)
+    for (auto gvit = GlobalValue::Begin(); gvit != GlobalValue::End(); ++gvit)
     {
         if ((*gvit)->GetName() == name)
         {

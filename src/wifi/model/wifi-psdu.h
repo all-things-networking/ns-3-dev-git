@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Universita' degli Studi di Napoli Federico II
  *
@@ -121,7 +120,8 @@ class WifiPsdu : public SimpleRefCount<WifiPsdu>
 
     /**
      * \brief Get a copy of the i-th A-MPDU subframe (includes subframe header, MPDU, and possibly
-     * padding) \param i the index in the list of A-MPDU subframes \return the i-th A-MPDU subframe.
+     * padding)
+     * \param i the index in the list of A-MPDU subframes \return the i-th A-MPDU subframe.
      */
     Ptr<Packet> GetAmpduSubframe(std::size_t i) const;
 
@@ -143,6 +143,11 @@ class WifiPsdu : public SimpleRefCount<WifiPsdu>
      * \return the Transmitter Address.
      */
     Mac48Address GetAddr2() const;
+
+    /**
+     * \return true if the Duration/ID field contains a value for setting the NAV
+     */
+    bool HasNav() const;
 
     /**
      * Get the duration from the Duration/ID field, which is common to all the MPDUs

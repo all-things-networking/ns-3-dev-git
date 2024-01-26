@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -30,7 +29,6 @@ NS_LOG_COMPONENT_DEFINE("TcpRttEstimationTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Check Rtt calculations
  *
@@ -193,7 +191,6 @@ TcpRttEstimationTest::FinalChecks()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Check Rtt calculations with packet losses.
  *
@@ -235,11 +232,9 @@ TcpRttEstimationWithLossTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> errorModel = CreateObject<TcpSeqErrorModel>();
 
-    std::vector<uint32_t>::iterator it;
-
-    for (it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
-        errorModel->AddSeqToKill(SequenceNumber32((*it)));
+        errorModel->AddSeqToKill(SequenceNumber32(*it));
     }
 
     return errorModel;
@@ -247,7 +242,6 @@ TcpRttEstimationWithLossTest::CreateReceiverErrorModel()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP RTT estimation TestSuite
  */

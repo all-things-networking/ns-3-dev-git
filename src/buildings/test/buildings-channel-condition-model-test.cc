@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -60,14 +59,14 @@ class BuildingsChannelConditionModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         Vector m_positionA;                            //!< the position of the first node
         Vector m_positionB;                            //!< the position of the second node
         ChannelCondition::LosConditionValue m_losCond; //!< the correct channel condition
-    } TestVector;
+    };
 
-    TestVectors<TestVector> m_testVectors; //!< array containg all the test vectors
+    TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
 };
 
 BuildingsChannelConditionModelTestCase::BuildingsChannelConditionModelTestCase()
@@ -122,6 +121,7 @@ BuildingsChannelConditionModelTestCase::DoRun()
     building->SetNRoomsY(1);
     building->SetNFloors(1);
     building->SetBoundaries(Box(0.0, 10.0, 0.0, 10.0, 0.0, 5.0));
+    building->SetExtWallsType(Building::ExtWallsType_t::Wood);
 
     BuildingsHelper::Install(nodes);
 

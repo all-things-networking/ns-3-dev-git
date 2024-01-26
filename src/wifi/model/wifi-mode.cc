@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
@@ -350,9 +349,8 @@ WifiModeFactory::CreateWifiMcs(std::string uniqueName,
 WifiMode
 WifiModeFactory::Search(std::string name) const
 {
-    WifiModeItemList::const_iterator i;
     uint32_t j = 0;
-    for (i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         if (i->uniqueUid == name)
         {
@@ -365,7 +363,7 @@ WifiModeFactory::Search(std::string name) const
     // is a fatal problem, but we try to be helpful by displaying the
     // list of WifiModes that are supported.
     NS_LOG_UNCOND("Could not find match for WifiMode named \"" << name << "\". Valid options are:");
-    for (i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         NS_LOG_UNCOND("  " << i->uniqueUid);
     }
@@ -385,7 +383,7 @@ uint32_t
 WifiModeFactory::AllocateUid(std::string uniqueUid)
 {
     uint32_t j = 0;
-    for (WifiModeItemList::const_iterator i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         if (i->uniqueUid == uniqueUid)
         {
@@ -393,7 +391,7 @@ WifiModeFactory::AllocateUid(std::string uniqueUid)
         }
         j++;
     }
-    uint32_t uid = static_cast<uint32_t>(m_itemList.size());
+    auto uid = static_cast<uint32_t>(m_itemList.size());
     m_itemList.emplace_back();
     return uid;
 }

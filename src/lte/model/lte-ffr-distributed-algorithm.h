@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -22,10 +21,10 @@
 #ifndef LTE_FFR_DISTRIBUTED_ALGORITHM_H
 #define LTE_FFR_DISTRIBUTED_ALGORITHM_H
 
-#include <ns3/lte-ffr-algorithm.h>
-#include <ns3/lte-ffr-rrc-sap.h>
-#include <ns3/lte-ffr-sap.h>
-#include <ns3/lte-rrc-sap.h>
+#include "lte-ffr-algorithm.h"
+#include "lte-ffr-rrc-sap.h"
+#include "lte-ffr-sap.h"
+#include "lte-rrc-sap.h"
 
 namespace ns3
 {
@@ -70,9 +69,9 @@ class LteFfrDistributedAlgorithm : public LteFfrAlgorithm
     std::vector<bool> DoGetAvailableUlRbg() override;
     bool DoIsUlRbgAvailableForUe(int i, uint16_t rnti) override;
     void DoReportDlCqiInfo(
-        const struct FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params) override;
+        const FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params) override;
     void DoReportUlCqiInfo(
-        const struct FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params) override;
+        const FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params) override;
     void DoReportUlCqiInfo(std::map<uint16_t, std::vector<double>> ulCqiMap) override;
     uint8_t DoGetTpc(uint16_t rnti) override;
     uint16_t DoGetMinContinuousUlBandwidth() override;
@@ -183,7 +182,7 @@ class LteFfrDistributedAlgorithm : public LteFfrAlgorithm
     typedef std::map<uint16_t, MeasurementRow_t> MeasurementTable_t;
     MeasurementTable_t m_ueMeasures; ///< UE measures
 
-    std::vector<uint16_t> m_neigborCell; ///< neighbor cell
+    std::vector<uint16_t> m_neighborCell; ///< neighbor cell
 
     uint8_t m_rsrpDifferenceThreshold; ///< RSRP difference threshold
 

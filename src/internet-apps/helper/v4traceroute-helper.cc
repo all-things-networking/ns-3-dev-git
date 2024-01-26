@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan
  *
@@ -57,7 +56,7 @@ ApplicationContainer
 V4TraceRouteHelper::Install(NodeContainer c) const
 {
     ApplicationContainer apps;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         apps.Add(InstallPriv(*i));
     }

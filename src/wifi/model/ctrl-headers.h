@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
@@ -22,6 +21,7 @@
 #define CTRL_HEADERS_H
 
 #include "block-ack-type.h"
+#include "wifi-phy-common.h"
 
 #include "ns3/he-ru.h"
 #include "ns3/header.h"
@@ -556,7 +556,7 @@ class CtrlBAckResponseHeader : public Header
  * \ingroup wifi
  * The different Trigger frame types.
  */
-enum TriggerFrameType : uint8_t
+enum class TriggerFrameType : uint8_t
 {
     BASIC_TRIGGER = 0,      // Basic
     BFRP_TRIGGER = 1,       // Beamforming Report Poll
@@ -566,6 +566,16 @@ enum TriggerFrameType : uint8_t
     GCR_MU_BAR_TRIGGER = 5, // Groupcast with Retries MU-BAR
     BQRP_TRIGGER = 6,       // Bandwidth Query Report Poll
     NFRP_TRIGGER = 7        // NDP Feedback Report Poll
+};
+
+/**
+ * \ingroup wifi
+ * The different variants for Common Info field and User Info field of Trigger Frames.
+ */
+enum class TriggerFrameVariant : uint8_t
+{
+    HE = 0,
+    EHT
 };
 
 /**
@@ -583,8 +593,9 @@ class CtrlTriggerUserInfoField
      * Constructor
      *
      * \param triggerType the Trigger frame type
+     * \param variant the Trigger Frame variant
      */
-    CtrlTriggerUserInfoField(uint8_t triggerType);
+    CtrlTriggerUserInfoField(TriggerFrameType triggerType, TriggerFrameVariant variant);
     /**
      * Copy assignment operator.
      *
@@ -634,6 +645,10 @@ class CtrlTriggerUserInfoField
      */
     TriggerFrameType GetType() const;
     /**
+     * \return the preamble type of the TB PPDU solicited by this User Info field.
+     */
+    WifiPreamble GetPreambleType() const;
+    /**
      * Set the AID12 subfield, which carries the 12 LSBs of the AID of the
      * station for which this User Info field is intended. The whole AID can
      * be passed, since the passed value is properly masked.
@@ -663,16 +678,54 @@ class CtrlTriggerUserInfoField
     bool HasRaRuForUnassociatedSta() const;
     /**
      * Set the RU Allocation subfield according to the specified RU.
+     * This method cannot be called on MU-RTS Trigger Frames (call SetMuRtsRuAllocation instead).
      *
      * \param ru the RU this User Info field is allocating
      */
     void SetRuAllocation(HeRu::RuSpec ru);
     /**
      * Get the RU specified by the RU Allocation subfield.
+     * This method cannot be called on MU-RTS Trigger Frames (call GetMuRtsRuAllocation instead).
      *
      * \return the RU this User Info field is allocating
      */
     HeRu::RuSpec GetRuAllocation() const;
+    /**
+     * Set the RU Allocation subfield based on the given value for the B7-B1 bits.
+     * This method can only be called on MU-RTS Trigger Frames.
+     *
+     * B7–B1 of the RU Allocation subfield is set to indicate the primary 20 MHz channel
+     * as follows:
+     * - 61 if the primary 20 MHz channel is the only 20 MHz channel or the lowest frequency
+     *   20 MHz channel in the primary 40 MHz channel or primary 80 MHz channel
+     * - 62 if the primary 20 MHz channel is the second lowest frequency 20 MHz channel in the
+     *   primary 40 MHz channel or primary 80 MHz channel
+     * - 63 if the primary 20 MHz channel is the third lowest frequency 20 MHz channel in the
+     *   primary 80 MHz channel
+     * - 64 if the primary 20 MHz channel is the fourth lowest frequency 20 MHz channel in the
+     *   primary 80 MHz channel
+     *
+     * B7–B1 of the RU Allocation subfield is set to indicate the primary 40 MHz channel
+     * as follows:
+     * - 65 if the primary 40 MHz channel is the only 40 MHz channel or the lowest frequency
+     *   40 MHz channel in the primary 80 MHz channel
+     * - 66 if the primary 40 MHz channel is the second lowest frequency 40 MHz channel in the
+     *   primary 80 MHz channel
+     *
+     * B7–B1 of the RU Allocation subfield is set to 67 to indicate the primary 80 MHz channel.
+     *
+     * B7–B1 of the RU Allocation subfield is set to 68 to indicate the primary and secondary
+     * 80 MHz channel.
+     *
+     * \param value the value for B7–B1 of the RU Allocation subfield
+     */
+    void SetMuRtsRuAllocation(uint8_t value);
+    /**
+     * This method can only be called on MU-RTS Trigger Frames.
+     *
+     * \return the value of B7–B1 of the RU Allocation subfield (\see SetMuRtsRuAllocation)
+     */
+    uint8_t GetMuRtsRuAllocation() const;
     /**
      * Set the UL FEC Coding Type subfield, which indicates whether BCC or LDPC is used
      *
@@ -698,13 +751,15 @@ class CtrlTriggerUserInfoField
      */
     uint8_t GetUlMcs() const;
     /**
-     * Set the UL DCM subfield, which indicates whether or not DCM is used
+     * Set the UL DCM subfield, which indicates whether or not DCM is used.
+     * This method can only be used with HE variant User Info field.
      *
      * \param dcm whether to use DCM or not
      */
     void SetUlDcm(bool dcm);
     /**
      * Get the UL DCM subfield, which indicates whether or not DCM is used
+     * This method can only be used with HE variant User Info field.
      *
      * \return true if DCM is used
      */
@@ -832,11 +887,14 @@ class CtrlTriggerUserInfoField
     const CtrlBAckRequestHeader& GetMuBarTriggerDepUserInfo() const;
 
   private:
+    TriggerFrameVariant m_variant; //!< User Info field variant
+
     uint16_t m_aid12;       //!< Association ID of the addressed station
     uint8_t m_ruAllocation; //!< RU Allocation
     bool m_ulFecCodingType; //!< UL FEC Coding Type
     uint8_t m_ulMcs;        //!< MCS to be used by the addressed station
-    bool m_ulDcm;           //!< whether or not to use Dual Carrier Modulation
+    bool m_ulDcm;           //!< whether or not to use Dual Carrier Modulation (HE variant only)
+    bool m_ps160;           //!< identifies the location of the RU (EHT variant only)
 
     union {
         struct
@@ -853,7 +911,7 @@ class CtrlTriggerUserInfoField
     } m_bits26To31;        //!< Fields occupying bits 26-31 in the User Info field
 
     uint8_t m_ulTargetRssi;                  //!< Expected receive signal power
-    uint8_t m_triggerType;                   //!< Trigger frame type
+    TriggerFrameType m_triggerType;          //!< Trigger frame type
     uint8_t m_basicTriggerDependentUserInfo; //!< Basic Trigger variant of Trigger Dependent User
                                              //!< Info subfield
     CtrlBAckRequestHeader
@@ -878,10 +936,7 @@ class CtrlTriggerUserInfoField
  *
  * The Padding field is optional, given that other techniques (post-EOF A-MPDU
  * padding, aggregating other MPDUs in the A-MPDU) are available to satisfy the
- * minimum time requirement. Currently, however, a Padding field of the minimum
- * length (2 octets) is appended to every Trigger frame that is transmitted. In
- * such a way, deserialization stops when a User Info field with the AID12 subfield
- * set to 4095 (which indicates the start of a Padding field) is encountered.
+ * minimum time requirement. The size in bytes of the Padding field is configurable.
  */
 class CtrlTriggerHeader : public Header
 {
@@ -898,6 +953,8 @@ class CtrlTriggerHeader : public Header
      *     of the TX vector are added to the Trigger Frame. The AID12, RU Allocation,
      *     UL MCS and SS Allocation subfields of each User Info field are set based
      *     on the values stored in the corresponding entry of the HeMuUserInfoMap.
+     *
+     * This constructor cannot be used to construct MU-RTS Trigger Frames.
      *
      * \param type the Trigger frame type
      * \param txVector the TX vector used to build this Trigger Frame
@@ -925,6 +982,21 @@ class CtrlTriggerHeader : public Header
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
 
+    /**
+     * Set the Common Info field variant.
+     *
+     * For the moment, all User Info fields are of the same variant type, hence we
+     * forbid changing the Common Info field variant type after adding User Info fields.
+     *
+     * \param variant the Common Info field variant
+     */
+    void SetVariant(TriggerFrameVariant variant);
+    /**
+     * Get the Common Info field variant.
+     *
+     * \return the Common Info field variant
+     */
+    TriggerFrameVariant GetVariant() const;
     /**
      * Set the Trigger frame type.
      *
@@ -1112,6 +1184,17 @@ class CtrlTriggerHeader : public Header
      */
     uint16_t GetUlSpatialReuse() const;
     /**
+     * Set the size in bytes of the Padding field. The Padding field, if present,
+     * shall be at least two octets in length.
+     *
+     * \param size the size in bytes of the Padding field
+     */
+    void SetPaddingSize(std::size_t size);
+    /**
+     * \return the size in bytes of the Padding field
+     */
+    std::size_t GetPaddingSize() const;
+    /**
      * Get a copy of the Common Info field of this Trigger frame.
      * Note that the User Info fields are excluded.
      *
@@ -1245,14 +1328,17 @@ class CtrlTriggerHeader : public Header
     /**
      * Common Info field
      */
-    uint8_t m_triggerType;     //!< Trigger type
-    uint16_t m_ulLength;       //!< Value for the L-SIG Length field
-    bool m_moreTF;             //!< True if a subsequent Trigger frame follows
-    bool m_csRequired;         //!< Carrier Sense required
-    uint8_t m_ulBandwidth;     //!< UL BW subfield
-    uint8_t m_giAndLtfType;    //!< GI And LTF Type subfield
-    uint8_t m_apTxPower;       //!< Tx Power used by AP to transmit the Trigger Frame
-    uint16_t m_ulSpatialReuse; //!< Value for the Spatial Reuse field in HE-SIG-A
+    TriggerFrameVariant m_variant;  //!< Common Info field variant
+    TriggerFrameType m_triggerType; //!< Trigger type
+    uint16_t m_ulLength;            //!< Value for the L-SIG Length field
+    bool m_moreTF;                  //!< True if a subsequent Trigger frame follows
+    bool m_csRequired;              //!< Carrier Sense required
+    uint8_t m_ulBandwidth;          //!< UL BW subfield
+    uint8_t m_giAndLtfType;         //!< GI And LTF Type subfield
+    uint8_t m_apTxPower;            //!< Tx Power used by AP to transmit the Trigger Frame
+    uint16_t m_ulSpatialReuse;      //!< Value for the Spatial Reuse field in HE-SIG-A
+    std::size_t m_padding;          //!< the size in bytes of the Padding field
+
     /**
      * List of User Info fields
      */

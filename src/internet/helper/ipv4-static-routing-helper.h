@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -19,8 +18,9 @@
 #ifndef IPV4_STATIC_ROUTING_HELPER_H
 #define IPV4_STATIC_ROUTING_HELPER_H
 
+#include "ipv4-routing-helper.h"
+
 #include "ns3/ipv4-address.h"
-#include "ns3/ipv4-routing-helper.h"
 #include "ns3/ipv4-static-routing.h"
 #include "ns3/ipv4.h"
 #include "ns3/net-device-container.h"

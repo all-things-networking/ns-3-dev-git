@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
@@ -35,7 +34,6 @@ using namespace ns3;
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Cobalt Queue Disc Test Item
  */
@@ -47,10 +45,9 @@ class CobaltQueueDiscTestItem : public QueueDiscItem
      *
      * \param p packet
      * \param addr address
-     * \param protocol protocol
      * \param ecnCapable ECN capable
      */
-    CobaltQueueDiscTestItem(Ptr<Packet> p, const Address& addr, uint16_t protocol, bool ecnCapable);
+    CobaltQueueDiscTestItem(Ptr<Packet> p, const Address& addr, bool ecnCapable);
     ~CobaltQueueDiscTestItem() override;
 
     // Delete default constructor, copy constructor and assignment operator to avoid misuse
@@ -67,9 +64,8 @@ class CobaltQueueDiscTestItem : public QueueDiscItem
 
 CobaltQueueDiscTestItem::CobaltQueueDiscTestItem(Ptr<Packet> p,
                                                  const Address& addr,
-                                                 uint16_t protocol,
                                                  bool ecnCapable)
-    : QueueDiscItem(p, addr, ecnCapable),
+    : QueueDiscItem(p, addr, 0),
       m_ecnCapablePacket(ecnCapable)
 {
 }
@@ -86,16 +82,11 @@ CobaltQueueDiscTestItem::AddHeader()
 bool
 CobaltQueueDiscTestItem::Mark()
 {
-    if (m_ecnCapablePacket)
-    {
-        return true;
-    }
-    return false;
+    return m_ecnCapablePacket;
 }
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Test 1: simple enqueue/dequeue with no drops
  */
@@ -178,27 +169,27 @@ CobaltQueueDiscBasicEnqueueDequeue::DoRun()
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           0 * modeSize,
                           "There should be no packets in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p1, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p1, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           1 * modeSize,
                           "There should be one packet in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p2, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p2, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           2 * modeSize,
                           "There should be two packets in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p3, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p3, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           3 * modeSize,
                           "There should be three packets in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p4, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p4, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           4 * modeSize,
                           "There should be four packets in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p5, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p5, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           5 * modeSize,
                           "There should be five packets in queue");
-    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p6, dest, 0, false));
+    queue->Enqueue(Create<CobaltQueueDiscTestItem>(p6, dest, false));
     NS_TEST_ASSERT_MSG_EQ(queue->GetCurrentSize().GetValue(),
                           6 * modeSize,
                           "There should be six packets in queue");
@@ -266,7 +257,6 @@ CobaltQueueDiscBasicEnqueueDequeue::DoRun()
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Test 2: Cobalt Queue Disc Drop Test Item
  */
@@ -373,7 +363,7 @@ CobaltQueueDiscDropTest::Enqueue(Ptr<CobaltQueueDisc> queue, uint32_t size, uint
     Address dest;
     for (uint32_t i = 0; i < nPkt; i++)
     {
-        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, 0, true));
+        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, true));
     }
 }
 
@@ -387,7 +377,6 @@ CobaltQueueDiscDropTest::DoRun()
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Test 3: Cobalt Queue Disc ECN marking Test Item
  */
@@ -438,8 +427,7 @@ CobaltQueueDiscMarkTest::CobaltQueueDiscMarkTest(QueueSizeUnit mode)
 }
 
 void
-CobaltQueueDiscMarkTest::DropNextTracer([[maybe_unused]] int64_t oldVal,
-                                        [[maybe_unused]] int64_t newVal)
+CobaltQueueDiscMarkTest::DropNextTracer(int64_t /* oldVal */, int64_t /* newVal */)
 {
     m_dropNextCount++;
 }
@@ -634,7 +622,7 @@ CobaltQueueDiscMarkTest::Enqueue(Ptr<CobaltQueueDisc> queue,
     Address dest;
     for (uint32_t i = 0; i < nPkt; i++)
     {
-        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, 0, ecnCapable));
+        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, ecnCapable));
     }
 }
 
@@ -842,7 +830,6 @@ CobaltQueueDiscMarkTest::Dequeue(Ptr<CobaltQueueDisc> queue, uint32_t modeSize, 
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Test 4: Cobalt Queue Disc CE Threshold marking Test Item
  */
@@ -907,7 +894,7 @@ CobaltQueueDiscCeThresholdTest::Enqueue(Ptr<CobaltQueueDisc> queue, uint32_t siz
     Address dest;
     for (uint32_t i = 0; i < nPkt; i++)
     {
-        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, 0, true));
+        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, true));
     }
 }
 
@@ -1007,7 +994,7 @@ CobaltQueueDiscCeThresholdTest::DoRun()
     Time dequeueInterval = MicroSeconds(1100);
     DequeueWithDelay(queue, modeSize, 11, dequeueInterval);
 
-    // First mark occured for the packet enqueued at 11ms, ideally TCP would decrease sending rate
+    // First mark occurred for the packet enqueued at 11ms, ideally TCP would decrease sending rate
     // which can be simulated by increasing interval between subsequent enqueues, so packets are now
     // enqueued with a delay 1.2ms.
     Time waitUntilFirstMark = MilliSeconds(11);
@@ -1054,7 +1041,6 @@ CobaltQueueDiscCeThresholdTest::DoRun()
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Test 5: Cobalt Queue Disc Enhanced Blue Test Item
  * This test checks that the Blue Enhancement is working correctly. This test checks that Pdrop
@@ -1178,7 +1164,7 @@ CobaltQueueDiscEnhancedBlueTest::Enqueue(Ptr<CobaltQueueDisc> queue, uint32_t si
     Address dest;
     for (uint32_t i = 0; i < nPkt; i++)
     {
-        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, 0, true));
+        queue->Enqueue(Create<CobaltQueueDiscTestItem>(Create<Packet>(size), dest, true));
     }
 }
 
@@ -1203,6 +1189,7 @@ CobaltQueueDiscEnhancedBlueTest::DequeueWithDelay(Ptr<CobaltQueueDisc> queue,
 }
 
 /**
+ * \ingroup traffic-control-test
  * The COBALT queue disc test suite.
  */
 static class CobaltQueueDiscTestSuite : public TestSuite

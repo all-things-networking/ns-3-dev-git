@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 Timo Bingmann
  *
@@ -175,7 +174,7 @@ TestProbabilistic(Ptr<PropagationLossModel> model,
                 Simulator::Run();
             }
 
-            for (rxPowerMapType::const_iterator i = rxPowerMap.begin(); i != rxPowerMap.end(); ++i)
+            for (auto i = rxPowerMap.begin(); i != rxPowerMap.end(); ++i)
             {
                 dataset.Add(distance, i->first, (double)i->second / (double)samples);
             }

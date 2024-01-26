@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Georgia Institute of Technology
  *
@@ -21,11 +20,12 @@
 #ifndef BULK_SEND_APPLICATION_H
 #define BULK_SEND_APPLICATION_H
 
+#include "seq-ts-size-header.h"
+
 #include "ns3/address.h"
 #include "ns3/application.h"
 #include "ns3/event-id.h"
 #include "ns3/ptr.h"
-#include "ns3/seq-ts-size-header.h"
 #include "ns3/traced-callback.h"
 
 namespace ns3

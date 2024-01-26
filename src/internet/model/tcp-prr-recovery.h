@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
@@ -23,7 +22,7 @@
 #ifndef TCP_PRR_RECOVERY_H
 #define TCP_PRR_RECOVERY_H
 
-#include "ns3/tcp-recovery-ops.h"
+#include "tcp-recovery-ops.h"
 
 namespace ns3
 {
@@ -65,11 +64,11 @@ class TcpPrrRecovery : public TcpClassicRecovery
     /**
      * \brief Reduction Bound variant (CRB or SSRB)
      */
-    typedef enum
+    enum ReductionBound_t
     {
         CRB, /**< Conservative Reduction Bound */
         SSRB /**< Slow Start Reduction Bound */
-    } ReductionBound_t;
+    };
 
     std::string GetName() const override;
 

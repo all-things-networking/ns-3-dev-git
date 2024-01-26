@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -21,7 +20,8 @@
 #ifndef PERR_INFORMATION_ELEMENT_H
 #define PERR_INFORMATION_ELEMENT_H
 
-#include "ns3/hwmp-protocol.h"
+#include "hwmp-protocol.h"
+
 #include "ns3/mac48-address.h"
 #include "ns3/mesh-information-element-vector.h"
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
@@ -23,12 +22,12 @@
 
 #include "wifi-mac-queue.h"
 
-#include "qos-blocked-destinations.h"
 #include "wifi-mac-queue-scheduler.h"
 
 #include "ns3/simulator.h"
 
 #include <functional>
+#include <optional>
 
 namespace ns3
 {
@@ -95,6 +94,27 @@ WifiMacQueue::GetIt(Ptr<const WifiMpdu> mpdu) const
     return mpdu->GetQueueIt(WmqIteratorTag());
 }
 
+Ptr<WifiMpdu>
+WifiMacQueue::GetOriginal(Ptr<WifiMpdu> mpdu)
+{
+    return GetIt(mpdu)->mpdu;
+}
+
+Ptr<WifiMpdu>
+WifiMacQueue::GetAlias(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
+{
+    if (!mpdu->IsQueued())
+    {
+        return nullptr;
+    }
+    if (auto aliasIt = GetIt(mpdu)->inflights.find(linkId);
+        aliasIt != GetIt(mpdu)->inflights.cend())
+    {
+        return aliasIt->second;
+    }
+    return nullptr;
+}
+
 void
 WifiMacQueue::ExtractExpiredMpdus(const WifiContainerQueueId& queueId) const
 {
@@ -106,11 +126,17 @@ WifiMacQueue::ExtractExpiredMpdus(const WifiContainerQueueId& queueId) const
     for (auto it = first; it != last; it++)
     {
         mpdus.push_back(it->mpdu);
+    }
+    for (const auto& mpdu : mpdus)
+    {
         // fire the Expired trace
-        m_traceExpired(it->mpdu);
+        Simulator::ScheduleNow(&WifiMacQueue::m_traceExpired, this, mpdu);
     }
     // notify the scheduler
-    m_scheduler->NotifyRemove(m_ac, mpdus);
+    if (!mpdus.empty())
+    {
+        m_scheduler->NotifyRemove(m_ac, mpdus);
+    }
 }
 
 void
@@ -124,11 +150,17 @@ WifiMacQueue::ExtractAllExpiredMpdus() const
     for (auto it = first; it != last; it++)
     {
         mpdus.push_back(it->mpdu);
+    }
+    for (const auto& mpdu : mpdus)
+    {
         // fire the Expired trace
-        m_traceExpired(it->mpdu);
+        Simulator::ScheduleNow(&WifiMacQueue::m_traceExpired, this, mpdu);
     }
     // notify the scheduler
-    m_scheduler->NotifyRemove(m_ac, mpdus);
+    if (!mpdus.empty())
+    {
+        m_scheduler->NotifyRemove(m_ac, mpdus);
+    }
 }
 
 void
@@ -159,7 +191,17 @@ WifiMacQueue::TtlExceeded(Ptr<const WifiMpdu> item, const Time& now)
     {
         NS_LOG_DEBUG("Removing packet that stayed in the queue for too long (queuing time="
                      << now - it->expiryTime + m_maxDelay << ")");
-        m_traceExpired(DoRemove(it));
+        // Trace the expired MPDU first and then remove it from the queue (if still in the queue).
+        // Indeed, the Expired traced source is connected to BlockAckManager::NotifyDiscardedMpdu,
+        // which checks if the expired MPDU is in-flight or is a retransmission to determine
+        // whether a BlockAckReq frame must be sent to advance the recipient window. If the
+        // expired MPDU is removed from the queue before tracing the expiration, it is no longer
+        // in-flight and NotifyDiscardedMpdu wrongfully assumes that a BlockAckReq is not needed.
+        m_traceExpired(item);
+        if (item->IsQueued())
+        {
+            DoRemove(it);
+        }
         return true;
     }
     return false;
@@ -249,7 +291,7 @@ WifiMacQueue::DequeueIfQueued(const std::list<Ptr<const WifiMpdu>>& mpdus)
         {
             auto it = GetIt(mpdu);
             NS_ASSERT(it->ac == m_ac);
-            NS_ASSERT(it->mpdu == mpdu);
+            NS_ASSERT(it->mpdu == mpdu->GetOriginal());
             iterators.emplace_back(it);
         }
     }
@@ -260,13 +302,11 @@ WifiMacQueue::DequeueIfQueued(const std::list<Ptr<const WifiMpdu>>& mpdus)
 Ptr<const WifiMpdu>
 WifiMacQueue::Peek() const
 {
-    // Need to specify the link ID
-    NS_ABORT_MSG("Not implemented by WifiMacQueue");
-    return nullptr;
+    return Peek(std::nullopt);
 }
 
 Ptr<WifiMpdu>
-WifiMacQueue::Peek(uint8_t linkId) const
+WifiMacQueue::Peek(std::optional<uint8_t> linkId) const
 {
     NS_LOG_FUNCTION(this);
 
@@ -286,7 +326,7 @@ WifiMacQueue::PeekByTidAndAddress(uint8_t tid, Mac48Address dest, Ptr<const Wifi
 {
     NS_LOG_FUNCTION(this << +tid << dest << item);
     NS_ABORT_IF(dest.IsGroup());
-    WifiContainerQueueId queueId(WIFI_QOSDATA_UNICAST_QUEUE, dest, tid);
+    WifiContainerQueueId queueId(WIFI_QOSDATA_QUEUE, WIFI_UNICAST, dest, tid);
     return PeekByQueueId(queueId, item);
 }
 
@@ -302,7 +342,7 @@ WifiMacQueue::PeekByQueueId(const WifiContainerQueueId& queueId, Ptr<const WifiM
         ExtractExpiredMpdus(queueId);
     }
 
-    ConstIterator it = (item ? std::next(GetIt(item)) : GetContainer().GetQueue(queueId).cbegin());
+    auto it = (item ? std::next(GetIt(item)) : GetContainer().GetQueue(queueId).cbegin());
 
     if (it == GetContainer().GetQueue(queueId).cend())
     {
@@ -314,18 +354,13 @@ WifiMacQueue::PeekByQueueId(const WifiContainerQueueId& queueId, Ptr<const WifiM
 }
 
 Ptr<WifiMpdu>
-WifiMacQueue::PeekFirstAvailable(uint8_t linkId,
-                                 const Ptr<QosBlockedDestinations> blockedPackets,
-                                 Ptr<const WifiMpdu> item) const
+WifiMacQueue::PeekFirstAvailable(uint8_t linkId, Ptr<const WifiMpdu> item) const
 {
     NS_LOG_FUNCTION(this << +linkId << item);
     NS_ASSERT(!item || item->IsQueued());
 
     if (item)
     {
-        NS_ASSERT(!item->GetHeader().IsQosData() || !blockedPackets ||
-                  !blockedPackets->IsBlocked(item->GetHeader().GetAddr1(),
-                                             item->GetHeader().GetQosTid()));
         // check if there are other MPDUs in the same container queue as item
         auto mpdu = PeekByQueueId(WifiMacQueueContainer::GetQueueId(item), item);
 
@@ -346,13 +381,6 @@ WifiMacQueue::PeekFirstAvailable(uint8_t linkId,
         queueId = m_scheduler->GetNext(m_ac, linkId);
     }
 
-    while (queueId.has_value() && blockedPackets &&
-           std::get<0>(queueId.value()) == WIFI_QOSDATA_UNICAST_QUEUE &&
-           blockedPackets->IsBlocked(std::get<1>(queueId.value()), std::get<2>(queueId.value())))
-    {
-        queueId = m_scheduler->GetNext(m_ac, linkId, queueId.value());
-    }
-
     if (!queueId.has_value())
     {
         NS_LOG_DEBUG("The queue is empty");
@@ -365,7 +393,7 @@ WifiMacQueue::PeekFirstAvailable(uint8_t linkId,
 Ptr<WifiMpdu>
 WifiMacQueue::Remove()
 {
-    return Remove(Peek(0));
+    return Remove(Peek());
 }
 
 Ptr<WifiMpdu>
@@ -375,9 +403,20 @@ WifiMacQueue::Remove(Ptr<const WifiMpdu> mpdu)
     NS_ASSERT(mpdu && mpdu->IsQueued());
     auto it = GetIt(mpdu);
     NS_ASSERT(it->ac == m_ac);
-    NS_ASSERT(it->mpdu == mpdu);
+    NS_ASSERT(it->mpdu == mpdu->GetOriginal());
 
     return DoRemove(it);
+}
+
+void
+WifiMacQueue::Flush()
+{
+    NS_LOG_FUNCTION(this);
+
+    // there may be some expired MPDUs in the container queue storing MPDUs with expired lifetime,
+    // which will not be flushed by the Flush() method of the base class.
+    WipeAllExpiredMpdus();
+    Queue<WifiMpdu, WifiMacQueueContainer>::Flush();
 }
 
 void
@@ -387,7 +426,7 @@ WifiMacQueue::Replace(Ptr<const WifiMpdu> currentItem, Ptr<WifiMpdu> newItem)
     NS_ASSERT(currentItem->IsQueued());
     auto currentIt = GetIt(currentItem);
     NS_ASSERT(currentIt->ac == m_ac);
-    NS_ASSERT(currentIt->mpdu == currentItem);
+    NS_ASSERT(currentIt->mpdu == currentItem->GetOriginal());
     NS_ASSERT(!newItem->IsQueued());
 
     Time expiryTime = currentIt->expiryTime;
@@ -417,21 +456,29 @@ WifiMacQueue::DoEnqueue(ConstIterator pos, Ptr<WifiMpdu> item)
 {
     NS_LOG_FUNCTION(this << *item);
 
+    auto currSize = GetMaxSize();
+    // control frames should not consume room in the MAC queue, so increase queue size
+    // if we are trying to enqueue a control frame
+    if (item->GetHeader().IsCtl())
+    {
+        SetMaxSize(currSize + item);
+    }
     auto mpdu = m_scheduler->HasToDropBeforeEnqueue(m_ac, item);
 
     if (mpdu == item)
     {
         // the given item must be dropped
+        SetMaxSize(currSize);
         return false;
     }
 
     auto queueId = WifiMacQueueContainer::GetQueueId(item);
-    if (pos != GetContainer().GetQueue(queueId).cend() && pos->mpdu == mpdu)
+    if (pos != GetContainer().GetQueue(queueId).cend() && mpdu && pos->mpdu == mpdu->GetOriginal())
     {
         // the element pointed to by pos must be dropped; update insert position
         pos = std::next(pos);
     }
-    if (mpdu != nullptr)
+    if (mpdu)
     {
         DoRemove(GetIt(mpdu));
     }
@@ -442,13 +489,14 @@ WifiMacQueue::DoEnqueue(ConstIterator pos, Ptr<WifiMpdu> item)
         // set item's information about its position in the queue
         item->SetQueueIt(ret, {});
         ret->ac = m_ac;
-        ret->expiryTime = Simulator::Now() + m_maxDelay;
+        ret->expiryTime = item->GetHeader().IsCtl() ? Time::Max() : Simulator::Now() + m_maxDelay;
         WmqIteratorTag tag;
         ret->deleter = [tag](auto mpdu) { mpdu->SetQueueIt(std::nullopt, tag); };
 
         m_scheduler->NotifyEnqueue(m_ac, item);
         return true;
     }
+    SetMaxSize(currSize);
     return false;
 }
 
@@ -462,9 +510,13 @@ WifiMacQueue::DoDequeue(const std::list<ConstIterator>& iterators)
     // First, dequeue all the items
     for (auto& it : iterators)
     {
-        if (auto item = Queue<WifiMpdu, WifiMacQueueContainer>::DoDequeue(it); item)
+        if (auto item = Queue<WifiMpdu, WifiMacQueueContainer>::DoDequeue(it))
         {
             items.push_back(item);
+            if (item->GetHeader().IsCtl())
+            {
+                SetMaxSize(GetMaxSize() - item);
+            }
         }
     }
 
@@ -484,6 +536,10 @@ WifiMacQueue::DoRemove(ConstIterator pos)
 
     if (item)
     {
+        if (item->GetHeader().IsCtl())
+        {
+            SetMaxSize(GetMaxSize() - item);
+        }
         m_scheduler->NotifyRemove(m_ac, {item});
     }
 

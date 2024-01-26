@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,7 +21,8 @@
 #ifndef LTE_ENB_CPHY_SAP_H
 #define LTE_ENB_CPHY_SAP_H
 
-#include <ns3/lte-rrc-sap.h>
+#include "lte-rrc-sap.h"
+
 #include <ns3/ptr.h>
 
 #include <stdint.h>
@@ -42,24 +42,28 @@ class LteEnbCphySapProvider
 {
   public:
     /**
-     * destructor
+     * Destructor
      */
     virtual ~LteEnbCphySapProvider();
 
     /**
-     *
+     * Set cell ID
      *
      * \param cellId the Cell Identifier
      */
     virtual void SetCellId(uint16_t cellId) = 0;
 
     /**
+     * Set bandwidth
+     *
      * \param ulBandwidth the UL bandwidth in PRBs
      * \param dlBandwidth the DL bandwidth in PRBs
      */
     virtual void SetBandwidth(uint16_t ulBandwidth, uint16_t dlBandwidth) = 0;
 
     /**
+     * Set EARFCN
+     *
      * \param ulEarfcn the UL EARFCN
      * \param dlEarfcn the DL EARFCN
      */
@@ -88,30 +92,37 @@ class LteEnbCphySapProvider
     virtual void SetPa(uint16_t rnti, double pa) = 0;
 
     /**
+     * Set transmission mode
+     *
      * \param rnti the RNTI of the user
      * \param txMode the transmissionMode of the user
      */
     virtual void SetTransmissionMode(uint16_t rnti, uint8_t txMode) = 0;
 
     /**
+     * Set SRS configuration index
+     *
      * \param rnti the RNTI of the user
      * \param srsCi the SRS Configuration Index of the user
      */
     virtual void SetSrsConfigurationIndex(uint16_t rnti, uint16_t srsCi) = 0;
 
     /**
+     * Set master information block
      *
      * \param mib the Master Information Block to be sent on the BCH
      */
     virtual void SetMasterInformationBlock(LteRrcSap::MasterInformationBlock mib) = 0;
 
     /**
+     * Set system information block type 1
      *
      * \param sib1 the System Information Block Type 1 to be sent on the BCH
      */
     virtual void SetSystemInformationBlockType1(LteRrcSap::SystemInformationBlockType1 sib1) = 0;
 
     /**
+     * Get reference signal power
      *
      * \return Reference Signal Power for SIB2
      */
@@ -128,7 +139,7 @@ class LteEnbCphySapUser
 {
   public:
     /**
-     * destructor
+     * Destructor
      */
     virtual ~LteEnbCphySapUser();
 };
@@ -136,7 +147,6 @@ class LteEnbCphySapUser
 /**
  * Template for the implementation of the LteEnbCphySapProvider as a member
  * of an owner class of type C to which all methods are forwarded
- *
  */
 template <class C>
 class MemberLteEnbCphySapProvider : public LteEnbCphySapProvider
@@ -148,6 +158,9 @@ class MemberLteEnbCphySapProvider : public LteEnbCphySapProvider
      * \param owner the owner class
      */
     MemberLteEnbCphySapProvider(C* owner);
+
+    // Delete default constructor to avoid misuse
+    MemberLteEnbCphySapProvider() = delete;
 
     // inherited from LteEnbCphySapProvider
     void SetCellId(uint16_t cellId) override;
@@ -163,18 +176,12 @@ class MemberLteEnbCphySapProvider : public LteEnbCphySapProvider
     int8_t GetReferenceSignalPower() override;
 
   private:
-    MemberLteEnbCphySapProvider();
     C* m_owner; ///< the owner class
 };
 
 template <class C>
 MemberLteEnbCphySapProvider<C>::MemberLteEnbCphySapProvider(C* owner)
     : m_owner(owner)
-{
-}
-
-template <class C>
-MemberLteEnbCphySapProvider<C>::MemberLteEnbCphySapProvider()
 {
 }
 
@@ -259,7 +266,6 @@ MemberLteEnbCphySapProvider<C>::GetReferenceSignalPower()
 /**
  * Template for the implementation of the LteEnbCphySapUser as a member
  * of an owner class of type C to which all methods are forwarded
- *
  */
 template <class C>
 class MemberLteEnbCphySapUser : public LteEnbCphySapUser
@@ -272,21 +278,18 @@ class MemberLteEnbCphySapUser : public LteEnbCphySapUser
      */
     MemberLteEnbCphySapUser(C* owner);
 
+    // Delete default constructor to avoid misuse
+    MemberLteEnbCphySapUser() = delete;
+
     // methods inherited from LteEnbCphySapUser go here
 
   private:
-    MemberLteEnbCphySapUser();
     C* m_owner; ///< the owner class
 };
 
 template <class C>
 MemberLteEnbCphySapUser<C>::MemberLteEnbCphySapUser(C* owner)
     : m_owner(owner)
-{
-}
-
-template <class C>
-MemberLteEnbCphySapUser<C>::MemberLteEnbCphySapUser()
 {
 }
 

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -170,6 +169,10 @@ LenaTestTdMtFfMacSchedulerSuite::LenaTestTdMtFfMacSchedulerSuite()
     AddTestCase(new LenaTdMtFfMacSchedulerTestCase(1, 100000, 0, 0, errorModel), TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestTdMtFfMacSchedulerSuite lenaTestTdMtFfMacSchedulerSuite;
 
 // --------------- T E S T - C A S E ------------------------------
@@ -256,7 +259,7 @@ LenaTdMtFfMacSchedulerTestCase::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 

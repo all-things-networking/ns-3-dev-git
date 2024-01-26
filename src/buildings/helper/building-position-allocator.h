@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (C) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -163,7 +162,7 @@ class RandomRoomPositionAllocator : public PositionAllocator
 
   private:
     /**
-     * Room informations
+     * Room information
      */
     struct RoomInfo
     {

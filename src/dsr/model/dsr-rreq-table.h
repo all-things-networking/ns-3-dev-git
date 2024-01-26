@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -200,7 +199,7 @@ class DsrReceivedRreqEntry
 
     // \}
   private:
-    Ipv4Address m_destination; //!< IPv4 address of the destinaton
+    Ipv4Address m_destination; //!< IPv4 address of the destination
     Ipv4Address m_source;      //!< IPv4 address of the source
     uint16_t m_identification; //!< Route request identification
     Time m_expire;             //!< Route request expire time
@@ -342,15 +341,17 @@ class DsrRreqTable : public Object
     void Invalidate();
     /**
      * \brief Verify if entry is unidirectional or not(e.g. add this neighbor to "blacklist" for
-     * blacklistTimeout period) \param neighbor neighbor address link to which assumed to be
-     * unidirectional \return true on success
+     * blacklistTimeout period)
+     * \param neighbor neighbor address link to which assumed to be unidirectional
+     * \return true on success
      */
     BlackList* FindUnidirectional(Ipv4Address neighbor);
     /**
      * \brief Mark entry as unidirectional (e.g. add this neighbor to "blacklist" for
-     * blacklistTimeout period) \param neighbor - neighbor address link to which assumed to be
-     * unidirectional \param blacklistTimeout - time for which the neighboring node is put into the
-     * blacklist \return true on success
+     * blacklistTimeout period)
+     * \param neighbor neighbor address link to which assumed to be unidirectional
+     * \param blacklistTimeout time for which the neighboring node is put into the blacklist
+     * \return true on success
      */
     bool MarkLinkAsUnidirectional(Ipv4Address neighbor, Time blacklistTimeout);
     /**
@@ -407,7 +408,7 @@ class DsrRreqTable : public Object
          * \param b BlackList entry
          * \return true if expired, false otherwise
          */
-        bool operator()(const struct BlackList& b) const
+        bool operator()(const BlackList& b) const
         {
             return (b.m_expireTime < Simulator::Now());
         }

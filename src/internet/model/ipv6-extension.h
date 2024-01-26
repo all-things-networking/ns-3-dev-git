@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -21,12 +20,13 @@
 #ifndef IPV6_EXTENSION_H
 #define IPV6_EXTENSION_H
 
+#include "ipv6-extension-header.h"
+#include "ipv6-header.h"
 #include "ipv6-interface.h"
+#include "ipv6-l3-protocol.h"
 
 #include "ns3/buffer.h"
 #include "ns3/ipv6-address.h"
-#include "ns3/ipv6-header.h"
-#include "ns3/ipv6-l3-protocol.h"
 #include "ns3/node.h"
 #include "ns3/object.h"
 #include "ns3/packet.h"
@@ -306,7 +306,8 @@ class Ipv6ExtensionFragment : public Ipv6Extension
      * \param packet the packet.
      * \param ipv6Header the IPv6 header.
      * \param fragmentSize the maximal size of the fragment (unfragmentable part + fragmentation
-     * header + fragmentable part). \param listFragments the list of fragments.
+     * header + fragmentable part).
+     * \param listFragments the list of fragments.
      */
     void GetFragments(Ptr<Packet> packet,
                       Ipv6Header ipv6Header,
@@ -515,6 +516,13 @@ class Ipv6ExtensionRouting : public Ipv6Extension
      */
     virtual uint8_t GetTypeRouting() const;
 
+    /**
+     * \brief Get a pointer to a new routing extension header.
+     * The ownership is transferred to the caller.
+     * \return a pointer to a new routing extension header.
+     */
+    virtual Ipv6ExtensionRoutingHeader* GetExtensionRoutingHeaderPtr();
+
     uint8_t Process(Ptr<Packet>& packet,
                     uint8_t offset,
                     const Ipv6Header& ipv6Header,
@@ -567,6 +575,14 @@ class Ipv6ExtensionRoutingDemux : public Object
      * \return a matching IPv6 routing extension
      */
     Ptr<Ipv6ExtensionRouting> GetExtensionRouting(uint8_t typeRouting);
+
+    /**
+     * \brief Get a pointer to a new routing extension header corresponding
+     * to typeRouting. The ownership is transferred to the caller.
+     * \param typeRouting the number of the routing extension to retrieve
+     * \return a pointer to a new routing extension header matching IPv6 routing extension
+     */
+    Ipv6ExtensionRoutingHeader* GetExtensionRoutingHeaderPtr(uint8_t typeRouting);
 
     /**
      * \brief Remove a routing extension from this demux.
@@ -631,6 +647,8 @@ class Ipv6ExtensionLooseRouting : public Ipv6ExtensionRouting
      * \return type of routing
      */
     uint8_t GetTypeRouting() const override;
+
+    Ipv6ExtensionRoutingHeader* GetExtensionRoutingHeaderPtr() override;
 
     uint8_t Process(Ptr<Packet>& packet,
                     uint8_t offset,

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -55,7 +54,7 @@ NS_OBJECT_ENSURE_REGISTERED(SubscriberStationNetDevice);
 Time
 SubscriberStationNetDevice::GetDefaultLostDlMapInterval()
 {
-    return (MicroSeconds(500000));
+    return MicroSeconds(500000);
 }
 
 TypeId
@@ -582,7 +581,7 @@ SubscriberStationNetDevice::SetScheduler(Ptr<SSScheduler> scheduler)
 bool
 SubscriberStationNetDevice::HasServiceFlows() const
 {
-    return GetServiceFlowManager()->GetServiceFlows(ServiceFlow::SF_TYPE_ALL).size() > 0;
+    return !GetServiceFlowManager()->GetServiceFlows(ServiceFlow::SF_TYPE_ALL).empty();
 }
 
 Ptr<IpcsClassifier>
@@ -641,13 +640,13 @@ SubscriberStationNetDevice::Stop()
 }
 
 void
-SubscriberStationNetDevice::AddServiceFlow(ServiceFlow sf)
+SubscriberStationNetDevice::AddServiceFlow(ServiceFlow sf) const
 {
     GetServiceFlowManager()->AddServiceFlow(sf);
 }
 
 void
-SubscriberStationNetDevice::AddServiceFlow(ServiceFlow* sf)
+SubscriberStationNetDevice::AddServiceFlow(ServiceFlow* sf) const
 {
     GetServiceFlowManager()->AddServiceFlow(sf);
 }
@@ -673,7 +672,7 @@ SubscriberStationNetDevice::DoSend(Ptr<Packet> packet,
     else
     {
         NS_LOG_DEBUG("SS (" << GetMacAddress() << ")");
-        NS_LOG_INFO("\tCan't send packet! (NotRegitered with the network)");
+        NS_LOG_INFO("\tCan't send packet! (NotRegistered with the network)");
         return false;
     }
 
@@ -743,10 +742,10 @@ SubscriberStationNetDevice::Enqueue(Ptr<Packet> packet,
         if (connection->GetSchedulingType() == ServiceFlow::SF_TYPE_UGS && m_scheduler->GetPollMe())
         {
             NS_ASSERT_MSG(hdrType.GetType() != MacHeaderType::HEADER_TYPE_BANDWIDTH,
-                          "Error while equeuing  packet: incorrect header type");
+                          "Error while enqueuing  packet: incorrect header type");
 
             GrantManagementSubheader grantMgmntSubhdr;
-            grantMgmntSubhdr.SetPm(true);
+            grantMgmntSubhdr.SetPm(1);
             packet->AddHeader(grantMgmntSubhdr);
         }
     }
@@ -820,7 +819,7 @@ SubscriberStationNetDevice::DoReceive(Ptr<Packet> packet)
 
     if (gnrcMacHdr.GetHt() == MacHeaderType::HEADER_TYPE_GENERIC)
     {
-        if (gnrcMacHdr.check_hcs() == false)
+        if (!gnrcMacHdr.check_hcs())
         {
             // The header is noisy
             NS_LOG_INFO("Header HCS ERROR");
@@ -1090,9 +1089,7 @@ SubscriberStationNetDevice::DoReceive(Ptr<Packet> packet)
 
                     // DEFRAGMENTATION
                     NS_LOG_INFO("\t SS PACKET DEFRAGMENTATION" << std::endl);
-                    for (std::list<Ptr<const Packet>>::const_iterator iter = fragmentsQueue.begin();
-                         iter != fragmentsQueue.end();
-                         ++iter)
+                    for (auto iter = fragmentsQueue.begin(); iter != fragmentsQueue.end(); ++iter)
                     {
                         // Create the whole Packet
                         fullPacket->AddAtEnd(*iter);
@@ -1147,8 +1144,7 @@ SubscriberStationNetDevice::ProcessDlMap(const DlMap& dlmap)
     m_baseStationId = dlmap.GetBaseStationId();
     std::list<OfdmDlMapIe> dlMapElements = dlmap.GetDlMapElements();
 
-    for (std::list<OfdmDlMapIe>::iterator iter = dlMapElements.begin(); iter != dlMapElements.end();
-         ++iter)
+    for (auto iter = dlMapElements.begin(); iter != dlMapElements.end(); ++iter)
     {
         if (iter->GetDiuc() == OfdmDlBurstProfile::DIUC_END_OF_MAP)
         {
@@ -1181,8 +1177,7 @@ SubscriberStationNetDevice::ProcessUlMap(const UlMap& ulmap)
     std::list<OfdmUlMapIe> ulMapElements = ulmap.GetUlMapElements();
     m_linkManager->SetRangingIntervalFound(false);
 
-    for (std::list<OfdmUlMapIe>::iterator iter = ulMapElements.begin(); iter != ulMapElements.end();
-         ++iter)
+    for (auto iter = ulMapElements.begin(); iter != ulMapElements.end(); ++iter)
     {
         OfdmUlMapIe ulMapIe = *iter;
 
@@ -1283,9 +1278,7 @@ SubscriberStationNetDevice::ProcessDcd(const Dcd& dcd)
 
     std::vector<OfdmDlBurstProfile> dlBurstProfiles = dcd.GetDlBurstProfiles();
 
-    for (std::vector<OfdmDlBurstProfile>::iterator iter = dlBurstProfiles.begin();
-         iter != dlBurstProfiles.end();
-         ++iter)
+    for (auto iter = dlBurstProfiles.begin(); iter != dlBurstProfiles.end(); ++iter)
     {
         OfdmDlBurstProfile brstProfile = *iter;
 
@@ -1314,15 +1307,13 @@ SubscriberStationNetDevice::ProcessUcd(const Ucd& ucd)
         return; // nothing new in UCD so don't read
     }
     SetCurrentUcd(ucd);
-    m_linkManager->SetRangingCW((uint8_t)std::pow((double)2, (double)ucd.GetRangingBackoffStart()) -
+    m_linkManager->SetRangingCW((uint8_t)std::pow(2.0, (double)ucd.GetRangingBackoffStart()) -
                                 1); // initializing ranging CW
     OfdmUcdChannelEncodings ucdChnlEncodings = ucd.GetChannelEncodings();
 
     std::vector<OfdmUlBurstProfile> ulBurstProfiles = ucd.GetUlBurstProfiles();
 
-    for (std::vector<OfdmUlBurstProfile>::iterator iter = ulBurstProfiles.begin();
-         iter != ulBurstProfiles.end();
-         ++iter)
+    for (auto iter = ulBurstProfiles.begin(); iter != ulBurstProfiles.end(); ++iter)
     {
         OfdmUlBurstProfile brstProfile = *iter;
 

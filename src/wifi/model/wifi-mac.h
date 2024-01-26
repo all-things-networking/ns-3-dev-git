@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -23,10 +22,13 @@
 
 #include "qos-utils.h"
 #include "ssid.h"
+#include "wifi-mac-queue-scheduler.h"
 #include "wifi-remote-station-manager.h"
 #include "wifi-standards.h"
 
+#include <functional>
 #include <list>
+#include <map>
 #include <memory>
 #include <optional>
 #include <set>
@@ -51,10 +53,12 @@ class EhtConfiguration;
 class FrameExchangeManager;
 class ChannelAccessManager;
 class ExtendedCapabilities;
-class WifiMacQueueScheduler;
+class OriginatorBlockAckAgreement;
+class RecipientBlockAckAgreement;
 
 /**
- * Enumeration for type of station
+ * \ingroup wifi
+ * Enumeration for type of WiFi station
  */
 enum TypeOfStation
 {
@@ -67,7 +71,6 @@ enum TypeOfStation
 
 /**
  * \ingroup wifi
- * \enum WifiMacDropReason
  * \brief The reason why an MPDU was dropped
  */
 enum WifiMacDropReason : uint8_t
@@ -140,6 +143,12 @@ class WifiMac : public Object
      * \return the number of links used by this MAC
      */
     uint8_t GetNLinks() const;
+
+    /**
+     * \return the set of link IDs in use by this device
+     */
+    const std::set<uint8_t>& GetLinkIds() const;
+
     /**
      * Get the ID of the link having the given MAC address, if any.
      *
@@ -147,6 +156,45 @@ class WifiMac : public Object
      * \return the ID of the link having the given MAC address, if any
      */
     virtual std::optional<uint8_t> GetLinkIdByAddress(const Mac48Address& address) const;
+
+    /**
+     * Get the ID of the link (if any) on which the given PHY is operating.
+     *
+     * \param phy the given PHY
+     * \return the ID of the link (if any) on which the given PHY is operating
+     */
+    std::optional<uint8_t> GetLinkForPhy(Ptr<const WifiPhy> phy) const;
+
+    /**
+     * Get the ID of the link (if any) on which the given PHY is operating.
+     *
+     * \param phyId the index of the given PHY in the vector of PHYs held by WifiNetDevice
+     * \return the ID of the link (if any) on which the given PHY is operating
+     */
+    std::optional<uint8_t> GetLinkForPhy(std::size_t phyId) const;
+
+    /**
+     * \param remoteAddr the (MLD or link) address of a remote device
+     * \return the MLD address of the remote device having the given (MLD or link) address, if
+     *         the remote device is an MLD.
+     */
+    std::optional<Mac48Address> GetMldAddress(const Mac48Address& remoteAddr) const;
+
+    /**
+     * Get the local MAC address used to communicate with a remote STA. Specifically:
+     * - If the given remote address is the address of a STA affiliated with a remote MLD
+     * and operating on a setup link, the address of the local STA operating on such a link
+     * is returned.
+     * - If the given remote address is the MLD address of a remote MLD (with which some link
+     * has been setup), the MLD address of this device is returned.
+     * - If this is a single link device, the unique MAC address of this device is returned.
+     * - Otherwise, return the MAC address of the affiliated STA (which must exists) that
+     * can be used to communicate with the remote device.
+     *
+     * \param remoteAddr the MAC address of the remote device
+     * \return the local MAC address used to communicate with the remote device
+     */
+    Mac48Address GetLocalAddress(const Mac48Address& remoteAddr) const;
 
     /**
      * Accessor for the Txop object
@@ -177,6 +225,13 @@ class WifiMac : public Object
      *         if such (Qos)Txop is installed, or a null pointer, otherwise
      */
     virtual Ptr<WifiMacQueue> GetTxopQueue(AcIndex ac) const;
+
+    /**
+     * Check if the MAC has frames to transmit over the given link
+     * \param linkId the ID of the given link.
+     * \return whether the MAC has frames to transmit.
+     */
+    virtual bool HasFramesToTransmit(uint8_t linkId);
 
     /**
      * Set the wifi MAC queue scheduler
@@ -250,6 +305,32 @@ class WifiMac : public Object
     void SetBssid(Mac48Address bssid, uint8_t linkId);
 
     /**
+     * Block the transmission on the given links of all unicast frames addressed to
+     * the station with the given address for the given reason. The given MAC address
+     * must be the MLD address in case the addressed device is multi-link.
+     *
+     * \param reason the reason for blocking transmissions
+     * \param address the MAC address of the given device
+     * \param linkIds the IDs of the links to block
+     */
+    void BlockUnicastTxOnLinks(WifiQueueBlockedReason reason,
+                               const Mac48Address& address,
+                               const std::set<uint8_t>& linkIds);
+
+    /**
+     * Unblock the transmission on the given links of all unicast frames addressed to
+     * the station with the given address for the given reason. The given MAC address
+     * must be the MLD address in case the addressed device is multi-link.
+     *
+     * \param reason the reason for unblocking transmissions
+     * \param address the MAC address of the given device
+     * \param linkIds the IDs of the links to unblock
+     */
+    void UnblockUnicastTxOnLinks(WifiQueueBlockedReason reason,
+                                 const Mac48Address& address,
+                                 const std::set<uint8_t>& linkIds);
+
+    /**
      * Return true if packets can be forwarded to the given destination,
      * false otherwise.
      *
@@ -311,8 +392,9 @@ class WifiMac : public Object
     void SetWifiRemoteStationManagers(
         const std::vector<Ptr<WifiRemoteStationManager>>& stationManagers);
     /**
-     * \param linkId the ID (starting at 0) of the link of the RemoteStationManager object to
-     * retrieve \return the remote station manager operating on the given link
+     * \param linkId the ID (starting at 0) of the link of the RemoteStationManager object
+     * to retrieve
+     * \return the remote station manager operating on the given link
      */
     Ptr<WifiRemoteStationManager> GetWifiRemoteStationManager(uint8_t linkId = 0) const;
 
@@ -494,6 +576,27 @@ class WifiMac : public Object
     bool GetEhtSupported() const;
 
     /**
+     * \param address the (link or MLD) address of a remote station
+     * \return true if the remote station with the given address supports HT
+     */
+    bool GetHtSupported(const Mac48Address& address) const;
+    /**
+     * \param address the (link or MLD) address of a remote station
+     * \return true if the remote station with the given address supports VHT
+     */
+    bool GetVhtSupported(const Mac48Address& address) const;
+    /**
+     * \param address the (link or MLD) address of a remote station
+     * \return true if the remote station with the given address supports HE
+     */
+    bool GetHeSupported(const Mac48Address& address) const;
+    /**
+     * \param address the (link or MLD) address of a remote station
+     * \return true if the remote station with the given address supports EHT
+     */
+    bool GetEhtSupported(const Mac48Address& address) const;
+
+    /**
      * Return the maximum A-MPDU size of the given Access Category.
      *
      * \param ac Access Category index
@@ -507,6 +610,122 @@ class WifiMac : public Object
      * \return the maximum A-MSDU size
      */
     uint16_t GetMaxAmsduSize(AcIndex ac) const;
+
+    /// optional const reference to OriginatorBlockAckAgreement
+    using OriginatorAgreementOptConstRef =
+        std::optional<std::reference_wrapper<const OriginatorBlockAckAgreement>>;
+    /// optional const reference to RecipientBlockAckAgreement
+    using RecipientAgreementOptConstRef =
+        std::optional<std::reference_wrapper<const RecipientBlockAckAgreement>>;
+
+    /**
+     * \param recipient (link or device) MAC address of the recipient
+     * \param tid traffic ID.
+     *
+     * \return the originator block ack agreement, if one has been established
+     *
+     * Checks if an originator block ack agreement is established with station addressed by
+     * <i>recipient</i> for TID <i>tid</i>.
+     */
+    OriginatorAgreementOptConstRef GetBaAgreementEstablishedAsOriginator(Mac48Address recipient,
+                                                                         uint8_t tid) const;
+    /**
+     * \param originator (link or device) MAC address of the originator
+     * \param tid traffic ID.
+     *
+     * \return the recipient block ack agreement, if one has been established
+     *
+     * Checks if a recipient block ack agreement is established with station addressed by
+     * <i>originator</i> for TID <i>tid</i>.
+     */
+    RecipientAgreementOptConstRef GetBaAgreementEstablishedAsRecipient(Mac48Address originator,
+                                                                       uint8_t tid) const;
+
+    /**
+     * \param recipient MAC address
+     * \param tid traffic ID
+     *
+     * \return the type of Block Acks sent by the recipient
+     *
+     * This function returns the type of Block Acks sent by the recipient.
+     */
+    BlockAckType GetBaTypeAsOriginator(const Mac48Address& recipient, uint8_t tid) const;
+    /**
+     * \param recipient MAC address of recipient
+     * \param tid traffic ID
+     *
+     * \return the type of Block Ack Requests sent to the recipient
+     *
+     * This function returns the type of Block Ack Requests sent to the recipient.
+     */
+    BlockAckReqType GetBarTypeAsOriginator(const Mac48Address& recipient, uint8_t tid) const;
+    /**
+     * \param originator MAC address of originator
+     * \param tid traffic ID
+     *
+     * \return the type of Block Acks sent to the originator
+     *
+     * This function returns the type of Block Acks sent to the originator.
+     */
+    BlockAckType GetBaTypeAsRecipient(Mac48Address originator, uint8_t tid) const;
+    /**
+     * \param originator MAC address of originator
+     * \param tid traffic ID
+     *
+     * \return the type of Block Ack Requests sent by the originator
+     *
+     * This function returns the type of Block Ack Requests sent by the originator.
+     */
+    BlockAckReqType GetBarTypeAsRecipient(Mac48Address originator, uint8_t tid) const;
+
+    /**
+     * Get the maximum Block Ack buffer size (in number of MPDUs) supported by the given device,
+     * if any, or by this device, otherwise, based on the supported standard.
+     *
+     * \param address the (MLD or link) address of the given device
+     * \return the maximum supported Block Ack buffer size (in number of MPDUs)
+     */
+    uint16_t GetMaxBaBufferSize(std::optional<Mac48Address> address = std::nullopt) const;
+
+    /**
+     * \param size the size (in number of MPDUs) of the buffer used for each BlockAck
+     *             agreement in which this node is a recipient
+     */
+    void SetMpduBufferSize(uint16_t size);
+
+    /**
+     * \return the size (in number of MPDUs) of the buffer used for each BlockAck
+     *             agreement in which this node is a recipient
+     */
+    uint16_t GetMpduBufferSize() const;
+
+    /**
+     * Get the TID-to-Link Mapping negotiated with the given MLD (if any) for the given direction.
+     * An empty mapping indicates the default mapping.
+     *
+     * \param mldAddr the MLD address of the given MLD
+     * \param dir the given direction (DL or UL)
+     * \return the negotiated TID-to-Link Mapping
+     */
+    std::optional<std::reference_wrapper<const WifiTidLinkMapping>> GetTidToLinkMapping(
+        Mac48Address mldAddr,
+        WifiDirection dir) const;
+
+    /**
+     * Check whether the given TID is mapped on the given link in the given direction for the
+     * given MLD.
+     *
+     * \param mldAddr the MLD address of the given MLD
+     * \param dir the given direction (DL or UL)
+     * \param tid the given TID
+     * \param linkId the ID of the given link
+     * \return whether the given TID is mapped on the given link in the given direction for the
+     *         given MLD
+     */
+    bool TidMappedOnLink(Mac48Address mldAddr,
+                         WifiDirection dir,
+                         uint8_t tid,
+                         uint8_t linkId) const;
 
   protected:
     void DoInitialize() override;
@@ -606,6 +825,25 @@ class WifiMac : public Object
     virtual void DeaggregateAmsduAndForward(Ptr<const WifiMpdu> mpdu);
 
     /**
+     * Apply the TID-to-Link Mapping negotiated with the given MLD for the given direction
+     * by properly configuring the queue scheduler.
+     *
+     * \param mldAddr the MLD MAC address of the given MLD
+     * \param dir the given direction (DL or UL)
+     */
+    void ApplyTidLinkMapping(const Mac48Address& mldAddr, WifiDirection dir);
+
+    /**
+     * Swap the links based on the information included in the given map. This method
+     * is normally called by a non-AP MLD upon completing ML setup to have its link IDs
+     * match AP MLD's link IDs.
+     *
+     * \param links a set of pairs (from, to) each mapping a current link ID to the
+     *              link ID it has to become (i.e., link 'from' becomes link 'to')
+     */
+    void SwapLinks(std::map<uint8_t, uint8_t> links);
+
+    /**
      * Structure holding information specific to a single link. Here, the meaning of
      * "link" is that of the 11be amendment which introduced multi-link devices. For
      * previous amendments, only one link can be created. Therefore, "link" has not
@@ -617,7 +855,6 @@ class WifiMac : public Object
         /// Destructor (a virtual method is needed to make this struct polymorphic)
         virtual ~LinkEntity();
 
-        uint8_t id;                                     //!< Link ID (starting at 0)
         Ptr<WifiPhy> phy;                               //!< Wifi PHY object
         Ptr<ChannelAccessManager> channelAccessManager; //!< channel access manager object
         Ptr<FrameExchangeManager> feManager;            //!< Frame Exchange Manager object
@@ -628,12 +865,29 @@ class WifiMac : public Object
     };
 
     /**
+     * \return a const reference to the map of link entities
+     */
+    const std::map<uint8_t, std::unique_ptr<LinkEntity>>& GetLinks() const;
+
+    /**
      * Get a reference to the link associated with the given ID.
      *
      * \param linkId the given link ID
      * \return a reference to the link associated with the given ID
      */
     LinkEntity& GetLink(uint8_t linkId) const;
+
+    /**
+     * Update the TID-to-Link Mappings for the given MLD in the given direction based on the
+     * given negotiated mappings. An empty mapping indicates the default mapping.
+     *
+     * \param mldAddr the MLD address of the given MLD
+     * \param dir the given direction (DL or UL)
+     * \param mapping the negotiated TID-to-Link Mapping
+     */
+    void UpdateTidToLinkMapping(const Mac48Address& mldAddr,
+                                WifiDirection dir,
+                                const WifiTidLinkMapping& mapping);
 
     Ptr<MacRxMiddle> m_rxMiddle; //!< RX middle (defragmentation etc.)
     Ptr<MacTxMiddle> m_txMiddle; //!< TX middle (aggregation etc.)
@@ -689,6 +943,26 @@ class WifiMac : public Object
      * \return a unique pointer to the created LinkEntity object
      */
     virtual std::unique_ptr<LinkEntity> CreateLinkEntity() const;
+
+    /**
+     * This method is intended to be called when a link changes ID in order to update the
+     * link ID stored by the Frame Exchange Manager and the Channel Access Manager operating
+     * on that link.
+     *
+     * \param id the (new) ID of the link that has changed ID
+     */
+    void UpdateLinkId(uint8_t id);
+
+    /**
+     * This method is called if this device is an MLD to determine the MAC address of
+     * the affiliated STA used to communicate with the single link device having the
+     * given MAC address. This method is overridden because its implementation depends
+     * on the type of station.
+     *
+     * \param remoteAddr the MAC address of the remote single link device
+     * \return the MAC address of the affiliated STA used to communicate with the remote device
+     */
+    virtual Mac48Address DoGetLocalAddress(const Mac48Address& remoteAddr) const;
 
     /**
      * Enable or disable ERP support for the given link.
@@ -775,8 +1049,9 @@ class WifiMac : public Object
 
     TypeOfStation m_typeOfStation; //!< the type of station
 
-    Ptr<WifiNetDevice> m_device;                      //!< Pointer to the device
-    std::vector<std::unique_ptr<LinkEntity>> m_links; //!< vector of Link objects
+    Ptr<WifiNetDevice> m_device;                            //!< Pointer to the device
+    std::map<uint8_t, std::unique_ptr<LinkEntity>> m_links; //!< ID-indexed map of Link objects
+    std::set<uint8_t> m_linkIds;                            //!< IDs of the links in use
 
     Mac48Address m_address; //!< MAC address of this station
     Ssid m_ssid;            //!< Service Set ID (SSID)
@@ -784,7 +1059,7 @@ class WifiMac : public Object
     /** This type defines a mapping between an Access Category index,
     and a pointer to the corresponding channel access function.
     Access Categories are sorted in decreasing order of priority. */
-    typedef std::map<AcIndex, Ptr<QosTxop>, std::greater<AcIndex>> EdcaQueues;
+    typedef std::map<AcIndex, Ptr<QosTxop>, std::greater<>> EdcaQueues;
 
     /** This is a map from Access Category index to the corresponding
     channel access function */
@@ -799,6 +1074,13 @@ class WifiMac : public Object
     uint32_t m_viMaxAmpduSize; ///< maximum A-MPDU size for AC_VI (in bytes)
     uint32_t m_beMaxAmpduSize; ///< maximum A-MPDU size for AC_BE (in bytes)
     uint32_t m_bkMaxAmpduSize; ///< maximum A-MPDU size for AC_BK (in bytes)
+
+    uint16_t m_mpduBufferSize; //!< BlockAck buffer size (in number of MPDUs)
+
+    /// @brief DL TID-to-Link Mapping negotiated with an MLD (identified by its MLD address)
+    std::unordered_map<Mac48Address, WifiTidLinkMapping, WifiAddressHash> m_dlTidLinkMappings;
+    /// @brief UL TID-to-Link Mapping negotiated with an MLD (identified by its MLD address)
+    std::unordered_map<Mac48Address, WifiTidLinkMapping, WifiAddressHash> m_ulTidLinkMappings;
 
     ForwardUpCallback m_forwardUp; //!< Callback to forward packet up the stack
 
@@ -839,9 +1121,6 @@ class WifiMac : public Object
      * \see class CallBackTraceSource
      */
     TracedCallback<Ptr<const Packet>> m_macRxDropTrace;
-
-    TracedCallback<const WifiMacHeader&> m_txOkCallback;  ///< transmit OK callback
-    TracedCallback<const WifiMacHeader&> m_txErrCallback; ///< transmit error callback
 
     /**
      * TracedCallback signature for MPDU drop events.

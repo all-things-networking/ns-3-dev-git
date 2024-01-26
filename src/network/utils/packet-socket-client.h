@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze
  *
@@ -21,9 +20,10 @@
 #ifndef PACKET_SOCKET_CLIENT_H
 #define PACKET_SOCKET_CLIENT_H
 
+#include "packet-socket-address.h"
+
 #include "ns3/application.h"
 #include "ns3/event-id.h"
-#include "ns3/packet-socket-address.h"
 #include "ns3/ptr.h"
 #include "ns3/traced-callback.h"
 
@@ -91,6 +91,11 @@ class PacketSocketClient : public Application
 
     /**
      * \brief Send a packet
+     *
+     * Either <i>Interval</i> and <i>MaxPackets</i> may be zero, but not both.  If <i>Interval</i>
+     * is zero, the PacketSocketClient will send <i>MaxPackets</i> packets without any delay into
+     * the socket.  If <i>MaxPackets</i> is zero, then the PacketSocketClient will send every
+     * <i>Interval</i> until the application is stopped.
      */
     void Send();
 

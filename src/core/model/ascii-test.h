@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington
  *
@@ -24,8 +23,7 @@
 #define ASCII_TEST_H
 
 #include "ascii-file.h"
-
-#include "ns3/test.h"
+#include "test.h"
 
 #include <stdint.h>
 

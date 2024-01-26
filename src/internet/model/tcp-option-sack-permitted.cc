@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
@@ -25,7 +24,6 @@
 #include "tcp-option-sack-permitted.h"
 
 #include "ns3/log.h"
-#include "ns3/tcp-header.h"
 
 namespace ns3
 {

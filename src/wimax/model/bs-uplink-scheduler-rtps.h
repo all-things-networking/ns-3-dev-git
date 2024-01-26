@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -119,7 +118,7 @@ class UplinkSchedulerRtps : public UplinkScheduler
      * \param availableSymbols the available symbols
      */
     void ServiceUnsolicitedGrants(const SSRecord* ssRecord,
-                                  enum ServiceFlow::SchedulingType schedulingType,
+                                  ServiceFlow::SchedulingType schedulingType,
                                   OfdmUlMapIe& ulMapIe,
                                   const WimaxPhy::ModulationType modulationType,
                                   uint32_t& symbolsToAllocation,
@@ -134,7 +133,7 @@ class UplinkSchedulerRtps : public UplinkScheduler
      * \param availableSymbols the available symbols
      */
     void ServiceBandwidthRequests(const SSRecord* ssRecord,
-                                  enum ServiceFlow::SchedulingType schedulingType,
+                                  ServiceFlow::SchedulingType schedulingType,
                                   OfdmUlMapIe& ulMapIe,
                                   const WimaxPhy::ModulationType modulationType,
                                   uint32_t& symbolsToAllocation,
@@ -150,7 +149,7 @@ class UplinkSchedulerRtps : public UplinkScheduler
      * \returns true if successful
      */
     bool ServiceBandwidthRequests(ServiceFlow* serviceFlow,
-                                  enum ServiceFlow::SchedulingType schedulingType,
+                                  ServiceFlow::SchedulingType schedulingType,
                                   OfdmUlMapIe& ulMapIe,
                                   const WimaxPhy::ModulationType modulationType,
                                   uint32_t& symbolsToAllocation,
@@ -189,7 +188,7 @@ class UplinkSchedulerRtps : public UplinkScheduler
     void SetupServiceFlow(SSRecord* ssRecord, ServiceFlow* serviceFlow) override;
 
     /**
-     * Process bandwidth requet function
+     * Process bandwidth request function
      * \param bwRequestHdr the bandwidth request header
      */
     void ProcessBandwidthRequest(const BandwidthRequestHeader& bwRequestHdr) override;

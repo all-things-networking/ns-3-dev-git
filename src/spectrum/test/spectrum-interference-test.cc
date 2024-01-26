@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -45,7 +44,7 @@ class SpectrumInterferenceTestCase : public TestCase
      * Constructor
      * \param s Spectrum value
      * \param txBytes number of bytes to transmit
-     * \param rxCorrect extected Rx bytes
+     * \param rxCorrect expected Rx bytes
      * \param name test name
      */
     SpectrumInterferenceTestCase(Ptr<SpectrumValue> s,
@@ -63,7 +62,7 @@ class SpectrumInterferenceTestCase : public TestCase
   private:
     Ptr<SpectrumValue> m_s;                     //!< Spectrum value
     uint32_t m_txBytes;                         //!< number of bytes to transmit
-    uint32_t m_rxCorrectKnownOutcome;           //!< extected Rx bytes
+    bool m_rxCorrectKnownOutcome;               //!< expected Rx bytes
     Ptr<const SpectrumModel> m_mySpectrumModel; //!< Spectrum model pointer
 };
 
@@ -160,7 +159,7 @@ SpectrumInterferenceTestSuite::SpectrumInterferenceTestSuite()
     Ptr<const SpectrumModel> m;
 
     Bands bands;
-    struct BandInfo bi;
+    BandInfo bi;
 
     bi.fl = 2.400e9;
     bi.fc = 2.410e9;

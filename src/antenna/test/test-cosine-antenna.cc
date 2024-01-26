@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -67,7 +66,7 @@ class CosineAntennaModelTestCase : public TestCase
      * \param b Horizontal and Vertical Beamwidth
      * \param o Orientation
      * \param g MaxGain
-     * \param expectedGainDb Expeted antenna gain
+     * \param expectedGainDb Expected antenna gain
      * \param cond Test condition
      */
     CosineAntennaModelTestCase(Angles a,
@@ -722,7 +721,7 @@ CosineAntennaModelTestSuite::CosineAntennaModelTestSuite()
                                                -7,
                                                EQUAL),
                 TestCase::QUICK);
-};
+}
 
 /// Static variable for test initialization
 static CosineAntennaModelTestSuite g_staticCosineAntennaModelTestSuiteInstance;

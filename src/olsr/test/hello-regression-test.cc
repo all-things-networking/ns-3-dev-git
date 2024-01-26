@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -140,8 +139,7 @@ HelloRegressionTest::ReceivePktProbeA(Ptr<Socket> socket)
                               "One Link message on the second and third Hello.");
     }
 
-    std::vector<olsr::MessageHeader::Hello::LinkMessage>::const_iterator iter;
-    for (iter = hello.linkMessages.begin(); iter != hello.linkMessages.end(); iter++)
+    for (auto iter = hello.linkMessages.begin(); iter != hello.linkMessages.end(); iter++)
     {
         if (m_countA == 1)
         {
@@ -194,8 +192,7 @@ HelloRegressionTest::ReceivePktProbeB(Ptr<Socket> socket)
                               "One Link message on the second and third Hello.");
     }
 
-    std::vector<olsr::MessageHeader::Hello::LinkMessage>::const_iterator iter;
-    for (iter = hello.linkMessages.begin(); iter != hello.linkMessages.end(); iter++)
+    for (auto iter = hello.linkMessages.begin(); iter != hello.linkMessages.end(); iter++)
     {
         if (m_countA == 1)
         {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2004 Francisco J. Ros
  * Copyright (c) 2007 INESC Porto
@@ -23,7 +22,7 @@
 ///
 /// \brief Implementation of OLSR agent and related classes.
 ///
-/// This is the main file of this software because %OLSR's behaviour is
+/// This is the main file of this software because OLSR's behaviour is
 /// implemented here.
 ///
 
@@ -34,6 +33,8 @@
     }
 
 #include "olsr-routing-protocol.h"
+
+#include "olsr-repositories.h"
 
 #include "ns3/boolean.h"
 #include "ns3/enum.h"
@@ -52,6 +53,7 @@
 #include "ns3/uinteger.h"
 
 #include <iomanip>
+#include <iostream>
 
 /********** Useful macros **********/
 
@@ -85,39 +87,6 @@
 /// HNA holding time.
 #define OLSR_HNA_HOLD_TIME Time(3 * m_hnaInterval)
 
-/********** Link types **********/
-
-/// Unspecified link type.
-#define OLSR_UNSPEC_LINK 0
-/// Asymmetric link type.
-#define OLSR_ASYM_LINK 1
-/// Symmetric link type.
-#define OLSR_SYM_LINK 2
-/// Lost link type.
-#define OLSR_LOST_LINK 3
-
-/********** Neighbor types **********/
-
-/// Not neighbor type.
-#define OLSR_NOT_NEIGH 0
-/// Symmetric neighbor type.
-#define OLSR_SYM_NEIGH 1
-/// Asymmetric neighbor type.
-#define OLSR_MPR_NEIGH 2
-
-/********** Willingness **********/
-
-/// Willingness for forwarding packets from other nodes: never.
-#define OLSR_WILL_NEVER 0
-/// Willingness for forwarding packets from other nodes: low.
-#define OLSR_WILL_LOW 1
-/// Willingness for forwarding packets from other nodes: medium.
-#define OLSR_WILL_DEFAULT 3
-/// Willingness for forwarding packets from other nodes: high.
-#define OLSR_WILL_HIGH 6
-/// Willingness for forwarding packets from other nodes: always.
-#define OLSR_WILL_ALWAYS 7
-
 /********** Miscellaneous constants **********/
 
 /// Maximum allowed jitter.
@@ -143,6 +112,81 @@ NS_LOG_COMPONENT_DEFINE("OlsrRoutingProtocol");
 
 namespace olsr
 {
+
+/**
+ * \ingroup olsr
+ *
+ * OLSR link types.
+ * See \RFC{3626} section 18.5.
+ */
+enum class LinkType : uint8_t
+{
+    UNSPEC_LINK = 0, //!< Unspecified link type
+    ASYM_LINK = 1,   //!< Asymmetric link type
+    SYM_LINK = 2,    //!< Symmetric link type
+    LOST_LINK = 3,   //!< Lost link type
+};
+
+/**
+ * Stream insertion operator for OLSR link type.
+ *
+ * \param os Output stream.
+ * \param linkType OLSR link type.
+ * \return A reference to the output stream.
+ */
+inline std::ostream&
+operator<<(std::ostream& os, LinkType linkType)
+{
+    switch (linkType)
+    {
+    case LinkType::UNSPEC_LINK:
+        return (os << "UNSPEC_LINK");
+    case LinkType::ASYM_LINK:
+        return (os << "ASYM_LINK");
+    case LinkType::SYM_LINK:
+        return (os << "SYM_LINK");
+    case LinkType::LOST_LINK:
+        return (os << "LOST_LINK");
+    default:
+        return (os << "Unknown link type");
+    }
+}
+
+/**
+ * \ingroup olsr
+ *
+ * OLSR neighbor types.
+ * See \RFC{3626} section 18.6.
+ */
+enum class NeighborType : uint8_t
+{
+    NOT_NEIGH = 0, //!< Not neighbor type
+    SYM_NEIGH = 1, //!< Symmetric neighbor type
+    MPR_NEIGH = 2, //!< Asymmetric neighbor type
+};
+
+/**
+ * Stream insertion operator for OLSR link type.
+ *
+ * \param os Output stream.
+ * \param neighborType OLSR neighbor type.
+ * \return A reference to the output stream.
+ */
+inline std::ostream&
+operator<<(std::ostream& os, NeighborType neighborType)
+{
+    switch (neighborType)
+    {
+    case NeighborType::NOT_NEIGH:
+        return (os << "NOT_NEIGH");
+    case NeighborType::SYM_NEIGH:
+        return (os << "SYM_NEIGH");
+    case NeighborType::MPR_NEIGH:
+        return (os << "MPR_NEIGH");
+    default:
+        return (os << "Unknown neighbor type");
+    }
+}
 
 /********** OLSR class **********/
 
@@ -181,17 +225,17 @@ RoutingProtocol::GetTypeId()
                           MakeTimeChecker())
             .AddAttribute("Willingness",
                           "Willingness of a node to carry and forward traffic for other nodes.",
-                          EnumValue(OLSR_WILL_DEFAULT),
+                          EnumValue(Willingness::DEFAULT),
                           MakeEnumAccessor(&RoutingProtocol::m_willingness),
-                          MakeEnumChecker(OLSR_WILL_NEVER,
+                          MakeEnumChecker(Willingness::NEVER,
                                           "never",
-                                          OLSR_WILL_LOW,
+                                          Willingness::LOW,
                                           "low",
-                                          OLSR_WILL_DEFAULT,
+                                          Willingness::DEFAULT,
                                           "default",
-                                          OLSR_WILL_HIGH,
+                                          Willingness::HIGH,
                                           "high",
-                                          OLSR_WILL_ALWAYS,
+                                          Willingness::ALWAYS,
                                           "always"))
             .AddTraceSource("Rx",
                             "Receive OLSR packet.",
@@ -249,12 +293,6 @@ RoutingProtocol::SetIpv4(Ptr<Ipv4> ipv4)
     m_hnaRoutingTable->SetIpv4(ipv4);
 }
 
-Ptr<Ipv4>
-RoutingProtocol::GetIpv4() const
-{
-    return m_ipv4;
-}
-
 void
 RoutingProtocol::DoDispose()
 {
@@ -268,9 +306,7 @@ RoutingProtocol::DoDispose()
         m_recvSocket = nullptr;
     }
 
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::iterator iter = m_sendSockets.begin();
-         iter != m_sendSockets.end();
-         iter++)
+    for (auto iter = m_sendSockets.begin(); iter != m_sendSockets.end(); iter++)
     {
         iter->first->Close();
     }
@@ -299,14 +335,16 @@ RoutingProtocol::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit u
     *os << std::setw(16) << "Interface";
     *os << "Distance" << std::endl;
 
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator iter = m_table.begin();
-         iter != m_table.end();
-         iter++)
+    for (auto iter = m_table.begin(); iter != m_table.end(); iter++)
     {
-        *os << std::setw(16) << iter->first;
-        *os << std::setw(16) << iter->second.nextAddr;
+        std::ostringstream dest;
+        std::ostringstream nextHop;
+        dest << iter->first;
+        nextHop << iter->second.nextAddr;
+        *os << std::setw(16) << dest.str();
+        *os << std::setw(16) << nextHop.str();
         *os << std::setw(16);
-        if (Names::FindName(m_ipv4->GetNetDevice(iter->second.interface)) != "")
+        if (!Names::FindName(m_ipv4->GetNetDevice(iter->second.interface)).empty())
         {
             *os << Names::FindName(m_ipv4->GetNetDevice(iter->second.interface));
         }
@@ -326,7 +364,7 @@ RoutingProtocol::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit u
     }
     else
     {
-        *os << "HNA Routing Table: empty" << std::endl;
+        *os << "HNA Routing Table: empty" << std::endl << std::endl;
     }
     // Restore the previous ostream state
     (*os).copyfmt(oldState);
@@ -508,8 +546,7 @@ RoutingProtocol::RecvOlsr(Ptr<Socket> socket)
 
     m_rxPacketTrace(olsrPacketHeader, messages);
 
-    for (MessageList::const_iterator messageIter = messages.begin(); messageIter != messages.end();
-         messageIter++)
+    for (auto messageIter = messages.begin(); messageIter != messages.end(); messageIter++)
     {
         const MessageHeader& messageHeader = *messageIter;
         // If ttl is less than or equal to zero, or
@@ -582,9 +619,7 @@ RoutingProtocol::RecvOlsr(Ptr<Socket> socket)
 
             // If the message has been considered for forwarding, it should
             // not be retransmitted again
-            for (std::vector<Ipv4Address>::const_iterator it = duplicated->ifaceList.begin();
-                 it != duplicated->ifaceList.end();
-                 it++)
+            for (auto it = duplicated->ifaceList.begin(); it != duplicated->ifaceList.end(); it++)
             {
                 if (*it == receiverIfaceAddr)
                 {
@@ -617,14 +652,14 @@ RoutingProtocol::RecvOlsr(Ptr<Socket> socket)
 /// \brief This auxiliary function (defined in \RFC{3626}) is used for calculating the MPR Set.
 ///
 /// \param tuple the neighbor tuple which has the main address of the node we are going to calculate
-/// its degree to. \return the degree of the node.
+/// its degree to.
+/// \return the degree of the node.
 ///
 int
 RoutingProtocol::Degree(const NeighborTuple& tuple)
 {
     int degree = 0;
-    for (TwoHopNeighborSet::const_iterator it = m_state.GetTwoHopNeighbors().begin();
-         it != m_state.GetTwoHopNeighbors().end();
+    for (auto it = m_state.GetTwoHopNeighbors().begin(); it != m_state.GetTwoHopNeighbors().end();
          it++)
     {
         const TwoHopNeighborTuple& nb2hop_tuple = *it;
@@ -655,8 +690,7 @@ CoverTwoHopNeighbors(Ipv4Address neighborMainAddr, TwoHopNeighborSet& N2)
 {
     // first gather all 2-hop neighbors to be removed
     std::set<Ipv4Address> toRemove;
-    for (TwoHopNeighborSet::iterator twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();
-         twoHopNeigh++)
+    for (auto twoHopNeigh = N2.begin(); twoHopNeigh != N2.end(); twoHopNeigh++)
     {
         if (twoHopNeigh->neighborMainAddr == neighborMainAddr)
         {
@@ -664,7 +698,7 @@ CoverTwoHopNeighbors(Ipv4Address neighborMainAddr, TwoHopNeighborSet& N2)
         }
     }
     // Now remove all matching records from N2
-    for (TwoHopNeighborSet::iterator twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();)
+    for (auto twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();)
     {
         if (toRemove.find(twoHopNeigh->twoHopNeighborAddr) != toRemove.end())
         {
@@ -690,8 +724,7 @@ RoutingProtocol::MprComputation()
     // N is the subset of neighbors of the node, which are
     // neighbor "of the interface I"
     NeighborSet N;
-    for (NeighborSet::const_iterator neighbor = m_state.GetNeighbors().begin();
-         neighbor != m_state.GetNeighbors().end();
+    for (auto neighbor = m_state.GetNeighbors().begin(); neighbor != m_state.GetNeighbors().end();
          neighbor++)
     {
         if (neighbor->status == NeighborTuple::STATUS_SYM) // I think that we need this check
@@ -702,12 +735,12 @@ RoutingProtocol::MprComputation()
 
     // N2 is the set of 2-hop neighbors reachable from "the interface
     // I", excluding:
-    // (i)   the nodes only reachable by members of N with willingness WILL_NEVER
+    // (i)   the nodes only reachable by members of N with willingness Willingness::NEVER
     // (ii)  the node performing the computation
     // (iii) all the symmetric neighbors: the nodes for which there exists a symmetric
     //       link to this node on some interface.
     TwoHopNeighborSet N2;
-    for (TwoHopNeighborSet::const_iterator twoHopNeigh = m_state.GetTwoHopNeighbors().begin();
+    for (auto twoHopNeigh = m_state.GetTwoHopNeighbors().begin();
          twoHopNeigh != m_state.GetTwoHopNeighbors().end();
          twoHopNeigh++)
     {
@@ -719,22 +752,14 @@ RoutingProtocol::MprComputation()
         }
 
         //  excluding:
-        // (i)   the nodes only reachable by members of N with willingness WILL_NEVER
+        // (i)   the nodes only reachable by members of N with willingness Willingness::NEVER
         bool ok = false;
-        for (NeighborSet::const_iterator neigh = N.begin(); neigh != N.end(); neigh++)
+        for (auto neigh = N.begin(); neigh != N.end(); neigh++)
         {
             if (neigh->neighborMainAddr == twoHopNeigh->neighborMainAddr)
             {
-                if (neigh->willingness == OLSR_WILL_NEVER)
-                {
-                    ok = false;
-                    break;
-                }
-                else
-                {
-                    ok = true;
-                    break;
-                }
+                ok = (neigh->willingness != Willingness::NEVER);
+                break;
             }
         }
         if (!ok)
@@ -745,7 +770,7 @@ RoutingProtocol::MprComputation()
         // excluding:
         // (iii) all the symmetric neighbors: the nodes for which there exists a symmetric
         //       link to this node on some interface.
-        for (NeighborSet::const_iterator neigh = N.begin(); neigh != N.end(); neigh++)
+        for (auto neigh = N.begin(); neigh != N.end(); neigh++)
         {
             if (neigh->neighborMainAddr == twoHopNeigh->twoHopNeighborAddr)
             {
@@ -764,9 +789,9 @@ RoutingProtocol::MprComputation()
     {
         std::ostringstream os;
         os << "[";
-        for (TwoHopNeighborSet::const_iterator iter = N2.begin(); iter != N2.end(); iter++)
+        for (auto iter = N2.begin(); iter != N2.end(); iter++)
         {
-            TwoHopNeighborSet::const_iterator next = iter;
+            auto next = iter;
             next++;
             os << iter->neighborMainAddr << "->" << iter->twoHopNeighborAddr;
             if (next != N2.end())
@@ -780,10 +805,10 @@ RoutingProtocol::MprComputation()
 #endif // NS3_LOG_ENABLE
 
     // 1. Start with an MPR set made of all members of N with
-    // N_willingness equal to WILL_ALWAYS
-    for (NeighborSet::const_iterator neighbor = N.begin(); neighbor != N.end(); neighbor++)
+    // N_willingness equal to Willingness::ALWAYS
+    for (auto neighbor = N.begin(); neighbor != N.end(); neighbor++)
     {
-        if (neighbor->willingness == OLSR_WILL_ALWAYS)
+        if (neighbor->willingness == Willingness::ALWAYS)
         {
             mprSet.insert(neighbor->neighborMainAddr);
             // (not in RFC but I think is needed: remove the 2-hop
@@ -798,14 +823,11 @@ RoutingProtocol::MprComputation()
     // 3. Add to the MPR set those nodes in N, which are the *only*
     // nodes to provide reachability to a node in N2.
     std::set<Ipv4Address> coveredTwoHopNeighbors;
-    for (TwoHopNeighborSet::const_iterator twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();
-         twoHopNeigh++)
+    for (auto twoHopNeigh = N2.begin(); twoHopNeigh != N2.end(); twoHopNeigh++)
     {
         bool onlyOne = true;
         // try to find another neighbor that can reach twoHopNeigh->twoHopNeighborAddr
-        for (TwoHopNeighborSet::const_iterator otherTwoHopNeigh = N2.begin();
-             otherTwoHopNeigh != N2.end();
-             otherTwoHopNeigh++)
+        for (auto otherTwoHopNeigh = N2.begin(); otherTwoHopNeigh != N2.end(); otherTwoHopNeigh++)
         {
             if (otherTwoHopNeigh->twoHopNeighborAddr == twoHopNeigh->twoHopNeighborAddr &&
                 otherTwoHopNeigh->neighborMainAddr != twoHopNeigh->neighborMainAddr)
@@ -823,8 +845,7 @@ RoutingProtocol::MprComputation()
             mprSet.insert(twoHopNeigh->neighborMainAddr);
 
             // take note of all the 2-hop neighbors reachable by the newly elected MPR
-            for (TwoHopNeighborSet::const_iterator otherTwoHopNeigh = N2.begin();
-                 otherTwoHopNeigh != N2.end();
+            for (auto otherTwoHopNeigh = N2.begin(); otherTwoHopNeigh != N2.end();
                  otherTwoHopNeigh++)
             {
                 if (otherTwoHopNeigh->neighborMainAddr == twoHopNeigh->neighborMainAddr)
@@ -835,7 +856,7 @@ RoutingProtocol::MprComputation()
         }
     }
     // Remove the nodes from N2 which are now covered by a node in the MPR set.
-    for (TwoHopNeighborSet::iterator twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();)
+    for (auto twoHopNeigh = N2.begin(); twoHopNeigh != N2.end();)
     {
         if (coveredTwoHopNeighbors.find(twoHopNeigh->twoHopNeighborAddr) !=
             coveredTwoHopNeighbors.end())
@@ -861,9 +882,9 @@ RoutingProtocol::MprComputation()
         {
             std::ostringstream os;
             os << "[";
-            for (TwoHopNeighborSet::const_iterator iter = N2.begin(); iter != N2.end(); iter++)
+            for (auto iter = N2.begin(); iter != N2.end(); iter++)
             {
-                TwoHopNeighborSet::const_iterator next = iter;
+                auto next = iter;
                 next++;
                 os << iter->neighborMainAddr << "->" << iter->twoHopNeighborAddr;
                 if (next != N2.end())
@@ -882,11 +903,11 @@ RoutingProtocol::MprComputation()
         // through this 1-hop neighbor
         std::map<int, std::vector<const NeighborTuple*>> reachability;
         std::set<int> rs;
-        for (NeighborSet::iterator it = N.begin(); it != N.end(); it++)
+        for (auto it = N.begin(); it != N.end(); it++)
         {
             const NeighborTuple& nb_tuple = *it;
             int r = 0;
-            for (TwoHopNeighborSet::iterator it2 = N2.begin(); it2 != N2.end(); it2++)
+            for (auto it2 = N2.begin(); it2 != N2.end(); it2++)
             {
                 const TwoHopNeighborTuple& nb2hop_tuple = *it2;
                 if (nb_tuple.neighborMainAddr == nb2hop_tuple.neighborMainAddr)
@@ -908,16 +929,14 @@ RoutingProtocol::MprComputation()
         // by a node in the MPR set.
         const NeighborTuple* max = nullptr;
         int max_r = 0;
-        for (std::set<int>::iterator it = rs.begin(); it != rs.end(); it++)
+        for (auto it = rs.begin(); it != rs.end(); it++)
         {
             int r = *it;
             if (r == 0)
             {
                 continue;
             }
-            for (std::vector<const NeighborTuple*>::iterator it2 = reachability[r].begin();
-                 it2 != reachability[r].end();
-                 it2++)
+            for (auto it2 = reachability[r].begin(); it2 != reachability[r].end(); it2++)
             {
                 const NeighborTuple* nb_tuple = *it2;
                 if (max == nullptr || nb_tuple->willingness > max->willingness)
@@ -956,9 +975,9 @@ RoutingProtocol::MprComputation()
     {
         std::ostringstream os;
         os << "[";
-        for (MprSet::const_iterator iter = mprSet.begin(); iter != mprSet.end(); iter++)
+        for (auto iter = mprSet.begin(); iter != mprSet.end(); iter++)
         {
-            MprSet::const_iterator next = iter;
+            auto next = iter;
             next++;
             os << *iter;
             if (next != mprSet.end())
@@ -1001,7 +1020,7 @@ RoutingProtocol::RoutingTableComputation()
     // 2. The new routing entries are added starting with the
     // symmetric neighbors (h=1) as the destination nodes.
     const NeighborSet& neighborSet = m_state.GetNeighbors();
-    for (NeighborSet::const_iterator it = neighborSet.begin(); it != neighborSet.end(); it++)
+    for (auto it = neighborSet.begin(); it != neighborSet.end(); it++)
     {
         const NeighborTuple& nb_tuple = *it;
         NS_LOG_DEBUG("Looking at neighbor tuple: " << nb_tuple);
@@ -1010,7 +1029,7 @@ RoutingProtocol::RoutingTableComputation()
             bool nb_main_addr = false;
             const LinkTuple* lt = nullptr;
             const LinkSet& linkSet = m_state.GetLinks();
-            for (LinkSet::const_iterator it2 = linkSet.begin(); it2 != linkSet.end(); it2++)
+            for (auto it2 = linkSet.begin(); it2 != linkSet.end(); it2++)
             {
                 const LinkTuple& link_tuple = *it2;
                 NS_LOG_DEBUG("Looking at link tuple: "
@@ -1064,11 +1083,9 @@ RoutingProtocol::RoutingTableComputation()
     //  neighbor node or the node itself, and such that there exist at
     //  least one entry in the 2-hop neighbor set where
     //  N_neighbor_main_addr correspond to a neighbor node with
-    //  willingness different of WILL_NEVER,
+    //  willingness different of Willingness::NEVER,
     const TwoHopNeighborSet& twoHopNeighbors = m_state.GetTwoHopNeighbors();
-    for (TwoHopNeighborSet::const_iterator it = twoHopNeighbors.begin();
-         it != twoHopNeighbors.end();
-         it++)
+    for (auto it = twoHopNeighbors.begin(); it != twoHopNeighbors.end(); it++)
     {
         const TwoHopNeighborTuple& nb2hop_tuple = *it;
 
@@ -1089,14 +1106,12 @@ RoutingProtocol::RoutingTableComputation()
 
         // ...and such that there exist at least one entry in the 2-hop
         // neighbor set where N_neighbor_main_addr correspond to a
-        // neighbor node with willingness different of WILL_NEVER...
+        // neighbor node with willingness different of Willingness::NEVER...
         bool nb2hopOk = false;
-        for (NeighborSet::const_iterator neighbor = neighborSet.begin();
-             neighbor != neighborSet.end();
-             neighbor++)
+        for (auto neighbor = neighborSet.begin(); neighbor != neighborSet.end(); neighbor++)
         {
             if (neighbor->neighborMainAddr == nb2hop_tuple.neighborMainAddr &&
-                neighbor->willingness != OLSR_WILL_NEVER)
+                neighbor->willingness != Willingness::NEVER)
             {
                 nb2hopOk = true;
                 break;
@@ -1147,7 +1162,7 @@ RoutingProtocol::RoutingTableComputation()
         // is equal to h, then a new route entry MUST be recorded in
         // the routing table (if it does not already exist)
         const TopologySet& topology = m_state.GetTopologySet();
-        for (TopologySet::const_iterator it = topology.begin(); it != topology.end(); it++)
+        for (auto it = topology.begin(); it != topology.end(); it++)
         {
             const TopologyTuple& topology_tuple = *it;
             NS_LOG_LOGIC("Looking at topology tuple: " << topology_tuple);
@@ -1197,7 +1212,7 @@ RoutingProtocol::RoutingTableComputation()
     // AND there is no routing entry such that:
     // R_dest_addr == I_iface_addr
     const IfaceAssocSet& ifaceAssocSet = m_state.GetIfaceAssocSet();
-    for (IfaceAssocSet::const_iterator it = ifaceAssocSet.begin(); it != ifaceAssocSet.end(); it++)
+    for (auto it = ifaceAssocSet.begin(); it != ifaceAssocSet.end(); it++)
     {
         const IfaceAssocTuple& tuple = *it;
         RoutingTableEntry entry1;
@@ -1229,8 +1244,7 @@ RoutingProtocol::RoutingTableComputation()
         m_hnaRoutingTable->RemoveRoute(0);
     }
 
-    for (AssociationSet::const_iterator it = associationSet.begin(); it != associationSet.end();
-         it++)
+    for (auto it = associationSet.begin(); it != associationSet.end(); it++)
     {
         const AssociationTuple& tuple = *it;
 
@@ -1240,7 +1254,7 @@ RoutingProtocol::RoutingTableComputation()
         bool goToNextAssociationTuple = false;
         const Associations& localHnaAssociations = m_state.GetAssociations();
         NS_LOG_DEBUG("Nb local associations: " << localHnaAssociations.size());
-        for (Associations::const_iterator assocIterator = localHnaAssociations.begin();
+        for (auto assocIterator = localHnaAssociations.begin();
              assocIterator != localHnaAssociations.end();
              assocIterator++)
         {
@@ -1317,7 +1331,7 @@ RoutingProtocol::ProcessHello(const olsr::MessageHeader& msg,
         const LinkSet& links = m_state.GetLinks();
         NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                      << " ** BEGIN dump Link Set for OLSR Node " << m_mainAddress);
-        for (LinkSet::const_iterator link = links.begin(); link != links.end(); link++)
+        for (auto link = links.begin(); link != links.end(); link++)
         {
             NS_LOG_DEBUG(*link);
         }
@@ -1326,8 +1340,7 @@ RoutingProtocol::ProcessHello(const olsr::MessageHeader& msg,
         const NeighborSet& neighbors = m_state.GetNeighbors();
         NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                      << " ** BEGIN dump Neighbor Set for OLSR Node " << m_mainAddress);
-        for (NeighborSet::const_iterator neighbor = neighbors.begin(); neighbor != neighbors.end();
-             neighbor++)
+        for (auto neighbor = neighbors.begin(); neighbor != neighbors.end(); neighbor++)
         {
             NS_LOG_DEBUG(*neighbor);
         }
@@ -1343,9 +1356,7 @@ RoutingProtocol::ProcessHello(const olsr::MessageHeader& msg,
         const TwoHopNeighborSet& twoHopNeighbors = m_state.GetTwoHopNeighbors();
         NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                      << " ** BEGIN dump TwoHopNeighbor Set for OLSR Node " << m_mainAddress);
-        for (TwoHopNeighborSet::const_iterator tuple = twoHopNeighbors.begin();
-             tuple != twoHopNeighbors.end();
-             tuple++)
+        for (auto tuple = twoHopNeighbors.begin(); tuple != twoHopNeighbors.end(); tuple++)
         {
             NS_LOG_DEBUG(*tuple);
         }
@@ -1391,9 +1402,7 @@ RoutingProtocol::ProcessTc(const olsr::MessageHeader& msg, const Ipv4Address& se
 
     // 4. For each of the advertised neighbor main address received in
     // the TC message:
-    for (std::vector<Ipv4Address>::const_iterator i = tc.neighborAddresses.begin();
-         i != tc.neighborAddresses.end();
-         i++)
+    for (auto i = tc.neighborAddresses.begin(); i != tc.neighborAddresses.end(); i++)
     {
         const Ipv4Address& addr = *i;
         // 4.1. If there exist some tuple in the topology set where:
@@ -1436,7 +1445,7 @@ RoutingProtocol::ProcessTc(const olsr::MessageHeader& msg, const Ipv4Address& se
         const TopologySet& topology = m_state.GetTopologySet();
         NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                      << " ** BEGIN dump TopologySet for OLSR Node " << m_mainAddress);
-        for (TopologySet::const_iterator tuple = topology.begin(); tuple != topology.end(); tuple++)
+        for (auto tuple = topology.begin(); tuple != topology.end(); tuple++)
         {
             NS_LOG_DEBUG(*tuple);
         }
@@ -1465,13 +1474,11 @@ RoutingProtocol::ProcessMid(const olsr::MessageHeader& msg, const Ipv4Address& s
     }
 
     // 2. For each interface address listed in the MID message
-    for (std::vector<Ipv4Address>::const_iterator i = mid.interfaceAddresses.begin();
-         i != mid.interfaceAddresses.end();
-         i++)
+    for (auto i = mid.interfaceAddresses.begin(); i != mid.interfaceAddresses.end(); i++)
     {
         bool updated = false;
         IfaceAssocSet& ifaceAssoc = m_state.GetIfaceAssocSetMutable();
-        for (IfaceAssocSet::iterator tuple = ifaceAssoc.begin(); tuple != ifaceAssoc.end(); tuple++)
+        for (auto tuple = ifaceAssoc.begin(); tuple != ifaceAssoc.end(); tuple++)
         {
             if (tuple->ifaceAddr == *i && tuple->mainAddr == msg.GetOriginatorAddress())
             {
@@ -1500,15 +1507,13 @@ RoutingProtocol::ProcessMid(const olsr::MessageHeader& msg, const Ipv4Address& s
     // TwoHopNeighborTuples, update the neighbor addresses taking into account
     // the new MID information.
     NeighborSet& neighbors = m_state.GetNeighbors();
-    for (NeighborSet::iterator neighbor = neighbors.begin(); neighbor != neighbors.end();
-         neighbor++)
+    for (auto neighbor = neighbors.begin(); neighbor != neighbors.end(); neighbor++)
     {
         neighbor->neighborMainAddr = GetMainAddress(neighbor->neighborMainAddr);
     }
 
     TwoHopNeighborSet& twoHopNeighbors = m_state.GetTwoHopNeighbors();
-    for (TwoHopNeighborSet::iterator twoHopNeighbor = twoHopNeighbors.begin();
-         twoHopNeighbor != twoHopNeighbors.end();
+    for (auto twoHopNeighbor = twoHopNeighbors.begin(); twoHopNeighbor != twoHopNeighbors.end();
          twoHopNeighbor++)
     {
         twoHopNeighbor->neighborMainAddr = GetMainAddress(twoHopNeighbor->neighborMainAddr);
@@ -1534,10 +1539,7 @@ RoutingProtocol::ProcessHna(const olsr::MessageHeader& msg, const Ipv4Address& s
     // 2. Otherwise, for each (network address, netmask) pair in the
     // message:
 
-    for (std::vector<olsr::MessageHeader::Hna::Association>::const_iterator it =
-             hna.associations.begin();
-         it != hna.associations.end();
-         it++)
+    for (auto it = hna.associations.begin(); it != hna.associations.end(); it++)
     {
         AssociationTuple* tuple =
             m_state.FindAssociationTuple(msg.GetOriginatorAddress(), it->address, it->mask);
@@ -1676,9 +1678,7 @@ RoutingProtocol::SendPacket(Ptr<Packet> packet, const MessageList& containedMess
     m_txPacketTrace(header, containedMessages);
 
     // Send it
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator i = m_sendSockets.begin();
-         i != m_sendSockets.end();
-         i++)
+    for (auto i = m_sendSockets.begin(); i != m_sendSockets.end(); i++)
     {
         Ptr<Packet> pkt = packet->Copy();
         Ipv4Address bcast = i->second.GetLocal().GetSubnetDirectedBroadcast(i->second.GetMask());
@@ -1696,9 +1696,7 @@ RoutingProtocol::SendQueuedMessages()
 
     MessageList msglist;
 
-    for (std::vector<olsr::MessageHeader>::const_iterator message = m_queuedMessages.begin();
-         message != m_queuedMessages.end();
-         message++)
+    for (auto message = m_queuedMessages.begin(); message != m_queuedMessages.end(); message++)
     {
         Ptr<Packet> p = Create<Packet>();
         p->AddHeader(*message);
@@ -1743,8 +1741,7 @@ RoutingProtocol::SendHello()
     std::vector<olsr::MessageHeader::Hello::LinkMessage>& linkMessages = hello.linkMessages;
 
     const LinkSet& links = m_state.GetLinks();
-    for (LinkSet::const_iterator link_tuple = links.begin(); link_tuple != links.end();
-         link_tuple++)
+    for (auto link_tuple = links.begin(); link_tuple != links.end(); link_tuple++)
     {
         if (!(GetMainAddress(link_tuple->localIfaceAddr) == m_mainAddress &&
               link_tuple->time >= now))
@@ -1752,33 +1749,33 @@ RoutingProtocol::SendHello()
             continue;
         }
 
-        uint8_t link_type;
-        uint8_t nb_type = 0xff;
+        LinkType linkType;
+        NeighborType neighborType;
 
         // Establishes link type
         if (link_tuple->symTime >= now)
         {
-            link_type = OLSR_SYM_LINK;
+            linkType = LinkType::SYM_LINK;
         }
         else if (link_tuple->asymTime >= now)
         {
-            link_type = OLSR_ASYM_LINK;
+            linkType = LinkType::ASYM_LINK;
         }
         else
         {
-            link_type = OLSR_LOST_LINK;
+            linkType = LinkType::LOST_LINK;
         }
         // Establishes neighbor type.
         if (m_state.FindMprAddress(GetMainAddress(link_tuple->neighborIfaceAddr)))
         {
-            nb_type = OLSR_MPR_NEIGH;
+            neighborType = NeighborType::MPR_NEIGH;
             NS_LOG_DEBUG("I consider neighbor " << GetMainAddress(link_tuple->neighborIfaceAddr)
                                                 << " to be MPR_NEIGH.");
         }
         else
         {
             bool ok = false;
-            for (NeighborSet::const_iterator nb_tuple = m_state.GetNeighbors().begin();
+            for (auto nb_tuple = m_state.GetNeighbors().begin();
                  nb_tuple != m_state.GetNeighbors().end();
                  nb_tuple++)
             {
@@ -1789,11 +1786,11 @@ RoutingProtocol::SendHello()
                         NS_LOG_DEBUG("I consider neighbor "
                                      << GetMainAddress(link_tuple->neighborIfaceAddr)
                                      << " to be SYM_NEIGH.");
-                        nb_type = OLSR_SYM_NEIGH;
+                        neighborType = NeighborType::SYM_NEIGH;
                     }
                     else if (nb_tuple->status == NeighborTuple::STATUS_NOT_SYM)
                     {
-                        nb_type = OLSR_NOT_NEIGH;
+                        neighborType = NeighborType::NOT_NEIGH;
                         NS_LOG_DEBUG("I consider neighbor "
                                      << GetMainAddress(link_tuple->neighborIfaceAddr)
                                      << " to be NOT_NEIGH.");
@@ -1815,7 +1812,8 @@ RoutingProtocol::SendHello()
         }
 
         olsr::MessageHeader::Hello::LinkMessage linkMessage;
-        linkMessage.linkCode = (link_type & 0x03) | ((nb_type << 2) & 0x0f);
+        linkMessage.linkCode = (static_cast<uint8_t>(linkType) & 0x03) |
+                               ((static_cast<uint8_t>(neighborType) << 2) & 0x0f);
         linkMessage.neighborInterfaceAddresses.push_back(link_tuple->neighborIfaceAddr);
 
         std::vector<Ipv4Address> interfaces =
@@ -1848,7 +1846,7 @@ RoutingProtocol::SendTc()
     olsr::MessageHeader::Tc& tc = msg.GetTc();
     tc.ansn = m_ansn;
 
-    for (MprSelectorSet::const_iterator mprsel_tuple = m_state.GetMprSelectors().begin();
+    for (auto mprsel_tuple = m_state.GetMprSelectors().begin();
          mprsel_tuple != m_state.GetMprSelectors().end();
          mprsel_tuple++)
     {
@@ -1889,7 +1887,7 @@ RoutingProtocol::SendMid()
             mid.interfaceAddresses.push_back(addr);
         }
     }
-    if (mid.interfaceAddresses.size() == 0)
+    if (mid.interfaceAddresses.empty())
     {
         return;
     }
@@ -1919,15 +1917,13 @@ RoutingProtocol::SendHna()
 
     // Add all local HNA associations to the HNA message
     const Associations& localHnaAssociations = m_state.GetAssociations();
-    for (Associations::const_iterator it = localHnaAssociations.begin();
-         it != localHnaAssociations.end();
-         it++)
+    for (auto it = localHnaAssociations.begin(); it != localHnaAssociations.end(); it++)
     {
         olsr::MessageHeader::Hna::Association assoc = {it->networkAddr, it->netmask};
         associations.push_back(assoc);
     }
     // If there is no HNA associations to send, return without queuing the message
-    if (associations.size() == 0)
+    if (associations.empty())
     {
         return;
     }
@@ -1942,7 +1938,7 @@ RoutingProtocol::AddHostNetworkAssociation(Ipv4Address networkAddr, Ipv4Mask net
     // Check if the (networkAddr, netmask) tuple already exist
     // in the list of local HNA associations
     const Associations& localHnaAssociations = m_state.GetAssociations();
-    for (Associations::const_iterator assocIterator = localHnaAssociations.begin();
+    for (auto assocIterator = localHnaAssociations.begin();
          assocIterator != localHnaAssociations.end();
          assocIterator++)
     {
@@ -2016,7 +2012,7 @@ RoutingProtocol::SetRoutingTableAssociation(Ptr<Ipv4StaticRouting> routingTable)
 bool
 RoutingProtocol::UsesNonOlsrOutgoingInterface(const Ipv4RoutingTableEntry& route)
 {
-    std::set<uint32_t>::const_iterator ci = m_interfaceExclusions.find(route.GetInterface());
+    auto ci = m_interfaceExclusions.find(route.GetInterface());
     // The outgoing interface is a non-OLSR interface if a match is found
     // before reaching the end of the list of excluded interfaces
     return ci != m_interfaceExclusions.end();
@@ -2056,78 +2052,38 @@ RoutingProtocol::LinkSensing(const olsr::MessageHeader& msg,
     }
 
     link_tuple->asymTime = now + msg.GetVTime();
-    for (std::vector<olsr::MessageHeader::Hello::LinkMessage>::const_iterator linkMessage =
-             hello.linkMessages.begin();
-         linkMessage != hello.linkMessages.end();
+    for (auto linkMessage = hello.linkMessages.begin(); linkMessage != hello.linkMessages.end();
          linkMessage++)
     {
-        int lt = linkMessage->linkCode & 0x03;        // Link Type
-        int nt = (linkMessage->linkCode >> 2) & 0x03; // Neighbor Type
-
-#ifdef NS3_LOG_ENABLE
-        const char* linkTypeName;
-        switch (lt)
-        {
-        case OLSR_UNSPEC_LINK:
-            linkTypeName = "UNSPEC_LINK";
-            break;
-        case OLSR_ASYM_LINK:
-            linkTypeName = "ASYM_LINK";
-            break;
-        case OLSR_SYM_LINK:
-            linkTypeName = "SYM_LINK";
-            break;
-        case OLSR_LOST_LINK:
-            linkTypeName = "LOST_LINK";
-            break;
-        default:
-            linkTypeName = "(invalid value!)";
-        }
-
-        const char* neighborTypeName;
-        switch (nt)
-        {
-        case OLSR_NOT_NEIGH:
-            neighborTypeName = "NOT_NEIGH";
-            break;
-        case OLSR_SYM_NEIGH:
-            neighborTypeName = "SYM_NEIGH";
-            break;
-        case OLSR_MPR_NEIGH:
-            neighborTypeName = "MPR_NEIGH";
-            break;
-        default:
-            neighborTypeName = "(invalid value!)";
-        }
+        auto linkType = LinkType(linkMessage->linkCode & 0x03);
+        auto neighborType = NeighborType((linkMessage->linkCode >> 2) & 0x03);
 
         NS_LOG_DEBUG("Looking at HELLO link messages with Link Type "
-                     << lt << " (" << linkTypeName << ") and Neighbor Type " << nt << " ("
-                     << neighborTypeName << ")");
-#endif // NS3_LOG_ENABLE
+                     << linkType << " and Neighbor Type " << neighborType);
 
         // We must not process invalid advertised links
-        if ((lt == OLSR_SYM_LINK && nt == OLSR_NOT_NEIGH) ||
-            (nt != OLSR_SYM_NEIGH && nt != OLSR_MPR_NEIGH && nt != OLSR_NOT_NEIGH))
+        if ((linkType == LinkType::SYM_LINK && neighborType == NeighborType::NOT_NEIGH) ||
+            (neighborType != NeighborType::SYM_NEIGH && neighborType != NeighborType::MPR_NEIGH &&
+             neighborType != NeighborType::NOT_NEIGH))
         {
             NS_LOG_LOGIC("HELLO link code is invalid => IGNORING");
             continue;
         }
 
-        for (std::vector<Ipv4Address>::const_iterator neighIfaceAddr =
-                 linkMessage->neighborInterfaceAddresses.begin();
+        for (auto neighIfaceAddr = linkMessage->neighborInterfaceAddresses.begin();
              neighIfaceAddr != linkMessage->neighborInterfaceAddresses.end();
              neighIfaceAddr++)
         {
             NS_LOG_DEBUG("   -> Neighbor: " << *neighIfaceAddr);
             if (*neighIfaceAddr == receiverIface)
             {
-                if (lt == OLSR_LOST_LINK)
+                if (linkType == LinkType::LOST_LINK)
                 {
                     NS_LOG_LOGIC("link is LOST => expiring it");
                     link_tuple->symTime = now - Seconds(1);
                     updated = true;
                 }
-                else if (lt == OLSR_SYM_LINK || lt == OLSR_ASYM_LINK)
+                else if (linkType == LinkType::SYM_LINK || linkType == LinkType::ASYM_LINK)
                 {
                     NS_LOG_DEBUG(*link_tuple << ": link is SYM or ASYM => should become SYM now"
                                                 " (symTime being increased to "
@@ -2189,8 +2145,7 @@ RoutingProtocol::PopulateTwoHopNeighborSet(const olsr::MessageHeader& msg,
 
     NS_LOG_DEBUG("Olsr node " << m_mainAddress << ": PopulateTwoHopNeighborSet BEGIN");
 
-    for (LinkSet::const_iterator link_tuple = m_state.GetLinks().begin();
-         link_tuple != m_state.GetLinks().end();
+    for (auto link_tuple = m_state.GetLinks().begin(); link_tuple != m_state.GetLinks().end();
          link_tuple++)
     {
         NS_LOG_LOGIC("Looking at link tuple: " << *link_tuple);
@@ -2212,29 +2167,22 @@ RoutingProtocol::PopulateTwoHopNeighborSet(const olsr::MessageHeader& msg,
             continue;
         }
 
-        typedef std::vector<olsr::MessageHeader::Hello::LinkMessage> LinkMessageVec;
-        for (LinkMessageVec::const_iterator linkMessage = hello.linkMessages.begin();
-             linkMessage != hello.linkMessages.end();
+        for (auto linkMessage = hello.linkMessages.begin(); linkMessage != hello.linkMessages.end();
              linkMessage++)
         {
-            int neighborType = (linkMessage->linkCode >> 2) & 0x3;
-#ifdef NS3_LOG_ENABLE
-            const char* neighborTypeNames[3] = {"NOT_NEIGH", "SYM_NEIGH", "MPR_NEIGH"};
-            const char* neighborTypeName =
-                ((neighborType < 3) ? neighborTypeNames[neighborType] : "(invalid value)");
-            NS_LOG_DEBUG("Looking at Link Message from HELLO message: neighborType="
-                         << neighborType << " (" << neighborTypeName << ")");
-#endif // NS3_LOG_ENABLE
+            auto neighborType = NeighborType((linkMessage->linkCode >> 2) & 0x3);
+            NS_LOG_DEBUG(
+                "Looking at Link Message from HELLO message: neighborType=" << neighborType);
 
-            for (std::vector<Ipv4Address>::const_iterator nb2hop_addr_iter =
-                     linkMessage->neighborInterfaceAddresses.begin();
+            for (auto nb2hop_addr_iter = linkMessage->neighborInterfaceAddresses.begin();
                  nb2hop_addr_iter != linkMessage->neighborInterfaceAddresses.end();
                  nb2hop_addr_iter++)
             {
                 Ipv4Address nb2hop_addr = GetMainAddress(*nb2hop_addr_iter);
                 NS_LOG_DEBUG("Looking at 2-hop neighbor address from HELLO message: "
                              << *nb2hop_addr_iter << " (main address is " << nb2hop_addr << ")");
-                if (neighborType == OLSR_SYM_NEIGH || neighborType == OLSR_MPR_NEIGH)
+                if (neighborType == NeighborType::SYM_NEIGH ||
+                    neighborType == NeighborType::MPR_NEIGH)
                 {
                     // If the main address of the 2-hop neighbor address == main address
                     // of the receiving node, silently discard the 2-hop
@@ -2269,7 +2217,7 @@ RoutingProtocol::PopulateTwoHopNeighborSet(const olsr::MessageHeader& msg,
                         nb2hop_tuple->expirationTime = now + msg.GetVTime();
                     }
                 }
-                else if (neighborType == OLSR_NOT_NEIGH)
+                else if (neighborType == NeighborType::NOT_NEIGH)
                 {
                     // For each 2-hop node listed in the HELLO message
                     // with Neighbor Type equal to NOT_NEIGH all 2-hop
@@ -2301,18 +2249,15 @@ RoutingProtocol::PopulateMprSelectorSet(const olsr::MessageHeader& msg,
 
     Time now = Simulator::Now();
 
-    typedef std::vector<olsr::MessageHeader::Hello::LinkMessage> LinkMessageVec;
-    for (LinkMessageVec::const_iterator linkMessage = hello.linkMessages.begin();
-         linkMessage != hello.linkMessages.end();
+    for (auto linkMessage = hello.linkMessages.begin(); linkMessage != hello.linkMessages.end();
          linkMessage++)
     {
-        int nt = linkMessage->linkCode >> 2;
-        if (nt == OLSR_MPR_NEIGH)
+        auto neighborType = NeighborType(linkMessage->linkCode >> 2);
+        if (neighborType == NeighborType::MPR_NEIGH)
         {
             NS_LOG_DEBUG("Processing a link message with neighbor type MPR_NEIGH");
 
-            for (std::vector<Ipv4Address>::const_iterator nb_iface_addr =
-                     linkMessage->neighborInterfaceAddresses.begin();
+            for (auto nb_iface_addr = linkMessage->neighborInterfaceAddresses.begin();
                  nb_iface_addr != linkMessage->neighborInterfaceAddresses.end();
                  nb_iface_addr++)
             {
@@ -2359,31 +2304,31 @@ RoutingProtocol::PopulateMprSelectorSet(const olsr::MessageHeader& msg,
 /// \param p the packet which couldn't be delivered by the MAC layer.
 ///
 void
-OLSR::mac_failed (Ptr<Packet> p)
+OLSR::mac_failed(Ptr<Packet> p)
 {
-  double now              = Simulator::Now ();
-  struct hdr_ip* ih       = HDR_IP (p);
-  struct hdr_cmn* ch      = HDR_CMN (p);
+    double now = Simulator::Now ();
+    struct hdr_ip* ih = HDR_IP (p);
+    struct hdr_cmn* ch = HDR_CMN (p);
 
-  debug ("%f: Node %d MAC Layer detects a breakage on link to %d\n",
-         now,
-         OLSR::node_id (ra_addr ()),
-         OLSR::node_id (ch->next_hop ()));
+    debug("%f: Node %d MAC Layer detects a breakage on link to %d\n",
+          now,
+          OLSR::node_id (ra_addr ()),
+          OLSR::node_id (ch->next_hop ()));
 
-  if ((uint32_t)ih->daddr () == IP_BROADCAST)
+    if ((uint32_t)ih->daddr () == IP_BROADCAST)
     {
-      drop (p, DROP_RTR_MAC_CALLBACK);
-      return;
+        drop (p, DROP_RTR_MAC_CALLBACK);
+        return;
     }
 
-  OLSR_link_tuple* link_tuple = state_.find_link_tuple (ch->next_hop ());
-  if (link_tuple != NULL)
+    OLSR_link_tuple* link_tuple = state_.find_link_tuple(ch->next_hop());
+    if (link_tuple)
     {
-      link_tuple->lost_time () = now + OLSR_NEIGHB_HOLD_TIME;
-      link_tuple->time ()      = now + OLSR_NEIGHB_HOLD_TIME;
-      nb_loss (link_tuple);
+        link_tuple->lost_time() = now + OLSR_NEIGHB_HOLD_TIME;
+        link_tuple->time() = now + OLSR_NEIGHB_HOLD_TIME;
+        nb_loss(link_tuple);
     }
-  drop (p, DROP_RTR_MAC_CALLBACK);
+    drop(p, DROP_RTR_MAC_CALLBACK);
 }
 #endif
 
@@ -2392,7 +2337,7 @@ RoutingProtocol::NeighborLoss(const LinkTuple& tuple)
 {
     NS_LOG_DEBUG(Simulator::Now().As(Time::S) << ": OLSR Node " << m_mainAddress << " LinkTuple "
                                               << tuple.neighborIfaceAddr << " -> neighbor loss.");
-    LinkTupleUpdated(tuple, OLSR_WILL_DEFAULT);
+    LinkTupleUpdated(tuple, Willingness::DEFAULT);
     m_state.EraseTwoHopNeighborTuples(GetMainAddress(tuple.neighborIfaceAddr));
     m_state.EraseMprSelectorTuples(GetMainAddress(tuple.neighborIfaceAddr));
 
@@ -2423,7 +2368,7 @@ RoutingProtocol::RemoveDuplicateTuple(const DuplicateTuple& tuple)
 }
 
 void
-RoutingProtocol::LinkTupleAdded(const LinkTuple& tuple, uint8_t willingness)
+RoutingProtocol::LinkTupleAdded(const LinkTuple& tuple, Willingness willingness)
 {
     // Creates associated neighbor tuple
     NeighborTuple nb_tuple;
@@ -2453,7 +2398,7 @@ RoutingProtocol::RemoveLinkTuple(const LinkTuple& tuple)
 }
 
 void
-RoutingProtocol::LinkTupleUpdated(const LinkTuple& tuple, uint8_t willingness)
+RoutingProtocol::LinkTupleUpdated(const LinkTuple& tuple, Willingness willingness)
 {
     // Each time a link tuple changes, the associated neighbor tuple must be recomputed
 
@@ -2475,7 +2420,7 @@ RoutingProtocol::LinkTupleUpdated(const LinkTuple& tuple, uint8_t willingness)
         bool hasSymmetricLink = false;
 
         const LinkSet& linkSet = m_state.GetLinks();
-        for (LinkSet::const_iterator it = linkSet.begin(); it != linkSet.end(); it++)
+        for (auto it = linkSet.begin(); it != linkSet.end(); it++)
         {
             const LinkTuple& link_tuple = *it;
             if (GetMainAddress(link_tuple.neighborIfaceAddr) == nb_tuple->neighborMainAddr &&
@@ -2671,7 +2616,7 @@ RoutingProtocol::HelloTimerExpire()
 void
 RoutingProtocol::TcTimerExpire()
 {
-    if (m_state.GetMprSelectors().size() > 0)
+    if (!m_state.GetMprSelectors().empty())
     {
         SendTc();
     }
@@ -2692,7 +2637,7 @@ RoutingProtocol::MidTimerExpire()
 void
 RoutingProtocol::HnaTimerExpire()
 {
-    if (m_state.GetAssociations().size() > 0)
+    if (!m_state.GetAssociations().empty())
     {
         SendHna();
     }
@@ -2895,7 +2840,7 @@ bool
 RoutingProtocol::Lookup(const Ipv4Address& dest, RoutingTableEntry& outEntry) const
 {
     // Get the iterator at "dest" position
-    std::map<Ipv4Address, RoutingTableEntry>::const_iterator it = m_table.find(dest);
+    auto it = m_table.find(dest);
     // If there is no route to "dest", return NULL
     if (it == m_table.end())
     {
@@ -2932,7 +2877,7 @@ RoutingProtocol::RouteOutput(Ptr<Packet> p,
     RoutingTableEntry entry2;
     bool found = false;
 
-    if (Lookup(header.GetDestination(), entry1) != 0)
+    if (Lookup(header.GetDestination(), entry1))
     {
         bool foundSendEntry = FindSendEntry(entry1, entry2);
         if (!foundSendEntry)
@@ -3011,10 +2956,10 @@ bool
 RoutingProtocol::RouteInput(Ptr<const Packet> p,
                             const Ipv4Header& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb)
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(this << " " << m_ipv4->GetObject<Node>()->GetId() << " "
                          << header.GetDestination());
@@ -3023,7 +2968,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
     Ipv4Address origin = header.GetSource();
 
     // Consume self-originated packets
-    if (IsMyOwnAddress(origin) == true)
+    if (IsMyOwnAddress(origin))
     {
         return true;
     }
@@ -3107,9 +3052,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
                                       << ": RouteInput for dest=" << header.GetDestination()
                                       << " --> NOT FOUND; ** Dumping routing table...");
 
-            for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator iter = m_table.begin();
-                 iter != m_table.end();
-                 iter++)
+            for (auto iter = m_table.begin(); iter != m_table.end(); iter++)
             {
                 NS_LOG_DEBUG("dest=" << iter->first << " --> next=" << iter->second.nextAddr
                                      << " via interface " << iter->second.interface);
@@ -3193,9 +3136,7 @@ std::vector<RoutingTableEntry>
 RoutingProtocol::GetRoutingTableEntries() const
 {
     std::vector<RoutingTableEntry> retval;
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator iter = m_table.begin();
-         iter != m_table.end();
-         iter++)
+    for (auto iter = m_table.begin(); iter != m_table.end(); iter++)
     {
         retval.push_back(iter->second);
     }
@@ -3249,8 +3190,7 @@ RoutingProtocol::AssignStreams(int64_t stream)
 bool
 RoutingProtocol::IsMyOwnAddress(const Ipv4Address& a) const
 {
-    std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j;
-    for (j = m_sendSockets.begin(); j != m_sendSockets.end(); ++j)
+    for (auto j = m_sendSockets.begin(); j != m_sendSockets.end(); ++j)
     {
         Ipv4InterfaceAddress iface = j->second;
         if (a == iface.GetLocal())
@@ -3268,14 +3208,12 @@ RoutingProtocol::Dump()
     Time now = Simulator::Now();
     NS_LOG_DEBUG("Dumping for node with main address " << m_mainAddress);
     NS_LOG_DEBUG(" Neighbor set");
-    for (NeighborSet::const_iterator iter = m_state.GetNeighbors().begin();
-         iter != m_state.GetNeighbors().end();
-         iter++)
+    for (auto iter = m_state.GetNeighbors().begin(); iter != m_state.GetNeighbors().end(); iter++)
     {
         NS_LOG_DEBUG("  " << *iter);
     }
     NS_LOG_DEBUG(" Two-hop neighbor set");
-    for (TwoHopNeighborSet::const_iterator iter = m_state.GetTwoHopNeighbors().begin();
+    for (auto iter = m_state.GetTwoHopNeighbors().begin();
          iter != m_state.GetTwoHopNeighbors().end();
          iter++)
     {
@@ -3285,9 +3223,7 @@ RoutingProtocol::Dump()
         }
     }
     NS_LOG_DEBUG(" Routing table");
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator iter = m_table.begin();
-         iter != m_table.end();
-         iter++)
+    for (auto iter = m_table.begin(); iter != m_table.end(); iter++)
     {
         NS_LOG_DEBUG("  dest=" << iter->first << " --> next=" << iter->second.nextAddr
                                << " via interface " << iter->second.interface);

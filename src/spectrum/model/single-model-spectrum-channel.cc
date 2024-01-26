@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -20,6 +19,10 @@
 
 #include "single-model-spectrum-channel.h"
 
+#include "spectrum-phy.h"
+#include "spectrum-propagation-loss-model.h"
+#include "spectrum-transmit-filter.h"
+
 #include <ns3/angles.h>
 #include <ns3/antenna-model.h>
 #include <ns3/double.h>
@@ -33,8 +36,6 @@
 #include <ns3/propagation-delay-model.h>
 #include <ns3/propagation-loss-model.h>
 #include <ns3/simulator.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-propagation-loss-model.h>
 
 #include <algorithm>
 
@@ -85,7 +86,10 @@ void
 SingleModelSpectrumChannel::AddRx(Ptr<SpectrumPhy> phy)
 {
     NS_LOG_FUNCTION(this << phy);
-    m_phyList.push_back(phy);
+    if (std::find(m_phyList.cbegin(), m_phyList.cend(), phy) == m_phyList.cend())
+    {
+        m_phyList.push_back(phy);
+    }
 }
 
 void
@@ -115,9 +119,7 @@ SingleModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
 
     Ptr<MobilityModel> senderMobility = txParams->txPhy->GetMobility();
 
-    for (PhyList::const_iterator rxPhyIterator = m_phyList.begin();
-         rxPhyIterator != m_phyList.end();
-         ++rxPhyIterator)
+    for (auto rxPhyIterator = m_phyList.begin(); rxPhyIterator != m_phyList.end(); ++rxPhyIterator)
     {
         Ptr<NetDevice> rxNetDevice = (*rxPhyIterator)->GetDevice();
         Ptr<NetDevice> txNetDevice = txParams->txPhy->GetDevice();
@@ -131,6 +133,11 @@ SingleModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
                              "same node, not supported yet by any pathloss model in ns-3.");
                 continue;
             }
+        }
+
+        if (m_filter && m_filter->Filter(txParams, *rxPhyIterator))
+        {
+            continue;
         }
 
         if ((*rxPhyIterator) != txParams->txPhy)

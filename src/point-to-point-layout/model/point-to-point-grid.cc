@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,7 +17,7 @@
 
 // Implement an object to create a grid topology.
 
-#include "ns3/point-to-point-grid.h"
+#include "point-to-point-grid.h"
 
 #include "ns3/constant-position-mobility-model.h"
 #include "ns3/internet-stack-helper.h"

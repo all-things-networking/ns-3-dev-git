@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -22,7 +21,8 @@
 #ifndef MESH_HELPER_H
 #define MESH_HELPER_H
 
-#include "ns3/mesh-stack-installer.h"
+#include "mesh-stack-installer.h"
+
 #include "ns3/object-factory.h"
 #include "ns3/qos-utils.h"
 #include "ns3/wifi-standards.h"
@@ -87,7 +87,7 @@ class MeshHelper
      * Set standard
      * \param standard the wifi phy standard
      */
-    void SetStandard(enum WifiStandard standard);
+    void SetStandard(WifiStandard standard);
 
     /// \todo SetMeshId
     // void SetMeshId (std::string s);
@@ -183,7 +183,7 @@ class MeshHelper
     ObjectFactory m_mac;                  ///< the MAC
     ObjectFactory m_stationManager;       ///< the station manager
     ObjectFactory m_ackPolicySelector[4]; ///< ack policy selector for all ACs
-    enum WifiStandard m_standard;         ///< standard
+    WifiStandard m_standard;              ///< standard
 };
 
 /***************************************************************

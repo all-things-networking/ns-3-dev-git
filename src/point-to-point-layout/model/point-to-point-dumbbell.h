@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -165,7 +164,7 @@ class PointToPointDumbbellHelper
      * \param lrx lower right x value
      * \param lry lower right y value
      */
-    void BoundingBox(double ulx, double uly, double lrx, double lry);
+    void BoundingBox(double ulx, double uly, double lrx, double lry) const;
 
   private:
     NodeContainer m_leftLeaf;                        //!< Left Leaf nodes

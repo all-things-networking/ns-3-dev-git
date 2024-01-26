@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Alexander Krotov <ilabdsf@yandex.ru>
  *
@@ -28,7 +27,6 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Test for bug 2211.
  *
@@ -121,7 +119,7 @@ TcpEndPointBug2211Test::DoRun()
 
     TypeId tid = TcpSocketFactory::GetTypeId();
     Ptr<Socket> sink = Socket::CreateSocket(node, tid);
-    if (m_v6 == false)
+    if (!m_v6)
     {
         sink->Bind(InetSocketAddress(Ipv4Address::GetAny(), 9));
     }
@@ -137,7 +135,7 @@ TcpEndPointBug2211Test::DoRun()
     source->Bind();
     source->SetConnectCallback(MakeCallback(&TcpEndPointBug2211Test::HandleConnect, this),
                                MakeNullCallback<void, Ptr<Socket>>());
-    if (m_v6 == false)
+    if (!m_v6)
     {
         source->Connect(InetSocketAddress(Ipv4Address::GetLoopback(), 9));
     }
@@ -152,7 +150,6 @@ TcpEndPointBug2211Test::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite for bug 2211 - It must be used with valgrind.
  */

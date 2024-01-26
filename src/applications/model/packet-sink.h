@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright 2007 University of Washington
  *
@@ -21,13 +20,14 @@
 #ifndef PACKET_SINK_H
 #define PACKET_SINK_H
 
+#include "seq-ts-size-header.h"
+
 #include "ns3/address.h"
 #include "ns3/application.h"
 #include "ns3/event-id.h"
 #include "ns3/inet-socket-address.h"
 #include "ns3/inet6-socket-address.h"
 #include "ns3/ptr.h"
-#include "ns3/seq-ts-size-header.h"
 #include "ns3/traced-callback.h"
 
 #include <unordered_map>

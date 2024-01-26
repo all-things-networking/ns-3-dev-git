@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 INRIA
  *
@@ -20,8 +19,9 @@
 #ifndef ARP_L3_PROTOCOL_H
 #define ARP_L3_PROTOCOL_H
 
+#include "ipv4-header.h"
+
 #include "ns3/address.h"
-#include "ns3/ipv4-header.h"
 #include "ns3/net-device.h"
 #include "ns3/ptr.h"
 #include "ns3/random-variable-stream.h"

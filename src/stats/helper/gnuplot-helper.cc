@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 University of Washington
  *
@@ -108,7 +107,7 @@ GnuplotHelper::PlotProbe(const std::string& typeId,
                          const std::string& path,
                          const std::string& probeTraceSource,
                          const std::string& title,
-                         enum GnuplotAggregator::KeyLocation keyLocation)
+                         GnuplotAggregator::KeyLocation keyLocation)
 {
     NS_LOG_FUNCTION(this << typeId << path << probeTraceSource << title << keyLocation);
 
@@ -258,8 +257,7 @@ Ptr<Probe>
 GnuplotHelper::GetProbe(std::string probeName) const
 {
     // Look for the probe.
-    std::map<std::string, std::pair<Ptr<Probe>, std::string>>::const_iterator mapIterator =
-        m_probeMap.find(probeName);
+    auto mapIterator = m_probeMap.find(probeName);
 
     // Return the probe if it has been added.
     if (mapIterator != m_probeMap.end())

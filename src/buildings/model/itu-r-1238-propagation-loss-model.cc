@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,11 +20,12 @@
  */
 #include "itu-r-1238-propagation-loss-model.h"
 
+#include "mobility-building-info.h"
+
 #include "ns3/double.h"
 #include "ns3/enum.h"
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
-#include <ns3/mobility-building-info.h>
 
 #include <cmath>
 

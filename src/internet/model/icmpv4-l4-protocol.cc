@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -21,13 +20,14 @@
 #include "icmpv4-l4-protocol.h"
 
 #include "ipv4-interface.h"
-#include "ipv4-l3-protocol.h"
 #include "ipv4-raw-socket-factory-impl.h"
+#include "ipv4-route.h"
+#include "ipv4-routing-protocol.h"
+#include "ipv4.h"
+#include "ipv6-interface.h"
 
 #include "ns3/assert.h"
 #include "ns3/boolean.h"
-#include "ns3/ipv4-route.h"
-#include "ns3/ipv6-interface.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
@@ -222,14 +222,18 @@ void
 Icmpv4L4Protocol::HandleEcho(Ptr<Packet> p,
                              Icmpv4Header header,
                              Ipv4Address source,
-                             Ipv4Address destination)
+                             Ipv4Address destination,
+                             uint8_t tos)
 {
-    NS_LOG_FUNCTION(this << p << header << source << destination);
+    NS_LOG_FUNCTION(this << p << header << source << destination << tos);
 
     Ptr<Packet> reply = Create<Packet>();
     Icmpv4Echo echo;
     p->RemoveHeader(echo);
     reply->AddHeader(echo);
+    SocketIpTosTag ipTosTag;
+    ipTosTag.SetTos(tos);
+    reply->ReplacePacketTag(ipTosTag);
     SendMessage(reply, destination, source, Icmpv4Header::ICMPV4_ECHO_REPLY, 0, nullptr);
 }
 
@@ -290,7 +294,7 @@ Icmpv4L4Protocol::HandleTimeExceeded(Ptr<Packet> p,
     Forward(source, icmp, 0, ipHeader, payload);
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv4L4Protocol::Receive(Ptr<Packet> p,
                           const Ipv4Header& header,
                           Ptr<Ipv4Interface> incomingInterface)
@@ -301,9 +305,35 @@ Icmpv4L4Protocol::Receive(Ptr<Packet> p,
     p->RemoveHeader(icmp);
     switch (icmp.GetType())
     {
-    case Icmpv4Header::ICMPV4_ECHO:
-        HandleEcho(p, icmp, header.GetSource(), header.GetDestination());
+    case Icmpv4Header::ICMPV4_ECHO: {
+        Ipv4Address dst = header.GetDestination();
+        // We could have received an Echo request to a broadcast-type address.
+        if (dst.IsBroadcast())
+        {
+            Ipv4Address src = header.GetSource();
+            for (uint32_t index = 0; index < incomingInterface->GetNAddresses(); index++)
+            {
+                Ipv4InterfaceAddress addr = incomingInterface->GetAddress(index);
+                if (addr.IsInSameSubnet(src))
+                {
+                    dst = addr.GetAddress();
+                }
+            }
+        }
+        else
+        {
+            for (uint32_t index = 0; index < incomingInterface->GetNAddresses(); index++)
+            {
+                Ipv4InterfaceAddress addr = incomingInterface->GetAddress(index);
+                if (dst == addr.GetBroadcast())
+                {
+                    dst = addr.GetAddress();
+                }
+            }
+        }
+        HandleEcho(p, icmp, header.GetSource(), dst, header.GetTos());
         break;
+    }
     case Icmpv4Header::ICMPV4_DEST_UNREACH:
         HandleDestUnreach(p, icmp, header.GetSource(), header.GetDestination());
         break;
@@ -317,7 +347,7 @@ Icmpv4L4Protocol::Receive(Ptr<Packet> p,
     return IpL4Protocol::RX_OK;
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv4L4Protocol::Receive(Ptr<Packet> p,
                           const Ipv6Header& header,
                           Ptr<Ipv6Interface> incomingInterface)

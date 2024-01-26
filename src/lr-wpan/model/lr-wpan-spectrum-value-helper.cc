@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -125,6 +124,12 @@ LrWpanSpectrumValueHelper::CreateNoisePowerSpectralDensity(uint32_t channel)
     (*noisePsd)[2405 + 5 * (channel - 11) - 2400 + 2] = noisePowerDensity;
 
     return noisePsd;
+}
+
+void
+LrWpanSpectrumValueHelper::SetNoiseFactor(double f)
+{
+    m_noiseFactor = f;
 }
 
 double

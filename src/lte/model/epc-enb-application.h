@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -15,20 +14,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Author: Jaume Nin <jnin@cttc.cat>
- *         Nicola Baldo <nbaldo@cttc.cat>
+ * Authors:
+ *   Jaume Nin <jnin@cttc.cat>
+ *   Nicola Baldo <nbaldo@cttc.cat>
  */
 
 #ifndef EPC_ENB_APPLICATION_H
 #define EPC_ENB_APPLICATION_H
 
+#include "epc-enb-s1-sap.h"
+#include "epc-s1ap-sap.h"
+
 #include <ns3/address.h>
 #include <ns3/application.h>
 #include <ns3/callback.h>
-#include <ns3/epc-enb-s1-sap.h>
-#include <ns3/epc-s1ap-sap.h>
-#include <ns3/eps-bearer.h>
-#include <ns3/lte-common.h>
 #include <ns3/object.h>
 #include <ns3/ptr.h>
 #include <ns3/socket.h>
@@ -69,9 +68,11 @@ class EpcEnbApplication : public Application
     /**
      * Constructor
      *
-     * \param lteSocket the socket to be used to send/receive IPv4 packets to/from the LTE radio
-     * interface \param lteSocket6 the socket to be used to send/receive IPv6 packets to/from the
-     * LTE radio interface \param cellId the identifier of the eNB
+     * \param lteSocket the socket to be used to send/receive IPv4 packets to/from the
+     * LTE radio interface
+     * \param lteSocket6 the socket to be used to send/receive IPv6 packets to/from the
+     * LTE radio interface
+     * \param cellId the identifier of the eNB
      */
     EpcEnbApplication(Ptr<Socket> lteSocket, Ptr<Socket> lteSocket6, uint16_t cellId);
 
@@ -79,8 +80,9 @@ class EpcEnbApplication : public Application
      * Add a S1-U interface to the eNB
      *
      * \param s1uSocket the socket to be used to send/receive packets to/from the S1-U interface
-     * connected with the SGW \param enbS1uAddress the IPv4 address of the S1-U interface of this
-     * eNB \param sgwS1uAddress the IPv4 address at which this eNB will be able to reach its SGW for
+     * connected with the SGW
+     * \param enbS1uAddress the IPv4 address of the S1-U interface of this eNB
+     * \param sgwS1uAddress the IPv4 address at which this eNB will be able to reach its SGW for
      * S1-U communications
      */
     void AddS1Interface(Ptr<Socket> s1uSocket,
@@ -148,7 +150,7 @@ class EpcEnbApplication : public Application
     struct EpsFlowId_t
     {
         uint16_t m_rnti; ///< RNTI
-        uint8_t m_bid;   ///< Bid, the EPS Bearer IDentifier
+        uint8_t m_bid;   ///< Bid, the EPS Bearer Identifier
 
       public:
         EpsFlowId_t();
@@ -223,8 +225,10 @@ class EpcEnbApplication : public Application
 
     /**
      * \brief This function accepts bearer id corresponding to a particular UE and schedules
-     * indication of bearer release towards MME \param imsi maps to mmeUeS1Id \param rnti maps to
-     * enbUeS1Id \param bearerId Bearer Identity which is to be de-activated
+     * indication of bearer release towards MME
+     * \param imsi maps to mmeUeS1Id
+     * \param rnti maps to enbUeS1Id
+     * \param bearerId Bearer Identity which is to be de-activated
      */
     void DoReleaseIndication(uint64_t imsi, uint16_t rnti, uint8_t bearerId);
 
@@ -233,7 +237,7 @@ class EpcEnbApplication : public Application
      *
      * \param packet t
      * \param rnti maps to enbUeS1Id
-     * \param bid the EPS Bearer IDentifier
+     * \param bid the EPS Bearer Identifier
      */
     void SendToLteSocket(Ptr<Packet> packet, uint16_t rnti, uint8_t bid);
 
@@ -241,16 +245,16 @@ class EpcEnbApplication : public Application
      * Send a packet to the SGW via the S1-U interface
      *
      * \param packet packet to be sent
-     * \param teid the Tunnel Enpoint IDentifier
+     * \param teid the Tunnel Endpoint Identifier
      */
     void SendToS1uSocket(Ptr<Packet> packet, uint32_t teid);
 
     /**
      * internal method used for the actual setup of the S1 Bearer
      *
-     * \param teid the Tunnel Endpoint IDentifier
+     * \param teid the Tunnel Endpoint Identifier
      * \param rnti maps to enbUeS1Id
-     * \param bid the S1-U Bearer IDentifier
+     * \param bid the S1-U Bearer Identifier
      */
     void SetupS1Bearer(uint32_t teid, uint16_t rnti, uint8_t bid);
 

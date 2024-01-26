@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,7 +20,8 @@
 #ifndef EPC_X2_SAP_H
 #define EPC_X2_SAP_H
 
-#include "ns3/eps-bearer.h"
+#include "eps-bearer.h"
+
 #include "ns3/ipv4-address.h"
 #include "ns3/packet.h"
 
@@ -233,8 +233,8 @@ class EpcX2Sap
         uint16_t sourceCellId;                  ///< source cell ID
         uint16_t targetCellId;                  ///< target cell ID
         uint32_t mmeUeS1apId;                   ///< MME UE S1 AP ID
-        uint64_t ueAggregateMaxBitRateDownlink; ///< UE aggregrate max bit rate downlink
-        uint64_t ueAggregateMaxBitRateUplink;   ///< UE aggregrate max bit rate uplink
+        uint64_t ueAggregateMaxBitRateDownlink; ///< UE aggregate max bit rate downlink
+        uint64_t ueAggregateMaxBitRateUplink;   ///< UE aggregate max bit rate uplink
         std::vector<ErabToBeSetupItem> bearers; ///< bearers
         Ptr<Packet> rrcContext;                 ///< RRC context
     };
@@ -340,7 +340,6 @@ class EpcX2Sap
      * \brief Parameters of the HANDOVER CANCEL message.
      *
      * See section 9.1.1.6 for further info about the parameters
-     *
      */
     struct HandoverCancelParams
     {
@@ -403,7 +402,7 @@ class EpcX2SapProvider : public EpcX2Sap
 
     /**
      * Send resource status update function
-     * \param params the resource statue update paramweters
+     * \param params the resource statue update parameters
      */
     virtual void SendResourceStatusUpdate(ResourceStatusUpdateParams params) = 0;
 
@@ -505,19 +504,22 @@ class EpcX2SpecificEpcX2SapProvider : public EpcX2SapProvider
      */
     EpcX2SpecificEpcX2SapProvider(C* x2);
 
+    // Delete default constructor to avoid misuse
+    EpcX2SpecificEpcX2SapProvider() = delete;
+
     //
     // Interface implemented from EpcX2SapProvider
     //
 
     /**
      * Send handover request function
-     * \param params the hadnover request parameters
+     * \param params the handover request parameters
      */
     void SendHandoverRequest(HandoverRequestParams params) override;
 
     /**
      * Send handover request ack function
-     * \param params the handover request ack pararameters
+     * \param params the handover request ack parameters
      */
     void SendHandoverRequestAck(HandoverRequestAckParams params) override;
 
@@ -564,18 +566,12 @@ class EpcX2SpecificEpcX2SapProvider : public EpcX2SapProvider
     void SendHandoverCancel(HandoverCancelParams params) override;
 
   private:
-    EpcX2SpecificEpcX2SapProvider();
     C* m_x2; ///< owner class
 };
 
 template <class C>
 EpcX2SpecificEpcX2SapProvider<C>::EpcX2SpecificEpcX2SapProvider(C* x2)
     : m_x2(x2)
-{
-}
-
-template <class C>
-EpcX2SpecificEpcX2SapProvider<C>::EpcX2SpecificEpcX2SapProvider()
 {
 }
 
@@ -657,6 +653,9 @@ class EpcX2SpecificEpcX2SapUser : public EpcX2SapUser
      */
     EpcX2SpecificEpcX2SapUser(C* rrc);
 
+    // Delete default constructor to avoid misuse
+    EpcX2SpecificEpcX2SapUser() = delete;
+
     //
     // Interface implemented from EpcX2SapUser
     //
@@ -717,18 +716,12 @@ class EpcX2SpecificEpcX2SapUser : public EpcX2SapUser
     void RecvHandoverCancel(HandoverCancelParams params) override;
 
   private:
-    EpcX2SpecificEpcX2SapUser();
     C* m_rrc; ///< owner class
 };
 
 template <class C>
 EpcX2SpecificEpcX2SapUser<C>::EpcX2SpecificEpcX2SapUser(C* rrc)
     : m_rrc(rrc)
-{
-}
-
-template <class C>
-EpcX2SpecificEpcX2SapUser<C>::EpcX2SpecificEpcX2SapUser()
 {
 }
 

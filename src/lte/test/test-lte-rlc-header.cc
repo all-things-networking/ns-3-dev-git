@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012, 2013 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -36,7 +35,6 @@ namespace ns3
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test Utils
  */
@@ -107,7 +105,6 @@ class TestUtils
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Rlc Am Status Pdu Test Case
  */
@@ -154,8 +151,7 @@ RlcAmStatusPduTestCase::DoRun()
     LteRlcAmHeader h;
     h.SetControlPdu(LteRlcAmHeader::STATUS_PDU);
     h.SetAckSn(m_ackSn);
-    for (std::list<SequenceNumber10>::iterator it = m_nackSnList.begin(); it != m_nackSnList.end();
-         ++it)
+    for (auto it = m_nackSnList.begin(); it != m_nackSnList.end(); ++it)
     {
         h.PushNack(it->GetValue());
     }
@@ -173,8 +169,7 @@ RlcAmStatusPduTestCase::DoRun()
     SequenceNumber10 ackSn = h2.GetAckSn();
     NS_TEST_ASSERT_MSG_EQ(ackSn, m_ackSn, "deserialized ACK SN differs from test vector");
 
-    for (std::list<SequenceNumber10>::iterator it = m_nackSnList.begin(); it != m_nackSnList.end();
-         ++it)
+    for (auto it = m_nackSnList.begin(); it != m_nackSnList.end(); ++it)
     {
         int nackSn = h2.PopNack();
         NS_TEST_ASSERT_MSG_GT(nackSn, -1, "not enough elements in deserialized NACK list");
@@ -188,7 +183,6 @@ RlcAmStatusPduTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte Rlc Header Test Suite
  */

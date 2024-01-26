@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
  *
@@ -24,6 +23,7 @@
 #include "qos-utils.h"
 #include "sta-wifi-mac.h"
 
+#include <optional>
 #include <set>
 #include <unordered_map>
 
@@ -178,7 +178,7 @@ class WifiAssocManager : public Object
      * \param apInfo the info about the given AP
      * \return a reference to the list of the links to setup with the given AP
      */
-    std::list<std::pair<std::uint8_t, uint8_t>>& GetSetupLinks(const StaWifiMac::ApInfo& apInfo);
+    std::list<StaWifiMac::ApInfo::SetupLinksInfo>& GetSetupLinks(const StaWifiMac::ApInfo& apInfo);
 
     /**
      * \return the scanning parameters.
@@ -233,7 +233,9 @@ class WifiAssocManager : public Object
      */
     bool CanSetupMultiLink(OptMleConstRef& mle, OptRnrConstRef& rnr);
 
-    Ptr<StaWifiMac> m_mac; ///< pointer to the STA wifi MAC
+    Ptr<StaWifiMac> m_mac;            ///< pointer to the STA wifi MAC
+    std::set<uint8_t> m_allowedLinks; /**< "Only Beacon and Probe Response frames received on a
+                                            link belonging to the this set are processed */
 
   private:
     /**

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -17,6 +16,8 @@
  */
 
 #include "tap-encode-decode.h"
+
+#include "ns3/mac48-address.h"
 
 #include <cerrno>
 #include <cstdlib>
@@ -39,7 +40,7 @@
 
 #define TAP_MAGIC 95549
 
-static int gVerbose = 0; // Set to true to turn on logging messages.
+static bool gVerbose = false; // Set to true to turn on logging messages.
 
 #define LOG(msg)                                                                                   \
     if (gVerbose)                                                                                  \
@@ -61,90 +62,6 @@ static int gVerbose = 0; // Set to true to turn on logging messages.
     {                                                                                              \
         ABORT(msg, printErrno);                                                                    \
     }
-
-//
-// Lots of the following helper code taken from corresponding functions in src/node.
-//
-#define ASCII_DOT (0x2e)
-#define ASCII_ZERO (0x30)
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-static char
-AsciiToLowCase(char c)
-{
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
-static uint32_t
-AsciiToIpv4(const char* address)
-{
-    uint32_t host = 0;
-    while (true)
-    {
-        uint8_t byte = 0;
-        while (*address != ASCII_DOT && *address != 0)
-        {
-            byte *= 10;
-            byte += *address - ASCII_ZERO;
-            address++;
-        }
-        host <<= 8;
-        host |= byte;
-        if (*address == 0)
-        {
-            break;
-        }
-        address++;
-    }
-    return host;
-}
-
-static void
-AsciiToMac48(const char* str, uint8_t addr[6])
-{
-    int i = 0;
-    while (*str != 0 && i < 6)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        addr[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-}
 
 static sockaddr
 CreateInetAddress(uint32_t networkOrder)
@@ -318,7 +235,7 @@ CreateTap(const char* dev,
     // configured a network tap that we are just going to use.  So don't mess
     // up his hard work by changing anything, just return the tap fd.
     //
-    if (strcmp(mode, "2") == 0 || strcmp(mode, "3") == 0)
+    if (std::string(mode) == "2" || std::string(mode) == "3")
     {
         LOG("Returning precreated tap ");
         return tap;
@@ -328,7 +245,7 @@ CreateTap(const char* dev,
     // Set the hardware (MAC) address of the new device
     //
     ifr.ifr_hwaddr.sa_family = 1; // this is ARPHRD_ETHER from if_arp.h
-    AsciiToMac48(mac, (uint8_t*)ifr.ifr_hwaddr.sa_data);
+    ns3::Mac48Address(mac).CopyTo((uint8_t*)ifr.ifr_hwaddr.sa_data);
     status = ioctl(tap, SIOCSIFHWADDR, &ifr);
     ABORT_IF(status == -1, "Could not set MAC address", true);
     LOG("Set device MAC address to " << mac);
@@ -348,7 +265,7 @@ CreateTap(const char* dev,
     //
     // Set the IP address of the new interface/device.
     //
-    ifr.ifr_addr = CreateInetAddress(AsciiToIpv4(ip));
+    ifr.ifr_addr = CreateInetAddress(ns3::Ipv4Address(ip).Get());
     status = ioctl(fd, SIOCSIFADDR, &ifr);
     ABORT_IF(status == -1, "Could not set IP address", true);
     LOG("Set device IP address to " << ip);
@@ -356,7 +273,7 @@ CreateTap(const char* dev,
     //
     // Set the net mask of the new interface/device
     //
-    ifr.ifr_netmask = CreateInetAddress(AsciiToIpv4(netmask));
+    ifr.ifr_netmask = CreateInetAddress(ns3::Ipv4Mask(netmask).Get());
     status = ioctl(fd, SIOCSIFNETMASK, &ifr);
     ABORT_IF(status == -1, "Could not set net mask", true);
     LOG("Set device Net Mask to " << netmask);
@@ -476,7 +393,7 @@ main(int argc, char* argv[])
     // in order to keep the main simulation program from having to be run with
     // root privileges.  We need root privileges to be able to futz with the
     // Tap device underlying all of this.  So all of these hoops are to allow
-    // us to exeucte the following code:
+    // us to execute the following code:
     //
     LOG("Creating Tap");
     int sock = CreateTap(dev, gw, ip, mac, operatingMode, netmask);

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *
@@ -228,9 +227,12 @@ WifiAcMappingTest::DoRun()
     // Get the four child queue discs and connect their Enqueue trace to the
     // PacketEnqueuedInQueueDisc method, which counts how many packets with the given ToS value have
     // been enqueued
+    // NOTE the purpose of the unary + operation in +m_QueueDiscCount is to decay the array type
+    // to a pointer type, so that the type of that argument matches the type of the second
+    // parameter of the PacketEnqueuedInQueueDisc function
     root->GetQueueDiscClass(0)->GetQueueDisc()->TraceConnectWithoutContext(
         "Enqueue",
-        MakeBoundCallback(&WifiAcMappingTest::PacketEnqueuedInQueueDisc, m_tos, m_QueueDiscCount));
+        MakeBoundCallback(&WifiAcMappingTest::PacketEnqueuedInQueueDisc, m_tos, +m_QueueDiscCount));
 
     root->GetQueueDiscClass(1)->GetQueueDisc()->TraceConnectWithoutContext(
         "Enqueue",
@@ -255,12 +257,15 @@ WifiAcMappingTest::DoRun()
     // Get the four wifi mac queues and connect their Enqueue trace to the
     // PacketEnqueuedInWifiMacQueue method, which counts how many packets with the given ToS value
     // have been enqueued
+    // NOTE the purpose of the unary + operation in +m_WifiMacQueueCount is to decay the array type
+    // to a pointer type, so that the type of that argument matches the type of the second
+    // parameter of the PacketEnqueuedInWifiMacQueue function
     apMac->GetAttribute("BE_Txop", ptr);
     ptr.Get<QosTxop>()->GetWifiMacQueue()->TraceConnectWithoutContext(
         "Enqueue",
         MakeBoundCallback(&WifiAcMappingTest::PacketEnqueuedInWifiMacQueue,
                           m_tos,
-                          m_WifiMacQueueCount));
+                          +m_WifiMacQueueCount));
 
     apMac->GetAttribute("BK_Txop", ptr);
     ptr.Get<QosTxop>()->GetWifiMacQueue()->TraceConnectWithoutContext(

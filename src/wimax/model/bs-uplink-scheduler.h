@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -168,7 +167,7 @@ class UplinkScheduler : public Object
      * \param availableSymbols the available symbols
      */
     virtual void ServiceUnsolicitedGrants(const SSRecord* ssRecord,
-                                          enum ServiceFlow::SchedulingType schedulingType,
+                                          ServiceFlow::SchedulingType schedulingType,
                                           OfdmUlMapIe& ulMapIe,
                                           const WimaxPhy::ModulationType modulationType,
                                           uint32_t& symbolsToAllocation,
@@ -183,7 +182,7 @@ class UplinkScheduler : public Object
      * \param availableSymbols the available symbols
      */
     virtual void ServiceBandwidthRequests(const SSRecord* ssRecord,
-                                          enum ServiceFlow::SchedulingType schedulingType,
+                                          ServiceFlow::SchedulingType schedulingType,
                                           OfdmUlMapIe& ulMapIe,
                                           const WimaxPhy::ModulationType modulationType,
                                           uint32_t& symbolsToAllocation,
@@ -199,7 +198,7 @@ class UplinkScheduler : public Object
      * \returns true if successful
      */
     virtual bool ServiceBandwidthRequests(ServiceFlow* serviceFlow,
-                                          enum ServiceFlow::SchedulingType schedulingType,
+                                          ServiceFlow::SchedulingType schedulingType,
                                           OfdmUlMapIe& ulMapIe,
                                           const WimaxPhy::ModulationType modulationType,
                                           uint32_t& symbolsToAllocation,

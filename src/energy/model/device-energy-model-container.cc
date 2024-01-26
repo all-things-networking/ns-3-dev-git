@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
@@ -90,7 +89,7 @@ void
 DeviceEnergyModelContainer::Add(DeviceEnergyModelContainer container)
 {
     NS_LOG_FUNCTION(this << &container);
-    for (Iterator i = container.Begin(); i != container.End(); i++)
+    for (auto i = container.Begin(); i != container.End(); i++)
     {
         m_models.push_back(*i);
     }

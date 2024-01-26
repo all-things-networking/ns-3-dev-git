@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -126,7 +125,7 @@ class Reservation
     /**
      * Set the reservation transmitted state.
      *
-     * \param t True if resevation has been transmitted.
+     * \param t True if reservation has been transmitted.
      */
     void SetTransmitted(bool t = true);
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright 2007 University of Washington
  *
@@ -21,13 +20,13 @@
 #include "global-router-interface.h"
 
 #include "ipv4-global-routing.h"
+#include "ipv4.h"
 #include "loopback-net-device.h"
 
 #include "ns3/abort.h"
 #include "ns3/assert.h"
 #include "ns3/bridge-net-device.h"
 #include "ns3/channel.h"
-#include "ns3/ipv4.h"
 #include "ns3/log.h"
 #include "ns3/net-device.h"
 #include "ns3/node-list.h"
@@ -194,12 +193,10 @@ void
 GlobalRoutingLSA::CopyLinkRecords(const GlobalRoutingLSA& lsa)
 {
     NS_LOG_FUNCTION(this << &lsa);
-    for (ListOfLinkRecords_t::const_iterator i = lsa.m_linkRecords.begin();
-         i != lsa.m_linkRecords.end();
-         i++)
+    for (auto i = lsa.m_linkRecords.begin(); i != lsa.m_linkRecords.end(); i++)
     {
         GlobalRoutingLinkRecord* pSrc = *i;
-        GlobalRoutingLinkRecord* pDst = new GlobalRoutingLinkRecord;
+        auto pDst = new GlobalRoutingLinkRecord;
 
         pDst->SetLinkType(pSrc->GetLinkType());
         pDst->SetLinkId(pSrc->GetLinkId());
@@ -223,7 +220,7 @@ void
 GlobalRoutingLSA::ClearLinkRecords()
 {
     NS_LOG_FUNCTION(this);
-    for (ListOfLinkRecords_t::iterator i = m_linkRecords.begin(); i != m_linkRecords.end(); i++)
+    for (auto i = m_linkRecords.begin(); i != m_linkRecords.end(); i++)
     {
         NS_LOG_LOGIC("Free link record");
 
@@ -231,7 +228,7 @@ GlobalRoutingLSA::ClearLinkRecords()
         delete p;
         p = nullptr;
 
-        *i = 0;
+        *i = nullptr;
     }
     NS_LOG_LOGIC("Clear list");
     m_linkRecords.clear();
@@ -257,8 +254,7 @@ GlobalRoutingLSA::GetLinkRecord(uint32_t n) const
 {
     NS_LOG_FUNCTION(this << n);
     uint32_t j = 0;
-    for (ListOfLinkRecords_t::const_iterator i = m_linkRecords.begin(); i != m_linkRecords.end();
-         i++, j++)
+    for (auto i = m_linkRecords.begin(); i != m_linkRecords.end(); i++, j++)
     {
         if (j == n)
         {
@@ -273,7 +269,7 @@ bool
 GlobalRoutingLSA::IsEmpty() const
 {
     NS_LOG_FUNCTION(this);
-    return m_linkRecords.size() == 0;
+    return m_linkRecords.empty();
 }
 
 GlobalRoutingLSA::LSType
@@ -359,9 +355,7 @@ GlobalRoutingLSA::GetAttachedRouter(uint32_t n) const
 {
     NS_LOG_FUNCTION(this << n);
     uint32_t j = 0;
-    for (ListOfAttachedRouters_t::const_iterator i = m_attachedRouters.begin();
-         i != m_attachedRouters.end();
-         i++, j++)
+    for (auto i = m_attachedRouters.begin(); i != m_attachedRouters.end(); i++, j++)
     {
         if (j == n)
         {
@@ -423,9 +417,7 @@ GlobalRoutingLSA::Print(std::ostream& os) const
 
     if (m_lsType == GlobalRoutingLSA::RouterLSA)
     {
-        for (ListOfLinkRecords_t::const_iterator i = m_linkRecords.begin();
-             i != m_linkRecords.end();
-             i++)
+        for (auto i = m_linkRecords.begin(); i != m_linkRecords.end(); i++)
         {
             GlobalRoutingLinkRecord* p = *i;
 
@@ -470,9 +462,7 @@ GlobalRoutingLSA::Print(std::ostream& os) const
     {
         os << "---------- NetworkLSA Link Record ----------" << std::endl;
         os << "m_networkLSANetworkMask = " << m_networkLSANetworkMask << std::endl;
-        for (ListOfAttachedRouters_t::const_iterator i = m_attachedRouters.begin();
-             i != m_attachedRouters.end();
-             i++)
+        for (auto i = m_attachedRouters.begin(); i != m_attachedRouters.end(); i++)
         {
             Ipv4Address p = *i;
             os << "attachedRouter = " << p << std::endl;
@@ -546,7 +536,7 @@ GlobalRouter::DoDispose()
 {
     NS_LOG_FUNCTION(this);
     m_routingProtocol = nullptr;
-    for (InjectedRoutesI k = m_injectedRoutes.begin(); k != m_injectedRoutes.end();
+    for (auto k = m_injectedRoutes.begin(); k != m_injectedRoutes.end();
          k = m_injectedRoutes.erase(k))
     {
         delete (*k);
@@ -558,7 +548,7 @@ void
 GlobalRouter::ClearLSAs()
 {
     NS_LOG_FUNCTION(this);
-    for (ListOfLSAs_t::iterator i = m_LSAs.begin(); i != m_LSAs.end(); i++)
+    for (auto i = m_LSAs.begin(); i != m_LSAs.end(); i++)
     {
         NS_LOG_LOGIC("Free LSA");
 
@@ -566,7 +556,7 @@ GlobalRouter::ClearLSAs()
         delete p;
         p = nullptr;
 
-        *i = 0;
+        *i = nullptr;
     }
     NS_LOG_LOGIC("Clear list of LSAs");
     m_LSAs.clear();
@@ -615,7 +605,7 @@ GlobalRouter::DiscoverLSAs()
     //
     // Every router node originates a Router-LSA
     //
-    GlobalRoutingLSA* pLSA = new GlobalRoutingLSA;
+    auto pLSA = new GlobalRoutingLSA;
     pLSA->SetLSType(GlobalRoutingLSA::RouterLSA);
     pLSA->SetLinkStateId(m_routerId);
     pLSA->SetAdvertisingRouter(m_routerId);
@@ -662,8 +652,9 @@ GlobalRouter::DiscoverLSAs()
         // associated with a bridge.  We are only going to involve devices with
         // IP addresses in routing.
         //
-        uint32_t interfaceNumber = ipv4Local->GetInterfaceForDevice(ndLocal);
-        if (!(ipv4Local->IsUp(interfaceNumber) && ipv4Local->IsForwarding(interfaceNumber)))
+        int32_t interfaceNumber = ipv4Local->GetInterfaceForDevice(ndLocal);
+        if (interfaceNumber == -1 ||
+            !(ipv4Local->IsUp(interfaceNumber) && ipv4Local->IsForwarding(interfaceNumber)))
         {
             NS_LOG_LOGIC("Net device "
                          << ndLocal
@@ -717,9 +708,9 @@ GlobalRouter::DiscoverLSAs()
     // Build injected route LSAs as external routes
     // RFC 2328, section 12.4.4
     //
-    for (InjectedRoutesCI i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
+    for (auto i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
     {
-        GlobalRoutingLSA* pLSA = new GlobalRoutingLSA;
+        auto pLSA = new GlobalRoutingLSA;
         pLSA->SetLSType(GlobalRoutingLSA::ASExternalLSAs);
         pLSA->SetLinkStateId((*i)->GetDestNetwork());
         pLSA->SetAdvertisingRouter(m_routerId);
@@ -752,7 +743,7 @@ GlobalRouter::ProcessSingleBroadcastLink(Ptr<NetDevice> nd,
 {
     NS_LOG_FUNCTION(this << nd << pLSA << &c);
 
-    GlobalRoutingLinkRecord* plr = new GlobalRoutingLinkRecord;
+    auto plr = new GlobalRoutingLinkRecord;
     NS_ABORT_MSG_IF(plr == nullptr,
                     "GlobalRouter::ProcessSingleBroadcastLink(): Can't alloc link record");
 
@@ -791,7 +782,7 @@ GlobalRouter::ProcessSingleBroadcastLink(Ptr<NetDevice> nd,
     // is a transit network.
     //
     ClearBridgesVisited();
-    if (AnotherRouterOnLink(nd) == false)
+    if (!AnotherRouterOnLink(nd))
     {
         //
         // This is a net device connected to a stub network
@@ -831,29 +822,29 @@ GlobalRouter::ProcessSingleBroadcastLink(Ptr<NetDevice> nd,
         // case.
         //
         ClearBridgesVisited();
-        Ipv4Address desigRtr;
-        desigRtr = FindDesignatedRouterForLink(nd);
+        Ipv4Address designatedRtr;
+        designatedRtr = FindDesignatedRouterForLink(nd);
 
         //
         // Let's double-check that any designated router we find out on our
         // network is really on our network.
         //
-        if (desigRtr != "255.255.255.255")
+        if (designatedRtr != "255.255.255.255")
         {
             Ipv4Address networkHere = addrLocal.CombineMask(maskLocal);
-            Ipv4Address networkThere = desigRtr.CombineMask(maskLocal);
+            Ipv4Address networkThere = designatedRtr.CombineMask(maskLocal);
             NS_ABORT_MSG_UNLESS(
                 networkHere == networkThere,
                 "GlobalRouter::ProcessSingleBroadcastLink(): Network number confusion ("
-                    << addrLocal << "/" << maskLocal.GetPrefixLength() << ", " << desigRtr << "/"
-                    << maskLocal.GetPrefixLength() << ")");
+                    << addrLocal << "/" << maskLocal.GetPrefixLength() << ", " << designatedRtr
+                    << "/" << maskLocal.GetPrefixLength() << ")");
         }
-        if (desigRtr == addrLocal)
+        if (designatedRtr == addrLocal)
         {
             c.Add(nd);
             NS_LOG_LOGIC("Node " << node->GetId() << " elected a designated router");
         }
-        plr->SetLinkId(desigRtr);
+        plr->SetLinkId(designatedRtr);
 
         //
         // OSPF says that the Link Data is this router's own IP address.
@@ -921,7 +912,7 @@ GlobalRouter::ProcessBridgedBroadcastLink(Ptr<NetDevice> nd,
   //
 
   bool areTransitNetwork = false;
-  Ipv4Address desigRtr ("255.255.255.255");
+  Ipv4Address designatedRtr ("255.255.255.255");
 
   for (uint32_t i = 0; i < bnd->GetNBridgePorts (); ++i)
     {
@@ -945,24 +936,24 @@ GlobalRouter::ProcessBridgedBroadcastLink(Ptr<NetDevice> nd,
           // all.
           //
           ClearBridgesVisited ();
-          Ipv4Address desigRtrTemp = FindDesignatedRouterForLink (ndTemp);
+          Ipv4Address designatedRtrTemp = FindDesignatedRouterForLink (ndTemp);
 
           //
           // Let's double-check that any designated router we find out on our
           // network is really on our network.
           //
-          if (desigRtrTemp != "255.255.255.255")
+          if (designatedRtrTemp != "255.255.255.255")
             {
               Ipv4Address networkHere = addrLocal.CombineMask (maskLocal);
-              Ipv4Address networkThere = desigRtrTemp.CombineMask (maskLocal);
+              Ipv4Address networkThere = designatedRtrTemp.CombineMask (maskLocal);
               NS_ABORT_MSG_UNLESS (networkHere == networkThere,
                                    "GlobalRouter::ProcessSingleBroadcastLink(): Network number confusion (" <<
                                    addrLocal << "/" << maskLocal.GetPrefixLength () << ", " <<
-                                   desigRtrTemp << "/" << maskLocal.GetPrefixLength () << ")");
+                                   designatedRtrTemp << "/" << maskLocal.GetPrefixLength () << ")");
             }
-          if (desigRtrTemp < desigRtr)
+          if (designatedRtrTemp < designatedRtr)
             {
-              desigRtr = desigRtrTemp;
+              designatedRtr = designatedRtrTemp;
             }
         }
     }
@@ -1013,12 +1004,12 @@ GlobalRouter::ProcessBridgedBroadcastLink(Ptr<NetDevice> nd,
       // gets the IP interface address of the designated router in this
       // case.
       //
-      if (desigRtr == addrLocal)
+      if (designatedRtr == addrLocal)
         {
           c.Add (nd);
           NS_LOG_LOGIC ("Node " << node->GetId () << " elected a designated router");
         }
-      plr->SetLinkId (desigRtr);
+      plr->SetLinkId (designatedRtr);
 
       //
       // OSPF says that the Link Data is this router's own IP address.
@@ -1193,7 +1184,7 @@ GlobalRouter::BuildNetworkLSAs(NetDeviceContainer c)
         Ipv4Address addrLocal = ipv4Local->GetAddress(interfaceLocal, 0).GetLocal();
         Ipv4Mask maskLocal = ipv4Local->GetAddress(interfaceLocal, 0).GetMask();
 
-        GlobalRoutingLSA* pLSA = new GlobalRoutingLSA;
+        auto pLSA = new GlobalRoutingLSA;
         NS_ABORT_MSG_IF(pLSA == nullptr,
                         "GlobalRouter::BuildNetworkLSAs(): Can't alloc link record");
 
@@ -1290,7 +1281,7 @@ GlobalRouter::FindAllNonBridgedDevicesOnLink(Ptr<Channel> ch) const
         Ptr<NetDevice> nd = ch->GetDevice(i);
         NS_LOG_LOGIC("checking to see if the device " << nd << " is bridged");
         Ptr<BridgeNetDevice> bnd = NetDeviceIsBridged(nd);
-        if (bnd && BridgeHasAlreadyBeenVisited(bnd) == false)
+        if (bnd && !BridgeHasAlreadyBeenVisited(bnd))
         {
             NS_LOG_LOGIC("Device is bridged by BridgeNetDevice "
                          << bnd << " with " << bnd->GetNBridgePorts() << " ports");
@@ -1337,7 +1328,7 @@ GlobalRouter::FindDesignatedRouterForLink(Ptr<NetDevice> ndLocal) const
     NS_LOG_LOGIC("Looking for designated router off of net device " << ndLocal << " on node "
                                                                     << ndLocal->GetNode()->GetId());
 
-    Ipv4Address desigRtr("255.255.255.255");
+    Ipv4Address designatedRtr("255.255.255.255");
 
     //
     // Look through all of the devices on the channel to which the net device
@@ -1402,8 +1393,8 @@ GlobalRouter::FindDesignatedRouterForLink(Ptr<NetDevice> ndLocal) const
                                     "primary one");
                     }
                     Ipv4Address addrOther = ipv4->GetAddress(interfaceOther, 0).GetLocal();
-                    desigRtr = addrOther < desigRtr ? addrOther : desigRtr;
-                    NS_LOG_LOGIC("designated router now " << desigRtr);
+                    designatedRtr = addrOther < designatedRtr ? addrOther : designatedRtr;
+                    NS_LOG_LOGIC("designated router now " << designatedRtr);
                 }
             }
 
@@ -1433,8 +1424,8 @@ GlobalRouter::FindDesignatedRouterForLink(Ptr<NetDevice> ndLocal) const
 
                 NS_LOG_LOGIC("Recursively looking for routers down bridge port " << ndBridged);
                 Ipv4Address addrOther = FindDesignatedRouterForLink(ndBridged);
-                desigRtr = addrOther < desigRtr ? addrOther : desigRtr;
-                NS_LOG_LOGIC("designated router now " << desigRtr);
+                designatedRtr = addrOther < designatedRtr ? addrOther : designatedRtr;
+                NS_LOG_LOGIC("designated router now " << designatedRtr);
             }
         }
         else
@@ -1466,13 +1457,13 @@ GlobalRouter::FindDesignatedRouterForLink(Ptr<NetDevice> ndLocal) const
                                     "primary one");
                     }
                     Ipv4Address addrOther = ipv4->GetAddress(interfaceOther, 0).GetLocal();
-                    desigRtr = addrOther < desigRtr ? addrOther : desigRtr;
-                    NS_LOG_LOGIC("designated router now " << desigRtr);
+                    designatedRtr = addrOther < designatedRtr ? addrOther : designatedRtr;
+                    NS_LOG_LOGIC("designated router now " << designatedRtr);
                 }
             }
         }
     }
-    return desigRtr;
+    return designatedRtr;
 }
 
 //
@@ -1604,7 +1595,7 @@ GlobalRouter::GetLSA(uint32_t n, GlobalRoutingLSA& lsa) const
     // walk the list of link state advertisements created there and return the
     // one the client is interested in.
     //
-    ListOfLSAs_t::const_iterator i = m_LSAs.begin();
+    auto i = m_LSAs.begin();
     uint32_t j = 0;
 
     for (; i != m_LSAs.end(); i++, j++)
@@ -1624,7 +1615,7 @@ void
 GlobalRouter::InjectRoute(Ipv4Address network, Ipv4Mask networkMask)
 {
     NS_LOG_FUNCTION(this << network << networkMask);
-    Ipv4RoutingTableEntry* route = new Ipv4RoutingTableEntry();
+    auto route = new Ipv4RoutingTableEntry();
     //
     // Interface number does not matter here, using 1.
     //
@@ -1639,7 +1630,7 @@ GlobalRouter::GetInjectedRoute(uint32_t index)
     if (index < m_injectedRoutes.size())
     {
         uint32_t tmp = 0;
-        for (InjectedRoutesCI i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
+        for (auto i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
         {
             if (tmp == index)
             {
@@ -1666,7 +1657,7 @@ GlobalRouter::RemoveInjectedRoute(uint32_t index)
     NS_LOG_FUNCTION(this << index);
     NS_ASSERT(index < m_injectedRoutes.size());
     uint32_t tmp = 0;
-    for (InjectedRoutesI i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
+    for (auto i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
     {
         if (tmp == index)
         {
@@ -1683,7 +1674,7 @@ bool
 GlobalRouter::WithdrawRoute(Ipv4Address network, Ipv4Mask networkMask)
 {
     NS_LOG_FUNCTION(this << network << networkMask);
-    for (InjectedRoutesI i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
+    for (auto i = m_injectedRoutes.begin(); i != m_injectedRoutes.end(); i++)
     {
         if ((*i)->GetDestNetwork() == network && (*i)->GetDestNetworkMask() == networkMask)
         {
@@ -1791,8 +1782,7 @@ GlobalRouter::ClearBridgesVisited() const
 bool
 GlobalRouter::BridgeHasAlreadyBeenVisited(Ptr<BridgeNetDevice> bridgeNetDevice) const
 {
-    std::vector<Ptr<BridgeNetDevice>>::iterator iter;
-    for (iter = m_bridgesVisited.begin(); iter != m_bridgesVisited.end(); ++iter)
+    for (auto iter = m_bridgesVisited.begin(); iter != m_bridgesVisited.end(); ++iter)
     {
         if (bridgeNetDevice == *iter)
         {

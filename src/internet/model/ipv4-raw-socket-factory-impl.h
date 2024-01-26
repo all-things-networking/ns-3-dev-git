@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -21,7 +20,7 @@
 #ifndef IPV4_RAW_SOCKET_FACTORY_IMPL_H
 #define IPV4_RAW_SOCKET_FACTORY_IMPL_H
 
-#include "ns3/ipv4-raw-socket-factory.h"
+#include "ipv4-raw-socket-factory.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -166,7 +165,7 @@ void
 NodeListPriv::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (std::vector<Ptr<Node>>::iterator i = m_nodes.begin(); i != m_nodes.end(); i++)
+    for (auto i = m_nodes.begin(); i != m_nodes.end(); i++)
     {
         Ptr<Node> node = *i;
         node->Dispose();

@@ -12,6 +12,7 @@ set(source_files
     helper/wifi-mac-helper.cc
     helper/wifi-radio-energy-model-helper.cc
     helper/yans-wifi-helper.cc
+    model/addba-extension.cc
     model/adhoc-wifi-mac.cc
     model/ampdu-subframe-header.cc
     model/ampdu-tag.cc
@@ -25,10 +26,15 @@ set(source_files
     model/channel-access-manager.cc
     model/ctrl-headers.cc
     model/edca-parameter-set.cc
+    model/eht/default-emlsr-manager.cc
     model/eht/eht-capabilities.cc
     model/eht/eht-configuration.cc
+    model/eht/eht-frame-exchange-manager.cc
+    model/eht/eht-operation.cc
+    model/eht/tid-to-link-mapping-element.cc
     model/eht/eht-phy.cc
     model/eht/eht-ppdu.cc
+    model/eht/emlsr-manager.cc
     model/eht/multi-link-element.cc
     model/error-rate-model.cc
     model/extended-capabilities.cc
@@ -57,6 +63,7 @@ set(source_files
     model/interference-helper.cc
     model/mac-rx-middle.cc
     model/mac-tx-middle.cc
+    model/mgt-action-headers.cc
     model/mgt-headers.cc
     model/mpdu-aggregator.cc
     model/msdu-aggregator.cc
@@ -70,10 +77,10 @@ set(source_files
     model/non-ht/erp-ofdm-ppdu.cc
     model/non-ht/ofdm-phy.cc
     model/non-ht/ofdm-ppdu.cc
+    model/non-inheritance.cc
     model/originator-block-ack-agreement.cc
     model/phy-entity.cc
     model/preamble-detection-model.cc
-    model/qos-blocked-destinations.cc
     model/qos-frame-exchange-manager.cc
     model/qos-txop.cc
     model/qos-utils.cc
@@ -113,10 +120,10 @@ set(source_files
     model/wifi-ack-manager.cc
     model/wifi-acknowledgment.cc
     model/wifi-assoc-manager.cc
+    model/wifi-bandwidth-filter.cc
     model/wifi-default-ack-manager.cc
     model/wifi-default-assoc-manager.cc
     model/wifi-default-protection-manager.cc
-    model/wifi-information-element-vector.cc
     model/wifi-information-element.cc
     model/wifi-mac-header.cc
     model/wifi-mac-queue-container.cc
@@ -158,6 +165,7 @@ set(header_files
     helper/wifi-mac-helper.h
     helper/wifi-radio-energy-model-helper.h
     helper/yans-wifi-helper.h
+    model/addba-extension.h
     model/adhoc-wifi-mac.h
     model/ampdu-subframe-header.h
     model/ampdu-tag.h
@@ -171,10 +179,15 @@ set(header_files
     model/channel-access-manager.h
     model/ctrl-headers.h
     model/edca-parameter-set.h
+    model/eht/default-emlsr-manager.h
     model/eht/eht-capabilities.h
     model/eht/eht-configuration.h
+    model/eht/eht-frame-exchange-manager.h
+    model/eht/eht-operation.h
+    model/eht/tid-to-link-mapping-element.h
     model/eht/eht-phy.h
     model/eht/eht-ppdu.h
+    model/eht/emlsr-manager.h
     model/eht/multi-link-element.h
     model/error-rate-model.h
     model/extended-capabilities.h
@@ -203,6 +216,7 @@ set(header_files
     model/interference-helper.h
     model/mac-rx-middle.h
     model/mac-tx-middle.h
+    model/mgt-action-headers.h
     model/mgt-headers.h
     model/mpdu-aggregator.h
     model/msdu-aggregator.h
@@ -216,10 +230,10 @@ set(header_files
     model/non-ht/erp-ofdm-ppdu.h
     model/non-ht/ofdm-phy.h
     model/non-ht/ofdm-ppdu.h
+    model/non-inheritance.h
     model/originator-block-ack-agreement.h
     model/phy-entity.h
     model/preamble-detection-model.h
-    model/qos-blocked-destinations.h
     model/qos-frame-exchange-manager.h
     model/qos-txop.h
     model/qos-utils.h
@@ -260,10 +274,10 @@ set(header_files
     model/wifi-ack-manager.h
     model/wifi-acknowledgment.h
     model/wifi-assoc-manager.h
+    model/wifi-bandwidth-filter.h
     model/wifi-default-ack-manager.h
     model/wifi-default-assoc-manager.h
     model/wifi-default-protection-manager.h
-    model/wifi-information-element-vector.h
     model/wifi-information-element.h
     model/wifi-mac-header.h
     model/wifi-mac-queue-container.h
@@ -273,6 +287,7 @@ set(header_files
     model/wifi-mac-queue.h
     model/wifi-mac-trailer.h
     model/wifi-mac.h
+    model/wifi-mgt-header.h
     model/wifi-mode.h
     model/wifi-mpdu-type.h
     model/wifi-mpdu.h
@@ -309,12 +324,8 @@ build_lib(
   SOURCE_FILES ${source_files}
   HEADER_FILES ${header_files}
   LIBRARIES_TO_LINK
-    ${libnetwork}
-    ${libpropagation}
     ${libenergy}
     ${libspectrum}
-    ${libantenna}
-    ${libmobility}
     ${gsl_libraries}
   TEST_SOURCES
     test/block-ack-test-suite.cc
@@ -326,6 +337,7 @@ build_lib(
     test/wifi-aggregation-test.cc
     test/wifi-dynamic-bw-op-test.cc
     test/wifi-eht-info-elems-test.cc
+    test/wifi-emlsr-test.cc
     test/wifi-error-rate-models-test.cc
     test/wifi-ie-fragment-test.cc
     test/wifi-mac-ofdma-test.cc
@@ -335,9 +347,12 @@ build_lib(
     test/wifi-phy-reception-test.cc
     test/wifi-phy-thresholds-test.cc
     test/wifi-primary-channels-test.cc
+    test/wifi-ru-allocation-test.cc
     test/wifi-channel-switching-test.cc
     test/wifi-test.cc
     test/wifi-transmit-mask-test.cc
     test/wifi-txop-test.cc
     test/wifi-phy-cca-test.cc
+    test/wifi-non-ht-dup-test.cc
+    test/wifi-phy-mu-mimo-test.cc
 )

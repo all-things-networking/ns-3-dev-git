@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -43,7 +42,7 @@ Timer::Timer()
     NS_LOG_FUNCTION(this);
 }
 
-Timer::Timer(enum DestroyPolicy destroyPolicy)
+Timer::Timer(DestroyPolicy destroyPolicy)
     : m_flags(destroyPolicy),
       m_delay(FemtoSeconds(0)),
       m_event(),
@@ -95,17 +94,13 @@ Timer::GetDelayLeft() const
     {
     case Timer::RUNNING:
         return Simulator::GetDelayLeft(m_event);
-        break;
     case Timer::EXPIRED:
         return TimeStep(0);
-        break;
     case Timer::SUSPENDED:
         return m_delayLeft;
-        break;
     default:
         NS_ASSERT(false);
         return TimeStep(0);
-        break;
     }
 }
 
@@ -144,7 +139,7 @@ Timer::IsSuspended() const
     return (m_flags & TIMER_SUSPENDED) == TIMER_SUSPENDED;
 }
 
-enum Timer::State
+Timer::State
 Timer::GetState() const
 {
     NS_LOG_FUNCTION(this);

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -185,12 +184,7 @@ class CallbackComponent : public CallbackComponentBase
         auto p = std::dynamic_pointer_cast<const CallbackComponent<T>>(other);
 
         // other must have the same type and value as ours
-        if (p == nullptr || p->m_comp != m_comp)
-        {
-            return false;
-        }
-
-        return true;
+        return !(p == nullptr || p->m_comp != m_comp);
     }
 
   private:
@@ -290,7 +284,7 @@ class CallbackImpl : public CallbackImplBase
 
     bool IsEqual(Ptr<const CallbackImplBase> other) const override
     {
-        const CallbackImpl<R, UArgs...>* otherDerived =
+        const auto otherDerived =
             dynamic_cast<const CallbackImpl<R, UArgs...>*>(PeekPointer(other));
 
         if (otherDerived == nullptr)
@@ -330,7 +324,7 @@ class CallbackImpl : public CallbackImplBase
         return DoGetTypeid();
     }
 
-    /** \copydoc GetTypeid(). */
+    /** \copydoc GetTypeid() */
     static std::string DoGetTypeid()
     {
         static std::vector<std::string> vec = {GetCppTypeid<R>(), GetCppTypeid<UArgs>()...};
@@ -442,6 +436,9 @@ class CallbackBase
 template <typename R, typename... UArgs>
 class Callback : public CallbackBase
 {
+    template <typename ROther, typename... UArgsOther>
+    friend class Callback;
+
   public:
     Callback()
     {
@@ -465,18 +462,18 @@ class Callback : public CallbackBase
      * \param [in] bargs The values of the bound arguments
      */
     template <typename... BArgs>
-    Callback(const CallbackBase& cb, BArgs... bargs)
+    Callback(const Callback<R, BArgs..., UArgs...>& cb, BArgs... bargs)
     {
-        auto cbDerived =
-            static_cast<const CallbackImpl<R, BArgs..., UArgs...>*>(PeekPointer(cb.GetImpl()));
+        auto f = cb.DoPeekImpl()->GetFunction();
 
-        std::function<R(BArgs..., UArgs...)> f(cbDerived->GetFunction());
-
-        CallbackComponentVector components(cbDerived->GetComponents());
-        components.insert(components.end(), {std::make_shared<CallbackComponent<BArgs>>(bargs)...});
+        CallbackComponentVector components(cb.DoPeekImpl()->GetComponents());
+        components.insert(components.end(),
+                          {std::make_shared<CallbackComponent<std::decay_t<BArgs>>>(bargs)...});
 
         m_impl = Create<CallbackImpl<R, UArgs...>>(
-            [f, bargs...](UArgs... uargs) -> R { return f(bargs..., uargs...); },
+            [f, bargs...](auto&&... uargs) -> R {
+                return f(bargs..., std::forward<decltype(uargs)>(uargs)...);
+            },
             components);
     }
 
@@ -505,11 +502,14 @@ class Callback : public CallbackBase
         constexpr bool isComp =
             std::is_function_v<std::remove_pointer_t<T>> || std::is_member_pointer_v<T>;
 
-        CallbackComponentVector components({std::make_shared<CallbackComponent<T, isComp>>(func),
-                                            std::make_shared<CallbackComponent<BArgs>>(bargs)...});
+        CallbackComponentVector components(
+            {std::make_shared<CallbackComponent<T, isComp>>(func),
+             std::make_shared<CallbackComponent<std::decay_t<BArgs>>>(bargs)...});
 
         m_impl = Create<CallbackImpl<R, UArgs...>>(
-            [f, bargs...](UArgs... uargs) -> R { return f(bargs..., uargs...); },
+            [f, bargs...](auto&&... uargs) -> R {
+                return f(bargs..., std::forward<decltype(uargs)>(uargs)...);
+            },
             components);
     }
 
@@ -526,11 +526,23 @@ class Callback : public CallbackBase
      * The integer sequence is 0..N-1, where N is the number of arguments left unbound.
      */
     template <std::size_t... INDEX, typename... BoundArgs>
-    auto BindImpl(std::index_sequence<INDEX...> seq, BoundArgs... bargs)
+    auto BindImpl(std::index_sequence<INDEX...> seq, BoundArgs&&... bargs)
     {
-        return Callback<R, std::tuple_element_t<sizeof...(bargs) + INDEX, std::tuple<UArgs...>>...>(
-            *this,
-            bargs...);
+        Callback<R, std::tuple_element_t<sizeof...(bargs) + INDEX, std::tuple<UArgs...>>...> cb;
+
+        const auto f = DoPeekImpl()->GetFunction();
+
+        CallbackComponentVector components(DoPeekImpl()->GetComponents());
+        components.insert(components.end(),
+                          {std::make_shared<CallbackComponent<std::decay_t<BoundArgs>>>(bargs)...});
+
+        cb.m_impl = Create<std::remove_pointer_t<decltype(cb.DoPeekImpl())>>(
+            [f, bargs...](auto&&... uargs) mutable {
+                return f(bargs..., std::forward<decltype(uargs)>(uargs)...);
+            },
+            components);
+
+        return cb;
     }
 
   public:
@@ -542,7 +554,7 @@ class Callback : public CallbackBase
      * \return The bound callback
      */
     template <typename... BoundArgs>
-    auto Bind(BoundArgs... bargs)
+    auto Bind(BoundArgs&&... bargs)
     {
         static_assert(sizeof...(UArgs) > 0);
         return BindImpl(std::make_index_sequence<sizeof...(UArgs) - sizeof...(BoundArgs)>{},
@@ -750,9 +762,9 @@ MakeNullCallback()
  */
 template <typename R, typename... Args, typename... BArgs>
 auto
-MakeBoundCallback(R (*fnPtr)(Args...), BArgs... bargs)
+MakeBoundCallback(R (*fnPtr)(Args...), BArgs&&... bargs)
 {
-    return Callback<R, Args...>(fnPtr).Bind(bargs...);
+    return Callback<R, Args...>(fnPtr).Bind(std::forward<BArgs>(bargs)...);
 }
 
 /**

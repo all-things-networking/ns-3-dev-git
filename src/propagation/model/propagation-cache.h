@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
@@ -49,13 +48,13 @@ class PropagationCache
     Ptr<T> GetPathData(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b, uint32_t modelUid)
     {
         PropagationPathIdentifier key = PropagationPathIdentifier(a, b, modelUid);
-        typename PathCache::iterator it = m_pathCache.find(key);
+        auto it = m_pathCache.find(key);
         if (it == m_pathCache.end())
         {
             return nullptr;
         }
         return it->second;
-    };
+    }
 
     /**
      * Add a model to the path
@@ -72,7 +71,7 @@ class PropagationCache
         PropagationPathIdentifier key = PropagationPathIdentifier(a, b, modelUid);
         NS_ASSERT(m_pathCache.find(key) == m_pathCache.end());
         m_pathCache.insert(std::make_pair(key, data));
-    };
+    }
 
     /**
      * Clean the cache

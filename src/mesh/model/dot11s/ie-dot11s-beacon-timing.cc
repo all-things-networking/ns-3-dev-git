@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -100,9 +99,7 @@ IeBeaconTiming::AddNeighboursTimingElementUnit(uint16_t aid, Time last_beacon, T
         return;
     }
     // First we lookup if this element already exists
-    for (NeighboursTimingUnitsList::const_iterator i = m_neighbours.begin();
-         i != m_neighbours.end();
-         i++)
+    for (auto i = m_neighbours.begin(); i != m_neighbours.end(); i++)
     {
         if (((*i)->GetAid() == AidToU8(aid)) &&
             ((*i)->GetLastBeacon() == TimestampToU16(last_beacon)) &&
@@ -122,7 +119,7 @@ IeBeaconTiming::AddNeighboursTimingElementUnit(uint16_t aid, Time last_beacon, T
 void
 IeBeaconTiming::DelNeighboursTimingElementUnit(uint16_t aid, Time last_beacon, Time beacon_interval)
 {
-    for (NeighboursTimingUnitsList::iterator i = m_neighbours.begin(); i != m_neighbours.end(); i++)
+    for (auto i = m_neighbours.begin(); i != m_neighbours.end(); i++)
     {
         if (((*i)->GetAid() == AidToU8(aid)) &&
             ((*i)->GetLastBeacon() == TimestampToU16(last_beacon)) &&
@@ -138,7 +135,7 @@ IeBeaconTiming::DelNeighboursTimingElementUnit(uint16_t aid, Time last_beacon, T
 void
 IeBeaconTiming::ClearTimingElement()
 {
-    for (NeighboursTimingUnitsList::iterator j = m_neighbours.begin(); j != m_neighbours.end(); j++)
+    for (auto j = m_neighbours.begin(); j != m_neighbours.end(); j++)
     {
         (*j) = nullptr;
     }
@@ -155,9 +152,7 @@ void
 IeBeaconTiming::Print(std::ostream& os) const
 {
     os << "BeaconTiming=(Number of units=" << (uint16_t)m_numOfUnits;
-    for (NeighboursTimingUnitsList::const_iterator j = m_neighbours.begin();
-         j != m_neighbours.end();
-         j++)
+    for (auto j = m_neighbours.begin(); j != m_neighbours.end(); j++)
     {
         os << "(AID=" << (uint16_t)(*j)->GetAid() << ", Last beacon at=" << (*j)->GetLastBeacon()
            << ", with beacon interval=" << (*j)->GetBeaconInterval() << ")";
@@ -168,9 +163,7 @@ IeBeaconTiming::Print(std::ostream& os) const
 void
 IeBeaconTiming::SerializeInformationField(Buffer::Iterator i) const
 {
-    for (NeighboursTimingUnitsList::const_iterator j = m_neighbours.begin();
-         j != m_neighbours.end();
-         j++)
+    for (auto j = m_neighbours.begin(); j != m_neighbours.end(); j++)
     {
         i.WriteU8((*j)->GetAid());
         i.WriteHtolsbU16((*j)->GetLastBeacon());
@@ -192,13 +185,13 @@ IeBeaconTiming::DeserializeInformationField(Buffer::Iterator start, uint16_t len
         m_neighbours.push_back(new_element);
     }
     return i.GetDistanceFrom(start);
-};
+}
 
 uint16_t
 IeBeaconTiming::TimestampToU16(Time t)
 {
     return ((uint16_t)((t.GetMicroSeconds() >> 8) & 0xffff));
-};
+}
 
 uint16_t
 IeBeaconTiming::BeaconIntervalToU16(Time t)
@@ -224,7 +217,7 @@ IeBeaconTiming::operator==(const WifiInformationElement& a) const
 {
     try
     {
-        const IeBeaconTiming& aa = dynamic_cast<const IeBeaconTiming&>(a);
+        const auto& aa = dynamic_cast<const IeBeaconTiming&>(a);
 
         if (m_numOfUnits != aa.m_numOfUnits)
         {

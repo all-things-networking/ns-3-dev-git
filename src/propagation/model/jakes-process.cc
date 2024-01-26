@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
@@ -144,12 +143,12 @@ JakesProcess::DoDispose()
 std::complex<double>
 JakesProcess::GetComplexGain() const
 {
-    std::complex<double> sumAplitude = std::complex<double>(0, 0);
+    std::complex<double> sumAmplitude = std::complex<double>(0, 0);
     for (unsigned int i = 0; i < m_oscillators.size(); i++)
     {
-        sumAplitude += m_oscillators[i].GetValueAt(Now());
+        sumAmplitude += m_oscillators[i].GetValueAt(Now());
     }
-    return sumAplitude;
+    return sumAmplitude;
 }
 
 double

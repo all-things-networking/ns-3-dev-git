@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -59,10 +58,10 @@ class SimulatorImpl : public Object
     virtual void Destroy() = 0;
     /** \copydoc Simulator::IsFinished */
     virtual bool IsFinished() const = 0;
-    /** \copydoc Simulator::Stop(void) */
+    /** \copydoc Simulator::Stop() */
     virtual void Stop() = 0;
     /** \copydoc Simulator::Stop(const Time&) */
-    virtual void Stop(const Time& delay) = 0;
+    virtual EventId Stop(const Time& delay) = 0;
     /** \copydoc Simulator::Schedule(const Time&,const Ptr<EventImpl>&) */
     virtual EventId Schedule(const Time& delay, EventImpl* event) = 0;
     /** \copydoc Simulator::ScheduleWithContext(uint32_t,const Time&,EventImpl*) */

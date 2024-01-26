@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -22,7 +21,7 @@
 #ifndef UAN_PHY_DUAL_H
 #define UAN_PHY_DUAL_H
 
-#include "ns3/uan-phy.h"
+#include "uan-phy.h"
 
 namespace ns3
 {
@@ -134,7 +133,7 @@ class UanPhyDual : public UanPhy
     UanTxMode GetMode(uint32_t n) override;
     void Clear() override;
 
-    void SetSleepMode([[maybe_unused]] bool sleep) override
+    void SetSleepMode(bool /* sleep */) override
     {
         /// \todo This method has to be implemented
     }
@@ -241,7 +240,7 @@ class UanPhyDual : public UanPhy
 
     /** A packet was received successfully. */
     ns3::TracedCallback<Ptr<const Packet>, double, UanTxMode> m_rxOkLogger;
-    /** A packet was received unsuccessfully. */
+    /** A packet was received unsuccessfuly. */
     ns3::TracedCallback<Ptr<const Packet>, double, UanTxMode> m_rxErrLogger;
     /** A packet was sent from this Phy. */
     ns3::TracedCallback<Ptr<const Packet>, double, UanTxMode> m_txLogger;

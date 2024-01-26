@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -22,9 +21,10 @@
 #ifndef L2ROUTING_NET_DEVICE_H
 #define L2ROUTING_NET_DEVICE_H
 
+#include "mesh-l2-routing-protocol.h"
+
 #include "ns3/bridge-channel.h"
 #include "ns3/mac48-address.h"
-#include "ns3/mesh-l2-routing-protocol.h"
 #include "ns3/net-device.h"
 #include "ns3/node.h"
 #include "ns3/random-variable-stream.h"
@@ -67,7 +67,8 @@ class MeshPointDevice : public NetDevice
     ///@{
     /**
      * \brief Attach new interface to the station. Interface must support 48-bit MAC address and
-     * SendFrom method. \param port the port used
+     * SendFrom method.
+     * \param port the port used
      *
      * \attention Only MeshPointDevice can have IP address, but not individual interfaces.
      */

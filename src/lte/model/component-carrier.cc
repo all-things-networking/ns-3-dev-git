@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -254,7 +253,7 @@ ComponentCarrierBaseStation::~ComponentCarrierBaseStation()
 }
 
 uint16_t
-ComponentCarrierBaseStation::GetCellId()
+ComponentCarrierBaseStation::GetCellId() const
 {
     return m_cellId;
 }

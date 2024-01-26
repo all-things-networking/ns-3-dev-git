@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universidad de la República - Uruguay
  *
@@ -190,7 +189,7 @@ class NodeStatistics
      *
      * \return the busy time.
      */
-    double GetBusyTime();
+    double GetBusyTime() const;
 
   private:
     /// Time, DataRate pair vector.
@@ -275,7 +274,7 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
         txVector.SetMode(mode);
         txVector.SetPreambleType(WIFI_PREAMBLE_LONG);
         txVector.SetChannelWidth(phy->GetChannelWidth());
-        DataRate dataRate = DataRate(mode.GetDataRate(phy->GetChannelWidth()));
+        DataRate dataRate(mode.GetDataRate(phy->GetChannelWidth()));
         Time time = phy->CalculateTxDuration(packetSize, txVector, phy->GetPhyBand());
         NS_LOG_DEBUG(mode.GetUniqueName() << " " << time.GetSeconds() << " " << dataRate);
         m_timeTable.emplace_back(time, dataRate);
@@ -285,7 +284,7 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
 Time
 NodeStatistics::GetCalcTxTime(DataRate rate)
 {
-    for (TxTime::const_iterator i = m_timeTable.begin(); i != m_timeTable.end(); i++)
+    for (auto i = m_timeTable.begin(); i != m_timeTable.end(); i++)
     {
         if (rate == i->second)
         {
@@ -417,7 +416,7 @@ NodeStatistics::GetTxDatafile()
 }
 
 double
-NodeStatistics::GetBusyTime()
+NodeStatistics::GetBusyTime() const
 {
     return m_totalBusyTime + m_totalRxTime;
 }
@@ -668,12 +667,10 @@ main(int argc, char* argv[])
 
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
     std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats();
-    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin();
-         i != stats.end();
-         ++i)
+    for (auto i = stats.begin(); i != stats.end(); ++i)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(i->first);
-        if ((t.sourceAddress == "10.1.1.3" && t.destinationAddress == "10.1.1.1"))
+        if (t.sourceAddress == "10.1.1.3" && t.destinationAddress == "10.1.1.1")
         {
             NS_LOG_INFO("Flow " << i->first << " (" << t.sourceAddress << " -> "
                                 << t.destinationAddress << ")\n");
@@ -691,7 +688,7 @@ main(int argc, char* argv[])
                         << i->second.jitterSum.GetSeconds() / (i->second.rxPackets - 1) << "\n");
             NS_LOG_INFO("  Tx Opp: " << 1 - (statisticsAp0.GetBusyTime() / simuTime));
         }
-        if ((t.sourceAddress == "10.1.1.4" && t.destinationAddress == "10.1.1.2"))
+        if (t.sourceAddress == "10.1.1.4" && t.destinationAddress == "10.1.1.2")
         {
             NS_LOG_INFO("Flow " << i->first << " (" << t.sourceAddress << " -> "
                                 << t.destinationAddress << ")\n");
@@ -712,7 +709,7 @@ main(int argc, char* argv[])
     }
 
     // Plots for AP0
-    std::ofstream outfileTh0(("throughput-" + outputFileName + "-0.plt").c_str());
+    std::ofstream outfileTh0("throughput-" + outputFileName + "-0.plt");
     Gnuplot gnuplot = Gnuplot("throughput-" + outputFileName + "-0.eps", "Throughput");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Throughput (Mb/s)");
@@ -723,7 +720,7 @@ main(int argc, char* argv[])
     if (manager == "ns3::ParfWifiManager" || manager == "ns3::AparfWifiManager" ||
         manager == "ns3::RrpaaWifiManager")
     {
-        std::ofstream outfilePower0(("power-" + outputFileName + "-0.plt").c_str());
+        std::ofstream outfilePower0("power-" + outputFileName + "-0.plt");
         gnuplot = Gnuplot("power-" + outputFileName + "-0.eps", "Average Transmit Power");
         gnuplot.SetTerminal("post eps color enhanced");
         gnuplot.SetLegend("Time (seconds)", "Power (mW)");
@@ -732,7 +729,7 @@ main(int argc, char* argv[])
         gnuplot.GenerateOutput(outfilePower0);
     }
 
-    std::ofstream outfileTx0(("tx-" + outputFileName + "-0.plt").c_str());
+    std::ofstream outfileTx0("tx-" + outputFileName + "-0.plt");
     gnuplot = Gnuplot("tx-" + outputFileName + "-0.eps", "Time in TX State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -740,7 +737,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp0.GetTxDatafile());
     gnuplot.GenerateOutput(outfileTx0);
 
-    std::ofstream outfileRx0(("rx-" + outputFileName + "-0.plt").c_str());
+    std::ofstream outfileRx0("rx-" + outputFileName + "-0.plt");
     gnuplot = Gnuplot("rx-" + outputFileName + "-0.eps", "Time in RX State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -748,7 +745,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp0.GetRxDatafile());
     gnuplot.GenerateOutput(outfileRx0);
 
-    std::ofstream outfileBusy0(("busy-" + outputFileName + "-0.plt").c_str());
+    std::ofstream outfileBusy0("busy-" + outputFileName + "-0.plt");
     gnuplot = Gnuplot("busy-" + outputFileName + "-0.eps", "Time in Busy State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -756,7 +753,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp0.GetBusyDatafile());
     gnuplot.GenerateOutput(outfileBusy0);
 
-    std::ofstream outfileIdle0(("idle-" + outputFileName + "-0.plt").c_str());
+    std::ofstream outfileIdle0("idle-" + outputFileName + "-0.plt");
     gnuplot = Gnuplot("idle-" + outputFileName + "-0.eps", "Time in Idle State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -765,7 +762,7 @@ main(int argc, char* argv[])
     gnuplot.GenerateOutput(outfileIdle0);
 
     // Plots for AP1
-    std::ofstream outfileTh1(("throughput-" + outputFileName + "-1.plt").c_str());
+    std::ofstream outfileTh1("throughput-" + outputFileName + "-1.plt");
     gnuplot = Gnuplot("throughput-" + outputFileName + "-1.eps", "Throughput");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Throughput (Mb/s)");
@@ -776,7 +773,7 @@ main(int argc, char* argv[])
     if (manager == "ns3::ParfWifiManager" || manager == "ns3::AparfWifiManager" ||
         manager == "ns3::RrpaaWifiManager")
     {
-        std::ofstream outfilePower1(("power-" + outputFileName + "-1.plt").c_str());
+        std::ofstream outfilePower1("power-" + outputFileName + "-1.plt");
         gnuplot = Gnuplot("power-" + outputFileName + "-1.eps", "Average Transmit Power");
         gnuplot.SetTerminal("post eps color enhanced");
         gnuplot.SetLegend("Time (seconds)", "Power (mW)");
@@ -785,7 +782,7 @@ main(int argc, char* argv[])
         gnuplot.GenerateOutput(outfilePower1);
     }
 
-    std::ofstream outfileTx1(("tx-" + outputFileName + "-1.plt").c_str());
+    std::ofstream outfileTx1("tx-" + outputFileName + "-1.plt");
     gnuplot = Gnuplot("tx-" + outputFileName + "-1.eps", "Time in TX State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -793,7 +790,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp1.GetTxDatafile());
     gnuplot.GenerateOutput(outfileTx1);
 
-    std::ofstream outfileRx1(("rx-" + outputFileName + "-1.plt").c_str());
+    std::ofstream outfileRx1("rx-" + outputFileName + "-1.plt");
     gnuplot = Gnuplot("rx-" + outputFileName + "-1.eps", "Time in RX State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -801,7 +798,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp1.GetRxDatafile());
     gnuplot.GenerateOutput(outfileRx1);
 
-    std::ofstream outfileBusy1(("busy-" + outputFileName + "-1.plt").c_str());
+    std::ofstream outfileBusy1("busy-" + outputFileName + "-1.plt");
     gnuplot = Gnuplot("busy-" + outputFileName + "-1.eps", "Time in Busy State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");
@@ -809,7 +806,7 @@ main(int argc, char* argv[])
     gnuplot.AddDataset(statisticsAp1.GetBusyDatafile());
     gnuplot.GenerateOutput(outfileBusy1);
 
-    std::ofstream outfileIdle1(("idle-" + outputFileName + "-1.plt").c_str());
+    std::ofstream outfileIdle1("idle-" + outputFileName + "-1.plt");
     gnuplot = Gnuplot("idle-" + outputFileName + "-1.eps", "Time in Idle State");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Percent");

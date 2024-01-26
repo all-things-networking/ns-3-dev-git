@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  * Copyright (c) 2016 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
@@ -23,9 +22,9 @@
 #ifndef NO_OP_COMPONENT_CARRIER_MANAGER_H
 #define NO_OP_COMPONENT_CARRIER_MANAGER_H
 
-#include <ns3/lte-ccm-rrc-sap.h>
-#include <ns3/lte-enb-component-carrier-manager.h>
-#include <ns3/lte-rrc-sap.h>
+#include "lte-ccm-rrc-sap.h"
+#include "lte-enb-component-carrier-manager.h"
+#include "lte-rrc-sap.h"
 
 #include <map>
 
@@ -153,7 +152,8 @@ class NoOpComponentCarrierManager : public LteEnbComponentCarrierManager
     virtual void DoUlReceiveSr(uint16_t rnti, uint8_t componentCarrierId);
     /**
      * \brief Function implements the function of the SAP interface of CCM instance which is used by
-     * MAC to notify the PRB occupancy reported by scheduler. \param prbOccupancy the PRB occupancy
+     * MAC to notify the PRB occupancy reported by scheduler.
+     * \param prbOccupancy the PRB occupancy
      * \param componentCarrierId the component carrier ID
      */
     virtual void DoNotifyPrbOccupancy(double prbOccupancy, uint8_t componentCarrierId);

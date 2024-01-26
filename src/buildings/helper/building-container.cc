@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
@@ -78,7 +77,7 @@ BuildingContainer::Create(uint32_t n)
 void
 BuildingContainer::Add(BuildingContainer other)
 {
-    for (Iterator i = other.Begin(); i != other.End(); i++)
+    for (auto i = other.Begin(); i != other.End(); i++)
     {
         m_buildings.push_back(*i);
     }
@@ -101,7 +100,7 @@ BuildingContainer
 BuildingContainer::GetGlobal()
 {
     BuildingContainer c;
-    for (BuildingList::Iterator i = BuildingList::Begin(); i != BuildingList::End(); ++i)
+    for (auto i = BuildingList::Begin(); i != BuildingList::End(); ++i)
     {
         c.Add(*i);
     }

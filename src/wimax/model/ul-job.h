@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c)
  *
@@ -64,7 +63,7 @@ class UlJob : public Object
      * Get SS record
      * \returns the SS record
      */
-    SSRecord* GetSsRecord();
+    SSRecord* GetSsRecord() const;
     /**
      * Set SS record
      * \param ssRecord the SS record
@@ -74,7 +73,7 @@ class UlJob : public Object
      * Get scheduling type
      * \returns the scheduling type
      */
-    enum ServiceFlow::SchedulingType GetSchedulingType();
+    ServiceFlow::SchedulingType GetSchedulingType() const;
     /**
      * Set scheduling type
      * \param schedulingType the scheduling type
@@ -84,7 +83,7 @@ class UlJob : public Object
      * Get service flow
      * \returns the service flow
      */
-    ServiceFlow* GetServiceFlow();
+    ServiceFlow* GetServiceFlow() const;
     /**
      * Set service flow
      * \param serviceFlow
@@ -95,7 +94,7 @@ class UlJob : public Object
      * Get type
      * \returns the request type
      */
-    ReqType GetType();
+    ReqType GetType() const;
     /**
      * Set type
      * \param type the type
@@ -106,7 +105,7 @@ class UlJob : public Object
      * Get release time
      * \returns the release time
      */
-    Time GetReleaseTime();
+    Time GetReleaseTime() const;
     /**
      * Set release time
      * \param releaseTime the release time
@@ -117,7 +116,7 @@ class UlJob : public Object
      * Get period
      * \returns the period time
      */
-    Time GetPeriod();
+    Time GetPeriod() const;
     /**
      * Set period
      * \param period the period
@@ -128,7 +127,7 @@ class UlJob : public Object
      * Get deadline
      * \returns the deadline time
      */
-    Time GetDeadline();
+    Time GetDeadline() const;
     /**
      * Set deadline
      * \param deadline the dead line
@@ -139,7 +138,7 @@ class UlJob : public Object
      * Get size
      * \returns the size
      */
-    uint32_t GetSize();
+    uint32_t GetSize() const;
     /**
      * Set size
      * \param size the size
@@ -150,11 +149,11 @@ class UlJob : public Object
     /// equality operator
     friend bool operator==(const UlJob& a, const UlJob& b);
 
-    Time m_releaseTime; ///< The time after which the job can be processed
-    Time m_period;      ///< For periodic jobs
-    Time m_deadline;    ///< Request should be satisfied by this time
-    uint32_t m_size;    ///< Number of minislots requested
-    enum ServiceFlow::SchedulingType m_schedulingType; ///< Scheduling type of flow
+    Time m_releaseTime;                           ///< The time after which the job can be processed
+    Time m_period;                                ///< For periodic jobs
+    Time m_deadline;                              ///< Request should be satisfied by this time
+    uint32_t m_size;                              ///< Number of minislots requested
+    ServiceFlow::SchedulingType m_schedulingType; ///< Scheduling type of flow
 
     SSRecord* m_ssRecord; ///< Pointer to SSRecord
 
@@ -177,7 +176,7 @@ class PriorityUlJob : public Object
      * Get priority
      * \returns the priority
      */
-    int GetPriority();
+    int GetPriority() const;
     /**
      * Set priority
      * \param priority the priority
@@ -185,10 +184,10 @@ class PriorityUlJob : public Object
     void SetPriority(int priority);
 
     /**
-     * Get UL job functiion
+     * Get UL job function
      * \returns the UL job
      */
-    Ptr<UlJob> GetUlJob();
+    Ptr<UlJob> GetUlJob() const;
     /**
      * Set UL job
      * \param job the UL job
@@ -221,14 +220,7 @@ struct SortProcess
                 left.GetUlJob()->GetServiceFlow()->GetRecord()->GetBacklogged();
             int32_t rightBacklogged =
                 left.GetUlJob()->GetServiceFlow()->GetRecord()->GetBacklogged();
-            if (leftBacklogged <= rightBacklogged)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return leftBacklogged <= rightBacklogged;
         }
         else
         {
@@ -258,14 +250,7 @@ struct SortProcessPtr
                 left->GetUlJob()->GetServiceFlow()->GetRecord()->GetBacklogged();
             int32_t rightBacklogged =
                 left->GetUlJob()->GetServiceFlow()->GetRecord()->GetBacklogged();
-            if (leftBacklogged <= rightBacklogged)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return leftBacklogged <= rightBacklogged;
         }
         else
         {

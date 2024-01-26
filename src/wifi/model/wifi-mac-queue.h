@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
@@ -31,12 +30,12 @@
 #include "ns3/queue.h"
 
 #include <functional>
+#include <optional>
 #include <unordered_map>
 
 namespace ns3
 {
 
-class QosBlockedDestinations;
 class WifiMacQueueScheduler;
 
 // The following explicit template instantiation declaration prevents modules
@@ -143,12 +142,12 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
     Ptr<const WifiMpdu> Peek() const override;
     /**
      * Peek the packet in the front of the queue for transmission on the given
-     * link. The packet is not removed.
+     * link (if any). The packet is not removed.
      *
      * \param linkId the ID of the link onto which we can transmit a packet
      * \return the packet
      */
-    Ptr<WifiMpdu> Peek(uint8_t linkId) const;
+    Ptr<WifiMpdu> Peek(std::optional<uint8_t> linkId) const;
     /**
      * Search and return, if present in the queue, the first packet having the
      * receiver address equal to <i>dest</i>, and TID equal to <i>tid</i>.
@@ -191,14 +190,11 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * The packet is not removed from queue.
      *
      * \param linkId the ID of the given link
-     * \param blockedPackets the destination address & TID pairs that are waiting for a BlockAck
-     * response \param item the item after which the search starts from
+     * \param item the item after which the search starts from
      *
      * \return the peeked packet or nullptr if no packet was found
      */
-    Ptr<WifiMpdu> PeekFirstAvailable(uint8_t linkId,
-                                     const Ptr<QosBlockedDestinations> blockedPackets = nullptr,
-                                     Ptr<const WifiMpdu> item = nullptr) const;
+    Ptr<WifiMpdu> PeekFirstAvailable(uint8_t linkId, Ptr<const WifiMpdu> item = nullptr) const;
     /**
      * Remove the packet in the front of the queue.
      *
@@ -215,6 +211,11 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * \return the removed item
      */
     Ptr<WifiMpdu> Remove(Ptr<const WifiMpdu> item);
+
+    /**
+     * Flush the queue.
+     */
+    void Flush();
 
     /**
      * Replace the given current item with the given new item. Actually, the current
@@ -280,6 +281,23 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * Remove all MPDUs with expired lifetime from this WifiMacQueue object.
      */
     void WipeAllExpiredMpdus();
+
+    /**
+     * Unlike the GetOriginal() method of WifiMpdu, this method returns a non-const
+     * pointer to the original copy of the given MPDU.
+     *
+     * \param mpdu the given MPDU
+     * \return the original copy of the given MPDU
+     */
+    Ptr<WifiMpdu> GetOriginal(Ptr<WifiMpdu> mpdu);
+
+    /**
+     * \param mpdu the given MPDU
+     * \param linkId the ID of the given link
+     * \return the alias of the given MPDU that is inflight on the given link, if any, or
+     *         a null pointer, otherwise
+     */
+    Ptr<WifiMpdu> GetAlias(Ptr<const WifiMpdu> mpdu, uint8_t linkId);
 
   protected:
     using Queue<WifiMpdu, WifiMacQueueContainer>::GetContainer;

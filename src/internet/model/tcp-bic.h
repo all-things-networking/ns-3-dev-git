@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -20,8 +19,8 @@
 #ifndef TCPBIC_H
 #define TCPBIC_H
 
-#include "ns3/tcp-congestion-ops.h"
-#include "ns3/tcp-recovery-ops.h"
+#include "tcp-congestion-ops.h"
+#include "tcp-recovery-ops.h"
 
 class TcpBicIncrementTest;
 class TcpBicDecrementTest;

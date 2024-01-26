@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -21,7 +20,8 @@
 #ifndef HWMP_RTABLE_H
 #define HWMP_RTABLE_H
 
-#include "ns3/hwmp-protocol.h"
+#include "hwmp-protocol.h"
+
 #include "ns3/mac48-address.h"
 #include "ns3/nstime.h"
 
@@ -175,7 +175,8 @@ class HwmpRtable : public Object
     LookupResult LookupReactiveExpired(Mac48Address destination);
     /**
      * Find proactive path to tree root. Note that calling this method has side effect of deleting
-     * expired proactive path \return The lookup result
+     * expired proactive path
+     * \return The lookup result
      */
     LookupResult LookupProactive();
     /**
@@ -187,7 +188,9 @@ class HwmpRtable : public Object
 
     /**
      * When peer link with a given MAC-address fails - it returns list of unreachable destination
-     * addresses \param peerAddress the peer address \returns the list of unreachable destinations
+     * addresses
+     * \param peerAddress the peer address
+     * \returns the list of unreachable destinations
      */
     std::vector<HwmpProtocol::FailedDestination> GetUnreachableDestinations(
         Mac48Address peerAddress);

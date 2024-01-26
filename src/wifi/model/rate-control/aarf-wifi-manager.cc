@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2004,2005,2006 INRIA
  *
@@ -124,7 +123,7 @@ WifiRemoteStation*
 AarfWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    AarfWifiRemoteStation* station = new AarfWifiRemoteStation();
+    auto station = new AarfWifiRemoteStation();
 
     station->m_successThreshold = m_minSuccessThreshold;
     station->m_timerTimeout = m_minTimerThreshold;
@@ -158,7 +157,7 @@ void
 AarfWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    AarfWifiRemoteStation* station = static_cast<AarfWifiRemoteStation*>(st);
+    auto station = static_cast<AarfWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_failed++;
     station->m_success = 0;
@@ -225,7 +224,7 @@ AarfWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    AarfWifiRemoteStation* station = static_cast<AarfWifiRemoteStation*>(st);
+    auto station = static_cast<AarfWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_success++;
     station->m_failed = 0;
@@ -260,7 +259,7 @@ WifiTxVector
 AarfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    AarfWifiRemoteStation* station = static_cast<AarfWifiRemoteStation*>(st);
+    auto station = static_cast<AarfWifiRemoteStation*>(st);
     uint16_t channelWidth = GetChannelWidth(station);
     if (channelWidth > 20 && channelWidth != 22)
     {
@@ -291,14 +290,14 @@ AarfWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
     NS_LOG_FUNCTION(this << st);
     /// \todo we could/should implement the AARF algorithm for
     /// RTS only by picking a single rate within the BasicRateSet.
-    AarfWifiRemoteStation* station = static_cast<AarfWifiRemoteStation*>(st);
+    auto station = static_cast<AarfWifiRemoteStation*>(st);
     uint16_t channelWidth = GetChannelWidth(station);
     if (channelWidth > 20 && channelWidth != 22)
     {
         channelWidth = 20;
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }

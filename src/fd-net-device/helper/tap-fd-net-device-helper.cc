@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
@@ -23,7 +22,6 @@
 #include "ns3/abort.h"
 #include "ns3/config.h"
 #include "ns3/fd-net-device.h"
-#include "ns3/internet-module.h"
 #include "ns3/log.h"
 #include "ns3/names.h"
 #include "ns3/object-factory.h"
@@ -36,7 +34,6 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <linux/if_tun.h>
 #include <memory>
 #include <net/ethernet.h>
 #include <net/if.h>
@@ -226,7 +223,7 @@ TapFdNetDeviceHelper::CreateFileDescriptor() const
         // which tells the system to make up a device name such as "tap123".
         //
         std::ostringstream ossDeviceName;
-        if (m_deviceName != "")
+        if (!m_deviceName.empty())
         {
             ossDeviceName << "-d" << m_deviceName;
         }

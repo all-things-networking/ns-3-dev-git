@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -31,17 +30,17 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("WifiSpectrumSignalParameters");
 
 WifiSpectrumSignalParameters::WifiSpectrumSignalParameters()
-    : txCenterFreq(0)
+    : SpectrumSignalParameters(),
+      ppdu(nullptr)
 {
     NS_LOG_FUNCTION(this);
 }
 
 WifiSpectrumSignalParameters::WifiSpectrumSignalParameters(const WifiSpectrumSignalParameters& p)
-    : SpectrumSignalParameters(p)
+    : SpectrumSignalParameters(p),
+      ppdu(p.ppdu)
 {
     NS_LOG_FUNCTION(this << &p);
-    ppdu = p.ppdu;
-    txCenterFreq = p.txCenterFreq;
 }
 
 Ptr<SpectrumSignalParameters>

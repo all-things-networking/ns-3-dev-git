@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
@@ -24,17 +23,20 @@
 
 #include "amsdu-subframe-header.h"
 #include "channel-access-manager.h"
-#include "frame-exchange-manager.h"
 #include "mac-rx-middle.h"
 #include "mac-tx-middle.h"
+#include "mgt-action-headers.h"
 #include "mgt-headers.h"
 #include "msdu-aggregator.h"
 #include "qos-txop.h"
 #include "reduced-neighbor-report.h"
+#include "wifi-mac-queue-scheduler.h"
 #include "wifi-mac-queue.h"
 #include "wifi-net-device.h"
 #include "wifi-phy.h"
 
+#include "ns3/eht-configuration.h"
+#include "ns3/eht-frame-exchange-manager.h"
 #include "ns3/he-configuration.h"
 #include "ns3/ht-configuration.h"
 #include "ns3/log.h"
@@ -342,28 +344,54 @@ ApWifiMac::ForwardDown(Ptr<Packet> packet, Mac48Address from, Mac48Address to, u
         hdr.SetNoOrder(); // explicitly set to 0 for the time being since HT control field is not
                           // yet implemented (set it to 1 when implemented)
     }
-    hdr.SetAddr1(to);
-    hdr.SetAddr2(GetAddress());
-    hdr.SetAddr3(from);
-    hdr.SetDsFrom();
-    hdr.SetDsNotTo();
 
-    if (GetQosSupported())
+    std::list<Mac48Address> addr2Set;
+    if (to.IsGroup())
     {
-        // Sanity check that the TID is valid
-        NS_ASSERT(tid < 8);
-        GetQosTxop(tid)->Queue(packet, hdr);
+        // broadcast frames are transmitted on all the links
+        for (uint8_t linkId = 0; linkId < GetNLinks(); linkId++)
+        {
+            addr2Set.push_back(GetFrameExchangeManager(linkId)->GetAddress());
+        }
     }
     else
     {
-        GetTxop()->Queue(packet, hdr);
+        // the Transmitter Address (TA) is the MLD address only for non-broadcast data frames
+        // exchanged between two MLDs
+        addr2Set = {GetAddress()};
+        auto linkId = IsAssociated(to);
+        NS_ASSERT_MSG(linkId, "Station " << to << "is not associated, cannot send it a frame");
+        if (GetNLinks() == 1 || !GetWifiRemoteStationManager(*linkId)->GetMldAddress(to))
+        {
+            addr2Set = {GetFrameExchangeManager(*linkId)->GetAddress()};
+        }
+    }
+
+    for (const auto& addr2 : addr2Set)
+    {
+        hdr.SetAddr1(to);
+        hdr.SetAddr2(addr2);
+        hdr.SetAddr3(from);
+        hdr.SetDsFrom();
+        hdr.SetDsNotTo();
+
+        if (GetQosSupported())
+        {
+            // Sanity check that the TID is valid
+            NS_ASSERT(tid < 8);
+            GetQosTxop(tid)->Queue(packet, hdr);
+        }
+        else
+        {
+            GetTxop()->Queue(packet, hdr);
+        }
     }
 }
 
 bool
 ApWifiMac::CanForwardPacketsTo(Mac48Address to) const
 {
-    return (to.IsGroup() || GetWifiRemoteStationManager()->IsAssociated(to));
+    return (to.IsGroup() || IsAssociated(to));
 }
 
 void
@@ -397,11 +425,11 @@ ApWifiMac::SupportsSendFrom() const
     return true;
 }
 
-SupportedRates
+AllSupportedRates
 ApWifiMac::GetSupportedRates(uint8_t linkId) const
 {
     NS_LOG_FUNCTION(this << +linkId);
-    SupportedRates rates;
+    AllSupportedRates rates;
     // Send the set of supported rates and make sure that we indicate
     // the Basic Rate set in this set of supported rates.
     for (const auto& mode : GetWifiPhy(linkId)->GetModeList())
@@ -636,10 +664,67 @@ ApWifiMac::GetMultiLinkElement(uint8_t linkId, WifiMacType frameType, const Mac4
     NS_LOG_FUNCTION(this << +linkId << frameType << to);
     NS_ABORT_IF(GetNLinks() == 1);
 
-    MultiLinkElement mle(MultiLinkElement::BASIC_VARIANT, frameType);
+    MultiLinkElement mle(MultiLinkElement::BASIC_VARIANT);
     mle.SetMldMacAddress(GetAddress());
     mle.SetLinkIdInfo(linkId);
     mle.SetBssParamsChangeCount(0);
+
+    auto ehtConfiguration = GetEhtConfiguration();
+    NS_ASSERT(ehtConfiguration);
+
+    if (BooleanValue emlsrActivated;
+        ehtConfiguration->GetAttributeFailSafe("EmlsrActivated", emlsrActivated) &&
+        emlsrActivated.Get())
+    {
+        mle.SetEmlsrSupported(true);
+        // When the EMLSR Padding Delay subfield is included in a frame sent by an AP affiliated
+        // with an AP MLD, the EMLSR Padding Delay subfield is reserved.
+        // When the EMLSR Transition Delay subfield is included in a frame sent by an AP affiliated
+        // with an AP MLD, the EMLSR Transition Delay subfield is reserved. (Sec. 9.4.2.312.2.3
+        // of 802.11be D2.3)
+        TimeValue time;
+        ehtConfiguration->GetAttribute("TransitionTimeout", time);
+        mle.SetTransitionTimeout(time.Get());
+
+        // An AP affiliated with an AP MLD may include the Medium Synchronization Delay Information
+        // subfield in the Common Info field of the Basic Multi-Link element carried in transmitted
+        // (Re)Association Response or Multi-Link Probe Response frames to provide medium
+        // synchronization information used by the AP MLD. (Section 35.3.16.8.2 of 802.11be D3.1)
+        if (frameType == WIFI_MAC_MGT_ASSOCIATION_RESPONSE)
+        {
+            auto& commonInfo = mle.GetCommonInfoBasic();
+
+            ehtConfiguration->GetAttribute("MediumSyncDuration", time);
+            commonInfo.SetMediumSyncDelayTimer(time.Get());
+
+            IntegerValue ofdmEdThres;
+            ehtConfiguration->GetAttribute("MsdOfdmEdThreshold", ofdmEdThres);
+            commonInfo.SetMediumSyncOfdmEdThreshold(ofdmEdThres.Get());
+
+            UintegerValue maxNTxops;
+            ehtConfiguration->GetAttribute("MsdMaxNTxops", maxNTxops);
+            commonInfo.SetMediumSyncMaxNTxops(maxNTxops.Get());
+        }
+    }
+
+    // The MLD Capabilities And Operations subfield is present in the Common Info field of the
+    // Basic Multi-Link element carried in Beacon, Probe Response, (Re)Association Request, and
+    // (Re)Association Response frames. (Sec. 9.4.2.312.2.3 of 802.11be D3.1)
+    if (frameType == WIFI_MAC_MGT_BEACON || frameType == WIFI_MAC_MGT_PROBE_RESPONSE ||
+        frameType == WIFI_MAC_MGT_ASSOCIATION_REQUEST ||
+        frameType == WIFI_MAC_MGT_REASSOCIATION_REQUEST ||
+        frameType == WIFI_MAC_MGT_ASSOCIATION_RESPONSE)
+    {
+        auto& mldCapabilities = mle.GetCommonInfoBasic().m_mldCapabilities;
+        mldCapabilities.emplace();
+        mldCapabilities->maxNSimultaneousLinks = GetNLinks() - 1; // assuming STR for now
+        mldCapabilities->srsSupport = 0;
+        EnumValue negSupport;
+        ehtConfiguration->GetAttributeFailSafe("TidToLinkMappingNegSupport", negSupport);
+        mldCapabilities->tidToLinkMappingSupport = negSupport.Get();
+        mldCapabilities->freqSepForStrApMld = 0; // not supported yet
+        mldCapabilities->aarSupport = 0;         // not supported yet
+    }
 
     // if the Multi-Link Element is being inserted in a (Re)Association Response frame
     // and the remote station is affiliated with an MLD, try multi-link setup
@@ -797,7 +882,7 @@ ApWifiMac::GetVhtOperation(uint8_t linkId) const
     // segment that contains the primary channel.
     operation.SetChannelCenterFrequencySegment0(
         (bssBandwidth == 160)
-            ? phy->GetOperatingChannel().GetPrimaryChannelNumber(80, WIFI_STANDARD_80211ac)
+            ? phy->GetOperatingChannel().GetPrimaryChannelNumber(80, phy->GetStandard())
             : phy->GetChannelNumber());
     // For a 20, 40, or 80 MHz BSS bandwidth, this subfield is set to 0.
     // For a 160 MHz BSS bandwidth and the Channel Width subfield equal to 1,
@@ -856,6 +941,30 @@ ApWifiMac::GetHeOperation(uint8_t linkId) const
     return operation;
 }
 
+EhtOperation
+ApWifiMac::GetEhtOperation(uint8_t linkId) const
+{
+    NS_LOG_FUNCTION(this << +linkId);
+    NS_ASSERT(GetEhtSupported());
+    EhtOperation operation;
+    auto remoteStationManager = GetWifiRemoteStationManager(linkId);
+
+    auto maxSpatialStream = GetWifiPhy(linkId)->GetMaxSupportedRxSpatialStreams();
+    for (const auto& sta : GetLink(linkId).staList)
+    {
+        if (remoteStationManager->GetEhtSupported(sta.second))
+        {
+            if (remoteStationManager->GetNumberOfSupportedStreams(sta.second) < maxSpatialStream)
+            {
+                maxSpatialStream = remoteStationManager->GetNumberOfSupportedStreams(sta.second);
+            }
+        }
+    }
+    operation.SetMaxRxNss(maxSpatialStream, 0, WIFI_EHT_MAX_MCS_INDEX);
+    operation.SetMaxTxNss(maxSpatialStream, 0, WIFI_EHT_MAX_MCS_INDEX);
+    return operation;
+}
+
 void
 ApWifiMac::SendProbeResp(Mac48Address to, uint8_t linkId)
 {
@@ -869,49 +978,52 @@ ApWifiMac::SendProbeResp(Mac48Address to, uint8_t linkId)
     hdr.SetDsNotTo();
     Ptr<Packet> packet = Create<Packet>();
     MgtProbeResponseHeader probe;
-    probe.SetSsid(GetSsid());
-    probe.SetSupportedRates(GetSupportedRates(linkId));
+    probe.Get<Ssid>() = GetSsid();
+    auto supportedRates = GetSupportedRates(linkId);
+    probe.Get<SupportedRates>() = supportedRates.rates;
+    probe.Get<ExtendedSupportedRatesIE>() = supportedRates.extendedRates;
     probe.SetBeaconIntervalUs(GetBeaconInterval().GetMicroSeconds());
-    probe.SetCapabilities(GetCapabilities(linkId));
+    probe.Capabilities() = GetCapabilities(linkId);
     GetWifiRemoteStationManager(linkId)->SetShortPreambleEnabled(
         GetLink(linkId).shortPreambleEnabled);
     GetWifiRemoteStationManager(linkId)->SetShortSlotTimeEnabled(
         GetLink(linkId).shortSlotTimeEnabled);
     if (GetDsssSupported(linkId))
     {
-        probe.SetDsssParameterSet(GetDsssParameterSet(linkId));
+        probe.Get<DsssParameterSet>() = GetDsssParameterSet(linkId);
     }
     if (GetErpSupported(linkId))
     {
-        probe.SetErpInformation(GetErpInformation(linkId));
+        probe.Get<ErpInformation>() = GetErpInformation(linkId);
     }
     if (GetQosSupported())
     {
-        probe.SetEdcaParameterSet(GetEdcaParameterSet(linkId));
+        probe.Get<EdcaParameterSet>() = GetEdcaParameterSet(linkId);
     }
     if (GetHtSupported())
     {
-        probe.SetExtendedCapabilities(GetExtendedCapabilities());
-        probe.SetHtCapabilities(GetHtCapabilities(linkId));
-        probe.SetHtOperation(GetHtOperation(linkId));
+        probe.Get<ExtendedCapabilities>() = GetExtendedCapabilities();
+        probe.Get<HtCapabilities>() = GetHtCapabilities(linkId);
+        probe.Get<HtOperation>() = GetHtOperation(linkId);
     }
-    if (GetVhtSupported(SINGLE_LINK_OP_ID))
+    if (GetVhtSupported(linkId))
     {
-        probe.SetVhtCapabilities(GetVhtCapabilities(linkId));
-        probe.SetVhtOperation(GetVhtOperation(linkId));
+        probe.Get<VhtCapabilities>() = GetVhtCapabilities(linkId);
+        probe.Get<VhtOperation>() = GetVhtOperation(linkId);
     }
     if (GetHeSupported())
     {
-        probe.SetHeCapabilities(GetHeCapabilities(linkId));
-        probe.SetHeOperation(GetHeOperation(linkId));
+        probe.Get<HeCapabilities>() = GetHeCapabilities(linkId);
+        probe.Get<HeOperation>() = GetHeOperation(linkId);
         if (auto muEdcaParameterSet = GetMuEdcaParameterSet(); muEdcaParameterSet.has_value())
         {
-            probe.SetMuEdcaParameterSet(std::move(*muEdcaParameterSet));
+            probe.Get<MuEdcaParameterSet>() = std::move(*muEdcaParameterSet);
         }
     }
     if (GetEhtSupported())
     {
-        probe.SetEhtCapabilities(GetEhtCapabilities(linkId));
+        probe.Get<EhtCapabilities>() = GetEhtCapabilities(linkId);
+        probe.Get<EhtOperation>() = GetEhtOperation(linkId);
 
         if (GetNLinks() > 1)
         {
@@ -924,7 +1036,7 @@ ApWifiMac::SendProbeResp(Mac48Address to, uint8_t linkId)
              */
             if (auto rnr = GetReducedNeighborReport(linkId); rnr.has_value())
             {
-                probe.SetReducedNeighborReport(std::move(*rnr));
+                probe.Get<ReducedNeighborReport>() = std::move(*rnr);
             }
             /*
              * If an AP affiliated with an AP MLD is not in a multiple BSSID set [..], the AP
@@ -934,7 +1046,8 @@ ApWifiMac::SendProbeResp(Mac48Address to, uint8_t linkId)
              * channel switching, extended channel switching, and channel quieting) are
              * satisfied. (Sec. 35.3.4.4 of 802.11be D2.1.1)
              */
-            probe.SetMultiLinkElement(GetMultiLinkElement(linkId, WIFI_MAC_MGT_PROBE_RESPONSE));
+            probe.Get<MultiLinkElement>() =
+                GetMultiLinkElement(linkId, WIFI_MAC_MGT_PROBE_RESPONSE);
         }
     }
     packet->AddHeader(probe);
@@ -977,61 +1090,61 @@ ApWifiMac::GetAssocResp(Mac48Address to, uint8_t linkId)
         remoteStationManager->RecordDisassociated(to);
         code.SetFailure();
     }
-    assoc.SetSupportedRates(GetSupportedRates(linkId));
+    auto supportedRates = GetSupportedRates(linkId);
+    assoc.Get<SupportedRates>() = supportedRates.rates;
+    assoc.Get<ExtendedSupportedRatesIE>() = supportedRates.extendedRates;
     assoc.SetStatusCode(code);
-    assoc.SetCapabilities(GetCapabilities(linkId));
-    if (GetErpSupported(linkId))
-    {
-        assoc.SetErpInformation(GetErpInformation(linkId));
-    }
+    assoc.Capabilities() = GetCapabilities(linkId);
     if (GetQosSupported())
     {
-        assoc.SetEdcaParameterSet(GetEdcaParameterSet(linkId));
+        assoc.Get<EdcaParameterSet>() = GetEdcaParameterSet(linkId);
     }
     if (GetHtSupported())
     {
-        assoc.SetExtendedCapabilities(GetExtendedCapabilities());
-        assoc.SetHtCapabilities(GetHtCapabilities(linkId));
-        assoc.SetHtOperation(GetHtOperation(linkId));
+        assoc.Get<ExtendedCapabilities>() = GetExtendedCapabilities();
+        assoc.Get<HtCapabilities>() = GetHtCapabilities(linkId);
+        assoc.Get<HtOperation>() = GetHtOperation(linkId);
     }
     if (GetVhtSupported(linkId))
     {
-        assoc.SetVhtCapabilities(GetVhtCapabilities(linkId));
-        assoc.SetVhtOperation(GetVhtOperation(linkId));
+        assoc.Get<VhtCapabilities>() = GetVhtCapabilities(linkId);
+        assoc.Get<VhtOperation>() = GetVhtOperation(linkId);
     }
     if (GetHeSupported())
     {
-        assoc.SetHeCapabilities(GetHeCapabilities(linkId));
-        assoc.SetHeOperation(GetHeOperation(linkId));
+        assoc.Get<HeCapabilities>() = GetHeCapabilities(linkId);
+        assoc.Get<HeOperation>() = GetHeOperation(linkId);
         if (auto muEdcaParameterSet = GetMuEdcaParameterSet(); muEdcaParameterSet.has_value())
         {
-            assoc.SetMuEdcaParameterSet(std::move(*muEdcaParameterSet));
+            assoc.Get<MuEdcaParameterSet>() = std::move(*muEdcaParameterSet);
         }
     }
     if (GetEhtSupported())
     {
-        assoc.SetEhtCapabilities(GetEhtCapabilities(linkId));
+        assoc.Get<EhtCapabilities>() = GetEhtCapabilities(linkId);
+        assoc.Get<EhtOperation>() = GetEhtOperation(linkId);
+        // The AP MLD that accepts the requested TID-to-link mapping shall not include in the
+        // (Re)Association Response frame the TID-to-link Mapping element.
+        // (Sec. 35.3.7.1.8 of 802.11be D3.1).
+        // For now, we assume that AP MLDs always accept requested TID-to-link mappings.
     }
     return assoc;
 }
 
-void
-ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const Mac48Address& to, uint8_t linkId)
+ApWifiMac::LinkIdStaAddrMap
+ApWifiMac::GetLinkIdStaAddrMap(MgtAssocResponseHeader& assoc,
+                               const Mac48Address& to,
+                               uint8_t linkId)
 {
-    NS_LOG_FUNCTION(this << to << +linkId);
-
     // find all the links to setup (i.e., those for which status code is success)
-    std::list<std::reference_wrapper<MgtAssocResponseHeader>> assocResponses;
     std::map<uint8_t /* link ID */, Mac48Address> linkIdStaAddrMap;
 
     if (assoc.GetStatusCode().IsSuccess())
     {
-        assocResponses.push_back(std::ref(assoc));
         linkIdStaAddrMap[linkId] = to;
     }
 
-    const auto& mle = assoc.GetMultiLinkElement();
-    if (mle.has_value())
+    if (const auto& mle = assoc.Get<MultiLinkElement>())
     {
         const auto staMldAddress = GetWifiRemoteStationManager(linkId)->GetMldAddress(to);
         NS_ABORT_MSG_IF(!staMldAddress.has_value(),
@@ -1042,7 +1155,6 @@ ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const Mac48Address& to, uint8_t
             if (perStaProfile.HasAssocResponse() &&
                 perStaProfile.GetAssocResponse().GetStatusCode().IsSuccess())
             {
-                assocResponses.emplace_back(perStaProfile.GetAssocResponse());
                 uint8_t otherLinkId = perStaProfile.GetLinkId();
                 auto staAddress = GetWifiRemoteStationManager(otherLinkId)
                                       ->GetAffiliatedStaAddress(*staMldAddress);
@@ -1056,7 +1168,13 @@ ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const Mac48Address& to, uint8_t
         }
     }
 
-    if (assocResponses.empty())
+    return linkIdStaAddrMap;
+}
+
+void
+ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const LinkIdStaAddrMap& linkIdStaAddrMap)
+{
+    if (linkIdStaAddrMap.empty())
     {
         // no link to setup, nothing to do
         return;
@@ -1123,6 +1241,11 @@ ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const Mac48Address& to, uint8_t
         aid = GetNextAssociationId(linkIds);
     }
 
+    // store the MLD or link address in the AID-to-address map
+    const auto& [linkId, staAddr] = *linkIdStaAddrMap.cbegin();
+    m_aidToMldOrLinkAddress[aid] =
+        GetWifiRemoteStationManager(linkId)->GetMldAddress(staAddr).value_or(staAddr);
+
     for (const auto& [id, staAddr] : linkIdStaAddrMap)
     {
         auto remoteStationManager = GetWifiRemoteStationManager(id);
@@ -1163,9 +1286,21 @@ ApWifiMac::SetAid(MgtAssocResponseHeader& assoc, const Mac48Address& to, uint8_t
     // Element must not contain the AID field. We set the AID field in such
     // Association Responses anyway, in order to ease future implementation of
     // the inheritance mechanism.
-    for (auto& assocResp : assocResponses)
+    if (assoc.GetStatusCode().IsSuccess())
     {
-        assocResp.get().SetAssociationId(aid);
+        assoc.SetAssociationId(aid);
+    }
+    if (const auto& mle = assoc.Get<MultiLinkElement>())
+    {
+        for (std::size_t idx = 0; idx < mle->GetNPerStaProfileSubelements(); idx++)
+        {
+            if (const auto& perStaProfile = mle->GetPerStaProfile(idx);
+                perStaProfile.HasAssocResponse() &&
+                perStaProfile.GetAssocResponse().GetStatusCode().IsSuccess())
+            {
+                perStaProfile.GetAssocResponse().SetAssociationId(aid);
+            }
+        }
     }
 }
 
@@ -1192,10 +1327,11 @@ ApWifiMac::SendAssocResp(Mac48Address to, bool isReassoc, uint8_t linkId)
     // stored its MLD address in the remote station manager
     if (GetNLinks() > 1 && GetWifiRemoteStationManager(linkId)->GetMldAddress(to).has_value())
     {
-        assoc.SetMultiLinkElement(GetMultiLinkElement(linkId, hdr.GetType(), to));
+        assoc.Get<MultiLinkElement>() = GetMultiLinkElement(linkId, hdr.GetType(), to);
     }
 
-    SetAid(assoc, to, linkId);
+    auto linkIdStaAddrMap = GetLinkIdStaAddrMap(assoc, to, linkId);
+    SetAid(assoc, linkIdStaAddrMap);
 
     Ptr<Packet> packet = Create<Packet>();
     packet->AddHeader(assoc);
@@ -1235,47 +1371,50 @@ ApWifiMac::SendOneBeacon(uint8_t linkId)
     hdr.SetDsNotTo();
     Ptr<Packet> packet = Create<Packet>();
     MgtBeaconHeader beacon;
-    beacon.SetSsid(GetSsid());
-    beacon.SetSupportedRates(GetSupportedRates(linkId));
+    beacon.Get<Ssid>() = GetSsid();
+    auto supportedRates = GetSupportedRates(linkId);
+    beacon.Get<SupportedRates>() = supportedRates.rates;
+    beacon.Get<ExtendedSupportedRatesIE>() = supportedRates.extendedRates;
     beacon.SetBeaconIntervalUs(GetBeaconInterval().GetMicroSeconds());
-    beacon.SetCapabilities(GetCapabilities(linkId));
+    beacon.Capabilities() = GetCapabilities(linkId);
     GetWifiRemoteStationManager(linkId)->SetShortPreambleEnabled(link.shortPreambleEnabled);
     GetWifiRemoteStationManager(linkId)->SetShortSlotTimeEnabled(link.shortSlotTimeEnabled);
     if (GetDsssSupported(linkId))
     {
-        beacon.SetDsssParameterSet(GetDsssParameterSet(linkId));
+        beacon.Get<DsssParameterSet>() = GetDsssParameterSet(linkId);
     }
     if (GetErpSupported(linkId))
     {
-        beacon.SetErpInformation(GetErpInformation(linkId));
+        beacon.Get<ErpInformation>() = GetErpInformation(linkId);
     }
     if (GetQosSupported())
     {
-        beacon.SetEdcaParameterSet(GetEdcaParameterSet(linkId));
+        beacon.Get<EdcaParameterSet>() = GetEdcaParameterSet(linkId);
     }
     if (GetHtSupported())
     {
-        beacon.SetExtendedCapabilities(GetExtendedCapabilities());
-        beacon.SetHtCapabilities(GetHtCapabilities(linkId));
-        beacon.SetHtOperation(GetHtOperation(linkId));
+        beacon.Get<ExtendedCapabilities>() = GetExtendedCapabilities();
+        beacon.Get<HtCapabilities>() = GetHtCapabilities(linkId);
+        beacon.Get<HtOperation>() = GetHtOperation(linkId);
     }
     if (GetVhtSupported(linkId))
     {
-        beacon.SetVhtCapabilities(GetVhtCapabilities(linkId));
-        beacon.SetVhtOperation(GetVhtOperation(linkId));
+        beacon.Get<VhtCapabilities>() = GetVhtCapabilities(linkId);
+        beacon.Get<VhtOperation>() = GetVhtOperation(linkId);
     }
     if (GetHeSupported())
     {
-        beacon.SetHeCapabilities(GetHeCapabilities(linkId));
-        beacon.SetHeOperation(GetHeOperation(linkId));
+        beacon.Get<HeCapabilities>() = GetHeCapabilities(linkId);
+        beacon.Get<HeOperation>() = GetHeOperation(linkId);
         if (auto muEdcaParameterSet = GetMuEdcaParameterSet(); muEdcaParameterSet.has_value())
         {
-            beacon.SetMuEdcaParameterSet(std::move(*muEdcaParameterSet));
+            beacon.Get<MuEdcaParameterSet>() = std::move(*muEdcaParameterSet);
         }
     }
     if (GetEhtSupported())
     {
-        beacon.SetEhtCapabilities(GetEhtCapabilities(linkId));
+        beacon.Get<EhtCapabilities>() = GetEhtCapabilities(linkId);
+        beacon.Get<EhtOperation>() = GetEhtOperation(linkId);
 
         if (GetNLinks() > 1)
         {
@@ -1288,7 +1427,7 @@ ApWifiMac::SendOneBeacon(uint8_t linkId)
              */
             if (auto rnr = GetReducedNeighborReport(linkId); rnr.has_value())
             {
-                beacon.SetReducedNeighborReport(std::move(*rnr));
+                beacon.Get<ReducedNeighborReport>() = std::move(*rnr);
             }
             /*
              * If an AP affiliated with an AP MLD is not in a multiple BSSID set [..], the AP
@@ -1298,7 +1437,7 @@ ApWifiMac::SendOneBeacon(uint8_t linkId)
              * channel switching, extended channel switching, and channel quieting) are
              * satisfied. (Sec. 35.3.4.4 of 802.11be D2.1.1)
              */
-            beacon.SetMultiLinkElement(GetMultiLinkElement(linkId, WIFI_MAC_MGT_BEACON));
+            beacon.Get<MultiLinkElement>() = GetMultiLinkElement(linkId, WIFI_MAC_MGT_BEACON);
         }
     }
     packet->AddHeader(beacon);
@@ -1347,7 +1486,17 @@ ApWifiMac::TxOk(Ptr<const WifiMpdu> mpdu)
                 GetWifiRemoteStationManager(*linkId)->GetMldAddress(hdr.GetAddr1());
             staMldAddress.has_value())
         {
-            // the STA is affiliated with an MLD
+            /**
+             * The STA is affiliated with an MLD. From Sec. 35.3.7.1.4 of 802.11be D3.0:
+             * When a link becomes enabled for a non-AP STA that is affiliated with a non-AP MLD
+             * after successful association with an AP MLD with (Re)Association Request/Response
+             * frames transmitted on another link [...], the power management mode of the non-AP
+             * STA, immediately after the acknowledgement of the (Re)Association Response frame
+             * [...], is power save mode, and its power state is doze.
+             *
+             * Thus, STAs operating on all the links but the link used to establish association
+             * transition to power save mode.
+             */
             for (uint8_t i = 0; i < GetNLinks(); i++)
             {
                 auto stationManager = GetWifiRemoteStationManager(i);
@@ -1358,7 +1507,30 @@ ApWifiMac::TxOk(Ptr<const WifiMpdu> mpdu)
                     NS_LOG_DEBUG("AP=" << GetFrameExchangeManager(i)->GetAddress()
                                        << " associated with STA=" << *staAddress);
                     stationManager->RecordGotAssocTxOk(*staAddress);
+                    StaSwitchingToPsMode(*staAddress, i);
                 }
+            }
+
+            // Apply the negotiated TID-to-Link Mapping (if any) for DL direction
+            ApplyTidLinkMapping(*staMldAddress, WifiDirection::DOWNLINK);
+        }
+    }
+    else if (hdr.IsAction())
+    {
+        if (auto [category, action] = WifiActionHeader::Peek(mpdu->GetPacket());
+            category == WifiActionHeader::PROTECTED_EHT &&
+            action.protectedEhtAction ==
+                WifiActionHeader::PROTECTED_EHT_EML_OPERATING_MODE_NOTIFICATION)
+        {
+            // the EMLSR client acknowledged the EML Operating Mode Notification frame;
+            // we can stop the timer and enforce the configuration deriving from the
+            // EML Notification frame sent by the EMLSR client
+            if (auto eventIt = m_transitionTimeoutEvents.find(hdr.GetAddr1());
+                eventIt != m_transitionTimeoutEvents.cend() && eventIt->second.IsRunning())
+            {
+                // no need to wait until the expiration of the transition timeout
+                eventIt->second.PeekEventImpl()->Invoke();
+                eventIt->second.Cancel();
             }
         }
     }
@@ -1404,20 +1576,112 @@ ApWifiMac::TxFailed(WifiMacDropReason timeoutReason, Ptr<const WifiMpdu> mpdu)
 }
 
 void
+ApWifiMac::ProcessPowerManagementFlag(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
+{
+    NS_LOG_FUNCTION(this << *mpdu << linkId);
+
+    Mac48Address staAddr = mpdu->GetHeader().GetAddr2();
+    bool staInPsMode = GetWifiRemoteStationManager(linkId)->IsInPsMode(staAddr);
+
+    if (!staInPsMode && mpdu->GetHeader().IsPowerManagement())
+    {
+        // the sending STA is switching to Power Save mode
+        StaSwitchingToPsMode(staAddr, linkId);
+    }
+    else if (staInPsMode && !mpdu->GetHeader().IsPowerManagement())
+    {
+        // the sending STA is switching back to Active mode
+        StaSwitchingToActiveModeOrDeassociated(staAddr, linkId);
+    }
+}
+
+void
+ApWifiMac::StaSwitchingToPsMode(const Mac48Address& staAddr, uint8_t linkId)
+{
+    NS_LOG_FUNCTION(this << staAddr << linkId);
+
+    GetWifiRemoteStationManager(linkId)->SetPsMode(staAddr, true);
+
+    // Block frames addressed to the STA in PS mode
+    NS_LOG_DEBUG("Block destination " << staAddr << " on link " << +linkId);
+    auto staMldAddr = GetWifiRemoteStationManager(linkId)->GetMldAddress(staAddr).value_or(staAddr);
+    BlockUnicastTxOnLinks(WifiQueueBlockedReason::POWER_SAVE_MODE, staMldAddr, {linkId});
+}
+
+void
+ApWifiMac::StaSwitchingToActiveModeOrDeassociated(const Mac48Address& staAddr, uint8_t linkId)
+{
+    NS_LOG_FUNCTION(this << staAddr << linkId);
+
+    GetWifiRemoteStationManager(linkId)->SetPsMode(staAddr, false);
+
+    if (GetWifiRemoteStationManager(linkId)->IsAssociated(staAddr))
+    {
+        // the station is still associated, unblock its frames
+        NS_LOG_DEBUG("Unblock destination " << staAddr << " on link " << +linkId);
+        auto staMldAddr =
+            GetWifiRemoteStationManager(linkId)->GetMldAddress(staAddr).value_or(staAddr);
+        UnblockUnicastTxOnLinks(WifiQueueBlockedReason::POWER_SAVE_MODE, staMldAddr, {linkId});
+    }
+}
+
+std::optional<uint8_t>
+ApWifiMac::IsAssociated(const Mac48Address& address) const
+{
+    for (uint8_t linkId = 0; linkId < GetNLinks(); linkId++)
+    {
+        if (GetWifiRemoteStationManager(linkId)->IsAssociated(address))
+        {
+            return linkId;
+        }
+    }
+    NS_LOG_DEBUG(address << " is not associated");
+    return std::nullopt;
+}
+
+Mac48Address
+ApWifiMac::DoGetLocalAddress(const Mac48Address& remoteAddr) const
+{
+    auto linkId = IsAssociated(remoteAddr);
+    NS_ASSERT_MSG(linkId, remoteAddr << " is not associated");
+    return GetFrameExchangeManager(*linkId)->GetAddress();
+}
+
+std::optional<Mac48Address>
+ApWifiMac::GetMldOrLinkAddressByAid(uint16_t aid) const
+{
+    if (const auto staIt = m_aidToMldOrLinkAddress.find(aid);
+        staIt != m_aidToMldOrLinkAddress.cend())
+    {
+        return staIt->second;
+    }
+    return std::nullopt;
+}
+
+void
 ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
 {
     NS_LOG_FUNCTION(this << *mpdu << +linkId);
-    const WifiMacHeader* hdr = &mpdu->GetHeader();
+    // consider the MAC header of the original MPDU (makes a difference for data frames only)
+    const WifiMacHeader* hdr = &mpdu->GetOriginal()->GetHeader();
     Ptr<const Packet> packet = mpdu->GetPacket();
     Mac48Address from = hdr->GetAddr2();
     if (hdr->IsData())
     {
-        Mac48Address bssid = hdr->GetAddr1();
-        if (!hdr->IsFromDs() && hdr->IsToDs() && bssid == GetAddress() &&
-            GetWifiRemoteStationManager()->IsAssociated(from))
+        std::optional<uint8_t> apLinkId;
+        if (!hdr->IsFromDs() && hdr->IsToDs() &&
+            (apLinkId = IsAssociated(mpdu->GetHeader().GetAddr2())) &&
+            mpdu->GetHeader().GetAddr1() == GetFrameExchangeManager(*apLinkId)->GetAddress())
         {
+            // this MPDU is being acknowledged by the AP, so we can process
+            // the Power Management flag
+            ProcessPowerManagementFlag(mpdu, *apLinkId);
+
             Mac48Address to = hdr->GetAddr3();
-            if (to == GetAddress())
+            // Address3 can be our MLD address (e.g., this is an MPDU containing a single MSDU
+            // addressed to us) or a BSSID (e.g., this is an MPDU containing an A-MSDU)
+            if (to == GetAddress() ||
+                (hdr->IsQosData() && hdr->IsQosAmsdu() && to == mpdu->GetHeader().GetAddr1()))
             {
                 NS_LOG_DEBUG("frame for me from=" << from);
                 if (hdr->IsQosData())
@@ -1429,17 +1693,17 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
                         DeaggregateAmsduAndForward(mpdu);
                         packet = nullptr;
                     }
-                    else
+                    else if (hdr->HasData())
                     {
-                        ForwardUp(packet, from, bssid);
+                        ForwardUp(packet, from, GetAddress());
                     }
                 }
                 else if (hdr->HasData())
                 {
-                    ForwardUp(packet, from, bssid);
+                    ForwardUp(packet, from, GetAddress());
                 }
             }
-            else if (to.IsGroup() || GetWifiRemoteStationManager()->IsAssociated(to))
+            else if (to.IsGroup() || IsAssociated(to))
             {
                 NS_LOG_DEBUG("forwarding frame from=" << from << ", to=" << to);
                 Ptr<Packet> copy = packet->Copy();
@@ -1457,7 +1721,7 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
                 }
                 ForwardUp(packet, from, to);
             }
-            else
+            else if (hdr->HasData())
             {
                 ForwardUp(packet, from, to);
             }
@@ -1478,6 +1742,13 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
     }
     else if (hdr->IsMgt())
     {
+        if (hdr->GetAddr1() == GetFrameExchangeManager(linkId)->GetAddress() &&
+            GetWifiRemoteStationManager(linkId)->IsAssociated(from))
+        {
+            // this MPDU is being acknowledged by the AP, so we can process
+            // the Power Management flag
+            ProcessPowerManagementFlag(mpdu, linkId);
+        }
         if (hdr->IsProbeReq() && (hdr->GetAddr1().IsGroup() ||
                                   hdr->GetAddr1() == GetFrameExchangeManager(linkId)->GetAddress()))
         {
@@ -1493,8 +1764,8 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
             }
             MgtProbeRequestHeader probeRequestHeader;
             packet->PeekHeader(probeRequestHeader);
-            const Ssid& ssid = probeRequestHeader.GetSsid();
-            if (ssid == GetSsid() || ssid.IsBroadcast())
+            const auto& ssid = probeRequestHeader.Get<Ssid>();
+            if (ssid == GetSsid() || ssid->IsBroadcast())
             {
                 NS_LOG_DEBUG("Probe request received from " << from << ": send probe response");
                 SendProbeResp(from, linkId);
@@ -1503,8 +1774,10 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
         }
         else if (hdr->GetAddr1() == GetFrameExchangeManager(linkId)->GetAddress())
         {
-            if (hdr->IsAssocReq() || hdr->IsReassocReq())
+            switch (hdr->GetType())
             {
+            case WIFI_MAC_MGT_ASSOCIATION_REQUEST:
+            case WIFI_MAC_MGT_REASSOCIATION_REQUEST: {
                 NS_LOG_DEBUG(((hdr->IsAssocReq()) ? "Association" : "Reassociation")
                              << " request received from " << from
                              << ((GetNLinks() > 1) ? " on link ID " + std::to_string(linkId) : ""));
@@ -1521,16 +1794,14 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
                     packet->PeekHeader(reassocReq);
                     frame = reassocReq;
                 }
-                ReceiveAssocRequest(frame, from, linkId);
-                if (GetNLinks() > 1)
+                if (ReceiveAssocRequest(frame, from, linkId) && GetNLinks() > 1)
                 {
                     ParseReportedStaInfo(frame, from, linkId);
                 }
                 SendAssocResp(hdr->GetAddr2(), hdr->IsReassocReq(), linkId);
                 return;
             }
-            else if (hdr->IsDisassociation())
-            {
+            case WIFI_MAC_MGT_DISASSOCIATION: {
                 NS_LOG_DEBUG("Disassociation received from " << from);
                 GetWifiRemoteStationManager(linkId)->RecordDisassociated(from);
                 auto& staList = GetLink(linkId).staList;
@@ -1551,10 +1822,30 @@ ApWifiMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
                         }
                         UpdateShortSlotTimeEnabled(linkId);
                         UpdateShortPreambleEnabled(linkId);
+                        StaSwitchingToActiveModeOrDeassociated(from, linkId);
                         break;
                     }
                 }
                 return;
+            }
+            case WIFI_MAC_MGT_ACTION: {
+                auto pkt = mpdu->GetPacket()->Copy();
+                auto [category, action] = WifiActionHeader::Remove(pkt);
+                if (category == WifiActionHeader::PROTECTED_EHT &&
+                    action.protectedEhtAction ==
+                        WifiActionHeader::PROTECTED_EHT_EML_OPERATING_MODE_NOTIFICATION &&
+                    IsAssociated(hdr->GetAddr2()))
+                {
+                    // received an EML Operating Mode Notification frame from an associated station
+                    MgtEmlOmn frame;
+                    pkt->RemoveHeader(frame);
+                    ReceiveEmlOmn(frame, hdr->GetAddr2(), linkId);
+                    return;
+                }
+                break;
+            }
+            default:;
+                // do nothing
             }
         }
     }
@@ -1586,9 +1877,11 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
 
         // first, verify that the the station's supported
         // rate set is compatible with our Basic Rate set
-        const CapabilityInformation& capabilities = frame.GetCapabilities();
+        const CapabilityInformation& capabilities = frame.Capabilities();
         remoteStationManager->AddSupportedPhyPreamble(from, capabilities.IsShortPreamble());
-        const SupportedRates& rates = frame.GetSupportedRates();
+        NS_ASSERT(frame.template Get<SupportedRates>());
+        const auto rates = AllSupportedRates{*frame.template Get<SupportedRates>(),
+                                             frame.template Get<ExtendedSupportedRatesIE>()};
 
         if (rates.GetNRates() == 0)
         {
@@ -1598,7 +1891,7 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         if (GetHtSupported())
         {
             // check whether the HT STA supports all MCSs in Basic MCS Set
-            const auto& htCapabilities = frame.GetHtCapabilities();
+            const auto& htCapabilities = frame.template Get<HtCapabilities>();
             if (htCapabilities.has_value() && htCapabilities->IsSupportedMcs(0))
             {
                 for (uint8_t i = 0; i < remoteStationManager->GetNBasicMcs(); i++)
@@ -1614,7 +1907,7 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         if (GetVhtSupported(linkId))
         {
             // check whether the VHT STA supports all MCSs in Basic MCS Set
-            const auto& vhtCapabilities = frame.GetVhtCapabilities();
+            const auto& vhtCapabilities = frame.template Get<VhtCapabilities>();
             if (vhtCapabilities.has_value() && vhtCapabilities->GetVhtCapabilitiesInfo() != 0)
             {
                 for (uint8_t i = 0; i < remoteStationManager->GetNBasicMcs(); i++)
@@ -1630,7 +1923,7 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         if (GetHeSupported())
         {
             // check whether the HE STA supports all MCSs in Basic MCS Set
-            const auto& heCapabilities = frame.GetHeCapabilities();
+            const auto& heCapabilities = frame.template Get<HeCapabilities>();
             if (heCapabilities.has_value() && heCapabilities->GetSupportedMcsAndNss() != 0)
             {
                 for (uint8_t i = 0; i < remoteStationManager->GetNBasicMcs(); i++)
@@ -1645,9 +1938,105 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         }
         if (GetEhtSupported())
         {
-            // check whether the EHT STA supports all MCSs in Basic MCS Set
-            //  const auto& ehtCapabilities = frame.GetEhtCapabilities ();
-            // TODO: to be completed
+            // TODO check whether the EHT STA supports all MCSs in Basic MCS Set
+            auto ehtConfig = GetEhtConfiguration();
+            NS_ASSERT(ehtConfig);
+
+            if (const auto& tidLinkMapping = frame.template Get<TidToLinkMapping>();
+                !tidLinkMapping.empty())
+            {
+                // non-AP MLD included TID-to-Link Mapping IE(s) in the Association Request.
+                // We refuse association if we do not support TID-to-Link mapping negotiation
+                // or the non-AP MLD included more than two TID-to-Link Mapping IEs
+                // or we support negotiation type 1 but TIDs are mapped onto distinct link sets
+                // or there is some TID that is not mapped to any link
+                // or the direction(s) is/are not set properly
+                if (tidLinkMapping.size() > 2)
+                {
+                    return failure("More than two TID-to-Link Mapping IEs");
+                }
+
+                // if only one Tid-to-Link Mapping element is present, it must be valid for
+                // both directions
+                bool bothDirIfOneTlm =
+                    tidLinkMapping.size() != 1 ||
+                    tidLinkMapping[0].m_control.direction == WifiDirection::BOTH_DIRECTIONS;
+                // An MLD that includes two TID-To-Link Mapping elements in a (Re)Association
+                // Request frame or a (Re)Association Response frame shall set the Direction
+                // subfield in one of the TID-To-Link Mapping elements to 0 and the Direction
+                // subfield in the other TID-To- Link Mapping element to 1.
+                // (Sec. 35.3.7.1.8 of 802.11be D3.1)
+                bool distinctDirsIfTwoTlms =
+                    tidLinkMapping.size() != 2 ||
+                    (tidLinkMapping[0].m_control.direction != WifiDirection::BOTH_DIRECTIONS &&
+                     tidLinkMapping[1].m_control.direction != WifiDirection::BOTH_DIRECTIONS &&
+                     tidLinkMapping[0].m_control.direction !=
+                         tidLinkMapping[1].m_control.direction);
+
+                if (!bothDirIfOneTlm || !distinctDirsIfTwoTlms)
+                {
+                    return failure("Incorrect directions in TID-to-Link Mapping IEs");
+                }
+
+                EnumValue negSupport;
+                ehtConfig->GetAttributeFailSafe("TidToLinkMappingNegSupport", negSupport);
+
+                if (negSupport.Get() == 0)
+                {
+                    return failure("TID-to-Link Mapping negotiation not supported");
+                }
+
+                auto getMapping = [](const TidToLinkMapping& tlmIe, WifiTidLinkMapping& mapping) {
+                    if (tlmIe.m_control.defaultMapping)
+                    {
+                        return;
+                    }
+                    for (uint8_t tid = 0; tid < 8; tid++)
+                    {
+                        if (auto linkSet = tlmIe.GetLinkMappingOfTid(tid); !linkSet.empty())
+                        {
+                            mapping.emplace(tid, std::move(linkSet));
+                        }
+                    }
+                };
+
+                WifiTidLinkMapping dlMapping;
+                WifiTidLinkMapping ulMapping;
+
+                switch (tidLinkMapping[0].m_control.direction)
+                {
+                case WifiDirection::BOTH_DIRECTIONS:
+                    getMapping(tidLinkMapping.at(0), dlMapping);
+                    ulMapping = dlMapping;
+                    break;
+                case WifiDirection::DOWNLINK:
+                    getMapping(tidLinkMapping.at(0), dlMapping);
+                    getMapping(tidLinkMapping.at(1), ulMapping);
+                    break;
+                case WifiDirection::UPLINK:
+                    getMapping(tidLinkMapping.at(0), ulMapping);
+                    getMapping(tidLinkMapping.at(1), dlMapping);
+                    break;
+                }
+
+                if (negSupport.Get() == 1 &&
+                    !TidToLinkMappingValidForNegType1(dlMapping, ulMapping))
+                {
+                    return failure("Mapping TIDs to distinct link sets is incompatible with "
+                                   "negotiation support of 1");
+                }
+
+                // otherwise, we accept the TID-to-link Mapping and store it
+                const auto& mle = frame.template Get<MultiLinkElement>();
+                NS_ASSERT_MSG(mle,
+                              "Multi-Link Element not present in an Association Request including "
+                              "TID-to-Link Mapping element(s)");
+                auto mldAddr = mle->GetMldMacAddress();
+
+                // The requested link mappings are valid and can be accepted; store them.
+                UpdateTidToLinkMapping(mldAddr, WifiDirection::DOWNLINK, dlMapping);
+                UpdateTidToLinkMapping(mldAddr, WifiDirection::UPLINK, ulMapping);
+            }
         }
 
         // The association request from the station can be accepted.
@@ -1668,17 +2057,17 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         }
         if (GetHtSupported())
         {
-            const auto& htCapabilities = frame.GetHtCapabilities();
+            const auto& htCapabilities = frame.template Get<HtCapabilities>();
             if (htCapabilities.has_value() && htCapabilities->IsSupportedMcs(0))
             {
                 remoteStationManager->AddStationHtCapabilities(from, *htCapabilities);
             }
-            // const ExtendedCapabilities& extendedCapabilities = frame.GetExtendedCapabilities ();
+            // const ExtendedCapabilities& extendedCapabilities = frame.GetExtendedCapabilities();
             // TODO: to be completed
         }
         if (GetVhtSupported(linkId))
         {
-            const auto& vhtCapabilities = frame.GetVhtCapabilities();
+            const auto& vhtCapabilities = frame.template Get<VhtCapabilities>();
             // we will always fill in RxHighestSupportedLgiDataRate field at TX, so this can be used
             // to check whether it supports VHT
             if (vhtCapabilities.has_value() &&
@@ -1697,7 +2086,7 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         }
         if (GetHeSupported())
         {
-            const auto& heCapabilities = frame.GetHeCapabilities();
+            const auto& heCapabilities = frame.template Get<HeCapabilities>();
             if (heCapabilities.has_value() && heCapabilities->GetSupportedMcsAndNss() != 0)
             {
                 remoteStationManager->AddStationHeCapabilities(from, *heCapabilities);
@@ -1713,10 +2102,10 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         }
         if (GetEhtSupported())
         {
-            const auto& ehtCapabilities = frame.GetEhtCapabilities();
-            // TODO: once we support non constant rate managers, we should add checks here whether
-            // EHT is supported by the peer
-            remoteStationManager->AddStationEhtCapabilities(from, *ehtCapabilities);
+            if (const auto& ehtCapabilities = frame.template Get<EhtCapabilities>())
+            {
+                remoteStationManager->AddStationEhtCapabilities(from, *ehtCapabilities);
+            }
             for (const auto& mcs : phy->GetMcsList(WIFI_MOD_CLASS_EHT))
             {
                 // TODO: Add check whether MCS is supported from the capabilities
@@ -1728,7 +2117,6 @@ ApWifiMac::ReceiveAssocRequest(const AssocReqRefVariant& assoc,
         NS_LOG_DEBUG("Association Request from " << from << " accepted");
         remoteStationManager->RecordWaitAssocTxOk(from);
         return true;
-        ;
     };
 
     return std::visit(recvAssocRequest, assoc);
@@ -1741,14 +2129,15 @@ ApWifiMac::ParseReportedStaInfo(const AssocReqRefVariant& assoc, Mac48Address fr
 
     // lambda to process received Multi-Link Element
     auto recvMle = [&](auto&& frame) {
-        const auto& mle = frame.get().GetMultiLinkElement();
+        const auto& mle = frame.get().template Get<MultiLinkElement>();
 
         if (!mle.has_value())
         {
             return;
         }
 
-        GetWifiRemoteStationManager(linkId)->SetMldAddress(from, mle->GetMldMacAddress());
+        auto mleCommonInfo = std::make_shared<CommonInfoBasicMle>(mle->GetCommonInfoBasic());
+        GetWifiRemoteStationManager(linkId)->AddStationMleCommonInfo(from, mleCommonInfo);
 
         for (std::size_t i = 0; i < mle->GetNPerStaProfileSubelements(); i++)
         {
@@ -1774,12 +2163,151 @@ ApWifiMac::ParseReportedStaInfo(const AssocReqRefVariant& assoc, Mac48Address fr
             ReceiveAssocRequest(perStaProfile.GetAssocRequest(),
                                 perStaProfile.GetStaMacAddress(),
                                 newLinkId);
-            GetWifiRemoteStationManager(newLinkId)->SetMldAddress(perStaProfile.GetStaMacAddress(),
-                                                                  mle->GetMldMacAddress());
+            GetWifiRemoteStationManager(newLinkId)->AddStationMleCommonInfo(
+                perStaProfile.GetStaMacAddress(),
+                mleCommonInfo);
         }
     };
 
     std::visit(recvMle, assoc);
+}
+
+void
+ApWifiMac::ReceiveEmlOmn(MgtEmlOmn& frame, const Mac48Address& sender, uint8_t linkId)
+{
+    NS_LOG_FUNCTION(this << frame << sender << linkId);
+
+    auto ehtConfiguration = GetEhtConfiguration();
+
+    if (BooleanValue emlsrActivated;
+        !ehtConfiguration ||
+        !ehtConfiguration->GetAttributeFailSafe("EmlsrActivated", emlsrActivated) ||
+        !emlsrActivated.Get())
+    {
+        NS_LOG_DEBUG(
+            "Received an EML Operating Mode Notification frame but EMLSR is not activated");
+        return;
+    }
+
+    if (frame.m_emlControl.emlsrParamUpdateCtrl)
+    {
+        NS_ASSERT(frame.m_emlsrParamUpdate);
+        auto emlCapabilities =
+            GetWifiRemoteStationManager(linkId)->GetStationEmlCapabilities(sender);
+        NS_ASSERT_MSG(emlCapabilities, "EML Capabilities not stored for STA " << sender);
+
+        // update values stored in remote station manager
+        emlCapabilities->get().emlsrPaddingDelay = frame.m_emlsrParamUpdate->paddingDelay;
+        emlCapabilities->get().emlsrTransitionDelay = frame.m_emlsrParamUpdate->transitionDelay;
+    }
+
+    auto mldAddress = GetWifiRemoteStationManager(linkId)->GetMldAddress(sender);
+    NS_ASSERT_MSG(mldAddress, "No MLD address stored for STA " << sender);
+    auto emlsrLinks =
+        frame.m_emlControl.emlsrMode == 1 ? frame.GetLinkBitmap() : std::list<uint8_t>{};
+
+    // The AP MLD has to consider the changes carried by the received EML Notification frame
+    // as effective at the same time as the non-AP MLD. Therefore, we need to start a time
+    // when the transmission of the Ack following the received EML Notification frame is
+    // completed. For this purpose, we connect a callback to the PHY TX begin trace to catch
+    // the Ack transmitted after the EML Notification frame.
+    CallbackBase cb = Callback<void, WifiConstPsduMap, WifiTxVector, double>(
+        [=, this](WifiConstPsduMap psduMap, WifiTxVector txVector, double /* txPowerW */) {
+            NS_ASSERT_MSG(psduMap.size() == 1 && psduMap.begin()->second->GetNMpdus() == 1 &&
+                              psduMap.begin()->second->GetHeader(0).IsAck(),
+                          "Expected a Normal Ack after EML Notification frame");
+
+            auto ackDuration =
+                WifiPhy::CalculateTxDuration(psduMap, txVector, GetLink(linkId).phy->GetPhyBand());
+
+            TimeValue transitionTimeout;
+            ehtConfiguration->GetAttribute("TransitionTimeout", transitionTimeout);
+
+            m_transitionTimeoutEvents[sender] =
+                Simulator::Schedule(ackDuration + transitionTimeout.Get(), [=, this]() {
+                    for (uint8_t id = 0; id < GetNLinks(); id++)
+                    {
+                        auto linkAddress =
+                            GetWifiRemoteStationManager(id)->GetAffiliatedStaAddress(*mldAddress);
+                        if (!linkAddress)
+                        {
+                            // this link has not been setup by the non-AP MLD
+                            continue;
+                        }
+
+                        if (!emlsrLinks.empty())
+                        {
+                            // the non-AP MLD is enabling EMLSR mode
+                            /**
+                             * After the successful transmission of the EML Operating Mode
+                             * Notification frame by the non-AP STA affiliated with the non-AP MLD,
+                             * the non-AP MLD shall operate in the EMLSR mode and the other non-AP
+                             * STAs operating on the corresponding EMLSR links shall transition to
+                             * active mode after the transition delay indicated in the Transition
+                             * Timeout subfield in the EML Capabilities subfield of the Basic
+                             * Multi-Link element or immediately after receiving an EML Operating
+                             * Mode Notification frame from one of the APs operating on the EMLSR
+                             * links and affiliated with the AP MLD (Sec. 35.3.17 of 802.11be D3.0)
+                             */
+                            auto enabled = std::find(emlsrLinks.cbegin(), emlsrLinks.cend(), id) !=
+                                           emlsrLinks.cend();
+                            if (enabled)
+                            {
+                                StaSwitchingToActiveModeOrDeassociated(*linkAddress, id);
+                            }
+                            GetWifiRemoteStationManager(id)->SetEmlsrEnabled(*linkAddress, enabled);
+                        }
+                        else
+                        {
+                            // the non-AP MLD is disabling EMLSR mode
+                            /**
+                             * After the successful transmission of the EML Operating Mode
+                             * Notification frame by the non-AP STA affiliated with the non-AP MLD,
+                             * the non-AP MLD shall disable the EMLSR mode and the other non-AP
+                             * STAs operating on the corresponding EMLSR links shall transition to
+                             * power save mode after the transition delay indicated in the
+                             * Transition Timeout subfield in the EML Capabilities subfield of the
+                             * Basic Multi-Link element or immediately after receiving an EML
+                             * Operating Mode Notification frame from one of the APs operating on
+                             * the EMLSR links and affiliated with the AP MLD. (Sec. 35.3.17 of
+                             * 802.11be D3.0)
+                             */
+                            if (id != linkId &&
+                                GetWifiRemoteStationManager(id)->GetEmlsrEnabled(*linkAddress))
+                            {
+                                StaSwitchingToPsMode(*linkAddress, id);
+                            }
+                            GetWifiRemoteStationManager(id)->SetEmlsrEnabled(*linkAddress, false);
+                        }
+                    }
+                });
+        });
+
+    // connect the callback to the PHY TX begin trace to catch the Ack and disconnect
+    // after its transmission begins
+    auto phy = GetLink(linkId).phy;
+    phy->TraceConnectWithoutContext("PhyTxPsduBegin", cb);
+    Simulator::Schedule(phy->GetSifs() + NanoSeconds(1),
+                        [=]() { phy->TraceDisconnectWithoutContext("PhyTxPsduBegin", cb); });
+
+    // An AP MLD with dot11EHTEMLSROptionActivated equal to true sets the EMLSR Mode subfield
+    // to the value obtained from the EMLSR Mode subfield of the received EML Operating Mode
+    // Notification frame. (Sec. 9.6.35.8 of 802.11be D3.0)
+
+    // When included in a frame sent by an AP affiliated with an AP MLD, the EMLSR Parameter
+    // Update Control subfield is set to 0. (Sec. 9.6.35.8 of 802.11be D3.0)
+    frame.m_emlControl.emlsrParamUpdateCtrl = 0;
+
+    // An AP MLD with dot11EHTEMLSROptionImplemented equal to true sets the EMLSR Link Bitmap
+    // subfield to the value obtained from the EMLSR Link Bitmap subfield of the received
+    // EML Operating Mode Notification frame. (Sec. 9.6.35.8 of 802.11be D3.0)
+
+    // The EMLSR Parameter Update field [..] is present if [..] the Action frame is sent by
+    // a non-AP STA affiliated with a non-AP MLD (Sec. 9.6.35.8 of 802.11be D3.0)
+    frame.m_emlsrParamUpdate.reset();
+
+    auto ehtFem = StaticCast<EhtFrameExchangeManager>(GetFrameExchangeManager(linkId));
+    ehtFem->SendEmlOmn(sender, frame);
 }
 
 void
@@ -1788,17 +2316,16 @@ ApWifiMac::DeaggregateAmsduAndForward(Ptr<const WifiMpdu> mpdu)
     NS_LOG_FUNCTION(this << *mpdu);
     for (auto& i : *PeekPointer(mpdu))
     {
-        if (i.second.GetDestinationAddr() == GetAddress())
+        auto from = i.second.GetSourceAddr();
+        auto to = i.second.GetDestinationAddr();
+
+        if (to.IsGroup() || IsAssociated(to))
         {
-            ForwardUp(i.first, i.second.GetSourceAddr(), i.second.GetDestinationAddr());
-        }
-        else
-        {
-            Mac48Address from = i.second.GetSourceAddr();
-            Mac48Address to = i.second.GetDestinationAddr();
             NS_LOG_DEBUG("forwarding QoS frame from=" << from << ", to=" << to);
             ForwardDown(i.first->Copy(), from, to, mpdu->GetHeader().GetQosTid());
         }
+
+        ForwardUp(i.first, from, to);
     }
 }
 

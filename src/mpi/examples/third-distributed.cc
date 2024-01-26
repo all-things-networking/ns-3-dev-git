@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -265,7 +264,7 @@ main(int argc, char* argv[])
 
     Simulator::Stop(Seconds(10.0));
 
-    if (tracing == true)
+    if (tracing)
     {
         // Depending on the system Id (rank), the pcap information
         // traced will be different.  For example, the ethernet pcap

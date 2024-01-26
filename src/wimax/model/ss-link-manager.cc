@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -285,7 +284,7 @@ SSLinkManager::StartContentionResolution()
 void
 SSLinkManager::PerformBackoff()
 {
-    Time defferTime = Seconds(0);
+    Time deferTime = Seconds(0);
     Time timeToAllocation = Seconds(0);
     uint16_t nrPsPerRangOpp = m_ss->GetCurrentUcd().GetChannelEncodings().GetRangReqOppSize();
     uint16_t oppSize = m_ss->GetCurrentUcd().GetChannelEncodings().GetRangReqOppSize() /
@@ -295,9 +294,9 @@ SSLinkManager::PerformBackoff()
     {
         if (m_rangingBO == 0)
         {
-            defferTime =
+            deferTime =
                 Seconds(deferTOs * nrPsPerRangOpp * m_ss->GetPhy()->GetPsDuration().GetSeconds());
-            timeToAllocation = m_ss->GetTimeToAllocation(defferTime);
+            timeToAllocation = m_ss->GetTimeToAllocation(deferTime);
 
             Simulator::Schedule(timeToAllocation,
                                 &SSLinkManager::SendRangingRequest,
@@ -338,7 +337,7 @@ void
 SSLinkManager::ResetRangingRequestCW()
 {
     m_rangingCW =
-        (uint8_t)std::pow((double)2, (double)m_ss->GetCurrentUcd().GetRangingBackoffStart()) - 1;
+        (uint8_t)std::pow(2.0, (double)m_ss->GetCurrentUcd().GetRangingBackoffStart()) - 1;
 }
 
 void

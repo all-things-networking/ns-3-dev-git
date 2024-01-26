@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 ResiliNets, ITTC, University of Kansas
  *
@@ -48,7 +47,7 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
+#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/enum.h"
 #include "ns3/error-model.h"
@@ -72,7 +71,7 @@ NS_LOG_COMPONENT_DEFINE("CoDelPfifoFastAsymmetricTest");
 /**
  * TCP Congestion window tracker.
  *
- * \param stream The ouput stream.
+ * \param stream The output stream.
  * \param oldval Old value.
  * \param newval New value.
  */
@@ -91,7 +90,7 @@ static void
 TraceCwnd(std::string cwndTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (cwndTrFileName == "")
+    if (cwndTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for cwnd provided");
         return;
@@ -108,7 +107,7 @@ TraceCwnd(std::string cwndTrFileName)
 /**
  * Traffic Control Sojourn tracker.
  *
- * \param stream The ouput stream.
+ * \param stream The output stream.
  * \param newval New value.
  */
 static void
@@ -126,7 +125,7 @@ static void
 TraceSojourn(std::string sojournTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (sojournTrFileName == "")
+    if (sojournTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for sojourn provided");
         return;
@@ -143,7 +142,7 @@ TraceSojourn(std::string sojournTrFileName)
 /**
  * Traffic Control Queue length tracker.
  *
- * \param stream The ouput stream.
+ * \param stream The output stream.
  * \param oldval Old value.
  * \param newval New value.
  */
@@ -162,7 +161,7 @@ static void
 TraceQueueLength(std::string queueLengthTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (queueLengthTrFileName == "")
+    if (queueLengthTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for queue length provided");
         return;
@@ -179,7 +178,7 @@ TraceQueueLength(std::string queueLengthTrFileName)
 /**
  * Traffic control drop trace.
  *
- * \param stream The ouput stream.
+ * \param stream The output stream.
  * \param item The dropped item.
  */
 static void
@@ -197,7 +196,7 @@ static void
 TraceEveryDrop(std::string everyDropTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (everyDropTrFileName == "")
+    if (everyDropTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for every drop event provided");
         return;
@@ -214,19 +213,19 @@ TraceEveryDrop(std::string everyDropTrFileName)
 /**
  * Traffic Control Dropping state trace.
  *
- * \param stream The ouput stream.
+ * \param stream The output stream.
  * \param oldVal Old value.
  * \param newVal New value.
  */
 static void
 DroppingStateTracer(Ptr<OutputStreamWrapper> stream, bool oldVal, bool newVal)
 {
-    if (oldVal == false && newVal == true)
+    if (!oldVal && newVal)
     {
         NS_LOG_INFO("Entering the dropping state");
         *stream->GetStream() << Simulator::Now().GetSeconds() << " ";
     }
-    else if (oldVal == true && newVal == false)
+    else if (oldVal && !newVal)
     {
         NS_LOG_INFO("Leaving the dropping state");
         *stream->GetStream() << Simulator::Now().GetSeconds() << std::endl;
@@ -242,7 +241,7 @@ static void
 TraceDroppingState(std::string dropStateTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (dropStateTrFileName == "")
+    if (dropStateTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for dropping state provided");
         return;
@@ -261,7 +260,7 @@ TraceDroppingState(std::string dropStateTrFileName)
  *
  * \param remoteAddress Remote address.
  * \param sender Sender node.
- * \param pktSize Pakcet size.
+ * \param pktSize Packet size.
  * \param stopTime Stop time.
  */
 void

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -24,7 +23,6 @@
 #include "attribute-helper.h"
 #include "attribute.h"
 #include "callback.h"
-#include "deprecated.h"
 #include "hash.h"
 #include "trace-source-accessor.h"
 
@@ -263,7 +261,7 @@ class TypeId
      * \param [in] i Index into attribute array
      * \returns The information associated to attribute whose index is \pname{i}.
      */
-    struct TypeId::AttributeInformation GetAttribute(std::size_t i) const;
+    TypeId::AttributeInformation GetAttribute(std::size_t i) const;
     /**
      * Get the Attribute name by index.
      *
@@ -299,7 +297,7 @@ class TypeId
      * \param [in] i Index into trace source array.
      * \returns Detailed information about the requested trace source.
      */
-    struct TypeId::TraceSourceInformation GetTraceSource(std::size_t i) const;
+    TypeId::TraceSourceInformation GetTraceSource(std::size_t i) const;
 
     /**
      * Set the parent TypeId.
@@ -475,7 +473,7 @@ class TypeId
      *              will be stored.
      * \returns \c true if the requested attribute could be found.
      */
-    bool LookupAttributeByName(std::string name, struct AttributeInformation* info) const;
+    bool LookupAttributeByName(std::string name, AttributeInformation* info) const;
     /**
      * Find a TraceSource by name.
      *
@@ -498,9 +496,8 @@ class TypeId
      *  and disconnect trace sinks with the requested trace source on
      *  an object instance.
      */
-    Ptr<const TraceSourceAccessor> LookupTraceSourceByName(
-        std::string name,
-        struct TraceSourceInformation* info) const;
+    Ptr<const TraceSourceAccessor> LookupTraceSourceByName(std::string name,
+                                                           TraceSourceInformation* info) const;
 
     /**
      * Get the internal id of this TypeId.

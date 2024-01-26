@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -25,7 +24,6 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 network allocator helper Test
  */
@@ -79,7 +77,6 @@ NetworkAllocatorHelperTestCase::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 address allocator helper Test
  */
@@ -133,7 +130,6 @@ AddressAllocatorHelperTestCase::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 reset allocator helper Test
  */
@@ -202,7 +198,6 @@ ResetAllocatorHelperTestCase::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 address helper Test
  */
@@ -282,7 +277,6 @@ IpAddressHelperTestCasev4::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Address Helper TestSuite
  */

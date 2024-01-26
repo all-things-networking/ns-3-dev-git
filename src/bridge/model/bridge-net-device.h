@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -18,7 +17,8 @@
 #ifndef BRIDGE_NET_DEVICE_H
 #define BRIDGE_NET_DEVICE_H
 
-#include "ns3/bridge-channel.h"
+#include "bridge-channel.h"
+
 #include "ns3/mac48-address.h"
 #include "ns3/net-device.h"
 #include "ns3/nstime.h"

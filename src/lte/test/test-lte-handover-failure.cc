@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Magister Solutions (original test-lte-handover-delay.cc)
  * Copyright (c) 2021 University of Washington (handover failure cases)
@@ -47,7 +46,6 @@ NS_LOG_COMPONENT_DEFINE("LteHandoverFailureTest");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Verifying that a handover failure occurs due to various causes
  *
@@ -112,7 +110,7 @@ class LteHandoverFailureTestCase : public TestCase
           m_handoverJoiningTimeout(handoverJoiningTimeout),
           m_handoverLeavingTimeout(handoverLeavingTimeout),
           m_targeteNodeBPosition(targeteNodeBPosition),
-          m_hasHandoverFailureOccured(false)
+          m_hasHandoverFailureOccurred(false)
     {
     }
 
@@ -125,7 +123,7 @@ class LteHandoverFailureTestCase : public TestCase
 
     /**
      * \brief Called at the end of simulation and verifies that a handover
-     *        and a handover failure has occured in the simulation.
+     *        and a handover failure has occurred in the simulation.
      */
     void DoTeardown() override;
 
@@ -200,8 +198,8 @@ class LteHandoverFailureTestCase : public TestCase
     uint8_t m_raResponseWindowSize; ///< window length for reception of RAR
     Time m_handoverJoiningTimeout;  ///< handover joining timeout duration at target eNodeB
     Time m_handoverLeavingTimeout;  ///< handover leaving timeout duration at source eNodeB
-    uint16_t m_targeteNodeBPosition;  ///< position of the target eNodeB
-    bool m_hasHandoverFailureOccured; ///< has handover failure occured in simulation
+    uint16_t m_targeteNodeBPosition;   ///< position of the target eNodeB
+    bool m_hasHandoverFailureOccurred; ///< has handover failure occurred in simulation
 
 }; // end of class LteHandoverFailureTestCase
 
@@ -323,7 +321,7 @@ LteHandoverFailureTestCase::HandoverFailureMaxRach(std::string context,
                                                    uint16_t targetCellId)
 {
     NS_LOG_FUNCTION(this << context << imsi << rnti << targetCellId);
-    m_hasHandoverFailureOccured = true;
+    m_hasHandoverFailureOccurred = true;
 }
 
 void
@@ -333,7 +331,7 @@ LteHandoverFailureTestCase::HandoverFailureNoPreamble(std::string context,
                                                       uint16_t targetCellId)
 {
     NS_LOG_FUNCTION(this << context << imsi << rnti << targetCellId);
-    m_hasHandoverFailureOccured = true;
+    m_hasHandoverFailureOccurred = true;
 }
 
 void
@@ -343,7 +341,7 @@ LteHandoverFailureTestCase::HandoverFailureJoining(std::string context,
                                                    uint16_t targetCellId)
 {
     NS_LOG_FUNCTION(this << context << imsi << rnti << targetCellId);
-    m_hasHandoverFailureOccured = true;
+    m_hasHandoverFailureOccurred = true;
 }
 
 void
@@ -353,19 +351,21 @@ LteHandoverFailureTestCase::HandoverFailureLeaving(std::string context,
                                                    uint16_t targetCellId)
 {
     NS_LOG_FUNCTION(this << context << imsi << rnti << targetCellId);
-    m_hasHandoverFailureOccured = true;
+    m_hasHandoverFailureOccurred = true;
 }
 
 void
 LteHandoverFailureTestCase::DoTeardown()
 {
     NS_LOG_FUNCTION(this);
-    NS_TEST_ASSERT_MSG_EQ(m_hasHandoverFailureOccured, true, "Handover failure did not occur");
+    NS_TEST_ASSERT_MSG_EQ(m_hasHandoverFailureOccurred, true, "Handover failure did not occur");
 }
 
 /**
  * \ingroup lte-test
- * \ingroup tests
+ *
+ * The following log components can be used to debug this test's behavior:
+ * LteHandoverFailureTest:LteEnbRrc:LteEnbMac:LteUeRrc:EpcX2
  *
  * \brief Lte Handover Failure Test Suite
  */
@@ -375,13 +375,6 @@ static class LteHandoverFailureTestSuite : public TestSuite
     LteHandoverFailureTestSuite()
         : TestSuite("lte-handover-failure", TestSuite::SYSTEM)
     {
-        LogLevel logLevel = (LogLevel)(LOG_PREFIX_TIME | LOG_LEVEL_INFO);
-        LogComponentEnable("LteHandoverFailureTest", logLevel);
-        LogComponentEnable("LteEnbRrc", logLevel);
-        LogComponentEnable("LteEnbMac", logLevel);
-        LogComponentEnable("LteUeRrc", logLevel);
-        LogComponentEnable("EpcX2", logLevel);
-
         // Argument sequence for all test cases: useIdealRrc, handoverTime, simulationDuration,
         // numberOfRaPreambles, preambleTransMax, raResponseWindowSize,
         //                                       handoverJoiningTimeout, handoverLeavingTimeout

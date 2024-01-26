@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Lawrence Livermore National Laboratory
  *
@@ -44,10 +43,13 @@ class MpiTestCase : public ExampleAsTestCase
                 const std::string program,
                 const std::string dataDir,
                 const int ranks,
-                const std::string args = "");
+                const std::string args = "",
+                const bool shouldNotErr = true);
 
     /** Destructor */
-    virtual ~MpiTestCase(void){};
+    ~MpiTestCase() override
+    {
+    }
 
     /**
      * Produce the `--command-template` argument which will invoke
@@ -55,7 +57,7 @@ class MpiTestCase : public ExampleAsTestCase
      *
      * \returns The `--command-template` string.
      */
-    std::string GetCommandTemplate(void) const;
+    std::string GetCommandTemplate() const override;
 
     /**
      * Sort the output from parallel execution.
@@ -63,7 +65,7 @@ class MpiTestCase : public ExampleAsTestCase
      *
      * \returns Sort command
      */
-    std::string GetPostProcessingCommand(void) const;
+    std::string GetPostProcessingCommand() const override;
 
   private:
     /** The number of ranks. */
@@ -74,14 +76,15 @@ MpiTestCase::MpiTestCase(const std::string name,
                          const std::string program,
                          const std::string dataDir,
                          const int ranks,
-                         const std::string args /* = "" */)
-    : ExampleAsTestCase(name, program, dataDir, args),
+                         const std::string args /* = "" */,
+                         const bool shouldNotErr /* = true */)
+    : ExampleAsTestCase(name, program, dataDir, args, shouldNotErr),
       m_ranks(ranks)
 {
 }
 
 std::string
-MpiTestCase::GetCommandTemplate(void) const
+MpiTestCase::GetCommandTemplate() const
 {
     std::stringstream ss;
     ss << "mpiexec -n " << m_ranks << " %s --test " << m_args;
@@ -89,7 +92,7 @@ MpiTestCase::GetCommandTemplate(void) const
 }
 
 std::string
-MpiTestCase::GetPostProcessingCommand(void) const
+MpiTestCase::GetPostProcessingCommand() const
 {
     std::string command("| grep TEST | sort ");
     return command;
@@ -113,10 +116,11 @@ class MpiTestSuite : public TestSuite
                  const std::string dataDir,
                  const int ranks,
                  const std::string args = "",
-                 const TestDuration duration = QUICK)
+                 const TestDuration duration = QUICK,
+                 const bool shouldNotErr = true)
         : TestSuite(name, EXAMPLE)
     {
-        AddTestCase(new MpiTestCase(name, program, dataDir, ranks, args), duration);
+        AddTestCase(new MpiTestCase(name, program, dataDir, ranks, args, shouldNotErr), duration);
     }
 
 }; // class MpiTestSuite

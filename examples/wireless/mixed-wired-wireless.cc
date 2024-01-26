@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -415,7 +414,7 @@ main(int argc, char* argv[])
     // pcap trace on the application data sink
     wifiPhy.EnablePcap("mixed-wireless", appSink->GetId(), 0);
 
-    if (useCourseChangeCallback == true)
+    if (useCourseChangeCallback)
     {
         Config::Connect("/NodeList/*/$ns3::MobilityModel/CourseChange",
                         MakeCallback(&CourseChangeCallback));

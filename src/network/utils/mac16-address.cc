@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  * Copyright (c) 2011 The Boeing Company
@@ -36,73 +35,27 @@ NS_LOG_COMPONENT_DEFINE("Mac16Address");
 
 ATTRIBUTE_HELPER_CPP(Mac16Address);
 
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-/**
- * Converts a char to lower case.
- * \param c the char
- * \returns the lower case
- */
-static char
-AsciiToLowCase(char c)
-{
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
 uint64_t Mac16Address::m_allocationIndex = 0;
-
-Mac16Address::Mac16Address()
-{
-    NS_LOG_FUNCTION(this);
-    memset(m_address, 0, 2);
-}
 
 Mac16Address::Mac16Address(const char* str)
 {
     NS_LOG_FUNCTION(this << str);
-    int i = 0;
-    while (*str != 0 && i < 2)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        m_address[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-    NS_ASSERT(i == 2);
+    NS_ASSERT_MSG(strlen(str) <= 5, "Mac16Address: illegal string (too long) " << str);
+
+    unsigned int bytes[2];
+    int charsRead = 0;
+
+    int i = sscanf(str, "%02x:%02x%n", bytes, bytes + 1, &charsRead);
+    NS_ASSERT_MSG(i == 2 && !str[charsRead], "Mac16Address: illegal string " << str);
+
+    std::copy(std::begin(bytes), std::end(bytes), std::begin(m_address));
+}
+
+Mac16Address::Mac16Address(uint16_t addr)
+{
+    NS_LOG_FUNCTION(this);
+    m_address[1] = addr & 0xFF;
+    m_address[0] = (addr >> 8) & 0xFF;
 }
 
 void
@@ -148,6 +101,15 @@ Mac16Address::ConvertTo() const
     return Address(GetType(), m_address, 2);
 }
 
+uint16_t
+Mac16Address::ConvertToInt() const
+{
+    uint16_t addr = m_address[1] & (0xFF);
+    addr |= (m_address[0] << 8) & (0xFF << 8);
+
+    return addr;
+}
+
 Mac16Address
 Mac16Address::Allocate()
 {
@@ -186,7 +148,7 @@ Mac16Address::GetBroadcast()
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    static Mac16Address broadcast = Mac16Address("ff:ff");
+    static Mac16Address broadcast("ff:ff");
     return broadcast;
 }
 
@@ -213,11 +175,7 @@ bool
 Mac16Address::IsBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_address[0] == 0xff && m_address[1] == 0xff)
-    {
-        return true;
-    }
-    return false;
+    return m_address[0] == 0xff && m_address[1] == 0xff;
 }
 
 bool
@@ -226,11 +184,7 @@ Mac16Address::IsMulticast() const
     NS_LOG_FUNCTION(this);
     uint8_t val = m_address[0];
     val >>= 5;
-    if (val == 0x4)
-    {
-        return true;
-    }
-    return false;
+    return val == 0x4;
 }
 
 std::ostream&
@@ -267,13 +221,13 @@ operator>>(std::istream& is, Mac16Address& address)
         if (next == std::string::npos)
         {
             tmp = v.substr(col, v.size() - col);
-            address.m_address[i] = strtoul(tmp.c_str(), nullptr, 16);
+            address.m_address[i] = std::stoul(tmp, nullptr, 16);
             break;
         }
         else
         {
             tmp = v.substr(col, next - col);
-            address.m_address[i] = strtoul(tmp.c_str(), nullptr, 16);
+            address.m_address[i] = std::stoul(tmp, nullptr, 16);
             col = next + 1;
         }
     }

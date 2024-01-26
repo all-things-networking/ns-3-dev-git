@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright © 2011 Marcos Talau
  *
@@ -33,7 +32,6 @@ using namespace ns3;
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Red Queue Disc Test Item
  */
@@ -75,16 +73,11 @@ RedQueueDiscTestItem::AddHeader()
 bool
 RedQueueDiscTestItem::Mark()
 {
-    if (m_ecnCapablePacket)
-    {
-        return true;
-    }
-    return false;
+    return m_ecnCapablePacket;
 }
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Red Queue Disc Test Case
  */
@@ -622,7 +615,6 @@ RedQueueDiscTestCase::DoRun()
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Red Queue Disc Test Suite
  */

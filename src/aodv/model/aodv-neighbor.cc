@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -52,7 +51,7 @@ bool
 Neighbors::IsNeighbor(Ipv4Address addr)
 {
     Purge();
-    for (std::vector<Neighbor>::const_iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
@@ -66,7 +65,7 @@ Time
 Neighbors::GetExpireTime(Ipv4Address addr)
 {
     Purge();
-    for (std::vector<Neighbor>::const_iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
@@ -79,7 +78,7 @@ Neighbors::GetExpireTime(Ipv4Address addr)
 void
 Neighbors::Update(Ipv4Address addr, Time expire)
 {
-    for (std::vector<Neighbor>::iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
@@ -126,7 +125,7 @@ Neighbors::Purge()
     CloseNeighbor pred;
     if (!m_handleLinkFailure.IsNull())
     {
-        for (std::vector<Neighbor>::iterator j = m_nb.begin(); j != m_nb.end(); ++j)
+        for (auto j = m_nb.begin(); j != m_nb.end(); ++j)
         {
             if (pred(*j))
             {
@@ -163,7 +162,7 @@ Mac48Address
 Neighbors::LookupMacAddress(Ipv4Address addr)
 {
     Mac48Address hwaddr;
-    for (std::vector<Ptr<ArpCache>>::const_iterator i = m_arp.begin(); i != m_arp.end(); ++i)
+    for (auto i = m_arp.begin(); i != m_arp.end(); ++i)
     {
         ArpCache::Entry* entry = (*i)->Lookup(addr);
         if (entry != nullptr && (entry->IsAlive() || entry->IsPermanent()) && !entry->IsExpired())
@@ -180,7 +179,7 @@ Neighbors::ProcessTxError(const WifiMacHeader& hdr)
 {
     Mac48Address addr = hdr.GetAddr1();
 
-    for (std::vector<Neighbor>::iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_hardwareAddress == addr)
         {

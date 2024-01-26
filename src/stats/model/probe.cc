@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Bucknell University
  *
@@ -19,7 +18,7 @@
  *          Tiago G. Rodrigues (tgr002@bucknell.edu)
  */
 
-#include "ns3/probe.h"
+#include "probe.h"
 
 #include "ns3/log.h"
 #include "ns3/object.h"

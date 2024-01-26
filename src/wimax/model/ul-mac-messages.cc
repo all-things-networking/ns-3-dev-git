@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -401,11 +400,8 @@ Ucd::GetSerializedSize() const
 {
     uint32_t ulBurstProfilesSize = 0;
 
-    for (std::vector<OfdmUlBurstProfile>::const_iterator iter = m_ulBurstProfiles.begin();
-         iter != m_ulBurstProfiles.end();
-         ++iter)
+    for (const auto& burstProfile : m_ulBurstProfiles)
     {
-        OfdmUlBurstProfile burstProfile = *iter;
         ulBurstProfilesSize += burstProfile.GetSize();
     }
 
@@ -423,11 +419,8 @@ Ucd::Serialize(Buffer::Iterator start) const
     i.WriteU8(m_requestBackoffEnd);
     i = m_channelEncodings.Write(i);
 
-    for (std::vector<OfdmUlBurstProfile>::const_iterator iter = m_ulBurstProfiles.begin();
-         iter != m_ulBurstProfiles.end();
-         ++iter)
+    for (const auto& burstProfile : m_ulBurstProfiles)
     {
-        OfdmUlBurstProfile burstProfile = *iter;
         i = burstProfile.Write(i);
     }
 }
@@ -656,11 +649,9 @@ uint32_t
 UlMap::GetSerializedSize() const
 {
     uint32_t ulMapElementsSize = 0;
-    for (std::list<OfdmUlMapIe>::const_iterator iter = m_ulMapElements.begin();
-         iter != m_ulMapElements.end();
-         ++iter)
+
+    for (const auto& ulMapIe : m_ulMapElements)
     {
-        OfdmUlMapIe ulMapIe = *iter;
         ulMapElementsSize += ulMapIe.GetSize();
     }
 
@@ -675,11 +666,8 @@ UlMap::Serialize(Buffer::Iterator start) const
     i.WriteU8(m_ucdCount);
     i.WriteU32(m_allocationStartTime);
 
-    for (std::list<OfdmUlMapIe>::const_iterator iter = m_ulMapElements.begin();
-         iter != m_ulMapElements.end();
-         ++iter)
+    for (const auto& ulMapIe : m_ulMapElements)
     {
-        OfdmUlMapIe ulMapIe = *iter;
         i = ulMapIe.Write(i);
     }
 }

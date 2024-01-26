@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -118,7 +117,7 @@ RandomRoomPositionAllocatorTestCase::DoRun()
 
     std::map<Room, uint32_t> roomCounter;
 
-    for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); ++it)
+    for (auto it = nodes.Begin(); it != nodes.End(); ++it)
     {
         Ptr<MobilityModel> mm = (*it)->GetObject<MobilityModel>();
         NS_ASSERT_MSG(mm, "no mobility model aggregated to this node");
@@ -139,7 +138,7 @@ RandomRoomPositionAllocatorTestCase::DoRun()
         NS_TEST_ASSERT_MSG_LT(p.z, bmm->GetFloorNumber() + 1, "wrong z value");
     }
 
-    for (std::map<Room, uint32_t>::iterator it = roomCounter.begin(); it != roomCounter.end(); ++it)
+    for (auto it = roomCounter.begin(); it != roomCounter.end(); ++it)
     {
         // random selection is done without replacement until the set of
         // eligible room is empty, at which point the set is filled
@@ -203,7 +202,7 @@ SameRoomPositionAllocatorTestCase::DoRun()
 
     std::map<Room, uint32_t> roomCounter;
 
-    for (NodeContainer::Iterator it = copyNodes.Begin(); it != copyNodes.End(); ++it)
+    for (auto it = copyNodes.Begin(); it != copyNodes.End(); ++it)
     {
         Ptr<MobilityModel> mm = (*it)->GetObject<MobilityModel>();
         NS_ASSERT_MSG(mm, "no mobility model aggregated to this node");
@@ -216,7 +215,7 @@ SameRoomPositionAllocatorTestCase::DoRun()
         ++(roomCounter[r]);
     }
 
-    for (std::map<Room, uint32_t>::iterator it = roomCounter.begin(); it != roomCounter.end(); ++it)
+    for (auto it = roomCounter.begin(); it != roomCounter.end(); ++it)
     {
         NS_TEST_ASSERT_MSG_EQ(it->second, 4, "expected 4 nodes per room");
     }

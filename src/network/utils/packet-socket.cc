@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Emmanuelle Laprise, INRIA
  *
@@ -88,14 +87,14 @@ PacketSocket::DoDispose()
     m_device = 0;
 }
 
-enum Socket::SocketErrno
+Socket::SocketErrno
 PacketSocket::GetErrno() const
 {
     NS_LOG_FUNCTION(this);
     return m_errno;
 }
 
-enum Socket::SocketType
+Socket::SocketType
 PacketSocket::GetSocketType() const
 {
     NS_LOG_FUNCTION(this);
@@ -123,7 +122,7 @@ int
 PacketSocket::Bind6()
 {
     NS_LOG_FUNCTION(this);
-    return (Bind());
+    return Bind();
 }
 
 int
@@ -521,11 +520,7 @@ bool
 PacketSocket::SetAllowBroadcast(bool allowBroadcast)
 {
     NS_LOG_FUNCTION(this << allowBroadcast);
-    if (allowBroadcast)
-    {
-        return false;
-    }
-    return true;
+    return !allowBroadcast;
 }
 
 bool
@@ -664,7 +659,7 @@ void
 DeviceNameTag::Serialize(TagBuffer i) const
 {
     const char* n = m_deviceName.c_str();
-    uint8_t l = (uint8_t)m_deviceName.size();
+    auto l = (uint8_t)m_deviceName.size();
 
     i.WriteU8(l);
     i.Write((uint8_t*)n, (uint32_t)l);

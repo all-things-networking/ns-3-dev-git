@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -72,7 +71,7 @@ CidFactory::AllocateMulticast()
 }
 
 Cid
-CidFactory::Allocate(enum Cid::Type type)
+CidFactory::Allocate(Cid::Type type)
 {
     switch (type)
     {

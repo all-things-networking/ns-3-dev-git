@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -387,6 +386,10 @@ LteDownlinkPowerControlTestSuite::CalculateRbTxPower(double txPower, uint8_t pa)
     return rbTxpower;
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteDownlinkPowerControlTestSuite lteDownlinkPowerControlTestSuite;
 
 /**
@@ -486,7 +489,7 @@ LteDownlinkPowerControlTestCase::DoRun()
     simpleFfrAlgorithm->SetPdschConfigDedicated(m_pdschConfigDedicated);
 
     // Activate the default EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+    EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -656,7 +659,7 @@ LteDownlinkPowerControlRrcConnectionReconfigurationTestCase::DoRun()
     simpleFfrAlgorithm->SetPdschConfigDedicated(pdschConfigDedicated);
 
     // Activate the default EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+    EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -41,6 +40,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <utility> // as_const
 
 using namespace ns3;
 
@@ -97,14 +97,48 @@ std::string templArgDeduced;  ///< template argument deduced from function
 std::string templArgExplicit; ///< template argument required
 std::string templateArgument; ///< template argument
 std::string variable;         ///< variable or class member
-                              /** @} */
+
+/** @} */
+
+/**
+ * Alphabetize the AttributeInformation for a TypeId by the Attribute name
+ * \param tid The TypeId to process.
+ * \return The ordered list of Attributes.
+ */
+std::map<std::string, ns3::TypeId::AttributeInformation>
+SortedAttributeInfo(const TypeId tid)
+{
+    std::map<std::string, ns3::TypeId::AttributeInformation> index;
+    for (uint32_t j = 0; j < tid.GetAttributeN(); j++)
+    {
+        struct TypeId::AttributeInformation info = tid.GetAttribute(j);
+        index[info.name] = info;
+    }
+    return index;
+}
+
+/**
+ * Alphabetize the TraceSourceInformation for a TypeId by the
+ * TraceSource name.
+ * \param tid The TypeId to process.
+ * \return The ordered list of TraceSourceInformation
+ */
+std::map<std::string, ns3::TypeId::TraceSourceInformation>
+SortedTraceSourceInfo(const TypeId tid)
+{
+    std::map<std::string, ns3::TypeId::TraceSourceInformation> index;
+    for (uint32_t j = 0; j < tid.GetTraceSourceN(); j++)
+    {
+        struct TypeId::TraceSourceInformation info = tid.GetTraceSource(j);
+        index[info.name] = info;
+    }
+    return index;
+}
 
 } // unnamed namespace
 
 /**
  * Initialize the markup strings, for either doxygen or text.
- *
- * \param [in] outputText true for text output, false for doxygen output.
  */
 void
 SetMarkup()
@@ -422,8 +456,7 @@ StaticInformation::DoGather(TypeId tid)
     for (uint32_t i = 0; i < tid.GetAttributeN(); ++i)
     {
         struct TypeId::AttributeInformation info = tid.GetAttribute(i);
-        const PointerChecker* ptrChecker =
-            dynamic_cast<const PointerChecker*>(PeekPointer(info.checker));
+        const auto ptrChecker = dynamic_cast<const PointerChecker*>(PeekPointer(info.checker));
         if (ptrChecker != nullptr)
         {
             TypeId pointee = ptrChecker->GetPointeeTypeId();
@@ -448,7 +481,7 @@ StaticInformation::DoGather(TypeId tid)
             continue;
         }
         // attempt to cast to an object vector.
-        const ObjectPtrContainerChecker* vectorChecker =
+        const auto vectorChecker =
             dynamic_cast<const ObjectPtrContainerChecker*>(PeekPointer(info.checker));
         if (vectorChecker != nullptr)
         {
@@ -665,11 +698,13 @@ void
 PrintAttributesTid(std::ostream& os, const TypeId tid)
 {
     NS_LOG_FUNCTION(tid);
+
+    auto index = SortedAttributeInfo(tid);
+
     os << listStart << std::endl;
-    for (uint32_t j = 0; j < tid.GetAttributeN(); j++)
+    for (const auto& [name, info] : index)
     {
-        struct TypeId::AttributeInformation info = tid.GetAttribute(j);
-        os << listLineStart << boldStart << info.name << boldStop << ": " << info.help << std::endl;
+        os << listLineStart << boldStart << name << boldStop << ": " << info.help << std::endl;
         os << indentHtmlOnly << listStart << std::endl;
         os << "    " << listLineStart << "Set with class: " << reference
            << info.checker->GetValueTypeName() << listLineStop << std::endl;
@@ -687,7 +722,7 @@ PrintAttributesTid(std::ostream& os, const TypeId tid)
                 // Indirect cases to handle
                 if (valType == "ns3::PointerValue")
                 {
-                    const PointerChecker* ptrChecker =
+                    const auto ptrChecker =
                         dynamic_cast<const PointerChecker*>(PeekPointer(info.checker));
                     if (ptrChecker != nullptr)
                     {
@@ -698,7 +733,7 @@ PrintAttributesTid(std::ostream& os, const TypeId tid)
                 }
                 else if (valType == "ns3::ObjectPtrContainerValue")
                 {
-                    const ObjectPtrContainerChecker* ptrChecker =
+                    const auto ptrChecker =
                         dynamic_cast<const ObjectPtrContainerChecker*>(PeekPointer(info.checker));
                     if (ptrChecker != nullptr)
                     {
@@ -709,23 +744,9 @@ PrintAttributesTid(std::ostream& os, const TypeId tid)
                 }
 
                 // Helper to match first part of string
-                class StringBeginMatcher
-                {
-                  public:
-                    StringBeginMatcher(const std::string s)
-                        : m_string(s){};
-
-                    bool operator()(const std::string t)
-                    {
-                        std::size_t pos = m_string.find(t);
-                        return pos == 0;
-                    };
-
-                  private:
-                    std::string m_string;
+                auto match = [&uType = std::as_const(underType)](const std::string& s) {
+                    return uType.rfind(s, 0) == 0; // only checks position 0
                 };
-
-                StringBeginMatcher match(underType);
 
                 if (match("bool") || match("double") || match("int8_t") || match("uint8_t") ||
                     match("int16_t") || match("uint16_t") || match("int32_t") ||
@@ -744,7 +765,7 @@ PrintAttributesTid(std::ostream& os, const TypeId tid)
         if (info.flags & TypeId::ATTR_CONSTRUCT && info.accessor->HasSetter())
         {
             std::string value = info.initialValue->SerializeToString(info.checker);
-            if (underType == "std::string" && value == "")
+            if (underType == "std::string" && value.empty())
             {
                 value = "\"\"";
             }
@@ -825,11 +846,13 @@ void
 PrintTraceSourcesTid(std::ostream& os, const TypeId tid)
 {
     NS_LOG_FUNCTION(tid);
+
+    auto index = SortedTraceSourceInfo(tid);
+
     os << listStart << std::endl;
-    for (uint32_t i = 0; i < tid.GetTraceSourceN(); ++i)
+    for (const auto& [name, info] : index)
     {
-        struct TypeId::TraceSourceInformation info = tid.GetTraceSource(i);
-        os << listLineStart << boldStart << info.name << boldStop << ": " << info.help << breakBoth;
+        os << listLineStart << boldStart << name << boldStop << ": " << info.help << breakBoth;
         if (!outputText)
         {
             //    '%' prevents doxygen from linking to the Callback class...
@@ -1017,13 +1040,14 @@ PrintAllAttributes(std::ostream& os)
         {
             continue;
         }
-        os << boldStart << tid.GetName() << boldStop << breakHtmlOnly << std::endl;
 
+        auto index = SortedAttributeInfo(tid);
+
+        os << boldStart << tid.GetName() << boldStop << breakHtmlOnly << std::endl;
         os << listStart << std::endl;
-        for (uint32_t j = 0; j < tid.GetAttributeN(); ++j)
+        for (const auto& [name, info] : index)
         {
-            struct TypeId::AttributeInformation info = tid.GetAttribute(j);
-            os << listLineStart << boldStart << info.name << boldStop << ": " << info.help
+            os << listLineStart << boldStart << name << boldStop << ": " << info.help
                << listLineStop << std::endl;
         }
         os << listStop << std::endl;
@@ -1046,7 +1070,7 @@ PrintAllGlobals(std::ostream& os)
        << "See ns3::GlobalValue for how to set these." << std::endl;
 
     os << listStart << std::endl;
-    for (GlobalValue::Iterator i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
+    for (auto i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
     {
         StringValue val;
         (*i)->GetValue(val);
@@ -1102,7 +1126,6 @@ PrintAllLogComponents(std::ostream& os)
     os << tLeft << ":" << std::string(widthL - 1, '-') << tMid << ":"
        << std::string(widthR - 1, '-') << tRight << std::endl;
 
-    LogComponent::ComponentList::const_iterator it;
     for (const auto& it : (*logs))
     {
         std::string file = it.second->File();
@@ -1157,13 +1180,15 @@ PrintAllTraceSources(std::ostream& os)
         {
             continue;
         }
+
+        auto index = SortedTraceSourceInfo(tid);
+
         os << boldStart << tid.GetName() << boldStop << breakHtmlOnly << std::endl;
 
         os << listStart << std::endl;
-        for (uint32_t j = 0; j < tid.GetTraceSourceN(); ++j)
+        for (const auto& [name, info] : index)
         {
-            struct TypeId::TraceSourceInformation info = tid.GetTraceSource(j);
-            os << listLineStart << boldStart << info.name << boldStop << ": " << info.help
+            os << listLineStart << boldStart << name << boldStop << ": " << info.help
                << listLineStop << std::endl;
         }
         os << listStop << std::endl;
@@ -1251,7 +1276,7 @@ PrintAttributeValueWithName(std::ostream& os,
     if ((name == "EmptyAttribute") || (name == "ObjectPtrContainer"))
     {
         // Just default constructors.
-        os << "(void)\n";
+        os << "()\n";
     }
     else
     {
@@ -1262,8 +1287,8 @@ PrintAttributeValueWithName(std::ostream& os,
     }
     os << commentStop;
 
-    // <name>Value::Get (void) const
-    os << commentStart << functionStart << type << qualClass << "::Get (void) const\n"
+    // <name>Value::Get () const
+    os << commentStart << functionStart << type << qualClass << "::Get () const\n"
        << returns << "The " << name << " value.\n"
        << commentStop;
 
@@ -1351,22 +1376,22 @@ PrintMakeChecker(std::ostream& os, const std::string& name, const std::string& h
     os << commentStop;
 
     // \ingroup attribute_<name>Value
-    // Make<name>Checker (void)
+    // Make<name>Checker ()
     os << commentStart << sectAttr << functionStart << "ns3::Ptr<const ns3::AttributeChecker> "
-       << make << "(void)\n"
+       << make << "()\n"
        << returns << "The AttributeChecker.\n"
        << seeAlso << "AttributeChecker\n"
        << commentStop;
 } // PrintMakeChecker ()
 
 /**Descriptor for an AttributeValue. */
-typedef struct
+struct AttributeDescriptor
 {
     const std::string m_name;   //!< The base name of the resulting AttributeValue type.
     const std::string m_type;   //!< The name of the underlying type.
     const bool m_seeBase;       //!< Print a "see also" pointing to the base class.
     const std::string m_header; //!< The header file name.
-} AttributeDescriptor;
+};
 
 /**
  * Print documentation corresponding to use of the
@@ -1445,7 +1470,7 @@ PrintAttributeImplementations(std::ostream& os)
     // clang-format on
 
     int i = 0;
-    while (attributes[i].m_name != "")
+    while (!attributes[i].m_name.empty())
     {
         PrintAttributeHelper(os, attributes[i]);
         ++i;
@@ -1505,14 +1530,6 @@ main(int argc, char* argv[])
     // Create a Node, to force linking and instantiation of our TypeIds
     NodeContainer c;
     c.Create(1);
-
-    // mode-line:  helpful when debugging introspected-doxygen.h
-    if (!outputText)
-    {
-        std::cout << "/* -*- Mode:C++; c-file-style:\"gnu\"; "
-                     "indent-tabs-mode:nil; -*- */\n"
-                  << std::endl;
-    }
 
     std::cout << std::endl;
     std::cout << commentStart << file << "\n"

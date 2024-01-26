@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -28,7 +27,6 @@ namespace ns3
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief A general (TCP-aware) error model.
  *
@@ -75,7 +73,6 @@ class TcpGeneralErrorModel : public ErrorModel
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief An error model TCP aware: it drops the sequence number declared.
  *
@@ -122,7 +119,6 @@ class TcpSeqErrorModel : public TcpGeneralErrorModel
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Error model which drop packets with specified TCP flags.
  *

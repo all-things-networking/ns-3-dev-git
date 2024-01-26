@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,15 +17,15 @@
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include "ns3/lte-rlc.h"
+#include "lte-rlc.h"
+
+#include "lte-rlc-sap.h"
+#include "lte-rlc-tag.h"
+// #include "lte-mac-sap.h"
+// #include "ff-mac-sched-sap.h"
 
 #include "ns3/log.h"
-#include "ns3/lte-rlc-tag.h"
 #include "ns3/simulator.h"
-// #include "lte-mac-sap.h"
-#include "ns3/lte-rlc-sap.h"
-
-// #include "ff-mac-sched-sap.h"
 
 namespace ns3
 {
@@ -143,6 +142,13 @@ LteRlc::SetLcId(uint8_t lcId)
 {
     NS_LOG_FUNCTION(this << (uint32_t)lcId);
     m_lcid = lcId;
+}
+
+void
+LteRlc::SetPacketDelayBudgetMs(uint16_t packetDelayBudget)
+{
+    NS_LOG_FUNCTION(this << +packetDelayBudget);
+    m_packetDelayBudgetMs = packetDelayBudget;
 }
 
 void

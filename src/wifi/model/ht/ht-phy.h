@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -37,6 +36,9 @@ namespace ns3
  * This defines the BSS membership value for HT PHY.
  */
 #define HT_PHY 127
+
+/// Maximum number of supported NSS by HT PHY
+constexpr uint8_t HT_MAX_NSS = 4;
 
 /**
  * \brief PHY entity for HT (11n)
@@ -465,8 +467,7 @@ class HtPhy : public OfdmPhy
     bool IsAllConfigSupported(WifiPpduField field, Ptr<const WifiPpdu> ppdu) const override;
     bool IsConfigSupported(Ptr<const WifiPpdu> ppdu) const override;
     Ptr<SpectrumValue> GetTxPowerSpectralDensity(double txPowerW,
-                                                 Ptr<const WifiPpdu> ppdu,
-                                                 const WifiTxVector& txVector) const override;
+                                                 Ptr<const WifiPpdu> ppdu) const override;
     uint32_t GetMaxPsduSize() const override;
     CcaIndication GetCcaIndication(const Ptr<const WifiPpdu> ppdu) override;
 

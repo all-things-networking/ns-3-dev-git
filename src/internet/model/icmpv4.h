@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -21,8 +20,9 @@
 #ifndef ICMPV4_H
 #define ICMPV4_H
 
+#include "ipv4-header.h"
+
 #include "ns3/header.h"
-#include "ns3/ipv4-header.h"
 #include "ns3/ptr.h"
 
 #include <stdint.h>

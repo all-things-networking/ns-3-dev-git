@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  * Copyright (c) 2013 Budiarto Herman
@@ -17,20 +16,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Original work authors (from lte-enb-rrc.cc):
- * - Nicola Baldo <nbaldo@cttc.es>
- * - Marco Miozzo <mmiozzo@cttc.es>
- * - Manuel Requena <manuel.requena@cttc.es>
+ *   Nicola Baldo <nbaldo@cttc.es>
+ *   Marco Miozzo <mmiozzo@cttc.es>
+ *   Manuel Requena <manuel.requena@cttc.es>
  *
  * Converted to handover algorithm interface by:
- * - Budiarto Herman <budiarto.herman@magister.fi>
+ *   Budiarto Herman <budiarto.herman@magister.fi>
  */
 
 #ifndef A2_A4_RSRQ_HANDOVER_ALGORITHM_H
 #define A2_A4_RSRQ_HANDOVER_ALGORITHM_H
 
-#include <ns3/lte-handover-algorithm.h>
-#include <ns3/lte-handover-management-sap.h>
-#include <ns3/lte-rrc-sap.h>
+#include "lte-handover-algorithm.h"
+#include "lte-handover-management-sap.h"
+#include "lte-rrc-sap.h"
+
 #include <ns3/ptr.h>
 #include <ns3/simple-ref-count.h>
 

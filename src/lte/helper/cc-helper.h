@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -62,8 +61,8 @@ class CcHelper : public Object
     ~CcHelper() override;
 
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
     void DoDispose() override;
@@ -75,7 +74,7 @@ class CcHelper : public Object
      * \param dlBandwidth the DL bandwidth
      * \param ulEarfcn the UL EARFCN
      * \param dlEarfcn the DL EARFCN
-     * \param isPrimary ture if primary
+     * \param isPrimary true if primary
      * \returns the component carrier
      */
     ComponentCarrier DoCreateSingleCc(uint16_t ulBandwidth,
@@ -143,31 +142,31 @@ class CcHelper : public Object
      *
      * \returns the number of component carriers
      */
-    uint16_t GetNumberOfComponentCarriers();
+    uint16_t GetNumberOfComponentCarriers() const;
     /**
      * Get UL EARFCN.
      *
      * \returns the UL EARFCN
      */
-    uint32_t GetUlEarfcn();
+    uint32_t GetUlEarfcn() const;
     /**
      * Get DL EARFCN.
      *
      * \returns the DL EARFCN
      */
-    uint32_t GetDlEarfcn();
+    uint32_t GetDlEarfcn() const;
     /**
      * Get DL bandwidth.
      *
      * \returns the DL bandwidth
      */
-    uint16_t GetDlBandwidth();
+    uint16_t GetDlBandwidth() const;
     /**
      * Get UL bandwidth.
      *
      * \returns the UL bandwidth
      */
-    uint16_t GetUlBandwidth();
+    uint16_t GetUlBandwidth() const;
 
   protected:
     // inherited from Object
@@ -181,14 +180,15 @@ class CcHelper : public Object
      * \param dlBandwidth downlink bandwidth for the current CC
      * \param ulEarfcn uplink EARFCN - not control on the validity at this point
      * \param dlEarfcn downlink EARFCN - not control on the validity at this point
-     * \param isPrimary identify if this is the Primary Component Carrier (PCC) - only one PCC is
-     * allowed \return the component carrier
+     * \param isPrimary identify if this is the Primary Component Carrier (PCC) - only one
+     * PCC is allowed
+     * \return the component carrier
      */
     ComponentCarrier CreateSingleCc(uint16_t ulBandwidth,
                                     uint16_t dlBandwidth,
                                     uint32_t ulEarfcn,
                                     uint32_t dlEarfcn,
-                                    bool isPrimary);
+                                    bool isPrimary) const;
 
     /// Factory for each Carrier Component.
     ObjectFactory m_ccFactory;

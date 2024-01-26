@@ -14,18 +14,27 @@ find_external_library(
   HEADER_NAME openflow.h
   LIBRARY_NAME openflow
   SEARCH_PATHS ${NS3_WITH_OPENFLOW}
+  OUTPUT_VARIABLE "NS3_OPENFLOW_REASON"
 )
 
 if((NOT
     openflow_FOUND)
    AND (NOT
         ${openflow_FOUND})
+   AND (NOT
+        ${NS3_FETCH_OPTIONAL_COMPONENTS})
 )
   message(
     ${HIGHLIGHTED_STATUS}
     "Skipping src/openflow"
   )
   return()
+endif()
+
+if(${NS3_FETCH_OPTIONAL_COMPONENTS})
+  set(openflow_LIBRARIES
+      openflow
+  )
 endif()
 
 check_include_file_cxx(

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -31,7 +30,6 @@ namespace aodv
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for neighbors
  */
@@ -137,7 +135,6 @@ NeighborTest::DoRun()
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Type header test case
  */
@@ -165,7 +162,6 @@ struct TypeHeaderTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for RREQ
  */
@@ -225,7 +221,6 @@ struct RreqHeaderTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for RREP
  */
@@ -283,7 +278,6 @@ struct RrepHeaderTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for RREP-ACK
  */
@@ -308,7 +302,6 @@ struct RrepAckHeaderTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for RERR
  */
@@ -324,11 +317,11 @@ struct RerrHeaderTest : public TestCase
         RerrHeader h;
         h.SetNoDelete(true);
         NS_TEST_EXPECT_MSG_EQ(h.GetNoDelete(), true, "trivial");
-        Ipv4Address dst = Ipv4Address("1.2.3.4");
+        Ipv4Address dst("1.2.3.4");
         NS_TEST_EXPECT_MSG_EQ(h.AddUnDestination(dst, 12), true, "trivial");
         NS_TEST_EXPECT_MSG_EQ(h.GetDestCount(), 1, "trivial");
         NS_TEST_EXPECT_MSG_EQ(h.AddUnDestination(dst, 13), true, "trivial");
-        Ipv4Address dst2 = Ipv4Address("4.3.2.1");
+        Ipv4Address dst2("4.3.2.1");
         NS_TEST_EXPECT_MSG_EQ(h.AddUnDestination(dst2, 12), true, "trivial");
         NS_TEST_EXPECT_MSG_EQ(h.GetDestCount(), 2, "trivial");
 
@@ -343,7 +336,6 @@ struct RerrHeaderTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for AODV routing table entry
  */
@@ -560,7 +552,6 @@ AodvRqueueTest::CheckTimeout()
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for AODV routing table entry
  */
@@ -654,7 +645,6 @@ struct AodvRtableEntryTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief Unit test for AODV routing table
  */
@@ -742,7 +732,6 @@ struct AodvRtableTest : public TestCase
 
 /**
  * \ingroup aodv-test
- * \ingroup tests
  *
  * \brief AODV test suite
  */

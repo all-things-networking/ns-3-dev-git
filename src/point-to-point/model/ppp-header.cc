@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -101,7 +100,7 @@ PppHeader::SetProtocol(uint16_t protocol)
 }
 
 uint16_t
-PppHeader::GetProtocol()
+PppHeader::GetProtocol() const
 {
     return m_protocol;
 }

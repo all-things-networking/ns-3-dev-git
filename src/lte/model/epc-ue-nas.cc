@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,11 +20,11 @@
 #include "epc-ue-nas.h"
 
 #include "lte-as-sap.h"
-#include "lte-enb-net-device.h"
 
 #include <ns3/epc-helper.h>
 #include <ns3/fatal-error.h>
 #include <ns3/log.h>
+#include <ns3/simulator.h>
 
 namespace ns3
 {
@@ -33,11 +32,13 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("EpcUeNas");
 
 /// Map each of UE NAS states to its string representation.
-static const std::string g_ueNasStateName[EpcUeNas::NUM_STATES] = {"OFF",
-                                                                   "ATTACHING",
-                                                                   "IDLE_REGISTERED",
-                                                                   "CONNECTING_TO_EPC",
-                                                                   "ACTIVE"};
+static const std::string g_ueNasStateName[EpcUeNas::NUM_STATES] = {
+    "OFF",
+    "ATTACHING",
+    "IDLE_REGISTERED",
+    "CONNECTING_TO_EPC",
+    "ACTIVE",
+};
 
 /**
  * \param s The UE NAS state.
@@ -205,7 +206,7 @@ EpcUeNas::Send(Ptr<Packet> packet, uint16_t protocolNumber)
     case ACTIVE: {
         uint32_t id = m_tftClassifier.Classify(packet, EpcTft::UPLINK, protocolNumber);
         NS_ASSERT((id & 0xFFFFFF00) == 0);
-        uint8_t bid = (uint8_t)(id & 0x000000FF);
+        auto bid = (uint8_t)(id & 0x000000FF);
         if (bid == 0)
         {
             return false;
@@ -221,7 +222,6 @@ EpcUeNas::Send(Ptr<Packet> packet, uint16_t protocolNumber)
     default:
         NS_LOG_WARN(this << " NAS OFF, discarding packet");
         return false;
-        break;
     }
 }
 
@@ -295,8 +295,7 @@ EpcUeNas::SwitchToState(State newState)
     switch (m_state)
     {
     case ACTIVE:
-        for (std::list<BearerToBeActivated>::iterator it = m_bearersToBeActivatedList.begin();
-             it != m_bearersToBeActivatedList.end();
+        for (auto it = m_bearersToBeActivatedList.begin(); it != m_bearersToBeActivatedList.end();
              m_bearersToBeActivatedList.erase(it++))
         {
             DoActivateEpsBearer(it->bearer, it->tft);

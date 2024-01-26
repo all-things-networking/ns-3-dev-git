@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -29,7 +28,6 @@ using namespace flame;
 
 /**
  * \ingroup flame-test
- * \ingroup tests
  *
  * \brief Built-in self test for FlameHeader
  */
@@ -63,7 +61,6 @@ FlameHeaderTest::DoRun()
 
 /**
  * \ingroup flame-test
- * \ingroup tests
  *
  * \brief Unit test for FlameRtable
  */
@@ -144,7 +141,6 @@ FlameRtableTest::DoRun()
 
 /**
  * \ingroup flame-test
- * \ingroup tests
  *
  * \brief Flame Test Suite
  */

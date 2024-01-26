@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -19,13 +18,13 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/lte-module.h"
 #include "ns3/mobility-module.h"
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-module.h"
+// #include "ns3/config-store.h"
 
 using namespace ns3;
 

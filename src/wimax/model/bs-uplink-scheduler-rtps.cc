@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *               2009 TELEMATICS LAB, Politecnico di Bari
@@ -184,8 +183,7 @@ UplinkSchedulerRtps::Schedule()
     std::vector<SSRecord*>* ssRecords = GetBs()->GetSSManager()->GetSSRecords();
     NS_LOG_INFO("UL Scheduler start, availableSymbols = " << availableSymbols);
 
-    for (std::vector<SSRecord*>::iterator iter = ssRecords->begin(); iter != ssRecords->end();
-         ++iter)
+    for (auto iter = ssRecords->begin(); iter != ssRecords->end(); ++iter)
     {
         SSRecord* ssRecord = *iter;
         if (ssRecord->GetIsBroadcastSS())
@@ -306,8 +304,7 @@ UplinkSchedulerRtps::Schedule()
     // UL Scheduler for nrtPS and BE flows
     if (availableSymbols)
     {
-        for (std::vector<SSRecord*>::iterator iter = ssRecords->begin(); iter != ssRecords->end();
-             ++iter)
+        for (auto iter = ssRecords->begin(); iter != ssRecords->end(); ++iter)
         {
             SSRecord* ssRecord = *iter;
             if (ssRecord->GetIsBroadcastSS())
@@ -362,7 +359,7 @@ UplinkSchedulerRtps::Schedule()
 
 void
 UplinkSchedulerRtps::ServiceUnsolicitedGrants(const SSRecord* ssRecord,
-                                              enum ServiceFlow::SchedulingType schedulingType,
+                                              ServiceFlow::SchedulingType schedulingType,
                                               OfdmUlMapIe& ulMapIe,
                                               const WimaxPhy::ModulationType modulationType,
                                               uint32_t& symbolsToAllocation,
@@ -372,9 +369,7 @@ UplinkSchedulerRtps::ServiceUnsolicitedGrants(const SSRecord* ssRecord,
     uint8_t uiuc = ulMapIe.GetUiuc(); // SS's burst profile
     std::vector<ServiceFlow*> serviceFlows = ssRecord->GetServiceFlows(schedulingType);
 
-    for (std::vector<ServiceFlow*>::iterator iter = serviceFlows.begin();
-         iter != serviceFlows.end();
-         ++iter)
+    for (auto iter = serviceFlows.begin(); iter != serviceFlows.end(); ++iter)
     {
         ServiceFlow* serviceFlow = *iter;
 
@@ -451,7 +446,7 @@ UplinkSchedulerRtps::ServiceUnsolicitedGrants(const SSRecord* ssRecord,
 
 void
 UplinkSchedulerRtps::ServiceBandwidthRequests(const SSRecord* ssRecord,
-                                              enum ServiceFlow::SchedulingType schedulingType,
+                                              ServiceFlow::SchedulingType schedulingType,
                                               OfdmUlMapIe& ulMapIe,
                                               const WimaxPhy::ModulationType modulationType,
                                               uint32_t& symbolsToAllocation,
@@ -459,9 +454,7 @@ UplinkSchedulerRtps::ServiceBandwidthRequests(const SSRecord* ssRecord,
 {
     std::vector<ServiceFlow*> serviceFlows = ssRecord->GetServiceFlows(schedulingType);
 
-    for (std::vector<ServiceFlow*>::iterator iter = serviceFlows.begin();
-         iter != serviceFlows.end();
-         ++iter)
+    for (auto iter = serviceFlows.begin(); iter != serviceFlows.end(); ++iter)
     {
         if (!ServiceBandwidthRequests(*iter,
                                       schedulingType,
@@ -477,7 +470,7 @@ UplinkSchedulerRtps::ServiceBandwidthRequests(const SSRecord* ssRecord,
 
 bool
 UplinkSchedulerRtps::ServiceBandwidthRequests(ServiceFlow* serviceFlow,
-                                              enum ServiceFlow::SchedulingType schedulingType,
+                                              ServiceFlow::SchedulingType schedulingType,
                                               OfdmUlMapIe& ulMapIe,
                                               const WimaxPhy::ModulationType modulationType,
                                               uint32_t& symbolsToAllocation,
@@ -551,8 +544,7 @@ UplinkSchedulerRtps::ULSchedulerRTPSConnection(uint32_t& symbolsToAllocation,
     Cid cid;
     std::vector<SSRecord*>* ssRecords = GetBs()->GetSSManager()->GetSSRecords();
 
-    for (std::vector<SSRecord*>::iterator iter = ssRecords->begin(); iter != ssRecords->end();
-         ++iter)
+    for (auto iter = ssRecords->begin(); iter != ssRecords->end(); ++iter)
     {
         SSRecord* ssRecord = *iter;
         if (ssRecord->GetIsBroadcastSS())
@@ -572,9 +564,7 @@ UplinkSchedulerRtps::ULSchedulerRTPSConnection(uint32_t& symbolsToAllocation,
 
             std::vector<ServiceFlow*> serviceFlows =
                 ssRecord->GetServiceFlows(ServiceFlow::SF_TYPE_RTPS);
-            for (std::vector<ServiceFlow*>::iterator iter2 = serviceFlows.begin();
-                 iter2 != serviceFlows.end();
-                 ++iter2)
+            for (auto iter2 = serviceFlows.begin(); iter2 != serviceFlows.end(); ++iter2)
             {
                 record_[nbAllocation] = (*iter2)->GetRecord();
                 uint32_t requiredBandwidth = record_[nbAllocation]->GetRequestedBandwidth() -
@@ -633,7 +623,7 @@ UplinkSchedulerRtps::ULSchedulerRTPSConnection(uint32_t& symbolsToAllocation,
         NS_LOG_INFO("\t\tUpdateGrantedBandwidth for " << i << " = " << allocSizeBytes);
         if (record_[i]->GetRequestedBandwidth() < allocSizeBytes)
         {
-            // the flow need new poll to set the newer requredBandwidth
+            // the flow need new poll to set the newer requiredBandwidth
             record_[i]->SetGrantedBandwidth(0);
             record_[i]->SetRequestedBandwidth(0);
         }
@@ -698,7 +688,7 @@ UplinkSchedulerRtps::SetupServiceFlow(SSRecord* ssRecord, ServiceFlow* serviceFl
     switch (serviceFlow->GetSchedulingType())
     {
     case ServiceFlow::SF_TYPE_UGS: {
-        if (serviceFlow->GetIsMulticast() == true)
+        if (serviceFlow->GetIsMulticast())
         {
             modulation = serviceFlow->GetModulation();
         }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) University of Washington
  *
@@ -32,7 +31,7 @@
 namespace ns3
 {
 
-extern int gVerbose;
+extern bool gVerbose;
 
 #define LOG(msg)                                                                                   \
     if (gVerbose)                                                                                  \

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -30,7 +29,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief This system test program creates different test cases with a single eNB and
  * several UEs, all having the same Radio Bearer specification. In each test
@@ -67,7 +65,7 @@ class LenaPssFfMacSchedulerTestCase1 : public TestCase
     /**
      * Builds the test name string based on provided parameter values
      * \param nUser the number of UE nodes
-     * \param dist the distnace between nodes
+     * \param dist the distance between nodes
      * \returns the name string
      */
     static std::string BuildNameString(uint16_t nUser, double dist);
@@ -83,9 +81,8 @@ class LenaPssFfMacSchedulerTestCase1 : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
- * \brief Simillar to the LenaPssFfMacSchedulerTestCase1 with the difference that
+ * \brief Similar to the LenaPssFfMacSchedulerTestCase1 with the difference that
  * UEs are places in such a way to experience different SINRs. Test checks if the
  * achieved throughput in such conditions has expected value.
  */
@@ -112,7 +109,7 @@ class LenaPssFfMacSchedulerTestCase2 : public TestCase
     /**
      * Builds the test name string based on provided parameter values
      * \param nUser the number of UE nodes
-     * \param dist the distnace between nodes
+     * \param dist the distance between nodes
      * \returns the name string
      */
     static std::string BuildNameString(uint16_t nUser, std::vector<double> dist);
@@ -127,7 +124,6 @@ class LenaPssFfMacSchedulerTestCase2 : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lena Pss Ff Mac Scheduler Test Suite
  */

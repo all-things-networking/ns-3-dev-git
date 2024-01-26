@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016
  *
@@ -39,6 +38,7 @@ class HeCapabilities : public WifiInformationElement
     // Implementations of pure virtual methods of WifiInformationElement
     WifiInformationElementId ElementId() const override;
     WifiInformationElementId ElementIdExt() const override;
+    void Print(std::ostream& os) const override;
 
     /**
      * Set the HE MAC Capabilities Info field in the HE Capabilities information element.
@@ -333,14 +333,6 @@ class HeCapabilities : public WifiInformationElement
     std::vector<uint8_t> m_txBwMap;  //!< transmit BW map
     std::vector<uint8_t> m_rxBwMap;  //!< receive BW map
 };
-
-/**
- * output stream output operator
- * \param os the output stream
- * \param HeCapabilities the HE capabilities
- * \returns the output stream
- */
-std::ostream& operator<<(std::ostream& os, const HeCapabilities& HeCapabilities);
 
 } // namespace ns3
 

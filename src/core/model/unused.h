@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Andrey Mazo
  *
@@ -21,7 +20,7 @@
 #ifndef UNUSED_H
 #define UNUSED_H
 
-#include "ns3/deprecated.h"
+#include "deprecated.h"
 
 /**
  * \file

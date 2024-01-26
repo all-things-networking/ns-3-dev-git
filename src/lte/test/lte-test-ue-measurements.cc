@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -233,6 +232,10 @@ LteUeMeasurementsTestSuite::LteUeMeasurementsTestSuite()
                 TestCase::EXTENSIVE);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteUeMeasurementsTestSuite lteUeMeasurementsTestSuite;
 
 /*
@@ -321,7 +324,7 @@ LteUeMeasurementsTestCase::DoRun()
     lteHelper->Attach(ueDevs2, enbDevs.Get(1));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);
@@ -694,6 +697,10 @@ LteUeMeasurementsPiecewiseTestSuite1::LteUeMeasurementsPiecewiseTestSuite1()
 
 } // end of LteUeMeasurementsPiecewiseTestSuite1::LteUeMeasurementsPiecewiseTestSuite1
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteUeMeasurementsPiecewiseTestSuite1 lteUeMeasurementsPiecewiseTestSuite1;
 
 /*
@@ -787,7 +794,7 @@ LteUeMeasurementsPiecewiseTestCase1::DoRun()
     lteHelper->Attach(ueDevs.Get(0), enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -1393,6 +1400,10 @@ LteUeMeasurementsPiecewiseTestSuite2::LteUeMeasurementsPiecewiseTestSuite2()
 
 } // end of LteUeMeasurementsPiecewiseTestSuite2::LteUeMeasurementsPiecewiseTestSuite2
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteUeMeasurementsPiecewiseTestSuite2 lteUeMeasurementsPiecewiseTestSuite2;
 
 /*
@@ -1491,7 +1502,7 @@ LteUeMeasurementsPiecewiseTestCase2::DoRun()
     lteHelper->Attach(ueDevs.Get(0), enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -1585,7 +1596,7 @@ LteUeMeasurementsPiecewiseTestCase2::RecvMeasurementReportCallback(
                  << " dB)");
 
         // verifying reported best cells
-        if (measResults.measResultListEutra.size() == 0)
+        if (measResults.measResultListEutra.empty())
         {
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   false,
@@ -1596,8 +1607,7 @@ LteUeMeasurementsPiecewiseTestCase2::RecvMeasurementReportCallback(
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   true,
                                   "Unexpected report content");
-            std::list<LteRrcSap::MeasResultEutra>::iterator it =
-                measResults.measResultListEutra.begin();
+            auto it = measResults.measResultListEutra.begin();
             NS_ASSERT(it != measResults.measResultListEutra.end());
             NS_ASSERT(it->physCellId == 2);
             NS_TEST_ASSERT_MSG_EQ(it->haveCgiInfo,
@@ -1717,6 +1727,10 @@ LteUeMeasurementsPiecewiseTestSuite3::LteUeMeasurementsPiecewiseTestSuite3()
                 TestCase::QUICK);
 } // end of LteUeMeasurementsPiecewiseTestSuite3::LteUeMeasurementsPiecewiseTestSuite3
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteUeMeasurementsPiecewiseTestSuite3 lteUeMeasurementsPiecewiseTestSuite3;
 
 /*
@@ -1811,7 +1825,7 @@ LteUeMeasurementsPiecewiseTestCase3::DoRun()
     lteHelper->Attach(ueDevs.Get(0), enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -1874,7 +1888,7 @@ LteUeMeasurementsPiecewiseTestCase3::RecvMeasurementReportCallback(
                  << " dB)");
 
         // verifying reported best cells
-        if (measResults.measResultListEutra.size() == 0)
+        if (measResults.measResultListEutra.empty())
         {
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   false,
@@ -1885,8 +1899,7 @@ LteUeMeasurementsPiecewiseTestCase3::RecvMeasurementReportCallback(
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   true,
                                   "Unexpected report content");
-            std::list<LteRrcSap::MeasResultEutra>::iterator it =
-                measResults.measResultListEutra.begin();
+            auto it = measResults.measResultListEutra.begin();
             NS_ASSERT(it != measResults.measResultListEutra.end());
             for (const auto& it : measResults.measResultListEutra)
             {
@@ -2265,6 +2278,10 @@ LteUeMeasurementsHandoverTestSuite::LteUeMeasurementsHandoverTestSuite()
 
 } // end of LteUeMeasurementsHandoverTestSuite::LteUeMeasurementsHandoverTestSuite
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteUeMeasurementsHandoverTestSuite lteUeMeasurementsHandoverTestSuite;
 
 /*
@@ -2383,18 +2400,19 @@ LteUeMeasurementsHandoverTestCase::DoRun()
 
     // Setup UE measurement configuration in eNodeBs
     uint8_t measId;
-    std::list<LteRrcSap::ReportConfigEutra>::const_iterator itReportConfig;
     Ptr<LteEnbRrc> enbRrc1 = enbDevs.Get(0)->GetObject<LteEnbNetDevice>()->GetRrc();
     Ptr<LteEnbRrc> enbRrc2 = enbDevs.Get(1)->GetObject<LteEnbNetDevice>()->GetRrc();
 
-    for (itReportConfig = m_sourceConfigList.begin(); itReportConfig != m_sourceConfigList.end();
+    for (auto itReportConfig = m_sourceConfigList.begin();
+         itReportConfig != m_sourceConfigList.end();
          itReportConfig++)
     {
         measId = enbRrc1->AddUeMeasReportConfig(*itReportConfig).at(0);
         m_expectedSourceCellMeasId.insert(measId);
     }
 
-    for (itReportConfig = m_targetConfigList.begin(); itReportConfig != m_targetConfigList.end();
+    for (auto itReportConfig = m_targetConfigList.begin();
+         itReportConfig != m_targetConfigList.end();
          itReportConfig++)
     {
         measId = enbRrc2->AddUeMeasReportConfig(*itReportConfig).at(0);
@@ -2471,12 +2489,12 @@ LteUeMeasurementsHandoverTestCase::RecvMeasurementReportCallback(
     bool isCorrectMeasId;
     if (cellId == 1)
     {
-        std::set<uint8_t>::iterator itMeasId = m_expectedSourceCellMeasId.find(measId);
+        auto itMeasId = m_expectedSourceCellMeasId.find(measId);
         isCorrectMeasId = (itMeasId != m_expectedSourceCellMeasId.end());
     }
     else if (cellId == 2)
     {
-        std::set<uint8_t>::iterator itMeasId = m_expectedTargetCellMeasId.find(measId);
+        auto itMeasId = m_expectedTargetCellMeasId.find(measId);
         isCorrectMeasId = (itMeasId != m_expectedTargetCellMeasId.end());
     }
     else
@@ -2498,7 +2516,7 @@ LteUeMeasurementsHandoverTestCase::RecvMeasurementReportCallback(
                  << " dB)");
 
         // verifying reported best cells
-        if (measResults.measResultListEutra.size() == 0)
+        if (measResults.measResultListEutra.empty())
         {
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   false,
@@ -2509,8 +2527,7 @@ LteUeMeasurementsHandoverTestCase::RecvMeasurementReportCallback(
             NS_TEST_ASSERT_MSG_EQ(measResults.haveMeasResultNeighCells,
                                   true,
                                   "Unexpected report content");
-            std::list<LteRrcSap::MeasResultEutra>::iterator it =
-                measResults.measResultListEutra.begin();
+            auto it = measResults.measResultListEutra.begin();
             NS_ASSERT(it != measResults.measResultListEutra.end());
             NS_ASSERT(it->physCellId != cellId);
             NS_ASSERT(it->physCellId <= 2);

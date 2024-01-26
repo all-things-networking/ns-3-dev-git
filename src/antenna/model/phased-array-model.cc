@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  *   Copyright (c) 2020 University of Padova, Dep. of Information Engineering, SIGNET lab.
  *
@@ -18,9 +17,10 @@
 
 #include "phased-array-model.h"
 
+#include "isotropic-antenna-model.h"
+
 #include <ns3/boolean.h>
 #include <ns3/double.h>
-#include <ns3/isotropic-antenna-model.h>
 #include <ns3/log.h>
 #include <ns3/pointer.h>
 #include <ns3/uinteger.h>
@@ -34,28 +34,6 @@ NS_LOG_COMPONENT_DEFINE("PhasedArrayModel");
 
 NS_OBJECT_ENSURE_REGISTERED(PhasedArrayModel);
 
-std::ostream&
-operator<<(std::ostream& os, const PhasedArrayModel::ComplexVector& cv)
-{
-    size_t N = cv.size();
-
-    // empty
-    if (N == 0)
-    {
-        os << "[]";
-        return os;
-    }
-
-    // non-empty
-    os << "[";
-    for (std::size_t i = 0; i < N - 1; ++i)
-    {
-        os << cv[i] << ", ";
-    }
-    os << cv[N - 1] << "]";
-    return os;
-}
-
 PhasedArrayModel::PhasedArrayModel()
     : m_isBfVectorValid{false}
 {
@@ -64,7 +42,6 @@ PhasedArrayModel::PhasedArrayModel()
 
 PhasedArrayModel::~PhasedArrayModel()
 {
-    m_beamformingVector.clear();
 }
 
 TypeId
@@ -86,8 +63,8 @@ void
 PhasedArrayModel::SetBeamformingVector(const ComplexVector& beamformingVector)
 {
     NS_LOG_FUNCTION(this << beamformingVector);
-    NS_ASSERT_MSG(beamformingVector.size() == GetNumberOfElements(),
-                  beamformingVector.size() << " != " << GetNumberOfElements());
+    NS_ASSERT_MSG(beamformingVector.GetSize() == GetNumElems(),
+                  beamformingVector.GetSize() << " != " << GetNumElems());
     m_beamformingVector = beamformingVector;
     m_isBfVectorValid = true;
 }
@@ -102,17 +79,14 @@ PhasedArrayModel::GetBeamformingVector() const
     return m_beamformingVector;
 }
 
-double
-PhasedArrayModel::ComputeNorm(const ComplexVector& vector)
+const PhasedArrayModel::ComplexVector&
+PhasedArrayModel::GetBeamformingVectorRef() const
 {
-    double norm = 0;
-
-    for (uint64_t i = 0; i < vector.size(); i++)
-    {
-        norm += std::norm(vector[i]);
-    }
-
-    return std::sqrt(norm);
+    NS_LOG_FUNCTION(this);
+    NS_ASSERT_MSG(m_isBfVectorValid,
+                  "The beamforming vector should be Set before it's Get, and should refer to the "
+                  "current array configuration");
+    return m_beamformingVector;
 }
 
 PhasedArrayModel::ComplexVector
@@ -121,11 +95,18 @@ PhasedArrayModel::GetBeamformingVector(Angles a) const
     NS_LOG_FUNCTION(this << a);
 
     ComplexVector beamformingVector = GetSteeringVector(a);
-    double norm = ComputeNorm(beamformingVector);
+    // The normalization takes into account the total number of ports as only a
+    // portion (K,L) of beam weights associated with a specific port are non-zero.
+    // See 3GPP Section 5.2.2 36.897. This normalization corresponds to
+    // a sub-array partition model (which is different from the full-connection
+    // model). Note that the total number of ports used to perform normalization
+    // is the ratio between the total number of antenna elements and the
+    // number of antenna elements per port.
+    double normRes = norm(beamformingVector) / sqrt(GetNumPorts());
 
-    for (uint64_t i = 0; i < beamformingVector.size(); i++)
+    for (size_t i = 0; i < GetNumElems(); i++)
     {
-        beamformingVector[i] = std::conj(beamformingVector[i]) / norm;
+        beamformingVector[i] = std::conj(beamformingVector[i]) / normRes;
     }
 
     return beamformingVector;
@@ -134,9 +115,8 @@ PhasedArrayModel::GetBeamformingVector(Angles a) const
 PhasedArrayModel::ComplexVector
 PhasedArrayModel::GetSteeringVector(Angles a) const
 {
-    ComplexVector steeringVector;
-    steeringVector.resize(GetNumberOfElements());
-    for (uint64_t i = 0; i < GetNumberOfElements(); i++)
+    ComplexVector steeringVector(GetNumElems());
+    for (size_t i = 0; i < GetNumElems(); i++)
     {
         Vector loc = GetElementLocation(i);
         double phase = -2 * M_PI *

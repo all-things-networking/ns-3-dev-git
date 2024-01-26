@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 IITP RAS
  *
@@ -106,7 +105,7 @@ WifiRemoteStation*
 ThompsonSamplingWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    ThompsonSamplingWifiRemoteStation* station = new ThompsonSamplingWifiRemoteStation();
+    auto station = new ThompsonSamplingWifiRemoteStation();
     station->m_nextMode = 0;
     station->m_lastMode = 0;
     return station;
@@ -351,7 +350,7 @@ ThompsonSamplingWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t a
         GetNumberOfAntennas(),
         nss,
         0, // NESS
-        GetChannelWidthForTransmission(mode, channelWidth),
+        GetPhy()->GetTxBandwidth(mode, channelWidth),
         GetAggregation(station),
         false);
 }
@@ -366,7 +365,6 @@ ThompsonSamplingWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
     // Use the most robust MCS for the control channel.
     auto& stats = station->m_mcsStats.at(0);
     WifiMode mode = stats.mode;
-    uint16_t channelWidth = std::min(stats.channelWidth, GetPhy()->GetChannelWidth());
     uint8_t nss = stats.nss;
 
     // Make sure control frames are sent using 1 spatial stream.
@@ -380,7 +378,7 @@ ThompsonSamplingWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         GetNumberOfAntennas(),
         nss,
         0, // NESS
-        GetChannelWidthForTransmission(mode, channelWidth),
+        GetPhy()->GetTxBandwidth(mode, stats.channelWidth),
         GetAggregation(station),
         false);
 }

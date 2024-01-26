@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
@@ -26,8 +25,9 @@
 #ifndef TCP_OPTION_SACK_H
 #define TCP_OPTION_SACK_H
 
+#include "tcp-option.h"
+
 #include "ns3/sequence-number.h"
-#include "ns3/tcp-option.h"
 
 namespace ns3
 {

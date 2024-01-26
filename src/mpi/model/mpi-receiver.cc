@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -19,7 +18,7 @@
 /**
  * \file
  * \ingroup mpi
- * ns3::MpiReciver implementation,
+ * ns3::MpiReceiver implementation,
  * provides an interface to aggregate to MPI-compatible NetDevices.
  */
 
@@ -29,7 +28,7 @@ namespace ns3
 {
 
 TypeId
-MpiReceiver::GetTypeId(void)
+MpiReceiver::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::MpiReceiver")
                             .SetParent<Object>()
@@ -56,7 +55,7 @@ MpiReceiver::Receive(Ptr<Packet> p)
 }
 
 void
-MpiReceiver::DoDispose(void)
+MpiReceiver::DoDispose()
 {
     m_rxCallback = MakeNullCallback<void, Ptr<Packet>>();
 }

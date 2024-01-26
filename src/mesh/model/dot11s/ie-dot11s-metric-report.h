@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -53,7 +52,7 @@ class IeLinkMetricReport : public WifiInformationElement
      * Get metric value
      * \returns the metric
      */
-    uint32_t GetMetric();
+    uint32_t GetMetric() const;
 
     // Inherited from WifiInformationElement
     WifiInformationElementId ElementId() const override;

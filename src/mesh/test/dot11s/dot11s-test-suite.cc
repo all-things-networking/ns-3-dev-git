@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -36,7 +35,6 @@ using namespace dot11s;
 
 /**
  * \ingroup dot11s-test
- * \ingroup tests
  *
  * \brief Built-in self test for MeshHeader
  */
@@ -96,7 +94,6 @@ MeshHeaderTest::DoRun()
 
 /**
  * \ingroup mesh-test
- * \ingroup tests
  *
  * \brief Unit test for HwmpRtable
  */
@@ -189,8 +186,7 @@ HwmpRtableTest::TestExpire()
 void
 HwmpRtableTest::TestPrecursorAdd()
 {
-    for (std::vector<Mac48Address>::const_iterator i = precursors.begin(); i != precursors.end();
-         i++)
+    for (auto i = precursors.begin(); i != precursors.end(); i++)
     {
         table->AddPrecursor(dst, iface, *i, Seconds(100));
         // Check that duplicates are filtered
@@ -279,7 +275,6 @@ PeerLinkFrameStartTest::DoRun()
 
 /**
  * \ingroup mesh-test
- * \ingroup tests
  *
  * \brief Dot11s Test Suite
  */

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan.
  *
@@ -55,6 +54,14 @@ class SuperframeField
 {
   public:
     SuperframeField();
+
+    /**
+     * Create a superframe Specification Information field with
+     * the information specified in the bitmap.
+     *
+     * \param bitmap The superframe in bitmap form
+     */
+    SuperframeField(uint16_t bitmap);
     /**
      * Set the whole Superframe Specification Information field.
      * \param superFrm The Superframe Specification information field.
@@ -128,23 +135,6 @@ class SuperframeField
      * \return the Superframe Specification Information field bits.
      */
     uint16_t GetSuperframe() const;
-    /**
-     * Get the size of the serialized Superframe specification information field.
-     * \return the size of the serialized field.
-     */
-    uint32_t GetSerializedSize() const;
-    /**
-     * Serialize the entire superframe specification field.
-     * \param i an iterator which points to where the superframe specification field should be
-     * written. \return an iterator.
-     */
-    Buffer::Iterator Serialize(Buffer::Iterator i) const;
-    /**
-     * Deserialize the entire superframe specification field.
-     * \param i an iterator which points to where the superframe specification field should be read.
-     * \return an iterator.
-     */
-    Buffer::Iterator Deserialize(Buffer::Iterator i);
 
   private:
     // Superframe Specification field
@@ -178,7 +168,7 @@ class GtsFields
     GtsFields();
     /**
      * Get the GTS Specification Field from the GTS Fields
-     * \return The GTS Spcecification Field
+     * \return The GTS Specification Field
      */
     uint8_t GetGtsSpecField() const;
     /**
@@ -197,8 +187,8 @@ class GtsFields
      */
     void SetGtsDirectionField(uint8_t gtsDir);
     /**
-     *  Get the GTS Specification Permit. TRUE if coordinator is accepting GTS requests.
-     *  \return True if the coordinator is accepting GTS request.
+     * Get the GTS Specification Permit. TRUE if coordinator is accepting GTS requests.
+     * \return True if the coordinator is accepting GTS request.
      */
     bool GetGtsPermit() const;
     /**
@@ -209,7 +199,8 @@ class GtsFields
     /**
      * Serialize the entire GTS fields.
      * \param i an iterator which points to where the superframe specification field should be
-     * written. \return an iterator.
+     * written.
+     * \return an iterator.
      */
     Buffer::Iterator Serialize(Buffer::Iterator i) const;
     /**
@@ -223,7 +214,7 @@ class GtsFields
     /**
      * GTS Descriptor
      */
-    struct gtsDescriptor
+    struct GtsDescriptor
     {
         Mac16Address m_gtsDescDevShortAddr; //!< GTS Descriptor Device Short Address (Bit 0-15)
         uint8_t m_gtsDescStartSlot;         //!< GTS Descriptor GTS Starting Slot(Bit 16-19)
@@ -238,7 +229,7 @@ class GtsFields
     uint8_t m_gtsDirMask; //!< GTS Direction field Directions Mask (Bit 0-6)
     // GTS Direction field Reserved (Not Necessary) (Bit 7)
     // GTS List
-    gtsDescriptor m_gtsList[7]; //!< GTS List field (maximum descriptors stored == 7)
+    GtsDescriptor m_gtsList[7]; //!< GTS List field (maximum descriptors stored == 7)
 };
 
 /**
@@ -293,7 +284,8 @@ class PendingAddrFields
     uint8_t GetNumShortAddr() const;
     /**
      * Get the number of Extended Pending Address indicated in the Pending Address Specification
-     * Field. \return The number Short Pending Address.
+     * Field.
+     * \return The number Short Pending Address.
      */
     uint8_t GetNumExtAddr() const;
 
@@ -353,84 +345,113 @@ class CapabilityField
 {
   public:
     CapabilityField();
+
     /**
-     * Get the size of the serialized Capability Information Field.
-     * \return the size of the serialized field.
+     * Construct a Capability field based on a bitmap.
+     *
+     * \param bitmap The bitmap representing the capability
      */
-    uint32_t GetSerializedSize() const;
+    CapabilityField(uint8_t bitmap);
+
     /**
-     * Serialize the entire Capability Information Field.
-     * \param i an iterator which points to where the Capability information field should be
-     * written. \return an iterator.
+     * Get the bitmap representing the device capability.
+     *
+     * \return The bitmap representing the device capability.
      */
-    Buffer::Iterator Serialize(Buffer::Iterator i) const;
+    uint8_t GetCapability() const;
+
     /**
-     * Deserialize the entire Capability Information Field.
-     * \param i an iterator which points to where the Capability information field should be read.
-     * \return an iterator.
+     * Set the bitmap representing the device capability.
+     *
+     * \param bitmap The bitmap representing the capability
      */
-    Buffer::Iterator Deserialize(Buffer::Iterator i);
+    void SetCapability(uint8_t bitmap);
+
     /**
      * True if the device type is a Full Functional Device (FFD) false if is a Reduced Functional
-     * Device (RFD). \return True if the device type is a Full Functional Device (FFD) false if is a
-     * Reduced Functional Device (RFD).
+     * Device (RFD).
+     *
+     * \return True if the device type is a Full Functional Device (FFD) false if is a Reduced
+     * Functional Device (RFD).
      */
     bool IsDeviceTypeFfd() const;
+
     /**
      * True if the device is receiving power from alternating current mains.
+     *
      * \return True if the device is receiving power from alternating current mains.
      */
     bool IsPowSrcAvailable() const;
+
     /**
      * True if the device does not disable its receiver to conserve power during idle periods.
+     *
      * \return True if the device does not disable its receiver to conserve power during idle
      * periods.
      */
     bool IsReceiverOnWhenIdle() const;
+
     /**
      * True if the device is capable of sending and receiving cryptographically protected MAC
-     * frames. \return True if the device is capable of sending and receiving cryptographically
-     * protected MAC frames.
+     * frames.
+     *
+     * \return True if the device is capable of sending and receiving cryptographically protected
+     * MAC frames.
      */
     bool IsSecurityCapability() const;
+
     /**
      * True if the device wishes the coordinator to allocate a short address as result of the
-     * association procedure. \return True if the device wishes the coordinator to allocate a short
-     * address as result of the association procedure.
+     * association procedure.
+     *
+     * \return True if the device wishes the coordinator to allocate a short address as result of
+     * the association procedure.
      */
     bool IsShortAddrAllocOn() const;
+
     /**
      * Set the Device type in the Capability Information Field.
      * True = full functional device (FFD)  False = reduced functional device (RFD).
+     *
      * \param devType The device type described in the Capability Information Field.
      */
     void SetFfdDevice(bool devType);
+
     /**
      * Set the Power Source available flag in the Capability Information Field.
+     *
      * \param pow Set true if a Power Source is available in the Capability Information Field.
      */
     void SetPowSrcAvailable(bool pow);
+
     /**
      * Indicate if the receiver is On on Idle
+     *
      * \param rxIdle Set true if the receiver is on when Idle
      */
     void SetRxOnWhenIdle(bool rxIdle);
+
     /**
      * Set the Security Capability flag in the Capability Information Field.
+     *
      * \param sec Set true if the device have Security Capabilities.
      */
     void SetSecurityCap(bool sec);
+
     /**
      * Set the Short Address Flag in the Capability Information Field.
+     *
      * \param addrAlloc Describes whether or not the coordinator should allocate a short
      *                  address in the association process.
      */
     void SetShortAddrAllocOn(bool addrAlloc);
 
   private:
+    bool m_reservedBit0;       //!< Capability Information Field, Reserved (bit 0)
     bool m_deviceType;         //!< Capability Information Field, Device Type  (bit 1)
     bool m_powerSource;        //!< Capability Information Field, Power Source (bit 2)
     bool m_receiverOnWhenIdle; //!< Capability Information Field, Receiver On When Idle (bit 3)
+    uint8_t m_reservedBit45;   //!< Capability Information Field, Reserved (bit 4 & 5)
     bool m_securityCap;        //!< Capability Information Field, Security Capability (bit 6)
     bool m_allocAddr;          //!< Capability Information Field, Allocate Address (bit 7)
 };

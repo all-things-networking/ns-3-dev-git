@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -40,7 +39,8 @@ class Socket;
  * \ingroup ping6
  * \brief A ping6 application.
  */
-class Ping6 : public Application
+class NS_DEPRECATED_3_38("Use Ping instead - the attributes might have been renamed.") Ping6
+    : public Application
 {
   public:
     /**

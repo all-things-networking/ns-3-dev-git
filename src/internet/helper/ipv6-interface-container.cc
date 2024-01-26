@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008-2009 Strasbourg University
  *               2013 Universita' di Firenze
@@ -22,7 +21,8 @@
 
 #include "ipv6-interface-container.h"
 
-#include "ns3/ipv6-static-routing-helper.h"
+#include "ipv6-static-routing-helper.h"
+
 #include "ns3/names.h"
 #include "ns3/node-list.h"
 
@@ -81,8 +81,7 @@ Ipv6InterfaceContainer::Add(std::string ipv6Name, uint32_t interface)
 void
 Ipv6InterfaceContainer::Add(const Ipv6InterfaceContainer& c)
 {
-    for (InterfaceVector::const_iterator it = c.m_interfaces.begin(); it != c.m_interfaces.end();
-         it++)
+    for (auto it = c.m_interfaces.begin(); it != c.m_interfaces.end(); it++)
     {
         m_interfaces.push_back(*it);
     }

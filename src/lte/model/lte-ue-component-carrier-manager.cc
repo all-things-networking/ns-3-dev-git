@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -20,6 +19,8 @@
  */
 
 #include "lte-ue-component-carrier-manager.h"
+
+#include "lte-common.h"
 
 #include <ns3/log.h>
 
@@ -76,8 +77,7 @@ LteUeComponentCarrierManager::SetComponentCarrierMacSapProviders(uint8_t compone
 {
     NS_LOG_FUNCTION(this);
     bool result = false;
-    std::map<uint8_t, LteMacSapProvider*>::iterator it;
-    it = m_macSapProvidersMap.find(componentCarrierId);
+    auto it = m_macSapProvidersMap.find(componentCarrierId);
     if (componentCarrierId > m_noOfComponentCarriers)
     {
         NS_FATAL_ERROR("Inconsistent componentCarrierId or you didn't call "

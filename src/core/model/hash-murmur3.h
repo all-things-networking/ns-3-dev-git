@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
@@ -102,10 +101,7 @@ class Murmur3 : public Implementation
      * This has to be a constant for all MPI ranks to generate
      * the same hash from the same string.
      */
-    enum seed
-    {
-        SEED = 0x8BADF00D // Ate bad food
-    };
+    static constexpr auto SEED{0x8BADF00D}; // Ate bad food
 
     /**
      * Cache last hash value, and total bytes hashed (needed to finalize),

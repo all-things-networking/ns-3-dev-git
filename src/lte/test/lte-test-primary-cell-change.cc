@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Alexander Krotov
  *
@@ -97,6 +96,10 @@ LtePrimaryCellChangeTestSuite::LtePrimaryCellChangeTestSuite()
                 TestCase::QUICK);
 } // end of LtePrimaryCellChangeTestSuite::LtePrimaryCellChangeTestSuite ()
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LtePrimaryCellChangeTestSuite g_ltePrimaryCellChangeTestSuite;
 
 /*

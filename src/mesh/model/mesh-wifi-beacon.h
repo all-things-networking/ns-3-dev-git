@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -21,7 +20,8 @@
 #ifndef MESH_WIFI_BEACON_H
 #define MESH_WIFI_BEACON_H
 
-#include "ns3/mesh-information-element-vector.h"
+#include "mesh-information-element-vector.h"
+
 #include "ns3/mgt-headers.h"
 #include "ns3/object.h"
 #include "ns3/packet.h"
@@ -48,7 +48,7 @@ class MeshWifiBeacon
      * \param rates is a set of supported rates
      * \param us beacon interval in microseconds
      */
-    MeshWifiBeacon(Ssid ssid, SupportedRates rates, uint64_t us);
+    MeshWifiBeacon(Ssid ssid, AllSupportedRates rates, uint64_t us);
 
     /**
      * Read standard Wifi beacon header

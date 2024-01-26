@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -608,7 +607,7 @@ UanHeaderRcAck::Serialize(Buffer::Iterator start) const
 {
     start.WriteU8(m_frameNo);
     start.WriteU8(GetNoNacks());
-    std::set<uint8_t>::iterator it = m_nackedFrames.begin();
+    auto it = m_nackedFrames.begin();
     for (; it != m_nackedFrames.end(); it++)
     {
         start.WriteU8(*it);
@@ -636,7 +635,7 @@ UanHeaderRcAck::Print(std::ostream& os) const
        << " Nacked: ";
     if (GetNoNacks() > 0)
     {
-        std::set<uint8_t>::iterator it = m_nackedFrames.begin();
+        auto it = m_nackedFrames.begin();
         os << (uint32_t)*it;
         it++;
         for (; it != m_nackedFrames.end(); it++)

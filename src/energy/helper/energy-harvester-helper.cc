@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
@@ -44,8 +43,7 @@ EnergyHarvesterContainer
 EnergyHarvesterHelper::Install(EnergySourceContainer sourceContainer) const
 {
     EnergyHarvesterContainer container;
-    for (EnergySourceContainer::Iterator i = sourceContainer.Begin(); i != sourceContainer.End();
-         ++i)
+    for (auto i = sourceContainer.Begin(); i != sourceContainer.End(); ++i)
     {
         Ptr<EnergyHarvester> harvester = DoInstall(*i);
         container.Add(harvester);

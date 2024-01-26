@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 CTTC
  *
@@ -58,6 +57,12 @@ void
 SpectrumPropagationLossModel::SetNext(Ptr<SpectrumPropagationLossModel> next)
 {
     m_next = next;
+}
+
+Ptr<SpectrumPropagationLossModel>
+SpectrumPropagationLossModel::GetNext() const
+{
+    return m_next;
 }
 
 Ptr<SpectrumValue>

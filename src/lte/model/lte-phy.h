@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  *
@@ -23,8 +22,9 @@
 #ifndef LTE_PHY_H
 #define LTE_PHY_H
 
+#include "lte-spectrum-phy.h"
+
 #include <ns3/generic-phy.h>
-#include <ns3/lte-spectrum-phy.h>
 #include <ns3/mobility-model.h>
 #include <ns3/nstime.h>
 #include <ns3/packet.h>
@@ -217,7 +217,7 @@ class LtePhy : public Object
      *
      * \returns the component carrier ID index
      */
-    uint8_t GetComponentCarrierId();
+    uint8_t GetComponentCarrierId() const;
 
   protected:
     /// Pointer to the NetDevice where this PHY layer is attached.

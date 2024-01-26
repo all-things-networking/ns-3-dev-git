@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -25,7 +24,6 @@
 #include "ns3/radio-bearer-stats-calculator.h"
 #include "ns3/string.h"
 #include <ns3/boolean.h>
-#include <ns3/config-store-module.h>
 #include <ns3/constant-position-mobility-model.h>
 #include <ns3/enum.h>
 #include <ns3/eps-bearer.h>
@@ -177,6 +175,10 @@ LenaTestRrFfMacSchedulerSuite::LenaTestRrFfMacSchedulerSuite()
     AddTestCase(new LenaRrFfMacSchedulerTestCase(1, 100000, 0, 0, errorModel), TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestRrFfMacSchedulerSuite lenaTestRrFfMacSchedulerSuite;
 
 std::string
@@ -263,7 +265,7 @@ LenaRrFfMacSchedulerTestCase::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -303,7 +305,7 @@ LenaRrFfMacSchedulerTestCase::DoRun()
     std::vector<uint64_t> dlDataRxed;
     if (m_errorModelEnabled)
     {
-        m_thrRefDl *= 0.95; // for couting the Vienna AMC behavior: BLER between 0% and 10%
+        m_thrRefDl *= 0.95; // for counting the Vienna AMC behavior: BLER between 0% and 10%
     }
     for (int i = 0; i < m_nUser; i++)
     {
@@ -324,7 +326,7 @@ LenaRrFfMacSchedulerTestCase::DoRun()
     std::vector<uint64_t> ulDataRxed;
     if (m_errorModelEnabled)
     {
-        m_thrRefUl *= 0.95; // for couting the Vienna AMC behavior: BLER between 0% and 10%
+        m_thrRefUl *= 0.95; // for counting the Vienna AMC behavior: BLER between 0% and 10%
     }
     for (int i = 0; i < m_nUser; i++)
     {

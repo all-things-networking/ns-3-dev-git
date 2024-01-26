@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 The Georgia Institute of Technology
  * Copyright (c) 2021 NITK Surathkal
@@ -366,10 +365,10 @@ class NixVectorRouting : public std::enable_if_t<std::is_same_v<Ipv4RoutingProto
     virtual bool RouteInput(Ptr<const Packet> p,
                             const IpHeader& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb);
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb);
 
     /**
      * \param interface the index of the interface we are being notified about
@@ -488,7 +487,7 @@ class NixVectorRouting : public std::enable_if_t<std::is_same_v<Ipv4RoutingProto
     static bool g_isCacheDirty;
 
     /**
-     * Nix Epoch, incremented each time a flush is perfomed.
+     * Nix Epoch, incremented each time a flush is performed.
      */
     static uint32_t g_epoch;
 

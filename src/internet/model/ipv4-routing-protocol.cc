@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -17,8 +16,6 @@
  */
 
 #include "ipv4-routing-protocol.h"
-
-#include "ipv4-route.h"
 
 #include "ns3/assert.h"
 #include "ns3/log.h"

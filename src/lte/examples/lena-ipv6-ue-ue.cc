@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Jadavpur University, India
  *
@@ -19,7 +18,6 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/epc-helper.h"
 #include "ns3/internet-module.h"

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Kungliga Tekniska Högskolan
  *               2017 Universita' degli Studi di Napoli Federico II
@@ -262,7 +261,7 @@ TbfQueueDisc::DoDequeue()
         // A packet gets blocked if the above if() condition is not satisfied:
         // either or both btoks and ptoks are negative.  In that case, we have
         // to schedule the waking of queue when enough tokens are available.
-        if (m_id.IsExpired() == true)
+        if (m_id.IsExpired())
         {
             NS_ASSERT_MSG(m_rate.GetBitRate() > 0, "Rate must be positive");
             Time requiredDelayTime;

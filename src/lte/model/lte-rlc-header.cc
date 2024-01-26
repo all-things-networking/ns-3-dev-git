@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,7 +17,7 @@
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/lte-rlc-header.h"
+#include "lte-rlc-header.h"
 
 #include "ns3/log.h"
 
@@ -128,8 +127,8 @@ LteRlcHeader::GetInstanceTypeId() const
 void
 LteRlcHeader::Print(std::ostream& os) const
 {
-    std::list<uint8_t>::const_iterator it1 = m_extensionBits.begin();
-    std::list<uint16_t>::const_iterator it2 = m_lengthIndicators.begin();
+    auto it1 = m_extensionBits.begin();
+    auto it2 = m_lengthIndicators.begin();
 
     os << "Len=" << m_headerLength;
     os << " FI=" << (uint16_t)m_framingInfo;
@@ -169,8 +168,8 @@ LteRlcHeader::Serialize(Buffer::Iterator start) const
 {
     Buffer::Iterator i = start;
 
-    std::list<uint8_t>::const_iterator it1 = m_extensionBits.begin();
-    std::list<uint16_t>::const_iterator it2 = m_lengthIndicators.begin();
+    auto it1 = m_extensionBits.begin();
+    auto it2 = m_lengthIndicators.begin();
 
     i.WriteU8(((m_framingInfo << 3) & 0x18) | (((*it1) << 2) & 0x04) |
               ((m_sequenceNumber.GetValue() >> 8) & 0x0003));
@@ -205,7 +204,7 @@ LteRlcHeader::Serialize(Buffer::Iterator start) const
         else
         {
             i.WriteU8(((oddE << 7) & 0x80) | ((oddLi >> 4) & 0x007F));
-            i.WriteU8(((oddLi << 4) & 0x00F0)); // Padding is implicit
+            i.WriteU8((oddLi << 4) & 0x00F0); // Padding is implicit
         }
     }
 }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006,2007 INRIA
  * Copyright (c) 2019 University of Padova
@@ -23,7 +22,8 @@
 #ifndef RANDOM_WALK_2D_OUTDOOR_MOBILITY_MODEL_H
 #define RANDOM_WALK_2D_OUTDOOR_MOBILITY_MODEL_H
 
-#include "ns3/building.h"
+#include "building.h"
+
 #include "ns3/constant-velocity-helper.h"
 #include "ns3/event-id.h"
 #include "ns3/mobility-model.h"
@@ -95,16 +95,19 @@ class RandomWalk2dOutdoorMobilityModel : public MobilityModel
     /**
      * Check if there is a building between two positions (or if the nextPosition is inside a
      * building). The code is taken from MmWave3gppBuildingsPropagationLossModel from the NYU/UNIPD
-     * ns-3 mmWave module \param currentPosition The current position of the node \param
-     * nextPosition The position to check \return a pair with a boolean (true if the line between
-     * the two position does not intersect building), and a pointer which is 0 if the boolean is
-     * true, or it points to the building which is intersected
+     * ns-3 mmWave module
+     * \param currentPosition The current position of the node
+     * \param nextPosition The position to check
+     * \return a pair with a boolean (true if the line between the two position does not intersect
+     * building), and a pointer which is 0 if the boolean is true, or it points to the building
+     * which is intersected
      */
     std::pair<bool, Ptr<Building>> IsLineClearOfBuildings(Vector currentPosition,
                                                           Vector nextPosition) const;
     /**
      * Compute the intersecting point of the box represented by boundaries and the line between
-     * current and next Notice that we only consider a 2d plane \param current The current position
+     * current and next. Notice that we only consider a 2d plane.
+     * \param current The current position
      * \param next The next position
      * \param boundaries The boundaries of the building we will intersect
      * \return a vector with the position of the intersection
@@ -122,7 +125,7 @@ class RandomWalk2dOutdoorMobilityModel : public MobilityModel
 
     ConstantVelocityHelper m_helper;       //!< helper for this object
     EventId m_event;                       //!< stored event ID
-    enum Mode m_mode;                      //!< whether in time or distance mode
+    Mode m_mode;                           //!< whether in time or distance mode
     double m_modeDistance;                 //!< Change direction and speed after this distance
     Time m_modeTime;                       //!< Change current direction and speed after this delay
     Ptr<RandomVariableStream> m_speed;     //!< rv for picking speed

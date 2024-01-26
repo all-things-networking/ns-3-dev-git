@@ -62,7 +62,7 @@ might write this:
 
 ::
 
-   void handler (int arg0, int arg1)
+   void handler(int arg0, int arg1)
    {
      std::cout << "handler called with argument arg0=" << arg0 << " and
         arg1=" << arg1 << std::endl;
@@ -115,13 +115,13 @@ What does this mean?
 
 ::
 
-  Simulator::Schedule (Time const &time, MEM mem_ptr, OBJ obj);
+  Simulator::Schedule(Time const &time, MEM mem_ptr, OBJ obj);
 
 vs.
 
 ::
 
-  Simulator::ScheduleWithContext (uint32_t context, Time const &time, MEM mem_ptr, OBJ obj);
+  Simulator::ScheduleWithContext(uint32_t context, Time const &time, MEM mem_ptr, OBJ obj);
 
 Readers who invest time and effort in developing or using a non-trivial
 simulation model will know the value of the |ns3| logging framework to
@@ -212,14 +212,14 @@ event execution.  These are derived from the abstract base class `SimulatorImpl`
 You can choose which simulator engine to use by setting a global variable,
 for example::
 
-  GlobalValue::Bind ("SimulatorImplementationType",
-                     StringValue ("ns3::DistributedSimulatorImpl"));
+  GlobalValue::Bind("SimulatorImplementationType",
+                    StringValue("ns3::DistributedSimulatorImpl"));
 
-or by using a command line argument::
+or by using a command line argument
 
-.. sourcecode:: bash
+.. sourcecode:: terminal
 
-  $ ./ns3 run "...  -–SimulatorImplementationType=ns3::DistributedSimulatorImpl"
+  $ ./ns3 run "...  --SimulatorImplementationType=ns3::DistributedSimulatorImpl"
 
 In addition to the basic simulator engines there is a general facility used
 to build "adapters" which provide small behavior modifications to one of
@@ -261,7 +261,7 @@ For example one can use noisy local clocks with the real time adapter.
 
 A single adapter can be added on top of the `DefaultSimulatorImpl` by the same
 two methods above: binding the `"SimulatorImplementationType"` global value or
-using the command line argument.  To chain multipe adapters a different
+using the command line argument.  To chain multiple adapters a different
 approach must be used; see the `SimulatorAdapter::AddAdapter()`
 API documentation.
 
@@ -306,8 +306,8 @@ The main job of the `Scheduler` classes is to maintain the priority queue of
 future events.  The scheduler can be set with a global variable,
 similar to choosing the `SimulatorImpl`::
 
-  GlobalValue::Bind ("SchedulerType",
-                     StringValue ("ns3::DistributedSimulatorImpl"));
+  GlobalValue::Bind("SchedulerType",
+                    StringValue("ns3::DistributedSimulatorImpl"));
 
 The scheduler can be changed at any time via `Simulator::SetScheduler()`.
 The default scheduler is `MapScheduler` which uses a `std::map<>` to
@@ -326,23 +326,20 @@ complexity on `Insert()` and `RemoveNext()`, are listed in the
 following table.  See the individual Scheduler API pages for details on the
 complexity of the other API calls.
 
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-|  Scheduler Type                                             | Complexity                                           |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-|                       |                                     | Time                       | Space                   |
-|  `SchedulerImpl` Type |               Method                +-------------+--------------+----------+--------------+
-|                       |                                     | Insert()    | RemoveNext() | Overhead |  Per Event   |
-+=======================+=====================================+=============+==============+==========+==============+
-| CalendarScheduler     | `<std::list> []`                    | Constant    | Constant     | 24 bytes | 16 bytes     |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-| HeapScheduler         | Heap on `std::vector`               | Logarithmic | Logaritmic   | 24 bytes | 0            |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-| ListScheduler         | `std::list`                         | Linear      | Constant     | 24 bytes | 16 bytes     |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-| MapScheduler          | `st::map`                           | Logarithmic | Constant     | 40 bytes | 32 bytes     |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-| PriorityQueueSchduler | `std::priority_queue<,std::vector>` | Logarithimc | Logarithims  | 24 bytes | 0            |
-+-----------------------+-------------------------------------+-------------+--------------+----------+--------------+
-
-
-
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+|  Scheduler Type                                              | Complexity                                           |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+|                        |                                     | Time                       | Space                   |
+|  `SchedulerImpl` Type  |               Method                +-------------+--------------+----------+--------------+
+|                        |                                     | Insert()    | RemoveNext() | Overhead |  Per Event   |
++========================+=====================================+=============+==============+==========+==============+
+| CalendarScheduler      | `<std::list> []`                    | Constant    | Constant     | 24 bytes | 16 bytes     |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+| HeapScheduler          | Heap on `std::vector`               | Logarithmic | Logarithmic  | 24 bytes | 0            |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+| ListScheduler          | `std::list`                         | Linear      | Constant     | 24 bytes | 16 bytes     |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+| MapScheduler           | `st::map`                           | Logarithmic | Constant     | 40 bytes | 32 bytes     |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+
+| PriorityQueueScheduler | `std::priority_queue<,std::vector>` | Logarithimc | Logarithims  | 24 bytes | 0            |
++------------------------+-------------------------------------+-------------+--------------+----------+--------------+

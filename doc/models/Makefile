@@ -98,7 +98,6 @@ SOURCES = \
 	$(SRC)/spectrum/doc/spectrum.rst \
 	$(SRC)/netanim/doc/animation.rst \
 	$(SRC)/flow-monitor/doc/flow-monitor.rst \
-	$(SRC)/wave/doc/wave.rst \
 	$(SRC)/sixlowpan/doc/sixlowpan.rst \
 	$(SRC)/lr-wpan/doc/lr-wpan.rst \
 
@@ -146,6 +145,8 @@ SOURCEFIGS = \
 	$(SRC)/wifi/doc/source/figures/ack-su-format.pdf \
 	$(SRC)/wifi/doc/source/figures/ack-su-format.png \
 	$(SRC)/wifi/doc/source/figures/assoc-manager.eps \
+	$(SRC)/wifi/doc/source/figures/emlsr-dl-txop.eps \
+	$(SRC)/wifi/doc/source/figures/emlsr-ul-txop.eps \
 	$(SRC)/wifi/doc/source/figures/mu-bar.pdf \
 	$(SRC)/wifi/doc/source/figures/mu-bar.png \
 	$(SRC)/wifi/doc/source/figures/aggr-mu-bar.pdf \
@@ -161,6 +162,10 @@ SOURCEFIGS = \
 	$(SRC)/wifi/doc/source/figures/wifi-11g-p-1500-infrastructure-r-6-min-5-max-50-step-5-throughput.eps \
 	$(SRC)/wifi/doc/source/figures/default-table-based-error-model-validation.eps \
 	$(SRC)/wifi/doc/source/figures/error-models-comparison.eps \
+	$(SRC)/wifi/doc/source/figures/spectrum-wifi-phy-multiple-interfaces.pdf \
+	$(SRC)/wifi/doc/source/figures/spectrum-wifi-phy-multiple-interfaces.png \
+	$(SRC)/wifi/doc/source/figures/cca-channel-switching-multiple-interfaces.pdf \
+	$(SRC)/wifi/doc/source/figures/cca-channel-switching-multiple-interfaces.png \
 	$(SRC)/wimax/doc/WimaxArchitecture.dia \
 	$(SRC)/lte/doc/source/figures/epc-ctrl-arch.dia \
 	$(SRC)/lte/doc/source/figures/epc-data-flow-dl.dia \
@@ -343,6 +348,9 @@ SOURCEFIGS = \
 	$(SRC)/spectrum/doc/spectrum-tv-rand-geo-points.eps \
 	$(SRC)/spectrum/doc/spectrum-tv-8vsb.png \
 	$(SRC)/spectrum/doc/spectrum-tv-cofdm.png \
+	$(SRC)/spectrum/doc/two-ray-spectrum-loss-model-3gpp-radiation-pattern.png \
+	$(SRC)/spectrum/doc/two-ray-spectrum-loss-model-iso-radiation-pattern.png \
+	$(SRC)/spectrum/doc/three-gpp-gain-reference-gain-vs-fc.png \
 	$(SRC)/traffic-control/doc/classful-queue-disc.dia \
 	$(SRC)/traffic-control/doc/multi-queue-aware-queue-disc.dia \
 	$(SRC)/traffic-control/doc/figures/collision_prob.jpeg \
@@ -354,7 +362,13 @@ SOURCEFIGS = \
 	$(SRC)/lr-wpan/doc/lr-wpan-primitives.dia \
 	$(SRC)/lr-wpan/doc/802-15-4-ber.eps \
 	$(SRC)/lr-wpan/doc/802-15-4-per-sens.eps \
-	$(SRC)/lr-wpan/doc/802-15-4-psr-distance.eps
+	$(SRC)/lr-wpan/doc/802-15-4-psr-distance.eps \
+	$(SRC)/energy/doc/figures/dischargeCurve.png \
+	$(SRC)/energy/doc/figures/energyFramework.dia \
+	$(SRC)/energy/doc/figures/leadacid.png \
+	$(SRC)/energy/doc/figures/liion.png \
+	$(SRC)/energy/doc/figures/nicd.png \
+	$(SRC)/energy/doc/figures/nimh.png
 
 # specify figures from which .png and .pdf figures need to be
 # generated (all dia and eps figures)
@@ -451,8 +465,11 @@ IMAGES_EPS = \
 	$(FIGURES)/802-15-4-ber.eps \
 	$(FIGURES)/802-15-4-per-sens.eps \
 	$(FIGURES)/802-15-4-psr-distance.eps \
+	$(FIGURES)/energyFramework.eps \
 	$(FIGURES)/clear-channel.eps \
 	$(FIGURES)/assoc-manager.eps \
+	$(FIGURES)/emlsr-dl-txop.eps \
+	$(FIGURES)/emlsr-ul-txop.eps \
 	$(FIGURES)/nist-frame-success-rate.eps \
 	$(FIGURES)/nist-frame-success-rate-n.eps \
 	$(FIGURES)/nist-frame-success-rate-ac.eps \
@@ -532,6 +549,8 @@ $(FIGURES)/nist-frame-success-rate-n.pdf_width = 12cm
 $(FIGURES)/nist-frame-success-rate-ac.pdf_width = 12cm
 $(FIGURES)/nist-frame-success-rate-ax.pdf_width = 12cm
 $(FIGURES)/assoc-manager.pdf_width = 12cm
+$(FIGURES)/emlsr-dl-txop.pdf_width = 12cm
+$(FIGURES)/emlsr-ul-txop.pdf_width = 12cm
 
 IMAGES_PNG = ${IMAGES_EPS:.eps=.png}
 IMAGES_PDF = ${IMAGES_EPS:.eps=.pdf}

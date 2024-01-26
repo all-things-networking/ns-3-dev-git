@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 University of Washington
  *
@@ -80,7 +79,7 @@ GetWildcardMatches(const std::string& configPath,
     tokenStart = 0;
     for (i = 0; i < nonWildcardTokenCount; i++)
     {
-        // Look for the non-wilcard token.
+        // Look for the non-wildcard token.
         token = matchedPath.find(nonWildcardTokens[i], tokenStart);
 
         // Make sure that the token is found.

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  * Copyright (c) 2016 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
@@ -22,6 +21,8 @@
  */
 
 #include "no-op-component-carrier-manager.h"
+
+#include "lte-common.h"
 
 #include <ns3/log.h>
 #include <ns3/random-variable-stream.h>
@@ -80,8 +81,7 @@ void
 NoOpComponentCarrierManager::DoTransmitPdu(LteMacSapProvider::TransmitPduParameters params)
 {
     NS_LOG_FUNCTION(this);
-    std::map<uint8_t, LteMacSapProvider*>::iterator it =
-        m_macSapProvidersMap.find(params.componentCarrierId);
+    auto it = m_macSapProvidersMap.find(params.componentCarrierId);
     NS_ASSERT_MSG(it != m_macSapProvidersMap.end(),
                   "could not find Sap for ComponentCarrier " << params.componentCarrierId);
     // with this algorithm all traffic is on Primary Carrier
@@ -94,8 +94,7 @@ NoOpComponentCarrierManager::DoReportBufferStatus(
 {
     NS_LOG_FUNCTION(this);
     auto ueManager = m_ccmRrcSapUser->GetUeManager(params.rnti);
-    std::map<uint8_t, LteMacSapProvider*>::iterator it =
-        m_macSapProvidersMap.find(ueManager->GetComponentCarrierId());
+    auto it = m_macSapProvidersMap.find(ueManager->GetComponentCarrierId());
     NS_ASSERT_MSG(it != m_macSapProvidersMap.end(), "could not find Sap for ComponentCarrier ");
     it->second->ReportBufferStatus(params);
 }
@@ -137,7 +136,6 @@ void
 NoOpComponentCarrierManager::DoAddUe(uint16_t rnti, uint8_t state)
 {
     NS_LOG_FUNCTION(this << rnti << (uint16_t)state);
-    std::map<uint16_t, uint8_t>::iterator eccIt; // m_enabledComponentCarrier iterator
     auto ueInfoIt = m_ueInfo.find(rnti);
     if (ueInfoIt == m_ueInfo.end())
     {
@@ -206,7 +204,7 @@ NoOpComponentCarrierManager::DoSetupDataRadioBearer(EpsBearer bearer,
         lci.qci = bearer.qci;
         if (ncc == 0)
         {
-            lci.isGbr = bearer.IsGbr();
+            lci.resourceType = bearer.GetResourceType();
             lci.mbrUl = bearer.gbrQosInfo.mbrUl;
             lci.mbrDl = bearer.gbrQosInfo.mbrDl;
             lci.gbrUl = bearer.gbrQosInfo.gbrUl;
@@ -214,7 +212,7 @@ NoOpComponentCarrierManager::DoSetupDataRadioBearer(EpsBearer bearer,
         }
         else
         {
-            lci.isGbr = 0;
+            lci.resourceType = 0;
             lci.mbrUl = 0;
             lci.mbrDl = 0;
             lci.gbrUl = 0;
@@ -235,7 +233,7 @@ NoOpComponentCarrierManager::DoSetupDataRadioBearer(EpsBearer bearer,
         lcinfo.lcId = lcid;
         lcinfo.lcGroup = lcGroup;
         lcinfo.qci = bearer.qci;
-        lcinfo.isGbr = bearer.IsGbr();
+        lcinfo.resourceType = bearer.GetResourceType();
         lcinfo.mbrUl = bearer.gbrQosInfo.mbrUl;
         lcinfo.mbrDl = bearer.gbrQosInfo.mbrDl;
         lcinfo.gbrUl = bearer.gbrQosInfo.gbrUl;
@@ -476,7 +474,7 @@ RrComponentCarrierManager::DoUlReceiveMacCe(MacCeListElement_s bsr, uint8_t comp
 }
 
 void
-RrComponentCarrierManager::DoUlReceiveSr(uint16_t rnti, [[maybe_unused]] uint8_t componentCarrierId)
+RrComponentCarrierManager::DoUlReceiveSr(uint16_t rnti, uint8_t /* componentCarrierId */)
 {
     NS_LOG_FUNCTION(this);
     // split traffic in uplink equally among carriers

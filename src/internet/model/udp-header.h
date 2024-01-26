@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -41,14 +40,6 @@ namespace ns3
 class UdpHeader : public Header
 {
   public:
-    /**
-     * \brief Constructor
-     *
-     * Creates a null header
-     */
-    UdpHeader();
-    ~UdpHeader() override;
-
     /**
      * \brief Enable checksum calculation for UDP
      */
@@ -159,7 +150,7 @@ class UdpHeader : public Header
      * \brief Return the checksum (only known after a Deserialize)
      * \return The checksum for this UdpHeader
      */
-    uint16_t GetChecksum();
+    uint16_t GetChecksum() const;
 
   private:
     /**
@@ -168,16 +159,21 @@ class UdpHeader : public Header
      * \returns the checksum
      */
     uint16_t CalculateHeaderChecksum(uint16_t size) const;
-    uint16_t m_sourcePort;      //!< Source port
-    uint16_t m_destinationPort; //!< Destination port
-    uint16_t m_payloadSize;     //!< Payload size
 
-    Address m_source;      //!< Source IP address
-    Address m_destination; //!< Destination IP address
-    uint8_t m_protocol;    //!< Protocol number
-    uint16_t m_checksum;   //!< Forced Checksum value
-    bool m_calcChecksum;   //!< Flag to calculate checksum
-    bool m_goodChecksum;   //!< Flag to indicate that checksum is correct
+    // The magic values below are used only for debugging.
+    // They can be used to easily detect memory corruption
+    // problems so you can see the patterns in memory.
+    uint16_t m_sourcePort{0xfffd};      //!< Source port
+    uint16_t m_destinationPort{0xfffd}; //!< Destination port
+    uint16_t m_payloadSize{0};          //!< Payload size
+    uint16_t m_forcedPayloadSize{0};    //!< Payload size (forced)
+
+    Address m_source;           //!< Source IP address
+    Address m_destination;      //!< Destination IP address
+    uint8_t m_protocol{17};     //!< Protocol number
+    uint16_t m_checksum{0};     //!< Forced Checksum value
+    bool m_calcChecksum{false}; //!< Flag to calculate checksum
+    bool m_goodChecksum{true};  //!< Flag to indicate that checksum is correct
 };
 
 } // namespace ns3

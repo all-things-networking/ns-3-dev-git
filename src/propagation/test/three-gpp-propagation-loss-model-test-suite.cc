@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -64,14 +63,14 @@ class ThreeGppRmaPropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -227,14 +226,14 @@ class ThreeGppUmaPropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -390,14 +389,14 @@ class ThreeGppUmiPropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -547,14 +546,14 @@ class ThreeGppIndoorOfficePropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -721,14 +720,14 @@ class ThreeGppV2vUrbanPropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS/NLOSv, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -880,14 +879,14 @@ class ThreeGppV2vHighwayPropagationLossModelTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         double m_distance;  //!< 2D distance between UT and BS in meters
         bool m_isLos;       //!< if true LOS/NLOSv, if false NLOS
         double m_frequency; //!< carrier frequency in Hz
         double m_pt;        //!< transmitted power in dBm
         double m_pr;        //!< received power in dBm
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors; //!< array containing all the test vectors
     double m_tolerance;                    //!< tolerance
@@ -1021,7 +1020,7 @@ class ThreeGppShadowingTestCase : public TestCase
      *        to be used
      * \param hBs the BS height in meters
      * \param hUt the UT height in meters
-     * \param distance the intial distance between the BS and the UT
+     * \param distance the initial distance between the BS and the UT
      * \param shadowingEnabled true if shadowging must be enabled
      */
     void RunTest(uint16_t testNum,
@@ -1048,7 +1047,7 @@ class ThreeGppShadowingTestCase : public TestCase
     /**
      * Struct containing the parameters for each test
      */
-    typedef struct
+    struct TestVector
     {
         std::string m_propagationLossModelType; //!< the propagation loss model type id
         double m_hBs;                           //!< the BS height in meters
@@ -1058,7 +1057,7 @@ class ThreeGppShadowingTestCase : public TestCase
                                   //!< case in dB
         double m_shadowingStdNlos; //!< the standard deviation of the shadowing component in the
                                    //!< NLOS case in dB
-    } TestVector;
+    };
 
     TestVectors<TestVector> m_testVectors;         //!< array containing all the test vectors
     Ptr<ThreeGppPropagationLossModel> m_lossModel; //!< the propagation loss model

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -146,7 +145,7 @@ UanHeaderCommon::GetProtocolNumber() const
     return 0;
 }
 
-// Inherrited methods
+// Inherited methods
 
 uint32_t
 UanHeaderCommon::GetSerializedSize() const

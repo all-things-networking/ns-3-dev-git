@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
@@ -51,12 +50,12 @@ class SixlowpanIphcStatefulImplTest : public TestCase
     /**
      * \brief Structure to hold the Rx/Tx packets.
      */
-    typedef struct
+    struct Data
     {
         Ptr<Packet> packet; /**< Packet data */
         Address src;        /**< Source address */
         Address dst;        /**< Destination address */
-    } Data;
+    };
 
     std::vector<Data> m_txPackets; //!< Transmitted packets
     std::vector<Data> m_rxPackets; //!< Received packets

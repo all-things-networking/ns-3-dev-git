@@ -15,6 +15,19 @@
 #
 # Author: Gabriel Ferreira <gabrielcarvfer@gmail.com>
 
+# Set RPATH not too need LD_LIBRARY_PATH after installing. Add the lib64 variant
+# to support all platforms, such as alma linux, used to build the manylinux pip
+# wheel.
+set(CMAKE_INSTALL_RPATH
+    "${CMAKE_INSTALL_PREFIX}/lib:$ORIGIN/:$ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib64:$ORIGIN/:$ORIGIN/../lib64"
+)
+
+# cmake-format: off
+# You are a wizard, Harry!
+# source: https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+# cmake-format: on
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 function(build_required_and_libs_lists module_name visibility libraries
          all_ns3_libraries
 )
@@ -29,7 +42,7 @@ function(build_required_and_libs_lists module_name visibility libraries
       )
       set(lib_real_name "-l${lib_real_name}")
     else()
-      if(IS_ABSOLUTE ${lib})
+      if((IS_ABSOLUTE "${lib}") OR ("${lib}" MATCHES "^-l"))
         set(lib_real_name ${lib})
       else()
         set(lib_real_name "-l${lib}")
@@ -86,6 +99,9 @@ function(pkgconfig_module libname)
                    "${pkgconfig_interface_include_directories}"
     )
     string(REPLACE ";-I" " -I" pkgconfig_interface_include_directories
+                   "${pkgconfig_interface_include_directories}"
+    )
+    string(REPLACE ";" "" pkgconfig_interface_include_directories
                    "${pkgconfig_interface_include_directories}"
     )
   endif()

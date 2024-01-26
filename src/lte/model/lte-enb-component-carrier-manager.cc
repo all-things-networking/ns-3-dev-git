@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -20,6 +19,8 @@
  */
 
 #include "lte-enb-component-carrier-manager.h"
+
+#include "lte-common.h"
 
 #include <ns3/log.h>
 
@@ -83,8 +84,7 @@ LteEnbComponentCarrierManager::SetMacSapProvider(uint8_t componentCarrierId, Lte
 {
     NS_LOG_FUNCTION(this);
     bool res = false;
-    std::map<uint8_t, LteMacSapProvider*>::iterator it =
-        m_macSapProvidersMap.find(componentCarrierId);
+    auto it = m_macSapProvidersMap.find(componentCarrierId);
     if ((uint16_t)componentCarrierId > m_noOfComponentCarriers)
     {
         NS_FATAL_ERROR("Inconsistent componentCarrierId or you didn't call "
@@ -109,8 +109,7 @@ LteEnbComponentCarrierManager::SetCcmMacSapProviders(uint8_t componentCarrierId,
 {
     NS_LOG_FUNCTION(this);
     bool res = false;
-    std::map<uint8_t, LteCcmMacSapProvider*>::iterator it =
-        m_ccmMacSapProviderMap.find(componentCarrierId);
+    auto it = m_ccmMacSapProviderMap.find(componentCarrierId);
 
     if (it == m_ccmMacSapProviderMap.end())
     {

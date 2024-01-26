@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -117,7 +116,7 @@ main(int argc, char* argv[])
     // assign addresses to them as well.  We put all of the fill devices into
     // a single device container, so the first nFill devices are associated
     // with the channel connected to spokeDevices.Get (0), the second nFill
-    // devices afe associated with the channel connected to spokeDevices.Get (1)
+    // devices are associated with the channel connected to spokeDevices.Get (1)
     // etc.
     //
     Ipv4AddressHelper address;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 University of Washington
  *
@@ -26,6 +25,14 @@
 // The test consists of a device acting as server and a device as client generating traffic.
 //
 // The output consists of a plot of the rate observed and selected at the client device.
+// A special FixedRss propagation loss model is used to set a specific receive
+// power on the receiver.  The noise power is exclusively the thermal noise
+// for the channel bandwidth (no noise figure is configured).  Furthermore,
+// the CCA sensitivity attribute in WifiPhy can prevent signals from being
+// received even though the error model would permit it.  Therefore, for
+// the purpose of this example, the CCA sensitivity is lowered to a value
+// that disables it, and furthermore, the preamble detection model (which
+// also contains a similar threshold) is disabled.
 //
 // By default, the 802.11a standard using IdealWifiManager is plotted. Several command line
 // arguments can change the following options:
@@ -204,7 +211,7 @@ main(int argc, char* argv[])
     double stepSize = 1;        // dBm
     double stepTime = 1;        // seconds
     uint32_t packetSize = 1024; // bytes
-    bool broadcast = 0;
+    bool broadcast = false;
     int ap1_x = 0;
     int ap1_y = 0;
     int sta1_x = 5;
@@ -270,7 +277,7 @@ main(int argc, char* argv[])
     std::cout << "Run 'wifi-manager-example --PrintHelp' to show program options." << std::endl
               << std::endl;
 
-    if (infrastructure == false)
+    if (!infrastructure)
     {
         NS_ABORT_MSG_IF(serverNss != clientNss,
                         "In ad hoc mode, we assume sender and receiver are similarly configured");
@@ -282,14 +289,14 @@ main(int argc, char* argv[])
         {
             serverChannelWidth = GetDefaultChannelWidth(WIFI_STANDARD_80211b, WIFI_PHY_BAND_2_4GHZ);
         }
-        NS_ABORT_MSG_IF(serverChannelWidth != 22 && serverChannelWidth != 22,
+        NS_ABORT_MSG_IF(serverChannelWidth != 22,
                         "Invalid channel width for standard " << standard);
         NS_ABORT_MSG_IF(serverNss != 1, "Invalid nss for standard " << standard);
         if (clientChannelWidth == 0)
         {
             clientChannelWidth = GetDefaultChannelWidth(WIFI_STANDARD_80211b, WIFI_PHY_BAND_2_4GHZ);
         }
-        NS_ABORT_MSG_IF(clientChannelWidth != 22 && clientChannelWidth != 22,
+        NS_ABORT_MSG_IF(clientChannelWidth != 22,
                         "Invalid channel width for standard " << standard);
         NS_ABORT_MSG_IF(clientNss != 1, "Invalid nss for standard " << standard);
     }
@@ -585,7 +592,7 @@ main(int argc, char* argv[])
     }
     plotName += ".eps";
     dataName += ".plt";
-    std::ofstream outfile(dataName.c_str());
+    std::ofstream outfile(dataName);
     Gnuplot gnuplot = Gnuplot(plotName);
 
     Config::SetDefault("ns3::WifiRemoteStationManager::MaxSlrc", UintegerValue(maxSlrc));
@@ -594,9 +601,24 @@ main(int argc, char* argv[])
     Config::SetDefault("ns3::MinstrelWifiManager::PrintSamples", BooleanValue(true));
     Config::SetDefault("ns3::MinstrelHtWifiManager::PrintStats", BooleanValue(true));
 
+    // Disable the default noise figure of 7 dBm in WifiPhy; the calculations
+    // of SNR below assume that the only noise is thermal noise
+    Config::SetDefault("ns3::WifiPhy::RxNoiseFigure", DoubleValue(0));
+
+    // By default, the CCA sensitivity is -82 dBm, meaning if the RSS is
+    // below this value, the receiver will reject the Wi-Fi frame.
+    // However, we want to probe the error model down to low SNR values,
+    // and we have disabled the noise figure, so the noise level in 20 MHz
+    // will be about -101 dBm.  Therefore, lower the CCA sensitivity to a
+    // value that disables it (e.g. -110 dBm)
+    Config::SetDefault("ns3::WifiPhy::CcaSensitivity", DoubleValue(-110));
+
     WifiHelper wifi;
     wifi.SetStandard(serverSelectedStandard.m_standard);
     YansWifiPhyHelper wifiPhy;
+    // Disable the preamble detection model for the same reason that we
+    // disabled CCA sensitivity above-- we want to enable reception at low SNR
+    wifiPhy.DisablePreambleDetectionModel();
 
     Ptr<YansWifiChannel> wifiChannel = CreateObject<YansWifiChannel>();
     Ptr<ConstantSpeedPropagationDelayModel> delayModel =
@@ -692,8 +714,8 @@ main(int argc, char* argv[])
     Ptr<WifiNetDevice> wndServer = ndServer->GetObject<WifiNetDevice>();
     Ptr<WifiPhy> wifiPhyPtrClient = wndClient->GetPhy();
     Ptr<WifiPhy> wifiPhyPtrServer = wndServer->GetPhy();
-    uint8_t t_clientNss = static_cast<uint8_t>(clientNss);
-    uint8_t t_serverNss = static_cast<uint8_t>(serverNss);
+    auto t_clientNss = static_cast<uint8_t>(clientNss);
+    auto t_serverNss = static_cast<uint8_t>(serverNss);
     wifiPhyPtrClient->SetNumberOfAntennas(t_clientNss);
     wifiPhyPtrClient->SetMaxSupportedTxSpatialStreams(t_clientNss);
     wifiPhyPtrClient->SetMaxSupportedRxSpatialStreams(t_clientNss);

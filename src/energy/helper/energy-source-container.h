@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
@@ -64,7 +63,7 @@ class EnergySourceContainer : public Object
     /**
      * \param source Pointer to an EnergySource.
      *
-     * Creates an EnergySourceContianer with exactly one EnergySource previously
+     * Creates an EnergySourceContainer with exactly one EnergySource previously
      * instantiated.
      */
     EnergySourceContainer(Ptr<EnergySource> source);

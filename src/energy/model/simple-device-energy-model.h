@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
@@ -21,7 +20,8 @@
 #ifndef SIMPLE_DEVICE_ENERGY_MODEL_H
 #define SIMPLE_DEVICE_ENERGY_MODEL_H
 
-#include "ns3/device-energy-model.h"
+#include "device-energy-model.h"
+
 #include "ns3/nstime.h"
 #include "ns3/traced-value.h"
 
@@ -66,7 +66,7 @@ class SimpleDeviceEnergyModel : public DeviceEnergyModel
     virtual Ptr<Node> GetNode() const;
 
     /**
-     * \brief Sets pointer to EnergySouce installed on node.
+     * \brief Sets pointer to EnergySource installed on node.
      *
      * \param source Pointer to EnergySource installed on node.
      *

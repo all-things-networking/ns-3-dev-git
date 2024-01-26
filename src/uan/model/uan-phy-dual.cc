@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -80,7 +79,7 @@ UanPhyCalcSinrDual::CalcSinrDb(Ptr<Packet> pkt,
     }
 
     double intKp = -DbToKp(rxPowerDb); // This packet is in the arrivalList
-    UanTransducer::ArrivalList::const_iterator it = arrivalList.begin();
+    auto it = arrivalList.begin();
     for (; it != arrivalList.end(); it++)
     {
         // Only count interference if there is overlap in incoming frequency
@@ -238,7 +237,7 @@ UanPhyDual::GetTypeId()
                             MakeTraceSourceAccessor(&UanPhyDual::m_rxOkLogger),
                             "ns3::UanPhy::TracedCallback")
             .AddTraceSource("RxError",
-                            "A packet was received unsuccessfully.",
+                            "A packet was received unsuccessfuly.",
                             MakeTraceSourceAccessor(&UanPhyDual::m_rxErrLogger),
                             "ns3::UanPhy::TracedCallback")
             .AddTraceSource("Tx",
@@ -295,10 +294,10 @@ UanPhyDual::RegisterListener(UanPhyListener* listener)
 }
 
 void
-UanPhyDual::StartRxPacket(Ptr<Packet> pkt,
-                          [[maybe_unused]] double rxPowerDb,
-                          UanTxMode txMode,
-                          UanPdp pdp)
+UanPhyDual::StartRxPacket(Ptr<Packet> /* pkt */,
+                          double /* rxPowerDb */,
+                          UanTxMode /* txMode */,
+                          UanPdp /* pdp */)
 {
     // Not called.  StartRxPacket in m_phy1 and m_phy2 are called directly from Transducer.
 }
@@ -524,9 +523,9 @@ UanPhyDual::SetMac(Ptr<UanMac> mac)
 }
 
 void
-UanPhyDual::NotifyTransStartTx(Ptr<Packet> packet,
-                               [[maybe_unused]] double txPowerDb,
-                               UanTxMode txMode)
+UanPhyDual::NotifyTransStartTx(Ptr<Packet> /* packet */,
+                               double /* txPowerDb */,
+                               UanTxMode /* txMode */)
 {
 }
 

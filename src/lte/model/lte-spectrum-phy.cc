@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009, 2011 CTTC
  *
@@ -23,8 +22,8 @@
 #include "lte-spectrum-phy.h"
 
 #include "lte-chunk-processor.h"
-#include "lte-net-device.h"
-#include "lte-phy-tag.h"
+#include "lte-control-messages.h"
+#include "lte-mi-error-model.h"
 #include "lte-radio-bearer-tag.h"
 #include "lte-spectrum-signal-parameters.h"
 
@@ -33,8 +32,6 @@
 #include <ns3/config.h>
 #include <ns3/double.h>
 #include <ns3/log.h>
-#include <ns3/lte-mi-error-model.h>
-#include <ns3/lte-radio-bearer-tag.h>
 #include <ns3/object-factory.h>
 #include <ns3/simulator.h>
 #include <ns3/trace-source-accessor.h>
@@ -57,7 +54,8 @@ static const Time DL_CTRL_DURATION = NanoSeconds(214286 - 1);
 /// Effective coding rate
 static const double EffectiveCodingRate[29] = {
     0.08, 0.1, 0.11, 0.15, 0.19, 0.24, 0.3, 0.37, 0.44, 0.51, 0.3, 0.33, 0.37, 0.42, 0.48,
-    0.54, 0.6, 0.43, 0.45, 0.5,  0.55, 0.6, 0.65, 0.7,  0.75, 0.8, 0.85, 0.89, 0.92};
+    0.54, 0.6, 0.43, 0.45, 0.5,  0.55, 0.6, 0.65, 0.7,  0.75, 0.8, 0.85, 0.89, 0.92,
+};
 
 TbId_t::TbId_t()
 {
@@ -458,12 +456,10 @@ LteSpectrumPhy::StartTxDataFrame(Ptr<PacketBurst> pb,
         m_endTxEvent = Simulator::Schedule(duration, &LteSpectrumPhy::EndTxData, this);
     }
         return false;
-        break;
 
     default:
         NS_FATAL_ERROR("unknown state");
         return true;
-        break;
     }
 }
 
@@ -516,12 +512,10 @@ LteSpectrumPhy::StartTxDlCtrlFrame(std::list<Ptr<LteControlMessage>> ctrlMsgList
         m_endTxEvent = Simulator::Schedule(DL_CTRL_DURATION, &LteSpectrumPhy::EndTxDlCtrl, this);
     }
         return false;
-        break;
 
     default:
         NS_FATAL_ERROR("unknown state");
         return true;
-        break;
     }
 }
 
@@ -572,12 +566,10 @@ LteSpectrumPhy::StartTxUlSrsFrame()
         m_endTxEvent = Simulator::Schedule(UL_SRS_DURATION, &LteSpectrumPhy::EndTxUlSrs, this);
     }
         return false;
-        break;
 
     default:
         NS_FATAL_ERROR("unknown state");
         return true;
-        break;
     }
 }
 
@@ -764,7 +756,7 @@ LteSpectrumPhy::StartRxDlCtrl(Ptr<LteSpectrumSignalParametersDlCtrlFrame> lteDlC
 
         // common code for the two states
         // check presence of PSS for UE measuerements
-        if (lteDlCtrlRxParams->pss == true)
+        if (lteDlCtrlRxParams->pss)
         {
             if (!m_ltePhyRxPssCallback.IsNull())
             {
@@ -919,11 +911,10 @@ LteSpectrumPhy::AddExpectedTb(uint16_t rnti,
     TbId_t tbId;
     tbId.m_rnti = rnti;
     tbId.m_layer = layer;
-    expectedTbs_t::iterator it;
-    it = m_expectedTbs.find(tbId);
+    auto it = m_expectedTbs.find(tbId);
     if (it != m_expectedTbs.end())
     {
-        // migth be a TB of an unreceived packet (due to high progpalosses)
+        // might be a TB of an unreceived packet (due to high propagation losses)
         m_expectedTbs.erase(it);
     }
     // insert new entry
@@ -941,8 +932,7 @@ LteSpectrumPhy::RemoveExpectedTb(uint16_t rnti)
     for (uint8_t i = 0; i < 2; i++)
     {
         tbId.m_layer = i;
-        expectedTbs_t::iterator it;
-        it = m_expectedTbs.find(tbId);
+        auto it = m_expectedTbs.find(tbId);
         if (it != m_expectedTbs.end())
         {
             m_expectedTbs.erase(it);
@@ -963,7 +953,7 @@ LteSpectrumPhy::EndRxData()
     m_interferenceData->EndRx();
     NS_LOG_DEBUG(this << " No. of burts " << m_rxPacketBurstList.size());
     NS_LOG_DEBUG(this << " Expected TBs " << m_expectedTbs.size());
-    expectedTbs_t::iterator itTb = m_expectedTbs.begin();
+    auto itTb = m_expectedTbs.begin();
 
     // apply transmission mode gain
     NS_LOG_DEBUG(this << " txMode " << (uint16_t)m_transmissionMode << " gain "
@@ -973,9 +963,9 @@ LteSpectrumPhy::EndRxData()
 
     while (itTb != m_expectedTbs.end())
     {
-        if ((m_dataErrorModelEnabled) &&
-            (m_rxPacketBurstList.size() >
-             0)) // avoid to check for errors when there is no actual data transmitted
+        if (m_dataErrorModelEnabled &&
+            !m_rxPacketBurstList
+                 .empty()) // avoid to check for errors when there is no actual data transmitted
         {
             // retrieve HARQ info
             HarqProcessInfoList_t harqInfoList;
@@ -1037,11 +1027,9 @@ LteSpectrumPhy::EndRxData()
         itTb++;
     }
     std::map<uint16_t, DlInfoListElement_s> harqDlInfoMap;
-    for (std::list<Ptr<PacketBurst>>::const_iterator i = m_rxPacketBurstList.begin();
-         i != m_rxPacketBurstList.end();
-         ++i)
+    for (auto i = m_rxPacketBurstList.begin(); i != m_rxPacketBurstList.end(); ++i)
     {
-        for (std::list<Ptr<Packet>>::const_iterator j = (*i)->Begin(); j != (*i)->End(); ++j)
+        for (auto j = (*i)->Begin(); j != (*i)->End(); ++j)
         {
             // retrieve TB info of this packet
             LteRadioBearerTag tag;
@@ -1102,8 +1090,7 @@ LteSpectrumPhy::EndRxData()
                     }
                     else
                     {
-                        std::map<uint16_t, DlInfoListElement_s>::iterator itHarq =
-                            harqDlInfoMap.find(tbId.m_rnti);
+                        auto itHarq = harqDlInfoMap.find(tbId.m_rnti);
                         if (itHarq == harqDlInfoMap.end())
                         {
                             DlInfoListElement_s harqDlInfo;
@@ -1178,8 +1165,7 @@ LteSpectrumPhy::EndRxData()
     }
 
     // send DL HARQ feedback to LtePhy
-    std::map<uint16_t, DlInfoListElement_s>::iterator itHarq;
-    for (itHarq = harqDlInfoMap.begin(); itHarq != harqDlInfoMap.end(); itHarq++)
+    for (auto itHarq = harqDlInfoMap.begin(); itHarq != harqDlInfoMap.end(); itHarq++)
     {
         if (!m_ltePhyDlHarqFeedbackCallback.IsNull())
         {

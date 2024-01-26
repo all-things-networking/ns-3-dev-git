@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
@@ -27,8 +26,8 @@
 #ifndef TCPYEAH_H
 #define TCPYEAH_H
 
-#include "ns3/tcp-recovery-ops.h"
-#include "ns3/tcp-scalable.h"
+#include "tcp-recovery-ops.h"
+#include "tcp-scalable.h"
 
 namespace ns3
 {

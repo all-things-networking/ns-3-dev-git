@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
@@ -21,9 +20,10 @@
 #ifndef RIPNG_HEADER_H
 #define RIPNG_HEADER_H
 
+#include "ipv6-header.h"
+
 #include "ns3/header.h"
 #include "ns3/ipv6-address.h"
-#include "ns3/ipv6-header.h"
 #include "ns3/packet.h"
 
 #include <list>

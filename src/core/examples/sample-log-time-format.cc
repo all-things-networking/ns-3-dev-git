@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -90,6 +89,8 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
 
+#include <map>
+
 using namespace ns3;
 
 namespace
@@ -127,10 +128,12 @@ main(int argc, char* argv[])
     LogComponentEnable("RandomVariableStream", LOG_LEVEL_ALL);
     LogComponentEnableAll(LOG_PREFIX_TIME);
 
-    std::map<std::string, Time::Unit> resolutionMap = {{"Time::US", Time::US},
-                                                       {"Time::NS", Time::NS},
-                                                       {"Time::PS", Time::PS},
-                                                       {"Time::FS", Time::FS}};
+    std::map<std::string, Time::Unit> resolutionMap = {
+        {"Time::US", Time::US},
+        {"Time::NS", Time::NS},
+        {"Time::PS", Time::PS},
+        {"Time::FS", Time::FS},
+    };
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("replaceTimePrinter", "replace time printing function", replaceTimePrinter);
@@ -163,4 +166,6 @@ main(int argc, char* argv[])
 
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

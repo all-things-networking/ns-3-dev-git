@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
  *
@@ -37,7 +36,6 @@ NS_LOG_COMPONENT_DEFINE("TcpHtcpTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Testing the congestion avoidance increment on TcpHtcp
  */
@@ -149,7 +147,6 @@ TcpHtcpIncrementTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Htcp TestSuite.
  *

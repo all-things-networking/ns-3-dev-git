@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *               2016 Stefano Avallone <stavallo@unina.it>
@@ -37,8 +36,10 @@ class QueueDisc;
 class NetDeviceQueueInterface;
 
 /**
- * \defgroup traffic-control
- *
+ * \defgroup traffic-control Traffic Control model
+ */
+
+/**
  * The Traffic Control layer aims at introducing an equivalent of the Linux Traffic
  * Control infrastructure into ns-3. The Traffic Control layer sits in between
  * the NetDevices (L2) and any network protocol (e.g., IP). It is in charge of
@@ -233,7 +234,7 @@ class TrafficControlLayer : public Object
     };
 
     /// Typedef for protocol handlers container
-    typedef std::vector<struct ProtocolHandlerEntry> ProtocolHandlerList;
+    typedef std::vector<ProtocolHandlerEntry> ProtocolHandlerList;
 
     /**
      * \brief Required by the object map accessor

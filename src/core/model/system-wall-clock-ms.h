@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -31,21 +30,6 @@
 
 namespace ns3
 {
-
-/**
- * \ingroup core
- * \defgroup system System Services
- *
- * System-independent interfaces to operating system services:
- * files system, threading, wall clock time.
- *
- * Services provided:
- *
- *   - File and directory paths.
- *   - Thread primitives:  threads, conditional waits, mutex, critical sections.
- *   - Asynchronous input from a file descriptor.
- *   - Wall clock time.
- */
 
 /**
  * \ingroup system

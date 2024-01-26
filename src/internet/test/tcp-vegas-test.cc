@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
@@ -203,7 +202,6 @@ TcpVegasTest::GetSsThresh(Ptr<TcpVegas> cong)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Vegas TestSuite
  */

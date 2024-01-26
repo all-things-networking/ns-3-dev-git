@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 INRIA, 2010 NICTA
  *
@@ -69,7 +68,7 @@
     {                                                                                              \
         if (!(condition))                                                                          \
         {                                                                                          \
-            std::cerr << "assert failed. cond=\"" << #condition << "\", ";                         \
+            std::cerr << "NS_ASSERT failed, cond=\"" << #condition << "\", ";                      \
             NS_FATAL_ERROR_NO_MSG();                                                               \
         }                                                                                          \
     } while (false)
@@ -89,12 +88,16 @@
     {                                                                                              \
         if (!(condition))                                                                          \
         {                                                                                          \
-            std::cerr << "assert failed. cond=\"" << #condition << "\", ";                         \
+            std::cerr << "NS_ASSERT failed, cond=\"" << #condition << "\", ";                      \
             NS_FATAL_ERROR(message);                                                               \
         }                                                                                          \
     } while (false)
 
 #else /* NS3_ASSERT_ENABLE */
+
+// NOTE: The no-op macros are not inserted into the final code.
+// However, the use of sizeof() allows the compiler to silently check if the condition is
+// syntactically valid.
 
 #define NS_ASSERT(condition)                                                                       \
     do                                                                                             \

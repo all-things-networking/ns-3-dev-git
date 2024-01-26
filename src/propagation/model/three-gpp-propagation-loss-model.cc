@@ -1,4 +1,3 @@
-﻿/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -19,8 +18,9 @@
 
 #include "three-gpp-propagation-loss-model.h"
 
+#include "channel-condition-model.h"
+
 #include "ns3/boolean.h"
-#include "ns3/channel-condition-model.h"
 #include "ns3/double.h"
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
@@ -145,6 +145,12 @@ ThreeGppPropagationLossModel::GetFrequency() const
     return m_frequency;
 }
 
+bool
+ThreeGppPropagationLossModel::IsO2iLowPenetrationLoss(Ptr<const ChannelCondition> cond) const
+{
+    return DoIsO2iLowPenetrationLoss(cond);
+}
+
 double
 ThreeGppPropagationLossModel::DoCalcRxPower(double txPowerDbm,
                                             Ptr<MobilityModel> a,
@@ -180,17 +186,26 @@ ThreeGppPropagationLossModel::DoCalcRxPower(double txPowerDbm,
     if (cond->GetO2iCondition() == ChannelCondition::O2iConditionValue::O2I &&
         m_buildingPenLossesEnabled)
     {
-        if (cond->GetO2iLowHighCondition() == ChannelCondition::O2iLowHighConditionValue::LOW)
+        if (IsO2iLowPenetrationLoss(cond))
         {
             rxPow -= GetO2iLowPenetrationLoss(a, b, cond->GetLosCondition());
         }
-        else if (cond->GetO2iLowHighCondition() == ChannelCondition::O2iLowHighConditionValue::HIGH)
+        else
         {
             rxPow -= GetO2iHighPenetrationLoss(a, b, cond->GetLosCondition());
         }
+    }
+    else if (cond->GetO2iCondition() == ChannelCondition::O2iConditionValue::I2I &&
+             cond->GetLosCondition() == ChannelCondition::LosConditionValue::NLOS &&
+             m_buildingPenLossesEnabled)
+    {
+        if (IsO2iLowPenetrationLoss(cond))
+        {
+            rxPow -= GetO2iLowPenetrationLoss(a, b, cond->GetLosCondition());
+        }
         else
         {
-            NS_ABORT_MSG("If we have set the O2I condition, we shouldn't be here");
+            rxPow -= GetO2iHighPenetrationLoss(a, b, cond->GetLosCondition());
         }
     }
 
@@ -367,6 +382,23 @@ ThreeGppPropagationLossModel::GetO2iHighPenetrationLoss(
     it->second.m_condition = cond;
 
     return o2iLossValue;
+}
+
+bool
+ThreeGppPropagationLossModel::DoIsO2iLowPenetrationLoss(Ptr<const ChannelCondition> cond) const
+{
+    if (cond->GetO2iLowHighCondition() == ChannelCondition::O2iLowHighConditionValue::LOW)
+    {
+        return true;
+    }
+    else if (cond->GetO2iLowHighCondition() == ChannelCondition::O2iLowHighConditionValue::HIGH)
+    {
+        return false;
+    }
+    else
+    {
+        NS_ABORT_MSG("If we have set the O2I condition, we shouldn't be here");
+    }
 }
 
 double
@@ -548,6 +580,15 @@ ThreeGppRmaPropagationLossModel::GetO2iDistance2dIn() const
     return std::min(m_randomO2iVar1->GetValue(0, 10), m_randomO2iVar2->GetValue(0, 10));
 }
 
+bool
+ThreeGppRmaPropagationLossModel::DoIsO2iLowPenetrationLoss(Ptr<const ChannelCondition> cond
+                                                           [[maybe_unused]]) const
+{
+    // Based on 3GPP 38.901 7.4.3.1 in RMa only low losses are applied.
+    // Therefore enforce low losses.
+    return true;
+}
+
 double
 ThreeGppRmaPropagationLossModel::GetLossLos(double distance2D,
                                             double distance3D,
@@ -727,10 +768,7 @@ ThreeGppRmaPropagationLossModel::GetShadowingCorrelationDistance(
 }
 
 double
-ThreeGppRmaPropagationLossModel::Pl1(double frequency,
-                                     double distance3D,
-                                     double h,
-                                     [[maybe_unused]] double w)
+ThreeGppRmaPropagationLossModel::Pl1(double frequency, double distance3D, double h, double /* w */)
 {
     double loss = 20.0 * log10(40.0 * M_PI * distance3D * frequency / 1e9 / 3.0) +
                   std::min(0.03 * pow(h, 1.72), 10.0) * log10(distance3D) -
@@ -926,8 +964,8 @@ ThreeGppUmaPropagationLossModel::GetLossNlos(double distance2D,
 }
 
 double
-ThreeGppUmaPropagationLossModel::GetShadowingStd([[maybe_unused]] Ptr<MobilityModel> a,
-                                                 [[maybe_unused]] Ptr<MobilityModel> b,
+ThreeGppUmaPropagationLossModel::GetShadowingStd(Ptr<MobilityModel> /* a */,
+                                                 Ptr<MobilityModel> /* b */,
                                                  ChannelCondition::LosConditionValue cond) const
 {
     NS_LOG_FUNCTION(this);
@@ -1014,7 +1052,7 @@ ThreeGppUmiStreetCanyonPropagationLossModel::~ThreeGppUmiStreetCanyonPropagation
 double
 ThreeGppUmiStreetCanyonPropagationLossModel::GetBpDistance(double hUt,
                                                            double hBs,
-                                                           [[maybe_unused]] double distance2D) const
+                                                           double /* distance2D */) const
 {
     NS_LOG_FUNCTION(this);
 
@@ -1167,7 +1205,7 @@ ThreeGppUmiStreetCanyonPropagationLossModel::GetUtAndBsHeights(double za, double
         // We cannot know who is the BS and who is the UT, we assume that the
         // tallest node is the BS and the smallest is the UT
         hBs = std::max(za, zb);
-        hUt = std::min(za, za);
+        hUt = std::min(za, zb);
     }
 
     return std::pair<double, double>(hUt, hBs);
@@ -1175,8 +1213,8 @@ ThreeGppUmiStreetCanyonPropagationLossModel::GetUtAndBsHeights(double za, double
 
 double
 ThreeGppUmiStreetCanyonPropagationLossModel::GetShadowingStd(
-    [[maybe_unused]] Ptr<MobilityModel> a,
-    [[maybe_unused]] Ptr<MobilityModel> b,
+    Ptr<MobilityModel> /* a */,
+    Ptr<MobilityModel> /* b */,
     ChannelCondition::LosConditionValue cond) const
 {
     NS_LOG_FUNCTION(this);
@@ -1257,10 +1295,10 @@ ThreeGppIndoorOfficePropagationLossModel::GetO2iDistance2dIn() const
 }
 
 double
-ThreeGppIndoorOfficePropagationLossModel::GetLossLos([[maybe_unused]] double distance2D,
-                                                     [[maybe_unused]] double distance3D,
-                                                     [[maybe_unused]] double hUt,
-                                                     [[maybe_unused]] double hBs) const
+ThreeGppIndoorOfficePropagationLossModel::GetLossLos(double /* distance2D */,
+                                                     double distance3D,
+                                                     double /* hUt */,
+                                                     double /* hBs */) const
 {
     NS_LOG_FUNCTION(this);
 
@@ -1307,8 +1345,8 @@ ThreeGppIndoorOfficePropagationLossModel::GetLossNlos(double distance2D,
 
 double
 ThreeGppIndoorOfficePropagationLossModel::GetShadowingStd(
-    [[maybe_unused]] Ptr<MobilityModel> a,
-    [[maybe_unused]] Ptr<MobilityModel> b,
+    Ptr<MobilityModel> /* a */,
+    Ptr<MobilityModel> /* b */,
     ChannelCondition::LosConditionValue cond) const
 {
     NS_LOG_FUNCTION(this);

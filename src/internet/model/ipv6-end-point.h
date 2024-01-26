@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -21,10 +20,11 @@
 #ifndef IPV6_END_POINT_H
 #define IPV6_END_POINT_H
 
+#include "ipv6-header.h"
+#include "ipv6-interface.h"
+
 #include "ns3/callback.h"
 #include "ns3/ipv6-address.h"
-#include "ns3/ipv6-header.h"
-#include "ns3/ipv6-interface.h"
 #include "ns3/net-device.h"
 
 #include <stdint.h>
@@ -63,7 +63,7 @@ class Ipv6EndPoint
      * \brief Get the local address.
      * \return the local address
      */
-    Ipv6Address GetLocalAddress();
+    Ipv6Address GetLocalAddress() const;
 
     /**
      * \brief Set the local address.
@@ -75,7 +75,7 @@ class Ipv6EndPoint
      * \brief Get the local port.
      * \return the local port
      */
-    uint16_t GetLocalPort();
+    uint16_t GetLocalPort() const;
 
     /**
      * \brief Set the local port.
@@ -87,13 +87,13 @@ class Ipv6EndPoint
      * \brief Get the peer address.
      * \return the peer address
      */
-    Ipv6Address GetPeerAddress();
+    Ipv6Address GetPeerAddress() const;
 
     /**
      * \brief Get the peer port.
      * \return the peer port
      */
-    uint16_t GetPeerPort();
+    uint16_t GetPeerPort() const;
 
     /**
      * \brief Set the peer information (address and port).
@@ -131,7 +131,7 @@ class Ipv6EndPoint
      *
      * \returns Pointer to interface.
      */
-    Ptr<NetDevice> GetBoundNetDevice();
+    Ptr<NetDevice> GetBoundNetDevice() const;
 
     /**
      * \brief Set the reception callback.
@@ -192,7 +192,7 @@ class Ipv6EndPoint
      * \brief Checks if the endpoint can receive packets.
      * \returns true if the endpoint can receive packets.
      */
-    bool IsRxEnabled();
+    bool IsRxEnabled() const;
 
   private:
     /**

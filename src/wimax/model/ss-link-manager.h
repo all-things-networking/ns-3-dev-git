@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -79,7 +78,7 @@ class SSLinkManager : public Object
      */
     bool GetRangingIntervalFound() const;
     /**
-     * Ser NR ranging trans opps
+     * Set NR ranging trans opps
      * \param nrRangingTransOpps the NR ranging trans opps
      */
     void SetNrRangingTransOpps(uint8_t nrRangingTransOpps);
@@ -91,7 +90,7 @@ class SSLinkManager : public Object
     /// Increment NR invited polls received
     void IncrementNrInvitedPollsRecvd();
     /**
-     * Get DL map sync timeput event
+     * Get DL map sync timeout event
      * \returns the event ID
      */
     EventId GetDlMapSyncTimeoutEvent();

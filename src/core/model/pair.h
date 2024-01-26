@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Caliola Engineering, LLC.
  *
@@ -21,8 +20,8 @@
 #ifndef PAIR_H
 #define PAIR_H
 
-#include <ns3/attribute-helper.h>
-#include <ns3/string.h>
+#include "attribute-helper.h"
+#include "string.h"
 
 #include <sstream>
 #include <type_traits>

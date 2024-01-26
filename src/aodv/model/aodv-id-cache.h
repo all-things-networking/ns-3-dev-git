@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -80,7 +79,7 @@ class IdCache
 
     /**
      * Return lifetime for existing entries in cache
-     * \returns thhe lifetime
+     * \returns the lifetime
      */
     Time GetLifeTime() const
     {
@@ -110,7 +109,7 @@ class IdCache
          * \param u UniqueId entry
          * \return true if expired, false otherwise
          */
-        bool operator()(const struct UniqueId& u) const
+        bool operator()(const UniqueId& u) const
         {
             return (u.m_expire < Simulator::Now());
         }

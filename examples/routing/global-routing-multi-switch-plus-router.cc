@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 - Chip Webb
  *
@@ -333,7 +332,7 @@ main(int argc, char* argv[])
     // Parse the pcapLocations string into pcapLocationVec
     // ----------------------------------------------------------------------
     std::vector<std::string> pcapLocationVec;
-    if (pcapLocations != "")
+    if (!pcapLocations.empty())
     {
         std::stringstream sStream(pcapLocations);
 
@@ -351,9 +350,7 @@ main(int argc, char* argv[])
             }
         }
 
-        for (std::vector<std::string>::const_iterator ploc = pcapLocationVec.begin();
-             ploc != pcapLocationVec.end();
-             ++ploc)
+        for (auto ploc = pcapLocationVec.begin(); ploc != pcapLocationVec.end(); ++ploc)
         {
             NS_LOG_INFO("PCAP capture at: <" + *ploc + ">");
         }
@@ -711,8 +708,7 @@ main(int argc, char* argv[])
         Create<OutputStreamWrapper>("global-routing-multi-switch-plus-router.routes",
                                     std::ios::out);
 
-    Ipv4GlobalRoutingHelper g;
-    g.PrintRoutingTableAllAt(Seconds(0.1), routingStream);
+    Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(0.1), routingStream);
 
     // ======================================================================
     // Configure PCAP traces

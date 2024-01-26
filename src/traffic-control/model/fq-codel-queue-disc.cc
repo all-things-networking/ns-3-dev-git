@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *
@@ -441,7 +440,7 @@ FqCoDelQueueDisc::CheckConfig()
     if (m_useL4s)
     {
         NS_ABORT_MSG_IF(m_ceThreshold == Time::Max(), "CE threshold not set");
-        if (m_useEcn == false)
+        if (!m_useEcn)
         {
             NS_LOG_WARN("Enabling ECN as L4S mode is enabled");
         }

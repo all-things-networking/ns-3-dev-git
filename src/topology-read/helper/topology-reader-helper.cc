@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Universita' di Firenze, Italy
  *
@@ -19,7 +18,7 @@
  * Author: Valerio Sartini (valesar@gmail.com)
  */
 
-#include "ns3/topology-reader-helper.h"
+#include "topology-reader-helper.h"
 
 #include "ns3/inet-topology-reader.h"
 #include "ns3/log.h"

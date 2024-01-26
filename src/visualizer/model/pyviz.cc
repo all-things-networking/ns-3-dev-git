@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INESC Porto
  *
@@ -44,7 +43,7 @@ PathSplit(std::string str)
 {
     std::vector<std::string> results;
     size_t cutAt;
-    while ((cutAt = str.find_first_of('/')) != str.npos)
+    while ((cutAt = str.find_first_of('/')) != std::string::npos)
     {
         if (cutAt > 0)
         {
@@ -52,7 +51,7 @@ PathSplit(std::string str)
         }
         str = str.substr(cutAt + 1);
     }
-    if (str.length() > 0)
+    if (!str.empty())
     {
         results.push_back(str);
     }
@@ -62,19 +61,19 @@ PathSplit(std::string str)
 namespace ns3
 {
 
-static PyViz* g_visualizer = NULL; ///< the visualizer
+static PyViz* g_visualizer = nullptr; ///< the visualizer
 
 /**
  * PyVizPacketTag structure
  */
 struct PyVizPacketTag : public Tag
 {
-    static TypeId GetTypeId(void);
-    virtual TypeId GetInstanceTypeId(void) const;
-    virtual uint32_t GetSerializedSize(void) const;
-    virtual void Serialize(TagBuffer buf) const;
-    virtual void Deserialize(TagBuffer buf);
-    virtual void Print(std::ostream& os) const;
+    static TypeId GetTypeId();
+    TypeId GetInstanceTypeId() const override;
+    uint32_t GetSerializedSize() const override;
+    void Serialize(TagBuffer buf) const override;
+    void Deserialize(TagBuffer buf) override;
+    void Print(std::ostream& os) const override;
     PyVizPacketTag();
 
     uint32_t m_packetId; ///< packet id
@@ -85,7 +84,7 @@ struct PyVizPacketTag : public Tag
  * \return the object TypeId
  */
 TypeId
-PyVizPacketTag::GetTypeId(void)
+PyVizPacketTag::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::PyVizPacketTag")
                             .SetParent<Tag>()
@@ -95,13 +94,13 @@ PyVizPacketTag::GetTypeId(void)
 }
 
 TypeId
-PyVizPacketTag::GetInstanceTypeId(void) const
+PyVizPacketTag::GetInstanceTypeId() const
 {
     return GetTypeId();
 }
 
 uint32_t
-PyVizPacketTag::GetSerializedSize(void) const
+PyVizPacketTag::GetSerializedSize() const
 {
     return 4;
 }
@@ -132,7 +131,7 @@ PyVizPacketTag::PyVizPacketTag()
 PyViz::PyViz()
 {
     NS_LOG_FUNCTION_NOARGS();
-    NS_ASSERT(g_visualizer == NULL);
+    NS_ASSERT(g_visualizer == nullptr);
     g_visualizer = this;
 
     // WiFi
@@ -248,7 +247,7 @@ PyViz::~PyViz()
     NS_LOG_FUNCTION_NOARGS();
 
     NS_ASSERT(g_visualizer == this);
-    g_visualizer = NULL;
+    g_visualizer = nullptr;
 }
 
 void
@@ -299,8 +298,7 @@ PyViz::SimulatorRunUntil(Time time)
     Time expirationTime = Simulator::Now() - Seconds(10);
 
     // Clear very old transmission records
-    for (std::map<TxRecordKey, TxRecordValue>::iterator iter = m_txRecords.begin();
-         iter != m_txRecords.end();)
+    for (auto iter = m_txRecords.begin(); iter != m_txRecords.end();)
     {
         if (iter->second.time < expirationTime)
         {
@@ -313,8 +311,7 @@ PyViz::SimulatorRunUntil(Time time)
     }
 
     // Clear very old packets of interest
-    for (std::map<uint32_t, Time>::iterator iter = m_packetsOfInterest.begin();
-         iter != m_packetsOfInterest.end();)
+    for (auto iter = m_packetsOfInterest.begin(); iter != m_packetsOfInterest.end();)
     {
         if (iter->second < expirationTime)
         {
@@ -372,14 +369,7 @@ PyViz::TransmissionSampleKey::operator<(const PyViz::TransmissionSampleKey& othe
     {
         return false;
     }
-    if (this->channel < other.channel)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return this->channel < other.channel;
 }
 
 bool
@@ -393,8 +383,7 @@ PyViz::TransmissionSampleKey::operator==(const PyViz::TransmissionSampleKey& oth
 PyViz::NetDeviceStatistics&
 PyViz::FindNetDeviceStatistics(int node, int interface)
 {
-    std::map<uint32_t, std::vector<NetDeviceStatistics>>::iterator nodeStatsIter =
-        m_nodesStatistics.find(node);
+    auto nodeStatsIter = m_nodesStatistics.find(node);
     std::vector<NetDeviceStatistics>* stats;
     if (nodeStatsIter == m_nodesStatistics.end())
     {
@@ -412,8 +401,7 @@ PyViz::FindNetDeviceStatistics(int node, int interface)
 bool
 PyViz::GetPacketCaptureOptions(uint32_t nodeId, const PacketCaptureOptions** outOptions) const
 {
-    std::map<uint32_t, PacketCaptureOptions>::const_iterator iter =
-        m_packetCaptureOptions.find(nodeId);
+    auto iter = m_packetCaptureOptions.find(nodeId);
     if (iter == m_packetCaptureOptions.end())
     {
         return false;
@@ -452,20 +440,13 @@ PyViz::FilterPacket(Ptr<const Packet> packet, const PacketCaptureOptions& option
         while (metadataIterator.HasNext())
         {
             PacketMetadata::Item item = metadataIterator.Next();
-            std::set<TypeId>::iterator missingIter = missingHeaders.find(item.tid);
+            auto missingIter = missingHeaders.find(item.tid);
             if (missingIter != missingHeaders.end())
             {
                 missingHeaders.erase(missingIter);
             }
         }
-        if (missingHeaders.size() == 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return missingHeaders.empty();
     }
 
     default:
@@ -479,7 +460,7 @@ PyViz::TraceDevQueueDrop(std::string context, Ptr<const Packet> packet)
 {
     NS_LOG_FUNCTION(context << packet->GetUid());
     std::vector<std::string> splitPath = PathSplit(context);
-    int nodeIndex = std::atoi(splitPath[1].c_str());
+    int nodeIndex = std::stoi(splitPath[1]);
     Ptr<Node> node = NodeList::GetNode(nodeIndex);
 
     if (m_nodesOfInterest.find(nodeIndex) == m_nodesOfInterest.end())
@@ -502,7 +483,7 @@ PyViz::TraceDevQueueDrop(std::string context, Ptr<const Packet> packet)
         PacketSample lastPacket;
         lastPacket.time = Simulator::Now();
         lastPacket.packet = packet->Copy();
-        lastPacket.device = NULL;
+        lastPacket.device = nullptr;
         last.lastDroppedPackets.push_back(lastPacket);
         while (last.lastDroppedPackets.size() > captureOptions->numLastPackets)
         {
@@ -510,7 +491,7 @@ PyViz::TraceDevQueueDrop(std::string context, Ptr<const Packet> packet)
         }
     }
 
-    std::map<Ptr<Node>, uint32_t>::iterator iter = m_packetDrops.find(node);
+    auto iter = m_packetDrops.find(node);
     if (iter == m_packetDrops.end())
     {
         m_packetDrops[node] = packet->GetSize();
@@ -544,8 +525,8 @@ PyViz::TraceNetDevTxCommon(const std::string& context,
     NS_LOG_FUNCTION(context << packet->GetUid() << *packet);
 
     std::vector<std::string> splitPath = PathSplit(context);
-    int nodeIndex = std::atoi(splitPath[1].c_str());
-    int devIndex = std::atoi(splitPath[3].c_str());
+    int nodeIndex = std::stoi(splitPath[1]);
+    int devIndex = std::stoi(splitPath[3]);
     Ptr<Node> node = NodeList::GetNode(nodeIndex);
     Ptr<NetDevice> device = node->GetDevice(devIndex);
 
@@ -675,8 +656,8 @@ PyViz::TraceNetDevRxCommon(const std::string& context,
 
     NS_LOG_FUNCTION(context << uid);
     std::vector<std::string> splitPath = PathSplit(context);
-    int nodeIndex = std::atoi(splitPath[1].c_str());
-    int devIndex = std::atoi(splitPath[3].c_str());
+    int nodeIndex = std::stoi(splitPath[1]);
+    int devIndex = std::stoi(splitPath[3]);
 
     // ---- statistics
     NetDeviceStatistics& stats = FindNetDeviceStatistics(nodeIndex, devIndex);
@@ -713,8 +694,7 @@ PyViz::TraceNetDevRxCommon(const std::string& context,
 
     Ptr<Channel> channel = device->GetChannel();
 
-    std::map<TxRecordKey, TxRecordValue>::iterator recordIter =
-        m_txRecords.find(TxRecordKey(channel, uid));
+    auto recordIter = m_txRecords.find(TxRecordKey(channel, uid));
 
     if (recordIter == m_txRecords.end())
     {
@@ -737,10 +717,7 @@ PyViz::TraceNetDevRxCommon(const std::string& context,
     NS_LOG_DEBUG("m_transmissionSamples begin:");
     if (g_log.IsEnabled(ns3::LOG_DEBUG))
     {
-        for (std::map<TransmissionSampleKey, TransmissionSampleValue>::const_iterator iter =
-                 m_transmissionSamples.begin();
-             iter != m_transmissionSamples.end();
-             iter++)
+        for (auto iter = m_transmissionSamples.begin(); iter != m_transmissionSamples.end(); iter++)
         {
             NS_LOG_DEBUG(iter->first.transmitter
                          << "/" << iter->first.transmitter->GetId() << ", " << iter->first.receiver
@@ -751,8 +728,7 @@ PyViz::TraceNetDevRxCommon(const std::string& context,
     NS_LOG_DEBUG("m_transmissionSamples end.");
 #endif
 
-    std::map<TransmissionSampleKey, TransmissionSampleValue>::iterator iter =
-        m_transmissionSamples.find(key);
+    auto iter = m_transmissionSamples.find(key);
 
     if (iter == m_transmissionSamples.end())
     {
@@ -882,10 +858,7 @@ PyViz::GetTransmissionSamples() const
 {
     NS_LOG_DEBUG("GetTransmissionSamples BEGIN");
     TransmissionSampleList list;
-    for (std::map<TransmissionSampleKey, TransmissionSampleValue>::const_iterator iter =
-             m_transmissionSamples.begin();
-         iter != m_transmissionSamples.end();
-         iter++)
+    for (auto iter = m_transmissionSamples.begin(); iter != m_transmissionSamples.end(); iter++)
     {
         TransmissionSample sample;
         sample.transmitter = iter->first.transmitter;
@@ -905,9 +878,7 @@ PyViz::GetPacketDropSamples() const
 {
     NS_LOG_DEBUG("GetPacketDropSamples BEGIN");
     PacketDropSampleList list;
-    for (std::map<Ptr<Node>, uint32_t>::const_iterator iter = m_packetDrops.begin();
-         iter != m_packetDrops.end();
-         iter++)
+    for (auto iter = m_packetDrops.begin(); iter != m_packetDrops.end(); iter++)
     {
         PacketDropSample sample;
         sample.transmitter = iter->first;
@@ -930,10 +901,7 @@ std::vector<PyViz::NodeStatistics>
 PyViz::GetNodesStatistics() const
 {
     std::vector<PyViz::NodeStatistics> retval;
-    for (std::map<uint32_t, std::vector<NetDeviceStatistics>>::const_iterator iter =
-             m_nodesStatistics.begin();
-         iter != m_nodesStatistics.end();
-         iter++)
+    for (auto iter = m_nodesStatistics.begin(); iter != m_nodesStatistics.end(); iter++)
     {
         NodeStatistics stats = {iter->first, iter->second};
         retval.push_back(stats);
@@ -946,7 +914,7 @@ PyViz::GetLastPackets(uint32_t nodeId) const
 {
     NS_LOG_DEBUG("GetLastPackets: " << nodeId);
 
-    std::map<uint32_t, LastPacketsSample>::const_iterator iter = m_lastPackets.find(nodeId);
+    auto iter = m_lastPackets.find(nodeId);
     if (iter != m_lastPackets.end())
     {
         return iter->second;
@@ -987,7 +955,7 @@ class FastClipping
      * Clip start top function
      * \param line the clip line
      */
-    void ClipStartTop(Line& line)
+    void ClipStartTop(Line& line) const
     {
         line.start.x += line.dx * (m_clipMin.y - line.start.y) / line.dy;
         line.start.y = m_clipMin.y;
@@ -997,7 +965,7 @@ class FastClipping
      * Clip start bottom function
      * \param line the clip line
      */
-    void ClipStartBottom(Line& line)
+    void ClipStartBottom(Line& line) const
     {
         line.start.x += line.dx * (m_clipMax.y - line.start.y) / line.dy;
         line.start.y = m_clipMax.y;
@@ -1007,7 +975,7 @@ class FastClipping
      * Clip start right function
      * \param line the clip line
      */
-    void ClipStartRight(Line& line)
+    void ClipStartRight(Line& line) const
     {
         line.start.y += line.dy * (m_clipMax.x - line.start.x) / line.dx;
         line.start.x = m_clipMax.x;
@@ -1017,7 +985,7 @@ class FastClipping
      * Clip start left function
      * \param line the clip line
      */
-    void ClipStartLeft(Line& line)
+    void ClipStartLeft(Line& line) const
     {
         line.start.y += line.dy * (m_clipMin.x - line.start.x) / line.dx;
         line.start.x = m_clipMin.x;
@@ -1027,7 +995,7 @@ class FastClipping
      * Clip end top function
      * \param line the clip line
      */
-    void ClipEndTop(Line& line)
+    void ClipEndTop(Line& line) const
     {
         line.end.x += line.dx * (m_clipMin.y - line.end.y) / line.dy;
         line.end.y = m_clipMin.y;
@@ -1037,7 +1005,7 @@ class FastClipping
      * Clip end bottom function
      * \param line the clip line
      */
-    void ClipEndBottom(Line& line)
+    void ClipEndBottom(Line& line) const
     {
         line.end.x += line.dx * (m_clipMax.y - line.end.y) / line.dy;
         line.end.y = m_clipMax.y;
@@ -1047,7 +1015,7 @@ class FastClipping
      * Clip end right function
      * \param line the clip line
      */
-    void ClipEndRight(Line& line)
+    void ClipEndRight(Line& line) const
     {
         line.end.y += line.dy * (m_clipMax.x - line.end.x) / line.dx;
         line.end.x = m_clipMax.x;
@@ -1057,7 +1025,7 @@ class FastClipping
      * Clip end left function
      * \param line the clip line
      */
-    void ClipEndLeft(Line& line)
+    void ClipEndLeft(Line& line) const
     {
         line.end.y += line.dy * (m_clipMin.x - line.end.x) / line.dx;
         line.end.x = m_clipMin.x;
@@ -1086,24 +1054,40 @@ class FastClipping
         uint8_t lineCode = 0;
 
         if (line.end.y < m_clipMin.y)
+        {
             lineCode |= 8;
+        }
         else if (line.end.y > m_clipMax.y)
+        {
             lineCode |= 4;
+        }
 
         if (line.end.x > m_clipMax.x)
+        {
             lineCode |= 2;
+        }
         else if (line.end.x < m_clipMin.x)
+        {
             lineCode |= 1;
+        }
 
         if (line.start.y < m_clipMin.y)
+        {
             lineCode |= 128;
+        }
         else if (line.start.y > m_clipMax.y)
+        {
             lineCode |= 64;
+        }
 
         if (line.start.x > m_clipMax.x)
+        {
             lineCode |= 32;
+        }
         else if (line.start.x < m_clipMin.x)
+        {
             lineCode |= 16;
+        }
 
         // 9 - 8 - A
         // |   |   |
@@ -1131,13 +1115,17 @@ class FastClipping
         case 0x05:
             ClipEndLeft(line);
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         case 0x06:
             ClipEndRight(line);
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         case 0x08:
@@ -1147,13 +1135,17 @@ class FastClipping
         case 0x09:
             ClipEndLeft(line);
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             return true;
 
         case 0x0A:
             ClipEndRight(line);
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             return true;
 
         // left
@@ -1169,33 +1161,45 @@ class FastClipping
         case 0x14:
             ClipStartLeft(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipEndBottom(line);
             return true;
 
         case 0x16:
             ClipStartLeft(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipEndBottom(line);
             if (line.end.x > m_clipMax.x)
+            {
                 ClipEndRight(line);
+            }
             return true;
 
         case 0x18:
             ClipStartLeft(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipEndTop(line);
             return true;
 
         case 0x1A:
             ClipStartLeft(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipEndTop(line);
             if (line.end.x > m_clipMax.x)
+            {
                 ClipEndRight(line);
+            }
             return true;
 
         // right
@@ -1211,33 +1215,45 @@ class FastClipping
         case 0x24:
             ClipStartRight(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipEndBottom(line);
             return true;
 
         case 0x25:
             ClipStartRight(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipEndBottom(line);
             if (line.end.x < m_clipMin.x)
+            {
                 ClipEndLeft(line);
+            }
             return true;
 
         case 0x28:
             ClipStartRight(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipEndTop(line);
             return true;
 
         case 0x29:
             ClipStartRight(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipEndTop(line);
             if (line.end.x < m_clipMin.x)
+            {
                 ClipEndLeft(line);
+            }
             return true;
 
         // bottom
@@ -1248,16 +1264,22 @@ class FastClipping
         case 0x41:
             ClipStartBottom(line);
             if (line.start.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipEndLeft(line);
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         case 0x42:
             ClipStartBottom(line);
             if (line.start.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipEndRight(line);
             return true;
 
@@ -1269,95 +1291,139 @@ class FastClipping
         case 0x49:
             ClipStartBottom(line);
             if (line.start.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipEndLeft(line);
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             return true;
 
         case 0x4A:
             ClipStartBottom(line);
             if (line.start.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipEndRight(line);
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             return true;
 
         // bottom-left
         case 0x50:
             ClipStartLeft(line);
             if (line.start.y > m_clipMax.y)
+            {
                 ClipStartBottom(line);
+            }
             return true;
 
         case 0x52:
             ClipEndRight(line);
             if (line.end.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipStartBottom(line);
             if (line.start.x < m_clipMin.x)
+            {
                 ClipStartLeft(line);
+            }
             return true;
 
         case 0x58:
             ClipEndTop(line);
             if (line.end.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipStartBottom(line);
             if (line.start.x < m_clipMin.x)
+            {
                 ClipStartLeft(line);
+            }
             return true;
 
         case 0x5A:
             ClipStartLeft(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipEndRight(line);
             if (line.end.y > m_clipMax.y)
+            {
                 return false;
+            }
             if (line.start.y > m_clipMax.y)
+            {
                 ClipStartBottom(line);
+            }
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             return true;
 
         // bottom-right
         case 0x60:
             ClipStartRight(line);
             if (line.start.y > m_clipMax.y)
+            {
                 ClipStartBottom(line);
+            }
             return true;
 
         case 0x61:
             ClipEndLeft(line);
             if (line.end.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipStartBottom(line);
             if (line.start.x > m_clipMax.x)
+            {
                 ClipStartRight(line);
+            }
             return true;
 
         case 0x68:
             ClipEndTop(line);
             if (line.end.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipStartRight(line);
             if (line.start.y > m_clipMax.y)
+            {
                 ClipStartBottom(line);
+            }
             return true;
 
         case 0x69:
             ClipEndLeft(line);
             if (line.end.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipStartRight(line);
             if (line.start.y < m_clipMin.y)
+            {
                 return false;
+            }
             if (line.end.y < m_clipMin.y)
+            {
                 ClipEndTop(line);
+            }
             if (line.start.y > m_clipMax.y)
+            {
                 ClipStartBottom(line);
+            }
             return true;
 
         // top
@@ -1368,14 +1434,18 @@ class FastClipping
         case 0x81:
             ClipStartTop(line);
             if (line.start.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipEndLeft(line);
             return true;
 
         case 0x82:
             ClipStartTop(line);
             if (line.start.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipEndRight(line);
             return true;
 
@@ -1387,95 +1457,139 @@ class FastClipping
         case 0x85:
             ClipStartTop(line);
             if (line.start.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipEndLeft(line);
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         case 0x86:
             ClipStartTop(line);
             if (line.start.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipEndRight(line);
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         // top-left
         case 0x90:
             ClipStartLeft(line);
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             return true;
 
         case 0x92:
             ClipEndRight(line);
             if (line.end.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipStartTop(line);
             if (line.start.x < m_clipMin.x)
+            {
                 ClipStartLeft(line);
+            }
             return true;
 
         case 0x94:
             ClipEndBottom(line);
             if (line.end.x < m_clipMin.x)
+            {
                 return false;
+            }
             ClipStartLeft(line);
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             return true;
 
         case 0x96:
             ClipStartLeft(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             ClipEndRight(line);
             if (line.end.y < m_clipMin.y)
+            {
                 return false;
+            }
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             return true;
 
         // top-right
         case 0xA0:
             ClipStartRight(line);
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             return true;
 
         case 0xA1:
             ClipEndLeft(line);
             if (line.end.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipStartTop(line);
             if (line.start.x > m_clipMax.x)
+            {
                 ClipStartRight(line);
+            }
             return true;
 
         case 0xA4:
             ClipEndBottom(line);
             if (line.end.x > m_clipMax.x)
+            {
                 return false;
+            }
             ClipStartRight(line);
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             return true;
 
         case 0xA5:
             ClipEndLeft(line);
             if (line.end.y < m_clipMin.y)
+            {
                 return false;
+            }
             ClipStartRight(line);
             if (line.start.y > m_clipMax.y)
+            {
                 return false;
+            }
             if (line.end.y > m_clipMax.y)
+            {
                 ClipEndBottom(line);
+            }
             if (line.start.y < m_clipMin.y)
+            {
                 ClipStartTop(line);
+            }
             return true;
         }
 
@@ -1494,7 +1608,8 @@ PyViz::LineClipping(double boundsX1,
                     double& lineX2,
                     double& lineY2)
 {
-    FastClipping::Vector2 clipMin = {boundsX1, boundsY1}, clipMax = {boundsX2, boundsY2};
+    FastClipping::Vector2 clipMin = {boundsX1, boundsY1};
+    FastClipping::Vector2 clipMax = {boundsX2, boundsY2};
     FastClipping::Line line = {{lineX1, lineY1},
                                {lineX2, lineY2},
                                (lineX2 - lineX1),

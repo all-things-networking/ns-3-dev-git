@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -215,10 +214,10 @@ main(int argc, char* argv[])
         outputValidated = false;
     }
 
-    if (outputValidated == false)
+    if (!outputValidated)
     {
         std::cerr << "Program internal checking failed; returning with error" << std::endl;
-        return (1);
+        return 1;
     }
 
     return 0;

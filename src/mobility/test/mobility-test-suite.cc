@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright 2010 University of Washington
  *
@@ -36,7 +35,6 @@ using namespace ns3;
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Test whether course change notifications occur regardless of calls
  * to Update() position (which are triggered by calls to GetPosition())
@@ -114,7 +112,6 @@ WaypointLazyNotifyFalse::DoRun()
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Lazy Notify True
  */
@@ -189,7 +186,6 @@ WaypointLazyNotifyTrue::DoRun()
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Initial Position Is Waypoint Test
  */
@@ -383,7 +379,6 @@ WaypointInitialPositionIsWaypoint::DoRun()
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Mobility Model Via Helper Test
  */
@@ -479,7 +474,6 @@ WaypointMobilityModelViaHelper::DoRun()
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Mobility Test Suite
  */
@@ -498,4 +492,8 @@ MobilityTestSuite::MobilityTestSuite()
     AddTestCase(new WaypointMobilityModelViaHelper, TestCase::QUICK);
 }
 
-static MobilityTestSuite mobilityTestSuite; ///< the test suite
+/**
+ * \ingroup mobility-test
+ * Static variable for test initialization
+ */
+static MobilityTestSuite mobilityTestSuite;

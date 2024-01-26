@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -46,13 +45,20 @@ class Address;
 class Mac64Address
 {
   public:
-    Mac64Address();
+    Mac64Address() = default;
     /**
      * \param str a string representing the new Mac64Address
      *
-     * The format of the string is "xx:xx:xx:xx:xx:xx"
+     * The format of the string is "xx:xx:xx:xx:xx:xx:xx:xx"
      */
     Mac64Address(const char* str);
+
+    /**
+     * \param addr The 64 bit unsigned integer used to create a Mac64Address object.
+     *
+     * Create a Mac64Address from an 64 bit unsigned integer.
+     */
+    Mac64Address(uint64_t addr);
 
     /**
      * \param buffer address in network order
@@ -82,6 +88,20 @@ class Mac64Address
      */
     static Mac64Address ConvertFrom(const Address& address);
     /**
+     * \returns a new Address instance
+     *
+     * Convert an instance of this class to a polymorphic Address instance.
+     */
+    Address ConvertTo() const;
+
+    /**
+     * \return the mac address in a 64 bit unsigned integer.
+     *
+     * Convert an instance of this class to a 64 bit unsigned integer.
+     */
+    uint64_t ConvertToInt() const;
+
+    /**
      * \param address address to test
      * \returns true if the address matches, false otherwise.
      */
@@ -108,13 +128,6 @@ class Mac64Address
     static void ResetAllocationIndex();
 
   private:
-    /**
-     * \returns a new Address instance
-     *
-     * Convert an instance of this class to a polymorphic Address instance.
-     */
-    Address ConvertTo() const;
-
     /**
      * \brief Return the Type of address.
      * \return type of address
@@ -167,7 +180,7 @@ class Mac64Address
     friend std::istream& operator>>(std::istream& is, Mac64Address& address);
 
     static uint64_t m_allocationIndex; //!< Address allocation index
-    uint8_t m_address[8];              //!< address value
+    uint8_t m_address[8]{0};           //!< Address value
 };
 
 /**

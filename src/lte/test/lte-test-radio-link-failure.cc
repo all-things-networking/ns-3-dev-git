@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Fraunhofer ESK
  *
@@ -25,15 +24,14 @@
 
 #include "lte-test-radio-link-failure.h"
 
-#include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
-#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/lte-module.h"
 #include "ns3/mobility-module.h"
 #include "ns3/network-module.h"
+#include "ns3/packet-sink-helper.h"
 #include "ns3/point-to-point-module.h"
+#include "ns3/udp-client-server-helper.h"
 
 #include <iomanip>
 #include <iostream>
@@ -116,6 +114,10 @@ LteRadioLinkFailureTestSuite::LteRadioLinkFailureTestSuite()
 
 } // end of LteRadioLinkFailureTestSuite::LteRadioLinkFailureTestSuite ()
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteRadioLinkFailureTestSuite g_lteRadioLinkFailureTestSuite;
 
 /*
@@ -278,9 +280,7 @@ LteRadioLinkFailureTestCase::DoRun()
     // Mobility
     Ptr<ListPositionAllocator> positionAllocEnb = CreateObject<ListPositionAllocator>();
 
-    for (std::vector<Vector>::iterator enbPosIt = m_enbPositionList.begin();
-         enbPosIt != m_enbPositionList.end();
-         ++enbPosIt)
+    for (auto enbPosIt = m_enbPositionList.begin(); enbPosIt != m_enbPositionList.end(); ++enbPosIt)
     {
         positionAllocEnb->Add(*enbPosIt);
     }
@@ -291,9 +291,7 @@ LteRadioLinkFailureTestCase::DoRun()
 
     Ptr<ListPositionAllocator> positionAllocUe = CreateObject<ListPositionAllocator>();
 
-    for (std::vector<Vector>::iterator uePosIt = m_uePositionList.begin();
-         uePosIt != m_uePositionList.end();
-         ++uePosIt)
+    for (auto uePosIt = m_uePositionList.begin(); uePosIt != m_uePositionList.end(); ++uePosIt)
     {
         positionAllocUe->Add(*uePosIt);
     }
@@ -460,9 +458,7 @@ LteRadioLinkFailureTestCase::CheckConnected(Ptr<NetDevice> ueDevice, NetDeviceCo
 
     Ptr<LteEnbNetDevice> enbLteDevice;
 
-    for (std::vector<Ptr<NetDevice>>::const_iterator enbDevIt = enbDevices.Begin();
-         enbDevIt != enbDevices.End();
-         ++enbDevIt)
+    for (auto enbDevIt = enbDevices.Begin(); enbDevIt != enbDevices.End(); ++enbDevIt)
     {
         if (((*enbDevIt)->GetObject<LteEnbNetDevice>())->HasCellId(cellId))
         {
@@ -508,8 +504,8 @@ LteRadioLinkFailureTestCase::CheckConnected(Ptr<NetDevice> ueDevice, NetDeviceCo
     ueRrc->GetAttribute("DataRadioBearerMap", ueDataRadioBearerMapValue);
     NS_TEST_ASSERT_MSG_EQ(ueDataRadioBearerMapValue.GetN(), 1 + 1, "wrong num bearers at UE");
 
-    ObjectMapValue::Iterator enbBearerIt = enbDataRadioBearerMapValue.Begin();
-    ObjectMapValue::Iterator ueBearerIt = ueDataRadioBearerMapValue.Begin();
+    auto enbBearerIt = enbDataRadioBearerMapValue.Begin();
+    auto ueBearerIt = ueDataRadioBearerMapValue.Begin();
     while (enbBearerIt != enbDataRadioBearerMapValue.End() &&
            ueBearerIt != ueDataRadioBearerMapValue.End())
     {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,7 +14,6 @@
  *
  * Author: Blake Hurd  <naimorai@gmail.com>
  */
-#ifdef NS3_OPENFLOW
 
 #include "openflow-interface.h"
 
@@ -32,7 +30,8 @@ namespace ofi
 Stats::Stats(ofp_stats_types _type, size_t body_len)
 {
     type = _type;
-    size_t min_body = 0, max_body = 0;
+    size_t min_body = 0;
+    size_t max_body = 0;
 
     switch (type)
     {
@@ -159,7 +158,7 @@ int
 Stats::FlowStatsInit(const void* body, int body_len, void** state)
 {
     const ofp_flow_stats_request* fsr = (ofp_flow_stats_request*)body;
-    FlowStatsState* s = (FlowStatsState*)xmalloc(sizeof *s);
+    auto s = (FlowStatsState*)xmalloc(sizeof(FlowStatsState));
 
     s->table_idx = fsr->table_id == 0xff ? 0 : fsr->table_id;
     memset(&s->position, 0, sizeof s->position);
@@ -171,7 +170,7 @@ Stats::FlowStatsInit(const void* body, int body_len, void** state)
 int
 Stats_FlowDumpCallback(sw_flow* flow, void* state)
 {
-    Stats::FlowStatsState* s = (Stats::FlowStatsState*)state;
+    auto s = (Stats::FlowStatsState*)state;
 
     // Fill Flow Stats
     ofp_flow_stats* ofs;
@@ -326,7 +325,7 @@ Stats::PortTableStatsDump(Ptr<OpenFlowSwitchNetDevice> swtch, void* state, ofpbu
 int
 Stats::PortStatsInit(const void* body, int body_len, void** state)
 {
-    PortStatsState* s = (PortStatsState*)xmalloc(sizeof *s);
+    auto s = (PortStatsState*)xmalloc(sizeof(PortStatsState));
 
     // the body contains a list of port numbers
     s->ports = (uint32_t*)xmalloc(body_len);
@@ -379,7 +378,7 @@ Stats::PortStatsDump(Ptr<OpenFlowSwitchNetDevice> swtch, PortStatsState* s, ofpb
             // lookup the virtual port
             vport_table_t vt = swtch->GetVPortTable();
             vport_table_entry* vpe = vport_table_lookup(&vt, port);
-            if (vpe == 0)
+            if (!vpe)
             {
                 NS_LOG_ERROR("vport entry not found!");
                 continue;
@@ -589,12 +588,12 @@ VPortAction::Execute(ofp_vport_action_type type,
     {
     case OFPPAT_POP_MPLS: {
         ofp_vport_action_pop_mpls* opapm = (ofp_vport_action_pop_mpls*)ah;
-        pop_mpls_act(0, buffer, key, &opapm->apm);
+        pop_mpls_act(nullptr, buffer, key, &opapm->apm);
         break;
     }
     case OFPPAT_PUSH_MPLS: {
         ofp_vport_action_push_mpls* opapm = (ofp_vport_action_push_mpls*)ah;
-        push_mpls_act(0, buffer, key, &opapm->apm);
+        push_mpls_act(nullptr, buffer, key, &opapm->apm);
         break;
     }
     case OFPPAT_SET_MPLS_LABEL: {
@@ -659,12 +658,12 @@ EricssonAction::Execute(er_action_type type,
     {
     case ERXT_POP_MPLS: {
         er_action_pop_mpls* erapm = (er_action_pop_mpls*)ah;
-        pop_mpls_act(0, buffer, key, &erapm->apm);
+        pop_mpls_act(nullptr, buffer, key, &erapm->apm);
         break;
     }
     case ERXT_PUSH_MPLS: {
         er_action_push_mpls* erapm = (er_action_push_mpls*)ah;
-        push_mpls_act(0, buffer, key, &erapm->apm);
+        push_mpls_act(nullptr, buffer, key, &erapm->apm);
         break;
     }
     default:
@@ -674,7 +673,7 @@ EricssonAction::Execute(er_action_type type,
 
 /* static */
 TypeId
-Controller::GetTypeId(void)
+Controller::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::ofi::Controller")
                             .SetParent<Object>()
@@ -767,7 +766,7 @@ Controller::GetPacketType(ofpbuf* buffer)
 void
 Controller::StartDump(StatsDumpCallback* cb)
 {
-    if (cb != 0)
+    if (cb)
     {
         int error = 1;
         while (error > 0) // Switch's StatsDump returns 1 if the reply isn't complete.
@@ -787,7 +786,7 @@ Controller::StartDump(StatsDumpCallback* cb)
 
 /* static */
 TypeId
-DropController::GetTypeId(void)
+DropController::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::ofi::DropController")
                             .SetParent<Controller>()
@@ -820,14 +819,19 @@ DropController::ReceiveFromSwitch(Ptr<OpenFlowSwitchNetDevice> swtch, ofpbuf* bu
         key.wildcards = 0;
         flow_extract(buffer, port != -1 ? port : OFPP_NONE, &key.flow);
 
-        ofp_flow_mod* ofm =
-            BuildFlow(key, opi->buffer_id, OFPFC_ADD, 0, 0, OFP_FLOW_PERMANENT, OFP_FLOW_PERMANENT);
+        ofp_flow_mod* ofm = BuildFlow(key,
+                                      opi->buffer_id,
+                                      OFPFC_ADD,
+                                      nullptr,
+                                      0,
+                                      OFP_FLOW_PERMANENT,
+                                      OFP_FLOW_PERMANENT);
         SendToSwitch(swtch, ofm, ofm->header.length);
     }
 }
 
 TypeId
-LearningController::GetTypeId(void)
+LearningController::GetTypeId()
 {
     static TypeId tid =
         TypeId("ns3::ofi::LearningController")
@@ -874,7 +878,7 @@ LearningController::ReceiveFromSwitch(Ptr<OpenFlowSwitchNetDevice> swtch, ofpbuf
         dst_addr.CopyFrom(key.flow.dl_dst);
         if (!dst_addr.IsBroadcast())
         {
-            LearnState_t::iterator st = m_learnState.find(dst_addr);
+            auto st = m_learnState.find(dst_addr);
             if (st != m_learnState.end())
             {
                 out_port = st->second.port;
@@ -911,7 +915,7 @@ LearningController::ReceiveFromSwitch(Ptr<OpenFlowSwitchNetDevice> swtch, ofpbuf
         // We can learn a specific port for the source address for future use.
         Mac48Address src_addr;
         src_addr.CopyFrom(key.flow.dl_src);
-        LearnState_t::iterator st = m_learnState.find(src_addr);
+        auto st = m_learnState.find(src_addr);
         if (st == m_learnState.end()) // We haven't learned our source MAC yet.
         {
             LearnedState ls;
@@ -959,7 +963,7 @@ ExecuteActions(Ptr<OpenFlowSwitchNetDevice> swtch,
     int prev_port;
     size_t max_len = 0;                   // Initialize to make compiler happy
     uint16_t in_port = key->flow.in_port; // ntohs(key->flow.in_port);
-    uint8_t* p = (uint8_t*)actions;
+    auto p = (uint8_t*)actions;
 
     prev_port = -1;
 
@@ -1018,7 +1022,7 @@ ExecuteActions(Ptr<OpenFlowSwitchNetDevice> swtch,
 uint16_t
 ValidateActions(const sw_flow_key* key, const ofp_action_header* actions, size_t actions_len)
 {
-    uint8_t* p = (uint8_t*)actions;
+    auto p = (uint8_t*)actions;
     int err;
 
     while (actions_len >= sizeof(ofp_action_header))
@@ -1084,7 +1088,7 @@ ExecuteVPortActions(Ptr<OpenFlowSwitchNetDevice> swtch,
     int prev_port;
     size_t max_len = 0; // Initialize to make compiler happy
     uint16_t in_port = ntohs(key->flow.in_port);
-    uint8_t* p = (uint8_t*)actions;
+    auto p = (uint8_t*)actions;
     uint16_t type;
     ofp_action_output* oa;
 
@@ -1126,7 +1130,7 @@ ExecuteVPortActions(Ptr<OpenFlowSwitchNetDevice> swtch,
 uint16_t
 ValidateVPortActions(const ofp_action_header* actions, size_t actions_len)
 {
-    uint8_t* p = (uint8_t*)actions;
+    auto p = (uint8_t*)actions;
     int err;
 
     while (actions_len >= sizeof(ofp_action_header))
@@ -1226,5 +1230,3 @@ ValidateVendor(const sw_flow_key* key, const ofp_action_header* ah, uint16_t len
 } // namespace ofi
 
 } // namespace ns3
-
-#endif // NS3_OPENFLOW

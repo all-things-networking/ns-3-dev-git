@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,6 +20,8 @@
 
 #include "oh-buildings-propagation-loss-model.h"
 
+#include "mobility-building-info.h"
+
 #include "ns3/double.h"
 #include "ns3/enum.h"
 #include "ns3/log.h"
@@ -28,7 +29,6 @@
 #include "ns3/okumura-hata-propagation-loss-model.h"
 #include "ns3/pointer.h"
 #include "ns3/propagation-loss-model.h"
-#include <ns3/mobility-building-info.h>
 
 #include <cmath>
 

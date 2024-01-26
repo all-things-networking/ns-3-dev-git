@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -130,7 +129,7 @@ RadiansToDegreesTestCase::DoRun()
 /**
  * \ingroup tests
  *
- * \brief TestSuite: degree to radians (and viceversa) conversions
+ * \brief TestSuite: degree to radians (and vice-versa) conversions
  */
 class DegreesRadiansTestSuite : public TestSuite
 {
@@ -156,7 +155,7 @@ DegreesRadiansTestSuite::DegreesRadiansTestSuite()
     AddTestCase(new RadiansToDegreesTestCase(M_PI + M_PI, 360), TestCase::QUICK);
     AddTestCase(new RadiansToDegreesTestCase(-M_PI_2, -90), TestCase::QUICK);
     AddTestCase(new RadiansToDegreesTestCase(4.5 * M_PI, 810), TestCase::QUICK);
-};
+}
 
 /// Static variable for test initialization
 static DegreesRadiansTestSuite g_staticDegreesRadiansTestSuiteInstance;

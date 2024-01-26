@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -96,7 +95,7 @@ Experiment::ReceivePacket(Ptr<Socket> socket)
 }
 
 UanTxMode
-Experiment::CreateMode(uint32_t kass, uint32_t fc, bool upperblock, std::string name)
+Experiment::CreateMode(uint32_t kass, uint32_t fc, bool upperblock, std::string name) const
 {
     std::ostringstream buf;
     buf << name << " " << kass;
@@ -302,10 +301,12 @@ main(int argc, char* argv[])
 
     Gnuplot gp;
     gp.AddDataset(ds);
-    std::ofstream of(exp.m_gnuplotfile.c_str());
+    std::ofstream of(exp.m_gnuplotfile);
     if (!of.is_open())
     {
         NS_FATAL_ERROR("Can not open GNU Plot outfile: " << exp.m_gnuplotfile);
     }
     gp.GenerateOutput(of);
+
+    return 0;
 }

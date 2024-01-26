@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Bucknell University
  *
@@ -22,7 +21,7 @@
  *
  */
 
-#include "ns3/time-probe.h"
+#include "time-probe.h"
 
 #include "ns3/config.h"
 #include "ns3/log.h"

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
@@ -37,7 +36,6 @@ NS_LOG_COMPONENT_DEFINE("TcpScalableTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Testing the congestion avoidance increment on TcpScalable
  */
@@ -107,7 +105,6 @@ TcpScalableIncrementTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Testing the multiplicative decrease on TcpScalable
  */
@@ -166,7 +163,6 @@ TcpScalableDecrementTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TcpScalable TestSuite.
  */

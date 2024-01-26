@@ -125,7 +125,7 @@ versions of the ``NetDevice`` called ``CsmaNetDevice``,
 Just as an Ethernet NIC is designed to work with an Ethernet network, the
 ``CsmaNetDevice`` is designed to work with a ``CsmaChannel``; the
 ``PointToPointNetDevice`` is designed to work with a
-``PointToPointChannel`` and a ``WifiNetNevice`` is designed to work with
+``PointToPointChannel`` and a ``WifiNetDevice`` is designed to work with
 a ``WifiChannel``.
 
 Topology Helpers
@@ -168,30 +168,8 @@ point-to-point link between two nodes and echo a single packet between the
 nodes.  Let's take a look at that script line by line, so go ahead and open
 ``first.cc`` in your favorite editor.
 
-Boilerplate
-+++++++++++
-The first line in the file is an emacs mode line.  This tells emacs about the
-formatting conventions (coding style) we use in our source code.
-
-::
-
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-
-This is always a somewhat controversial subject, so we might as well get it
-out of the way immediately.  The |ns3| project, like most large
-projects, has adopted a coding style to which all contributed code must
-adhere.  If you want to contribute your code to the project, you will
-eventually have to conform to the |ns3| coding standard as described
-in the file ``doc/contributing/source/coding-style.rst`` or shown on the project web page
-`here
-<https://www.nsnam.org/docs/contributing/html/coding-style.html>`_.
-
-We recommend that you, well, just get used to the look and feel of |ns3|
-code and adopt this standard whenever you are working with our code.  All of
-the development team and contributors have done so with various amounts of
-grumbling.  The emacs mode line above makes it easier to get the formatting
-correct if you use the emacs editor.
-
+Copyright
++++++++++
 The |ns3| simulator is licensed using the GNU General Public
 License version 2.  You will see the appropriate GNU legalese at the head of every file
 in the |ns3| distribution.  Often you will see a copyright notice for
@@ -292,7 +270,7 @@ The next line of the script is the following,
 
 ::
 
-  NS_LOG_COMPONENT_DEFINE ("FirstScriptExample");
+  NS_LOG_COMPONENT_DEFINE("FirstScriptExample");
 
 We will use this statement as a convenient place to talk about our Doxygen
 documentation system.  If you look at the project web site,
@@ -334,7 +312,7 @@ The next lines of the script you will find are,
 ::
 
   int
-  main (int argc, char *argv[])
+  main(int argc, char *argv[])
   {
 
 This is just the declaration of the main function of your program (script).
@@ -347,7 +325,7 @@ to be the default value:
 
 ::
 
-    Time::SetResolution (Time::NS);
+    Time::SetResolution(Time::NS);
 
 The resolution is the smallest time value that can be represented (as well as
 the smallest representable difference between two time values).
@@ -386,7 +364,7 @@ simulation.
 ::
 
     NodeContainer nodes;
-    nodes.Create (2);
+    nodes.Create(2);
 
 Let's find the documentation for the ``NodeContainer`` class before we
 continue.  Another way to get into the documentation for a given class is via
@@ -433,8 +411,8 @@ The next three lines in the script are,
 ::
 
     PointToPointHelper pointToPoint;
-    pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
-    pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+    pointToPoint.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
+    pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
 
 The first line,
 
@@ -447,7 +425,7 @@ high-level perspective the next line,
 
 ::
 
-    pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
+    pointToPoint.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
 
 tells the ``PointToPointHelper`` object to use the value "5Mbps"
 (five megabits per second) as the "DataRate" when it creates a
@@ -468,7 +446,7 @@ final line,
 
 ::
 
-    pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+    pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
 
 tells the ``PointToPointHelper`` to use the value "2ms" (two milliseconds)
 as the value of the propagation delay of every point to point channel it
@@ -490,7 +468,7 @@ following two lines of code,
 ::
 
     NetDeviceContainer devices;
-    devices = pointToPoint.Install (nodes);
+    devices = pointToPoint.Install(nodes);
 
 will finish configuring the devices and channel.  The first line declares the
 device container mentioned above and the second does the heavy lifting.  The
@@ -504,7 +482,7 @@ by the ``PointToPointHelper``, the ``Attributes`` previously set in the
 helper are used to initialize the corresponding ``Attributes`` in the
 created objects.
 
-After executing the ``pointToPoint.Install (nodes)`` call we will have
+After executing the ``pointToPoint.Install(nodes)`` call we will have
 two nodes, each with an installed point-to-point net device and a single
 point-to-point channel between them.  Both devices will be configured to
 transmit data at five megabits per second over the channel which has a two
@@ -518,7 +496,7 @@ installed on our nodes.  The next two lines of code will take care of that.
 ::
 
     InternetStackHelper stack;
-    stack.Install (nodes);
+    stack.Install(nodes);
 
 The ``InternetStackHelper`` is a topology helper that is to internet stacks
 what the ``PointToPointHelper`` is to point-to-point net devices.  The
@@ -539,7 +517,7 @@ The next two lines of code in our example script, ``first.cc``,
 ::
 
     Ipv4AddressHelper address;
-    address.SetBase ("10.1.1.0", "255.255.255.0");
+    address.SetBase("10.1.1.0", "255.255.255.0");
 
 declare an address helper object and tell it that it should begin allocating IP
 addresses from the network 10.1.1.0 using the mask 255.255.255.0 to define
@@ -554,7 +532,7 @@ The next line of code,
 
 ::
 
-    Ipv4InterfaceContainer interfaces = address.Assign (devices);
+    Ipv4InterfaceContainer interfaces = address.Assign(devices);
 
 performs the actual address assignment.  In |ns3| we make the
 association between an IP address and a device using an ``Ipv4Interface``
@@ -584,11 +562,11 @@ created.
 
 ::
 
-    UdpEchoServerHelper echoServer (9);
+    UdpEchoServerHelper echoServer(9);
 
-    ApplicationContainer serverApps = echoServer.Install (nodes.Get (1));
-    serverApps.Start (Seconds (1.0));
-    serverApps.Stop (Seconds (10.0));
+    ApplicationContainer serverApps = echoServer.Install(nodes.Get(1));
+    serverApps.Start(Seconds(1.0));
+    serverApps.Stop(Seconds(10.0));
 
 The first line of code in the above snippet declares the
 ``UdpEchoServerHelper``.  As usual, this isn't the application itself, it
@@ -605,10 +583,10 @@ Similar to many other helper objects, the ``UdpEchoServerHelper`` object
 has an ``Install`` method.  It is the execution of this method that actually
 causes the underlying echo server application to be instantiated and attached
 to a node.  Interestingly, the ``Install`` method takes a
-``NodeContainter`` as a parameter just as the other ``Install`` methods
+``NodeContainer`` as a parameter just as the other ``Install`` methods
 we have seen.  This is actually what is passed to the method even though it
 doesn't look so in this case.  There is a C++ *implicit conversion* at
-work here that takes the result of ``nodes.Get (1)`` (which returns a smart
+work here that takes the result of ``nodes.Get(1)`` (which returns a smart
 pointer to a node object --- ``Ptr<Node>``) and uses that in a constructor
 for an unnamed ``NodeContainer`` that is then passed to ``Install``.
 If you are ever at a loss to find a particular method signature in C++ code
@@ -633,8 +611,8 @@ converted for you.  The two lines,
 
 ::
 
-    serverApps.Start (Seconds (1.0));
-    serverApps.Stop (Seconds (10.0));
+    serverApps.Start(Seconds(1.0));
+    serverApps.Stop(Seconds(10.0));
 
 will cause the echo server application to ``Start`` (enable itself) at one
 second into the simulation and to ``Stop`` (disable itself) at ten seconds
@@ -651,14 +629,14 @@ that is managed by an ``UdpEchoClientHelper``.
 
 ::
 
-    UdpEchoClientHelper echoClient (interfaces.GetAddress (1), 9);
-    echoClient.SetAttribute ("MaxPackets", UintegerValue (1));
-    echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
-    echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
+    UdpEchoClientHelper echoClient(interfaces.GetAddress(1), 9);
+    echoClient.SetAttribute("MaxPackets", UintegerValue(1));
+    echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+    echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
-    ApplicationContainer clientApps = echoClient.Install (nodes.Get (0));
-    clientApps.Start (Seconds (2.0));
-    clientApps.Stop (Seconds (10.0));
+    ApplicationContainer clientApps = echoClient.Install(nodes.Get(0));
+    clientApps.Start(Seconds(2.0));
+    clientApps.Stop(Seconds(10.0));
 
 For the echo client, however, we need to set five different ``Attributes``.
 The first two ``Attributes`` are set during construction of the
@@ -695,17 +673,17 @@ done using the global function ``Simulator::Run``.
 
 ::
 
-    Simulator::Run ();
+    Simulator::Run();
 
 When we previously called the methods,
 
 ::
 
-    serverApps.Start (Seconds (1.0));
-    serverApps.Stop (Seconds (10.0));
+    serverApps.Start(Seconds(1.0));
+    serverApps.Stop(Seconds(10.0));
     ...
-    clientApps.Start (Seconds (2.0));
-    clientApps.Stop (Seconds (10.0));
+    clientApps.Start(Seconds(2.0));
+    clientApps.Stop(Seconds(10.0));
 
 we actually scheduled events in the simulator at 1.0 seconds, 2.0 seconds and
 two events at 10.0 seconds.  When ``Simulator::Run`` is called, the system
@@ -741,7 +719,7 @@ took care of the hard part for you.  The remaining lines of our first
 
 ::
 
-    Simulator::Destroy ();
+    Simulator::Destroy();
     return 0;
   }
 
@@ -764,7 +742,7 @@ not) be generated.
 The simulation will stop automatically when no further events are in the
 event queue, or when a special Stop event is found. The Stop event is
 created through the
-``Simulator::Stop (stopTime);`` function.
+``Simulator::Stop(stopTime);`` function.
 
 There is a typical case where ``Simulator::Stop`` is absolutely necessary
 to stop the simulation: when there is a self-sustaining event.
@@ -791,9 +769,9 @@ in the first example program will schedule an explicit stop at 11 seconds:
 
 ::
 
-  +  Simulator::Stop (Seconds (11.0));
-     Simulator::Run ();
-     Simulator::Destroy ();
+  +  Simulator::Stop(Seconds(11.0));
+     Simulator::Run();
+     Simulator::Destroy();
      return 0;
    }
 

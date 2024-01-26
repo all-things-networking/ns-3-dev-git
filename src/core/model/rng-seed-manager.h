@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Mathieu Lacage
  *
@@ -47,7 +46,7 @@ class RngSeedManager
      * subsequently instantiated RandomVariableStream objects.
      *
      * \code
-     *   RngSeedManger::SetSeed(15);
+     *   RngSeedManager::SetSeed(15);
      *   UniformVariable x(2,3);     // These will give the same output every time
      *   ExponentialVariable y(120); // as long as the seed stays the same.
      * \endcode

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -226,7 +225,7 @@ namespace tests
  * \brief Test that an actual and expected (limit) value are equal and
  * report if not.
  *
- * Check to see if the expected (lmit) value is equal to the actual
+ * Check to see if the expected (limit) value is equal to the actual
  * value found in a test case.  If the two values are equal nothing
  * happens, but if the comparison fails, an error is reported in a
  * consistent way.  EXPECT* macros do not return if an error is
@@ -1131,7 +1130,7 @@ class TestCase
     bool IsStatusSuccess() const;
 
     /**
-     * \brief Get the parent of this TestCsse.
+     * \brief Get the parent of this TestCase.
      *
      * \return A pointer to the parent of this test.
      */
@@ -1241,9 +1240,9 @@ class TestCase
     std::vector<TestCase*> m_children; //!< Vector of my children
     std::string m_dataDir;             //!< My data directory
     TestRunnerImpl* m_runner;          //!< Pointer to the TestRunner
-    struct Result* m_result;           //!< Results data
+    Result* m_result;                  //!< Results data
     std::string m_name;                //!< TestCase name
-    enum TestDuration m_duration;      //!< TestCase duration
+    TestDuration m_duration;           //!< TestCase duration
 };
 
 /**

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -56,7 +55,7 @@ ApplicationContainer
 UdpEchoServerHelper::Install(NodeContainer c) const
 {
     ApplicationContainer apps;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         apps.Add(InstallPriv(*i));
     }
@@ -130,7 +129,7 @@ ApplicationContainer
 UdpEchoClientHelper::Install(NodeContainer c) const
 {
     ApplicationContainer apps;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         apps.Add(InstallPriv(*i));
     }

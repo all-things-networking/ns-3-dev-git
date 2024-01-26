@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -70,7 +69,7 @@ ApplicationContainer::Get(uint32_t i) const
 void
 ApplicationContainer::Add(ApplicationContainer other)
 {
-    for (Iterator i = other.Begin(); i != other.End(); i++)
+    for (auto i = other.Begin(); i != other.End(); i++)
     {
         m_applications.push_back(*i);
     }
@@ -90,9 +89,9 @@ ApplicationContainer::Add(std::string name)
 }
 
 void
-ApplicationContainer::Start(Time start)
+ApplicationContainer::Start(Time start) const
 {
-    for (Iterator i = Begin(); i != End(); ++i)
+    for (auto i = Begin(); i != End(); ++i)
     {
         Ptr<Application> app = *i;
         app->SetStartTime(start);
@@ -100,9 +99,9 @@ ApplicationContainer::Start(Time start)
 }
 
 void
-ApplicationContainer::StartWithJitter(Time start, Ptr<RandomVariableStream> rv)
+ApplicationContainer::StartWithJitter(Time start, Ptr<RandomVariableStream> rv) const
 {
-    for (Iterator i = Begin(); i != End(); ++i)
+    for (auto i = Begin(); i != End(); ++i)
     {
         Ptr<Application> app = *i;
         double value = rv->GetValue();
@@ -112,9 +111,9 @@ ApplicationContainer::StartWithJitter(Time start, Ptr<RandomVariableStream> rv)
 }
 
 void
-ApplicationContainer::Stop(Time stop)
+ApplicationContainer::Stop(Time stop) const
 {
-    for (Iterator i = Begin(); i != End(); ++i)
+    for (auto i = Begin(); i != End(); ++i)
     {
         Ptr<Application> app = *i;
         app->SetStopTime(stop);

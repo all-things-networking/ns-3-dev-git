@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -20,8 +19,9 @@
 #ifndef UDP_SOCKET_FACTORY_IMPL_H
 #define UDP_SOCKET_FACTORY_IMPL_H
 
+#include "udp-socket-factory.h"
+
 #include "ns3/ptr.h"
-#include "ns3/udp-socket-factory.h"
 
 namespace ns3
 {

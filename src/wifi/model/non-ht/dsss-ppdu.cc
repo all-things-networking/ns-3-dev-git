@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -25,6 +24,7 @@
 #include "dsss-phy.h"
 
 #include "ns3/log.h"
+#include "ns3/wifi-phy-operating-channel.h"
 #include "ns3/wifi-phy.h"
 #include "ns3/wifi-psdu.h"
 
@@ -35,19 +35,30 @@ NS_LOG_COMPONENT_DEFINE("DsssPpdu");
 
 DsssPpdu::DsssPpdu(Ptr<const WifiPsdu> psdu,
                    const WifiTxVector& txVector,
-                   uint16_t txCenterFreq,
+                   const WifiPhyOperatingChannel& channel,
                    Time ppduDuration,
                    uint64_t uid)
-    : WifiPpdu(psdu, txVector, txCenterFreq, uid)
+    : WifiPpdu(psdu, txVector, channel, uid)
 {
-    NS_LOG_FUNCTION(this << psdu << txVector << txCenterFreq << ppduDuration << uid);
-    m_dsssSig.SetRate(txVector.GetMode().GetDataRate(22));
-    Time psduDuration = ppduDuration - WifiPhy::CalculatePhyPreambleAndHeaderDuration(txVector);
-    m_dsssSig.SetLength(psduDuration.GetMicroSeconds());
+    NS_LOG_FUNCTION(this << psdu << txVector << channel << ppduDuration << uid);
+    SetPhyHeaders(txVector, ppduDuration);
 }
 
-DsssPpdu::~DsssPpdu()
+void
+DsssPpdu::SetPhyHeaders(const WifiTxVector& txVector, Time ppduDuration)
 {
+    NS_LOG_FUNCTION(this << txVector);
+    SetDsssHeader(m_dsssSig, txVector, ppduDuration);
+}
+
+void
+DsssPpdu::SetDsssHeader(DsssSigHeader& dsssSig,
+                        const WifiTxVector& txVector,
+                        Time ppduDuration) const
+{
+    dsssSig.SetRate(txVector.GetMode().GetDataRate(22));
+    Time psduDuration = ppduDuration - WifiPhy::CalculatePhyPreambleAndHeaderDuration(txVector);
+    dsssSig.SetLength(psduDuration.GetMicroSeconds());
 }
 
 WifiTxVector
@@ -55,63 +66,35 @@ DsssPpdu::DoGetTxVector() const
 {
     WifiTxVector txVector;
     txVector.SetPreambleType(m_preamble);
-    txVector.SetMode(DsssPhy::GetDsssRate(m_dsssSig.GetRate()));
     txVector.SetChannelWidth(22);
+    SetTxVectorFromDsssHeader(txVector, m_dsssSig);
     return txVector;
+}
+
+void
+DsssPpdu::SetTxVectorFromDsssHeader(WifiTxVector& txVector, const DsssSigHeader& dsssSig) const
+{
+    txVector.SetMode(DsssPhy::GetDsssRate(dsssSig.GetRate()));
 }
 
 Time
 DsssPpdu::GetTxDuration() const
 {
-    Time ppduDuration = Seconds(0);
-    const WifiTxVector& txVector = GetTxVector();
-    ppduDuration = MicroSeconds(m_dsssSig.GetLength()) +
-                   WifiPhy::CalculatePhyPreambleAndHeaderDuration(txVector);
-    return ppduDuration;
+    const auto& txVector = GetTxVector();
+    const auto length = m_dsssSig.GetLength();
+    return (MicroSeconds(length) + WifiPhy::CalculatePhyPreambleAndHeaderDuration(txVector));
 }
 
 Ptr<WifiPpdu>
 DsssPpdu::Copy() const
 {
-    return Create<DsssPpdu>(GetPsdu(), GetTxVector(), m_txCenterFreq, GetTxDuration(), m_uid);
+    return Ptr<WifiPpdu>(new DsssPpdu(*this), false);
 }
 
 DsssPpdu::DsssSigHeader::DsssSigHeader()
     : m_rate(0b00001010),
       m_length(0)
 {
-}
-
-DsssPpdu::DsssSigHeader::~DsssSigHeader()
-{
-}
-
-TypeId
-DsssPpdu::DsssSigHeader::GetTypeId()
-{
-    static TypeId tid = TypeId("ns3::DsssSigHeader")
-                            .SetParent<Header>()
-                            .SetGroupName("Wifi")
-                            .AddConstructor<DsssSigHeader>();
-    return tid;
-}
-
-TypeId
-DsssPpdu::DsssSigHeader::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
-void
-DsssPpdu::DsssSigHeader::Print(std::ostream& os) const
-{
-    os << "SIGNAL=" << GetRate() << " LENGTH=" << m_length;
-}
-
-uint32_t
-DsssPpdu::DsssSigHeader::GetSerializedSize() const
-{
-    return 6;
 }
 
 void
@@ -178,26 +161,6 @@ uint16_t
 DsssPpdu::DsssSigHeader::GetLength() const
 {
     return m_length;
-}
-
-void
-DsssPpdu::DsssSigHeader::Serialize(Buffer::Iterator start) const
-{
-    start.WriteU8(m_rate);
-    start.WriteU8(0); /* SERVICE */
-    start.WriteU16(m_length);
-    start.WriteU16(0); /* CRC */
-}
-
-uint32_t
-DsssPpdu::DsssSigHeader::Deserialize(Buffer::Iterator start)
-{
-    Buffer::Iterator i = start;
-    m_rate = i.ReadU8();
-    i.ReadU8(); /* SERVICE */
-    m_length = i.ReadU16();
-    i.ReadU16(); /* CRC */
-    return i.GetDistanceFrom(start);
 }
 
 } // namespace ns3

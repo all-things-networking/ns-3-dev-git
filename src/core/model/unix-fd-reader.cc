@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 /*
  * Copyright (c) 2010 The Boeing Company
@@ -19,9 +18,8 @@
  * Author: Tom Goff <thomas.goff@boeing.com>
  */
 
-#include "unix-fd-reader.h"
-
 #include "fatal-error.h"
+#include "fd-reader.h"
 #include "log.h"
 #include "simple-ref-count.h"
 #include "simulator.h"
@@ -220,7 +218,7 @@ FdReader::Run()
 
         if (FD_ISSET(m_fd, &readfds))
         {
-            struct FdReader::Data data = DoRead();
+            FdReader::Data data = DoRead();
             // reading stops when m_len is zero
             if (data.m_len == 0)
             {

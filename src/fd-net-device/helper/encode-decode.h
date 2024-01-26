@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -19,6 +18,7 @@
 #ifndef ENCODE_DECODE_H
 #define ENCODE_DECODE_H
 
+#include <cstdint>
 #include <string>
 
 namespace ns3

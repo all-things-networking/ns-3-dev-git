@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -115,7 +114,7 @@ operator!=(const Cid& lhs, const Cid& rhs)
 }
 
 /**
- * \brief output stream output opertor
+ * \brief output stream output operator
  * \param os output stream
  * \param cid CID
  * \returns output stream

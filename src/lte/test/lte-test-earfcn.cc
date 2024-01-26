@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -28,7 +27,6 @@ NS_LOG_COMPONENT_DEFINE("LteTestEarfcn");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test case that is testing if the frequency is properly generated
  * from provided EARFCN frequency.
@@ -76,7 +74,6 @@ LteEarfcnTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief
  * Test case that is testing if the downlink frequency is properly
@@ -117,7 +114,6 @@ LteEarfcnDlTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief  Test case that is testing if the uplink frequency is properly
  * converted from provided uplink EARFCN frequency value.
@@ -153,7 +149,6 @@ LteEarfcnUlTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for testing correct conversion of frequencies in
  * the downlink and the uplink, and general EARFCN frequencies.
@@ -164,6 +159,10 @@ class LteEarfcnTestSuite : public TestSuite
     LteEarfcnTestSuite();
 };
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteEarfcnTestSuite g_lteEarfcnTestSuite;
 
 LteEarfcnTestSuite::LteEarfcnTestSuite()

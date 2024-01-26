@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016
  *
@@ -121,6 +120,16 @@ class WifiMacHelper
     void SetMultiUserScheduler(std::string type, Args&&... args);
 
     /**
+     * Helper function used to set the EMLSR Manager that can be installed on an EHT non-AP MLD.
+     *
+     * \tparam Args \deduced Template type parameter pack for the sequence of name-value pairs.
+     * \param type the type of EMLSR Manager
+     * \param args A sequence of name-value pairs of the attributes to set.
+     */
+    template <typename... Args>
+    void SetEmlsrManager(std::string type, Args&&... args);
+
+    /**
      * \param device the device within which the MAC object will reside
      * \param standard the standard to configure during installation
      * \returns a new MAC object.
@@ -136,6 +145,7 @@ class WifiMacHelper
     ObjectFactory m_protectionManager; ///< Factory to create a protection manager
     ObjectFactory m_ackManager;        ///< Factory to create an acknowledgment manager
     ObjectFactory m_muScheduler;       ///< Multi-user Scheduler object factory
+    ObjectFactory m_emlsrManager;      ///< EMLSR Manager object factory
 };
 
 } // namespace ns3
@@ -193,6 +203,14 @@ WifiMacHelper::SetMultiUserScheduler(std::string type, Args&&... args)
 {
     m_muScheduler.SetTypeId(type);
     m_muScheduler.Set(args...);
+}
+
+template <typename... Args>
+void
+WifiMacHelper::SetEmlsrManager(std::string type, Args&&... args)
+{
+    m_emlsrManager.SetTypeId(type);
+    m_emlsrManager.Set(args...);
 }
 
 } // namespace ns3

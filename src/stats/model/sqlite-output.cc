@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -91,7 +90,7 @@ SQLiteOutput::SpinPrepare(sqlite3_stmt** stmt, const std::string& cmd) const
 
 template <typename T>
 T
-SQLiteOutput::RetrieveColumn([[maybe_unused]] sqlite3_stmt* stmt, [[maybe_unused]] int pos) const
+SQLiteOutput::RetrieveColumn(sqlite3_stmt* /* stmt */, int /* pos */) const
 {
     NS_FATAL_ERROR("Can't call generic fn");
 }
@@ -122,9 +121,7 @@ SQLiteOutput::RetrieveColumn(sqlite3_stmt* stmt, int pos) const
 
 template <typename T>
 bool
-SQLiteOutput::Bind([[maybe_unused]] sqlite3_stmt* stmt,
-                   [[maybe_unused]] int pos,
-                   [[maybe_unused]] const T& value) const
+SQLiteOutput::Bind(sqlite3_stmt* /* stmt */, int /* pos */, const T& /* value */) const
 {
     NS_FATAL_ERROR("Can't call generic fn");
     return false;
@@ -135,11 +132,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const Time& value) const
 {
-    if (sqlite3_bind_double(stmt, pos, value.GetSeconds()) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_double(stmt, pos, value.GetSeconds()) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -147,11 +140,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const double& value) const
 {
-    if (sqlite3_bind_double(stmt, pos, value) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_double(stmt, pos, value) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -159,11 +148,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const uint32_t& value) const
 {
-    if (sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -171,11 +156,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const long& value) const
 {
-    if (sqlite3_bind_int64(stmt, pos, value) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int64(stmt, pos, value) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -183,11 +164,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const long long& value) const
 {
-    if (sqlite3_bind_int64(stmt, pos, value) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int64(stmt, pos, value) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -195,11 +172,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const uint16_t& value) const
 {
-    if (sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -207,11 +180,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const uint8_t& value) const
 {
-    if (sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int(stmt, pos, static_cast<int>(value)) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -219,11 +188,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const int& value) const
 {
-    if (sqlite3_bind_int(stmt, pos, value) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_int(stmt, pos, value) == SQLITE_OK;
 }
 
 //! \copydoc SQLiteOutput::Bind
@@ -231,11 +196,7 @@ template <>
 bool
 SQLiteOutput::Bind(sqlite3_stmt* stmt, int pos, const std::string& value) const
 {
-    if (sqlite3_bind_text(stmt, pos, value.c_str(), -1, SQLITE_STATIC) == SQLITE_OK)
-    {
-        return true;
-    }
-    return false;
+    return sqlite3_bind_text(stmt, pos, value.c_str(), -1, SQLITE_STATIC) == SQLITE_OK;
 }
 
 int

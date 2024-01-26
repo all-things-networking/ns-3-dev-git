@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
@@ -54,10 +53,10 @@ PacketQueue::GetSize()
 bool
 PacketQueue::Enqueue(QueueEntry& entry)
 {
-    NS_LOG_FUNCTION("Enqueing packet destined for" << entry.GetIpv4Header().GetDestination());
+    NS_LOG_FUNCTION("Enqueuing packet destined for" << entry.GetIpv4Header().GetDestination());
     Purge();
     uint32_t numPacketswithdst;
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if ((i->GetPacket()->GetUid() == entry.GetPacket()->GetUid()) &&
             (i->GetIpv4Header().GetDestination() == entry.GetIpv4Header().GetDestination()))
@@ -75,7 +74,7 @@ PacketQueue::Enqueue(QueueEntry& entry)
     }
     else
     {
-        // NS_LOG_DEBUG("Packet size while enqueing "<<entry.GetPacket()->GetSize());
+        // NS_LOG_DEBUG("Packet size while enqueuing "<<entry.GetPacket()->GetSize());
         entry.SetExpireTime(m_queueTimeout);
         m_queue.push_back(entry);
         return true;
@@ -87,7 +86,7 @@ PacketQueue::DropPacketWithDst(Ipv4Address dst)
 {
     NS_LOG_FUNCTION("Dropping packet to " << dst);
     Purge();
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -105,7 +104,7 @@ PacketQueue::Dequeue(Ipv4Address dst, QueueEntry& entry)
 {
     NS_LOG_FUNCTION("Dequeueing packet destined for" << dst);
     Purge();
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -120,7 +119,7 @@ PacketQueue::Dequeue(Ipv4Address dst, QueueEntry& entry)
 bool
 PacketQueue::Find(Ipv4Address dst)
 {
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -135,7 +134,7 @@ uint32_t
 PacketQueue::GetCountForPacketsWithDst(Ipv4Address dst)
 {
     uint32_t count = 0;
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -167,7 +166,7 @@ PacketQueue::Purge()
 {
     // NS_LOG_DEBUG("Purging Queue");
     IsExpired pred;
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (pred(*i))
         {

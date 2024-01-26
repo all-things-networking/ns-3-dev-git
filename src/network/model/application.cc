@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation
  *
@@ -23,8 +22,9 @@
 
 #include "application.h"
 
+#include "node.h"
+
 #include "ns3/log.h"
-#include "ns3/node.h"
 #include "ns3/nstime.h"
 #include "ns3/simulator.h"
 

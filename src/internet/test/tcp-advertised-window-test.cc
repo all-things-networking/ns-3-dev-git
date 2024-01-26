@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Christoph Doepmann <doepmanc@informatik.hu-berlin.de>
  *
@@ -82,7 +81,7 @@ class TcpSocketAdvertisedWindowProxy : public TcpSocketMsgBase
     void SetExpectedSegmentSize(uint16_t seg)
     {
         m_segmentSize = seg;
-    };
+    }
 
   protected:
     Ptr<TcpSocketBase> Fork() override;
@@ -273,7 +272,7 @@ TcpDropRatioErrorModel::ShouldDrop(const Ipv4Header& ipHeader,
  *
  *   m_tcb->m_rxBuffer->MaxBufferSize ()
  *
- * This change was introduced with regard to situations in which the receiviing
+ * This change was introduced with regard to situations in which the receiving
  * application does not read from the socket as fast as possible (see bug 2559
  * for details). This test ensures that no regression is introduced for other,
  * "normal" cases.
@@ -448,7 +447,7 @@ Ptr<ErrorModel>
 TcpAdvWindowOnLossTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> m_errorModel = CreateObject<TcpSeqErrorModel>();
-    for (std::vector<uint32_t>::iterator it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
         m_errorModel->AddSeqToKill(SequenceNumber32(*it));
     }

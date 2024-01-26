@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 University of Washington
  *
@@ -68,11 +67,12 @@ HeConfiguration::GetTypeId()
                                            &HeConfiguration::SetMaxTbPpduDelay),
                           MakeTimeChecker(Seconds(0)))
             .AddAttribute("MpduBufferSize",
-                          "The MPDU buffer size for receiving A-MPDUs",
+                          "This attribute is obsolete. Use the WifiMac::MpduBufferSize attribute "
+                          "instead.",
                           UintegerValue(64),
-                          MakeUintegerAccessor(&HeConfiguration::GetMpduBufferSize,
-                                               &HeConfiguration::SetMpduBufferSize),
-                          MakeUintegerChecker<uint16_t>(64, 256))
+                          MakeUintegerAccessor(&HeConfiguration::m_mpduBufferSize),
+                          MakeUintegerChecker<uint16_t>(64, 256),
+                          TypeId::OBSOLETE)
             .AddAttribute("MuBeAifsn",
                           "AIFSN used by BE EDCA when the MU EDCA Timer is running. "
                           "It must be either zero (EDCA disabled) or a value from 2 to 15.",
@@ -222,19 +222,6 @@ void
 HeConfiguration::SetMaxTbPpduDelay(Time maxTbPpduDelay)
 {
     m_maxTbPpduDelay = maxTbPpduDelay;
-}
-
-void
-HeConfiguration::SetMpduBufferSize(uint16_t size)
-{
-    NS_LOG_FUNCTION(this << size);
-    m_mpduBufferSize = size;
-}
-
-uint16_t
-HeConfiguration::GetMpduBufferSize() const
-{
-    return m_mpduBufferSize;
 }
 
 } // namespace ns3

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -49,7 +48,7 @@ IeLinkMetricReport::GetInformationFieldSize() const
 }
 
 uint32_t
-IeLinkMetricReport::GetMetric()
+IeLinkMetricReport::GetMetric() const
 {
     return m_metric;
 }

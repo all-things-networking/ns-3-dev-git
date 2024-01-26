@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington
  *
@@ -69,4 +68,6 @@ main(int argc, char* argv[])
     Ptr<UniformRandomVariable> uv = CreateObject<UniformRandomVariable>();
 
     std::cout << uv->GetValue() << std::endl;
+
+    return 0;
 }

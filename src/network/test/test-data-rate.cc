@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -199,7 +198,7 @@ class DataRateTestCase2 : public DataRateTestCase
 };
 
 DataRateTestCase2::DataRateTestCase2()
-    : DataRateTestCase("Test arithmatic on DateRate")
+    : DataRateTestCase("Test arithmetic on DateRate")
 {
 }
 

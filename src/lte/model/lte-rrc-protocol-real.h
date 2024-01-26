@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,10 +21,10 @@
 #ifndef LTE_RRC_PROTOCOL_REAL_H
 #define LTE_RRC_PROTOCOL_REAL_H
 
-#include <ns3/lte-pdcp-sap.h>
-#include <ns3/lte-rlc-sap.h>
-#include <ns3/lte-rrc-header.h>
-#include <ns3/lte-rrc-sap.h>
+#include "lte-pdcp-sap.h"
+#include "lte-rlc-sap.h"
+#include "lte-rrc-sap.h"
+
 #include <ns3/object.h>
 #include <ns3/ptr.h>
 
@@ -109,7 +108,7 @@ class LteUeRrcProtocolReal : public Object
      *
      * \param msg LteRrcSap::RrcConnectionSetupCompleted
      */
-    void DoSendRrcConnectionSetupCompleted(LteRrcSap::RrcConnectionSetupCompleted msg);
+    void DoSendRrcConnectionSetupCompleted(LteRrcSap::RrcConnectionSetupCompleted msg) const;
     /**
      * Send RRC connection reconfiguration setup completed function
      *
@@ -123,14 +122,14 @@ class LteUeRrcProtocolReal : public Object
      * \param msg LteRrcSap::RrcConnectionReestablishmentRequest
      */
     void DoSendRrcConnectionReestablishmentRequest(
-        LteRrcSap::RrcConnectionReestablishmentRequest msg);
+        LteRrcSap::RrcConnectionReestablishmentRequest msg) const;
     /**
      * Send RRC connection reestablishment complete function
      *
      * \param msg LteRrcSap::RrcConnectionReestablishmentComplete
      */
     void DoSendRrcConnectionReestablishmentComplete(
-        LteRrcSap::RrcConnectionReestablishmentComplete msg);
+        LteRrcSap::RrcConnectionReestablishmentComplete msg) const;
     /**
      * Send measurement report function
      *

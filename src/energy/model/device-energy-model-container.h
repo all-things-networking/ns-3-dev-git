@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
@@ -23,7 +22,7 @@
 #ifndef DEVICE_ENERGY_MODEL_CONTAINER_H
 #define DEVICE_ENERGY_MODEL_CONTAINER_H
 
-#include "ns3/device-energy-model.h"
+#include "device-energy-model.h"
 
 #include <stdint.h>
 #include <vector>

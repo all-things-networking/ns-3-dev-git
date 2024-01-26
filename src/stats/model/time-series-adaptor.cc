@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 University of Washington
  *
@@ -18,7 +17,7 @@
  * Author: Mitch Watrous (watrous@u.washington.edu)
  */
 
-#include "ns3/time-series-adaptor.h"
+#include "time-series-adaptor.h"
 
 #include "ns3/log.h"
 #include "ns3/object.h"

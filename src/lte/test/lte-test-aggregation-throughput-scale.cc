@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Alexander Krotov
  *
@@ -55,6 +54,10 @@ LteAggregationThroughputScaleTestSuite::LteAggregationThroughputScaleTestSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteAggregationThroughputScaleTestSuite g_lteAggregationThroughputScaleTestSuite;
 
 LteAggregationThroughputScaleTestCase::LteAggregationThroughputScaleTestCase(std::string name)

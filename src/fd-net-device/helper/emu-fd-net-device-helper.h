@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
@@ -20,8 +19,9 @@
 #ifndef EMU_FD_NET_DEVICE_HELPER_H
 #define EMU_FD_NET_DEVICE_HELPER_H
 
+#include "fd-net-device-helper.h"
+
 #include "ns3/attribute.h"
-#include "ns3/fd-net-device-helper.h"
 #include "ns3/fd-net-device.h"
 #include "ns3/net-device-container.h"
 #include "ns3/node-container.h"

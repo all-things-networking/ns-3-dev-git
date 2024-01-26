@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -35,7 +34,6 @@ namespace ns3
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Simple Frequency Reuse algorithm implementation which uses only 1 sub-band.
  *                Used to test Downlink Power Allocation. When Simple FR receives UE measurements
@@ -73,9 +71,9 @@ class LteFfrSimple : public LteFfrAlgorithm
      * \brief Set transmission power control
      * \param tpc TPC
      * \param num number of TPC configurations in the test case
-     * \param acculumatedMode whether TPC accumulated mode is used
+     * \param accumulatedMode whether TPC accumulated mode is used
      */
-    void SetTpc(uint32_t tpc, uint32_t num, bool acculumatedMode);
+    void SetTpc(uint32_t tpc, uint32_t num, bool accumulatedMode);
 
     // inherited from LteFfrAlgorithm
     void SetLteFfrSapUser(LteFfrSapUser* s) override;
@@ -110,9 +108,9 @@ class LteFfrSimple : public LteFfrAlgorithm
     std::vector<bool> DoGetAvailableUlRbg() override;
     bool DoIsUlRbgAvailableForUe(int i, uint16_t rnti) override;
     void DoReportDlCqiInfo(
-        const struct FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params) override;
+        const FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params) override;
     void DoReportUlCqiInfo(
-        const struct FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params) override;
+        const FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params) override;
     void DoReportUlCqiInfo(std::map<uint16_t, std::vector<double>> ulCqiMap) override;
     uint8_t DoGetTpc(uint16_t rnti) override;
     uint16_t DoGetMinContinuousUlBandwidth() override;

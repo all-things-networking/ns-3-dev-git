@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universidad de la República - Uruguay
  *
@@ -38,7 +37,7 @@ struct RrpaaWifiRemoteStation;
  * Threshold Coordinated Management for High-Density IEEE 802.11 Networks</i>
  * by Matías Richart; Jorge Visca and Javier Baliosian in Integrated Network Management (IM),
  * 2015 IFIP/IEEE International Symposium on (pp. 139-146). IEEE.
- * http://dl.ifip.org/db/conf/im/im2015/137430.pdf
+ * https://ieeexplore.ieee.org/document/7140286
  *
  * RRPAA adds power control to the RRAA mechanism. RRAA is described in
  * <i>Robust rate adaptation for 802.11 wireless networks</i> by Starsky H. Y. Wong;

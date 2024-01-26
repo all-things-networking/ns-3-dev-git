@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -179,7 +178,7 @@ PtrTestCase::CallTestConst(const Ptr<NoCount> p)
 void
 PtrTestCase::DoRun()
 {
-    m_nDestroyed = false;
+    m_nDestroyed = 0;
     {
         Ptr<NoCount> p = Create<NoCount>(this);
     }

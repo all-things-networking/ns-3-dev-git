@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -46,7 +45,7 @@ class Address;
 class Mac48Address
 {
   public:
-    Mac48Address();
+    Mac48Address() = default;
     /**
      * \param str a string representing the new Mac48Address
      *
@@ -82,6 +81,13 @@ class Mac48Address
      * Mac48Address.
      */
     static Mac48Address ConvertFrom(const Address& address);
+    /**
+     * \returns a new Address instance
+     *
+     * Convert an instance of this class to a polymorphic Address instance.
+     */
+    Address ConvertTo() const;
+
     /**
      * \param address address to test
      * \returns true if the address matches, false otherwise.
@@ -156,13 +162,6 @@ class Mac48Address
 
   private:
     /**
-     * \returns a new Address instance
-     *
-     * Convert an instance of this class to a polymorphic Address instance.
-     */
-    Address ConvertTo() const;
-
-    /**
      * \brief Return the Type of address.
      * \return type of address
      */
@@ -214,7 +213,7 @@ class Mac48Address
     friend std::istream& operator>>(std::istream& is, Mac48Address& address);
 
     static uint64_t m_allocationIndex; //!< Address allocation index
-    uint8_t m_address[6];              //!< address value
+    uint8_t m_address[6]{0};           //!< Address value
 };
 
 ATTRIBUTE_HELPER_HEADER(Mac48Address);

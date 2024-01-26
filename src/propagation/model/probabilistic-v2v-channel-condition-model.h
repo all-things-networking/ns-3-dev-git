@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -20,7 +19,7 @@
 #ifndef PROBABILISTIC_V2V_CHANNEL_CONDITION_MODEL_H
 #define PROBABILISTIC_V2V_CHANNEL_CONDITION_MODEL_H
 
-#include "ns3/channel-condition-model.h"
+#include "channel-condition-model.h"
 
 namespace ns3
 {
@@ -76,10 +75,7 @@ class ProbabilisticV2vUrbanChannelConditionModel : public ThreeGppChannelConditi
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
-    enum VehicleDensity m_densityUrban
-    {
-        VehicleDensity::INVALID
-    }; //!< vehicle density
+    VehicleDensity m_densityUrban{VehicleDensity::INVALID}; //!< vehicle density
 };
 
 /**
@@ -131,10 +127,7 @@ class ProbabilisticV2vHighwayChannelConditionModel : public ThreeGppChannelCondi
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
-    enum VehicleDensity m_densityHighway
-    {
-        VehicleDensity::INVALID
-    }; //!< vehicle density
+    VehicleDensity m_densityHighway{VehicleDensity::INVALID}; //!< vehicle density
 };
 
 } // namespace ns3

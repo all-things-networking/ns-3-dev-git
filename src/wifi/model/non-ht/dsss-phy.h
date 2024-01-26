@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -162,8 +161,7 @@ class DsssPhy : public PhyEntity
   private:
     PhyFieldRxStatus DoEndReceiveField(WifiPpduField field, Ptr<Event> event) override;
     Ptr<SpectrumValue> GetTxPowerSpectralDensity(double txPowerW,
-                                                 Ptr<const WifiPpdu> ppdu,
-                                                 const WifiTxVector& txVector) const override;
+                                                 Ptr<const WifiPpdu> ppdu) const override;
     uint16_t GetRxChannelWidth(const WifiTxVector& txVector) const override;
     uint16_t GetMeasurementChannelWidth(const Ptr<const WifiPpdu> ppdu) const override;
 
@@ -202,7 +200,8 @@ class DsssPhy : public PhyEntity
      *
      * \param uniqueName the unique name of the WifiMode
      * \param modClass the modulation class of the WifiMode, must be either WIFI_MOD_CLASS_DSSS or
-     * WIFI_MOD_CLASS_HR_DSSS \return the DSSS or HR/DSSS WifiMode
+     * WIFI_MOD_CLASS_HR_DSSS
+     * \return the DSSS or HR/DSSS WifiMode
      */
     static WifiMode CreateDsssMode(std::string uniqueName, WifiModulationClass modClass);
 

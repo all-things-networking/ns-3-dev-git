@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -21,9 +20,10 @@
 #ifndef SPECTRUM_PROPAGATION_LOSS_MODEL_H
 #define SPECTRUM_PROPAGATION_LOSS_MODEL_H
 
+#include "spectrum-value.h"
+
 #include <ns3/mobility-model.h>
 #include <ns3/object.h>
-#include <ns3/spectrum-value.h>
 
 namespace ns3
 {
@@ -58,6 +58,13 @@ class SpectrumPropagationLossModel : public Object
      * @param next
      */
     void SetNext(Ptr<SpectrumPropagationLossModel> next);
+
+    /**
+     * Return the pointer to the next SpectrumPropagationLossModel, if any.
+     *
+     * @return Pointer to the next model, if any.
+     */
+    Ptr<SpectrumPropagationLossModel> GetNext() const;
 
     /**
      * This method is to be called to calculate

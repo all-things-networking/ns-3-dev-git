@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006,2007 INRIA
  *
@@ -92,7 +91,12 @@ class PacketMetadata
             PAYLOAD, //!< Payload
             HEADER,  //!< Header
             TRAILER  //!< Trailer
-        } type;      //!< metadata type
+        };
+
+        /**
+         * metadata type
+         */
+        ItemType type;
 
         /**
          * true: this is a fragmented header, trailer, or, payload.
@@ -113,12 +117,12 @@ class PacketMetadata
          * how many bytes were trimmed from the start of a fragment.
          * if isFragment is true, this field is zero.
          */
-        uint32_t currentTrimedFromStart;
+        uint32_t currentTrimmedFromStart;
         /**
          * how many bytes were trimmed from the end of a fragment.
          * if isFragment is true, this field is zero.
          */
-        uint32_t currentTrimedFromEnd;
+        uint32_t currentTrimmedFromEnd;
         /**
          * an iterator which can be fed to Deserialize. Valid only
          * if isFragment and isPayload are false.
@@ -255,7 +259,7 @@ class PacketMetadata
 
     /**
      * \brief Get the metadata serialized size
-     * \return the seralized size
+     * \return the serialized size
      */
     uint32_t GetSerializedSize() const;
 
@@ -267,17 +271,17 @@ class PacketMetadata
     ItemIterator BeginItem(Buffer buffer) const;
 
     /**
-     *  \brief Serialization to raw uint8_t*
-     *  \param buffer the buffer to serialize to
-     *  \param maxSize the maximum serialization size
-     *  \return 1 on success, 0 on failure
+     * \brief Serialization to raw uint8_t*
+     * \param buffer the buffer to serialize to
+     * \param maxSize the maximum serialization size
+     * \return 1 on success, 0 on failure
      */
     uint32_t Serialize(uint8_t* buffer, uint32_t maxSize) const;
     /**
-     *  \brief Deserialization from raw uint8_t*
-     *  \param buffer the buffer to deserialize from
-     *  \param size the size
-     *  \return 1 on success, 0 on failure
+     * \brief Deserialization from raw uint8_t*
+     * \param buffer the buffer to deserialize from
+     * \param size the size
+     * \return 1 on success, 0 on failure
      */
     uint32_t Deserialize(const uint8_t* buffer, uint32_t size);
 
@@ -424,9 +428,8 @@ class PacketMetadata
         /** number of references to this struct Data instance. */
         uint32_t m_count;
         /** size (in bytes) of m_data buffer below */
-        uint16_t m_size;
-        /** max of the m_used field over all objects which
-         * reference this struct Data instance */
+        uint32_t m_size;
+        /** max of the m_used field over all objects which reference this struct Data instance */
         uint16_t m_dirtyEnd;
         /** variable-sized buffer of bytes */
         uint8_t m_data[PACKET_METADATA_DATA_M_DATA_SIZE];
@@ -444,41 +447,41 @@ class PacketMetadata
     struct SmallItem
     {
         /** offset (in bytes) from start of m_data buffer
-           to next element in linked list. value is 0xffff
-           if next element does not exist.
-           stored as a fixed-size 16 bit integer.
+            to next element in linked list. value is 0xffff
+            if next element does not exist.
+            stored as a fixed-size 16 bit integer.
         */
         uint16_t next;
         /** offset (in bytes) from start of m_data buffer
-           to previous element in linked list. value is 0xffff
-           if previous element does not exist.
-           stored as a fixed-size 16 bit integer.
+            to previous element in linked list. value is 0xffff
+            if previous element does not exist.
+            stored as a fixed-size 16 bit integer.
          */
         uint16_t prev;
         /** the high 31 bits of this field identify the
-           type of the header or trailer represented by
-           this item: the value zero represents payload.
-           If the low bit of this uid is one, an ExtraItem
-           structure follows this SmallItem structure.
-           stored as a variable-size 32 bit integer.
+            type of the header or trailer represented by
+            this item: the value zero represents payload.
+            If the low bit of this uid is one, an ExtraItem
+            structure follows this SmallItem structure.
+            stored as a variable-size 32 bit integer.
          */
         uint32_t typeUid;
         /** the size (in bytes) of the header or trailer represented
-           by this element.
-           stored as a variable-size 32 bit integer.
+            by this element.
+            stored as a variable-size 32 bit integer.
          */
         uint32_t size;
         /** this field tries to uniquely identify each header or
-           trailer _instance_ while the typeUid field uniquely
-           identifies each header or trailer _type_. This field
-           is used to test whether two items are equal in the sense
-           that they represent the same header or trailer instance.
-           That equality test is based on the typeUid and chunkUid
-           fields so, the likelihood that two header instances
-           share the same chunkUid _and_ typeUid is very small
-           unless they are really representations of the same header
-           instance.
-           stored as a fixed-size 16 bit integer.
+            trailer _instance_ while the typeUid field uniquely
+            identifies each header or trailer _type_. This field
+            is used to test whether two items are equal in the sense
+            that they represent the same header or trailer instance.
+            That equality test is based on the typeUid and chunkUid
+            fields so, the likelihood that two header instances
+            share the same chunkUid _and_ typeUid is very small
+            unless they are really representations of the same header
+            instance.
+            stored as a fixed-size 16 bit integer.
          */
         uint16_t chunkUid;
     };
@@ -489,19 +492,19 @@ class PacketMetadata
     struct ExtraItem
     {
         /** offset (in bytes) from start of original header to
-           the start of the fragment still present.
-           stored as a variable-size 32 bit integer.
+            the start of the fragment still present.
+            stored as a variable-size 32 bit integer.
          */
         uint32_t fragmentStart;
         /** offset (in bytes) from start of original header to
-           the end of the fragment still present.
-           stored as a variable-size 32 bit integer.
+            the end of the fragment still present.
+            stored as a variable-size 32 bit integer.
          */
         uint32_t fragmentEnd;
         /** the packetUid of the packet in which this header or trailer
-           was first added. It could be different from the m_packetUid
-           field if the user has aggregated multiple packets into one.
-           stored as a fixed-size 64 bit integer.
+            was first added. It could be different from the m_packetUid
+            field if the user has aggregated multiple packets into one.
+            stored as a fixed-size 64 bit integer.
          */
         uint64_t packetUid;
     };
@@ -509,7 +512,7 @@ class PacketMetadata
     /**
      * \brief Class to hold all the metadata
      */
-    class DataFreeList : public std::vector<struct Data*>
+    class DataFreeList : public std::vector<Data*>
     {
       public:
         ~DataFreeList();
@@ -623,8 +626,8 @@ class PacketMetadata
      * \returns the number of bytes read.
      */
     uint32_t ReadItems(uint16_t current,
-                       struct PacketMetadata::SmallItem* item,
-                       struct PacketMetadata::ExtraItem* extraItem) const;
+                       PacketMetadata::SmallItem* item,
+                       PacketMetadata::ExtraItem* extraItem) const;
     /**
      * \brief Add an header
      * \param uid header's uid to add
@@ -653,24 +656,24 @@ class PacketMetadata
      * \brief Recycle the buffer memory
      * \param data the buffer data storage
      */
-    static void Recycle(struct PacketMetadata::Data* data);
+    static void Recycle(PacketMetadata::Data* data);
     /**
      * \brief Create a buffer data storage
      * \param size the storage size to create
      * \returns a pointer to the created buffer storage
      */
-    static struct PacketMetadata::Data* Create(uint32_t size);
+    static PacketMetadata::Data* Create(uint32_t size);
     /**
      * \brief Allocate a buffer data storage
      * \param n the storage size to create
      * \returns a pointer to the allocated buffer storage
      */
-    static struct PacketMetadata::Data* Allocate(uint32_t n);
+    static PacketMetadata::Data* Allocate(uint32_t n);
     /**
      * \brief Deallocate the buffer memory
      * \param data the buffer data storage
      */
-    static void Deallocate(struct PacketMetadata::Data* data);
+    static void Deallocate(PacketMetadata::Data* data);
 
     static DataFreeList m_freeList; //!< the metadata data storage
     static bool m_enable;           //!< Enable the packet metadata
@@ -686,7 +689,7 @@ class PacketMetadata
     static uint32_t m_maxSize;  //!< maximum metadata size
     static uint16_t m_chunkUid; //!< Chunk Uid
 
-    struct Data* m_data; //!< Metadata storage
+    Data* m_data; //!< Metadata storage
     /*
        head -(next)-> tail
          ^             |
@@ -694,7 +697,7 @@ class PacketMetadata
      */
     uint16_t m_head;      //!< list head
     uint16_t m_tail;      //!< list tail
-    uint16_t m_used;      //!< used portion
+    uint32_t m_used;      //!< used portion
     uint64_t m_packetUid; //!< packet Uid
 };
 

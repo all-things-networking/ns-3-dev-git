@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -39,7 +38,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief TestSuite 4.1.1 RLC AM: Only transmitter functionality.
  */
@@ -51,7 +49,6 @@ class LteRlcAmTransmitterTestSuite : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test case used by LteRlcAmTransmitterOneSduTestCase to create topology
  * and to implement functionalities and check if data received corresponds to
@@ -72,7 +69,7 @@ class LteRlcAmTransmitterTestCase : public TestCase
     /**
      * Check data received function
      * \param time the time to check
-     * \param shouldReceived shoul dhave received indicator
+     * \param shouldReceived should have received indicator
      * \param assertMsg the assert message
      */
     void CheckDataReceived(Time time, std::string shouldReceived, std::string assertMsg);
@@ -87,7 +84,7 @@ class LteRlcAmTransmitterTestCase : public TestCase
   private:
     /**
      * Check data received function
-     * \param shouldReceived shoul dhave received indicator
+     * \param shouldReceived should have received indicator
      * \param assertMsg the assert message
      */
     void DoCheckDataReceived(std::string shouldReceived, std::string assertMsg);
@@ -95,7 +92,6 @@ class LteRlcAmTransmitterTestCase : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test 4.1.1.1 Test that SDU transmitted at PDCP corresponds to PDU
  * received by MAC.
@@ -118,7 +114,6 @@ class LteRlcAmTransmitterOneSduTestCase : public LteRlcAmTransmitterTestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test 4.1.1.2 Test the correct functionality of the Segmentation.
  * Test check that single SDU is properly segmented to n PDUs.
@@ -141,7 +136,6 @@ class LteRlcAmTransmitterSegmentationTestCase : public LteRlcAmTransmitterTestCa
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test 4.1.1.3 Test that concatenation functionality works properly.
  * Test check if n SDUs are correctly contactenate to single PDU.
@@ -164,7 +158,6 @@ class LteRlcAmTransmitterConcatenationTestCase : public LteRlcAmTransmitterTestC
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test 4.1.1.4 Test checks functionality of Report Buffer Status by
  * testing primitive parameters.

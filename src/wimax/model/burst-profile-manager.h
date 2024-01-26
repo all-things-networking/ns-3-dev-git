@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -91,14 +90,15 @@ class BurstProfileManager : public Object
      */
     uint8_t GetBurstProfileForSS(const SSRecord* ssRecord,
                                  const RngReq* rngreq,
-                                 WimaxPhy::ModulationType& modulationType);
+                                 WimaxPhy::ModulationType& modulationType) const;
     /**
      * \brief Get module ation type for SS
      * \param ssRecord
      * \param rngreq
      * \returns the burst profile for SS
      */
-    WimaxPhy::ModulationType GetModulationTypeForSS(const SSRecord* ssRecord, const RngReq* rngreq);
+    WimaxPhy::ModulationType GetModulationTypeForSS(const SSRecord* ssRecord,
+                                                    const RngReq* rngreq) const;
     /**
      * \brief Get burst profile to request
      * \returns the burst profile for SS

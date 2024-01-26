@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -20,11 +19,12 @@
 
 #include "spectrum-phy.h"
 
+#include "spectrum-channel.h"
+#include "spectrum-value.h"
+
 #include <ns3/log.h>
 #include <ns3/mobility-model.h>
 #include <ns3/net-device.h>
-#include <ns3/spectrum-channel.h>
-#include <ns3/spectrum-value.h>
 
 namespace ns3
 {

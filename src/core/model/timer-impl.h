@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -1085,8 +1084,8 @@ template <typename T1>
 void
 TimerImpl::SetArgs(T1 a1)
 {
-    typedef struct TimerImplOne<typename TimerTraits<T1>::ParameterType> TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    typedef TimerImplOne<typename TimerTraits<T1>::ParameterType> TimerImplBase;
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == nullptr)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");
@@ -1099,10 +1098,10 @@ template <typename T1, typename T2>
 void
 TimerImpl::SetArgs(T1 a1, T2 a2)
 {
-    typedef struct TimerImplTwo<typename TimerTraits<T1>::ParameterType,
-                                typename TimerTraits<T2>::ParameterType>
+    typedef TimerImplTwo<typename TimerTraits<T1>::ParameterType,
+                         typename TimerTraits<T2>::ParameterType>
         TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == nullptr)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");
@@ -1115,11 +1114,11 @@ template <typename T1, typename T2, typename T3>
 void
 TimerImpl::SetArgs(T1 a1, T2 a2, T3 a3)
 {
-    typedef struct TimerImplThree<typename TimerTraits<T1>::ParameterType,
-                                  typename TimerTraits<T2>::ParameterType,
-                                  typename TimerTraits<T3>::ParameterType>
+    typedef TimerImplThree<typename TimerTraits<T1>::ParameterType,
+                           typename TimerTraits<T2>::ParameterType,
+                           typename TimerTraits<T3>::ParameterType>
         TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == nullptr)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");
@@ -1132,12 +1131,12 @@ template <typename T1, typename T2, typename T3, typename T4>
 void
 TimerImpl::SetArgs(T1 a1, T2 a2, T3 a3, T4 a4)
 {
-    typedef struct TimerImplFour<typename TimerTraits<T1>::ParameterType,
-                                 typename TimerTraits<T2>::ParameterType,
-                                 typename TimerTraits<T3>::ParameterType,
-                                 typename TimerTraits<T4>::ParameterType>
+    typedef TimerImplFour<typename TimerTraits<T1>::ParameterType,
+                          typename TimerTraits<T2>::ParameterType,
+                          typename TimerTraits<T3>::ParameterType,
+                          typename TimerTraits<T4>::ParameterType>
         TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == nullptr)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");
@@ -1150,13 +1149,13 @@ template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void
 TimerImpl::SetArgs(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
 {
-    typedef struct TimerImplFive<typename TimerTraits<T1>::ParameterType,
-                                 typename TimerTraits<T2>::ParameterType,
-                                 typename TimerTraits<T3>::ParameterType,
-                                 typename TimerTraits<T4>::ParameterType,
-                                 typename TimerTraits<T5>::ParameterType>
+    typedef TimerImplFive<typename TimerTraits<T1>::ParameterType,
+                          typename TimerTraits<T2>::ParameterType,
+                          typename TimerTraits<T3>::ParameterType,
+                          typename TimerTraits<T4>::ParameterType,
+                          typename TimerTraits<T5>::ParameterType>
         TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == nullptr)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");
@@ -1169,14 +1168,14 @@ template <typename T1, typename T2, typename T3, typename T4, typename T5, typen
 void
 TimerImpl::SetArgs(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
 {
-    typedef struct TimerImplSix<typename TimerTraits<T1>::ParameterType,
-                                typename TimerTraits<T2>::ParameterType,
-                                typename TimerTraits<T3>::ParameterType,
-                                typename TimerTraits<T4>::ParameterType,
-                                typename TimerTraits<T5>::ParameterType,
-                                typename TimerTraits<T6>::ParameterType>
+    typedef TimerImplSix<typename TimerTraits<T1>::ParameterType,
+                         typename TimerTraits<T2>::ParameterType,
+                         typename TimerTraits<T3>::ParameterType,
+                         typename TimerTraits<T4>::ParameterType,
+                         typename TimerTraits<T5>::ParameterType,
+                         typename TimerTraits<T6>::ParameterType>
         TimerImplBase;
-    TimerImplBase* impl = dynamic_cast<TimerImplBase*>(this);
+    auto impl = dynamic_cast<TimerImplBase*>(this);
     if (impl == 0)
     {
         NS_FATAL_ERROR("You tried to set Timer arguments incompatible with its function.");

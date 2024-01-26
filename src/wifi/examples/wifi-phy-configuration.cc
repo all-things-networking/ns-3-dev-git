@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Tom Henderson
  *
@@ -226,10 +225,10 @@ main(int argc, char* argv[])
         staDevice = wifi.Install(phy, macSta, wifiStaNode.Get(0));
         apDevice = wifi.Install(phy, macAp, wifiApNode.Get(0));
         phySta = GetYansWifiPhyPtr(staDevice);
-        // We expect channel 7, width 80, frequency 5975
+        // We expect channel 7, width 80, frequency 5985
         NS_ASSERT(phySta->GetChannelNumber() == 7);
         NS_ASSERT(phySta->GetChannelWidth() == 80);
-        NS_ASSERT(phySta->GetFrequency() == 5975);
+        NS_ASSERT(phySta->GetFrequency() == 5985);
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 10:

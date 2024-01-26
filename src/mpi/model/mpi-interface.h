@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
@@ -27,10 +26,10 @@
 #ifndef NS3_MPI_INTERFACE_H
 #define NS3_MPI_INTERFACE_H
 
-#include "mpi.h"
-
 #include <ns3/nstime.h>
 #include <ns3/packet.h>
+
+#include <mpi.h>
 
 namespace ns3
 {
@@ -160,7 +159,7 @@ class MpiInterface
     /**
      * Common enable logic.
      */
-    static void SetParallelSimulatorImpl(void);
+    static void SetParallelSimulatorImpl();
 
     /**
      * Static instance of the instantiated parallel controller.

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -54,6 +53,8 @@ namespace ns3
 // number of calls that are made to these functions and the possibility
 // of causing recursions leading to stack overflow
 NS_LOG_COMPONENT_DEFINE("Simulator");
+
+EventId Simulator::m_stopEvent;
 
 /**
  * \ingroup simulator
@@ -189,11 +190,18 @@ Simulator::Stop()
     GetImpl()->Stop();
 }
 
-void
+EventId
 Simulator::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(delay);
-    GetImpl()->Stop(delay);
+    m_stopEvent = GetImpl()->Stop(delay);
+    return m_stopEvent;
+}
+
+EventId
+Simulator::GetStopEvent()
+{
+    return m_stopEvent;
 }
 
 Time

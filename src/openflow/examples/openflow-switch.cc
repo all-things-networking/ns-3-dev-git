@@ -1,5 +1,5 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
  * published by the Free Software Foundation;
@@ -12,6 +12,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Author: Blake Hurd <naimorai@gmail.com>
+ * Modified by: Josh Pelkey <joshpelkey@gmail.com>
  */
 
 // Network topology
@@ -52,25 +55,25 @@ bool use_drop = false;
 ns3::Time timeout = ns3::Seconds(0);
 
 bool
-SetVerbose(std::string value)
+SetVerbose(const std::string& value)
 {
     verbose = true;
     return true;
 }
 
 bool
-SetDrop(std::string value)
+SetDrop(const std::string& value)
 {
     use_drop = true;
     return true;
 }
 
 bool
-SetTimeout(std::string value)
+SetTimeout(const std::string& value)
 {
     try
     {
-        timeout = ns3::Seconds(atof(value.c_str()));
+        timeout = ns3::Seconds(std::stof(value));
         return true;
     }
     catch (...)
@@ -83,7 +86,6 @@ SetTimeout(std::string value)
 int
 main(int argc, char* argv[])
 {
-#ifdef NS3_OPENFLOW
     //
     // Allow the user to override any of the defaults and the above Bind() at
     // run-time, via command-line arguments
@@ -149,7 +151,9 @@ main(int argc, char* argv[])
     {
         Ptr<ns3::ofi::LearningController> controller = CreateObject<ns3::ofi::LearningController>();
         if (!timeout.IsZero())
+        {
             controller->SetAttribute("ExpirationTime", TimeValue(timeout));
+        }
         swtch.Install(switchNode, switchDevices, controller);
     }
 
@@ -218,7 +222,6 @@ main(int argc, char* argv[])
     Simulator::Run();
     Simulator::Destroy();
     NS_LOG_INFO("Done.");
-#else
-    NS_LOG_INFO("NS-3 OpenFlow is not enabled. Cannot run simulation.");
-#endif // NS3_OPENFLOW
+
+    return 0;
 }

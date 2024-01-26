@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -29,6 +28,8 @@
 #include <ns3/traced-callback.h>
 #include <ns3/traced-value.h>
 
+#include <iostream>
+
 namespace ns3
 {
 
@@ -42,18 +43,19 @@ class SpectrumModel;
 class AntennaModel;
 class NetDevice;
 class UniformRandomVariable;
+class ErrorModel;
 
 /**
  * \ingroup lr-wpan
  *
  * Helper structure to manage the power measurement during ED.
  */
-typedef struct
+struct LrWpanEdPower
 {
     double averagePower;    //!< Average measured power
     Time lastUpdate;        //!< Last update time
     Time measurementLength; //!< Total measurement period
-} LrWpanEdPower;
+};
 
 /**
  * \ingroup lr-wpan
@@ -61,11 +63,11 @@ typedef struct
  * This data structure provides the Bit rate and Symbol rate for a given channel
  * See IEEE802.15.4-2006 Table 1 and 2 in section 6.1.1 and 6.1.2
  */
-typedef struct
+struct LrWpanPhyDataAndSymbolRates
 {
     double bitRate;    //!< bit rate
     double symbolRate; //!< symbol rate
-} LrWpanPhyDataAndSymbolRates;
+};
 
 /**
  * \ingroup lr-wpan
@@ -73,19 +75,19 @@ typedef struct
  * This data structure provides number of symbols for the PPDU headers: SHR and PHR
  * See IEEE802.15.4-2006 Figure 16, Table 19 and 20 in section 6.3
  */
-typedef struct
+struct LrWpanPhyPpduHeaderSymbolNumber
 {
     double shrPreamble; //!< Number of symbols for the SHR preamble
     double shrSfd;      //!< Number of symbols for the SHR SFD
     double phr;         //!< Number of symbols for the PHR
-} LrWpanPhyPpduHeaderSymbolNumber;
+};
 
 /**
  * \ingroup lr-wpan
  *
  * This Phy option will be used to index various Tables in IEEE802.15.4-2011
  */
-typedef enum
+enum LrWpanPhyOption
 {
     IEEE_802_15_4_868MHZ_BPSK,
     IEEE_802_15_4_915MHZ_BPSK,
@@ -97,7 +99,7 @@ typedef enum
     IEEE_802_15_4_915MHZ_OQPSK,
     IEEE_802_15_4_2_4GHZ_OQPSK,
     IEEE_802_15_4_INVALID_PHY_OPTION
-} LrWpanPhyOption;
+};
 
 /**
  * \ingroup lr-wpan
@@ -105,7 +107,7 @@ typedef enum
  * IEEE802.15.4-2006 PHY Emumerations Table 18
  * in section 6.2.3
  */
-typedef enum
+enum LrWpanPhyEnumeration
 {
     IEEE_802_15_4_PHY_BUSY = 0x00,
     IEEE_802_15_4_PHY_BUSY_RX = 0x01,
@@ -120,7 +122,25 @@ typedef enum
     IEEE_802_15_4_PHY_UNSUPPORTED_ATTRIBUTE = 0xa,
     IEEE_802_15_4_PHY_READ_ONLY = 0xb,
     IEEE_802_15_4_PHY_UNSPECIFIED = 0xc // all cases not covered by ieee802.15.4
-} LrWpanPhyEnumeration;
+};
+
+/**
+ *  Overloaded operator to print the value of a LrWpanPhyEnumeration.
+ *
+ *  \param os The output stream
+ *  \param state The text value of the PHY state
+ *  \return The output stream with text value of the PHY state
+ */
+std::ostream& operator<<(std::ostream& os, const LrWpanPhyEnumeration& state);
+
+/**
+ *  Overloaded operator to print the value of a TracedValue<LrWpanPhyEnumeration>.
+ *
+ *  \param os The output stream
+ *  \param state The text value of the PHY state
+ *  \return The output stream with text value of the PHY state
+ */
+std::ostream& operator<<(std::ostream& os, const TracedValue<LrWpanPhyEnumeration>& state);
 
 namespace TracedValueCallback
 {
@@ -139,7 +159,7 @@ typedef void (*LrWpanPhyEnumeration)(LrWpanPhyEnumeration oldValue, LrWpanPhyEnu
  *
  * IEEE802.15.4-2006 PHY PIB Attribute Identifiers Table 23 in section 6.4.2
  */
-typedef enum
+enum LrWpanPibAttributeIdentifier
 {
     phyCurrentChannel = 0x00,
     phyChannelsSupported = 0x01,
@@ -149,14 +169,14 @@ typedef enum
     phyMaxFrameDuration = 0x05,
     phySHRDuration = 0x06,
     phySymbolsPerOctet = 0x07
-} LrWpanPibAttributeIdentifier;
+};
 
 /**
  * \ingroup lr-wpan
  *
  * IEEE802.15.4-2006 PHY PIB Attributes Table 23 in section 6.4.2
  */
-typedef struct
+struct LrWpanPhyPibAttributes : public SimpleRefCount<LrWpanPhyPibAttributes>
 {
     uint8_t phyCurrentChannel;         //!< The RF channel to use
     uint32_t phyChannelsSupported[32]; //!< BitField representing the available channels supported
@@ -168,16 +188,16 @@ typedef struct
     uint32_t phyMaxFrameDuration; //!< The maximum number of symbols in a frame
     uint32_t phySHRDuration;      //!< The duration of the synchronization header (SHR) in symbols
     double phySymbolsPerOctet;    //!< The number of symbols per octet
-} LrWpanPhyPibAttributes;
+};
 
 /**
  * \ingroup lr-wpan
  *
  * This method implements the PD SAP: PdDataIndication
  *
- *  @param psduLength number of bytes in the PSDU
- *  @param p the packet to be transmitted
- *  @param lqi Link quality (LQI) value measured during reception of the PPDU
+ * \param psduLength number of bytes in the PSDU
+ * \param p the packet to be transmitted
+ * \param lqi Link quality (LQI) value measured during reception of the PPDU
  */
 typedef Callback<void, uint32_t, Ptr<Packet>, uint8_t> PdDataIndicationCallback;
 
@@ -218,7 +238,10 @@ typedef Callback<void, LrWpanPhyEnumeration, uint8_t> PlmeEdConfirmCallback;
  * @param id the identifier of attribute
  * @param attribute the pointer to attribute struct
  */
-typedef Callback<void, LrWpanPhyEnumeration, LrWpanPibAttributeIdentifier, LrWpanPhyPibAttributes*>
+typedef Callback<void,
+                 LrWpanPhyEnumeration,
+                 LrWpanPibAttributeIdentifier,
+                 Ptr<LrWpanPhyPibAttributes>>
     PlmeGetAttributeConfirmCallback;
 
 /**
@@ -256,19 +279,6 @@ class LrWpanPhy : public SpectrumPhy
      * \return the object TypeId
      */
     static TypeId GetTypeId();
-
-    /**
-     * The maximum packet size accepted by the PHY.
-     * See Table 22 in section 6.4.1 of IEEE 802.15.4-2006
-     */
-    static const uint32_t aMaxPhyPacketSize;
-
-    /**
-     * The turnaround time for switching the transceiver from RX to TX or vice
-     * versa.
-     * See Table 22 in section 6.4.1 of IEEE 802.15.4-2006
-     */
-    static const uint32_t aTurnaroundTime;
 
     /**
      * Default constructor.
@@ -330,6 +340,26 @@ class LrWpanPhy : public SpectrumPhy
     void SetPhyOption(LrWpanPhyOption phyOption);
 
     /**
+     * Set the receiver power sensitivity used by this device in dBm.
+     *
+     * In ns-3 , rx sensitivity is only checked to be at least what is specified by
+     * the standard (-85dBm or -92dBm for BPSK bands). Most vendors provide better sensitivity
+     * options and exceed the minimum values proposed by the standard. Default sensitivity
+     * is -106.58 dBm (This does not include any noise figure).
+     * A sensitivity of -95dBm or less is considered by many vendors a high sensitivity.
+     *
+     * \param dbmSensitivity The receiver power sensitivity to set in dBm.
+     */
+    void SetRxSensitivity(double dbmSensitivity);
+
+    /**
+     * Get the receiver power sensitivity used by this device in dBm.
+     *
+     * \return The receiver power sensitivity used by this device in dBm.
+     */
+    double GetRxSensitivity();
+
+    /**
      * Notify the SpectrumPhy instance of an incoming waveform.
      *
      * @param params the SpectrumSignalParameters associated with the incoming waveform
@@ -337,150 +367,163 @@ class LrWpanPhy : public SpectrumPhy
     void StartRx(Ptr<SpectrumSignalParameters> params) override;
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.1.1
-     *  PD-DATA.request
-     *  Request to transfer MPDU from MAC (transmitting)
-     *  @param psduLength number of bytes in the PSDU
-     *  @param p the packet to be transmitted
+     * IEEE 802.15.4-2006 section 6.2.1.1
+     * PD-DATA.request
+     * Request to transfer MPDU from MAC (transmitting)
+     * \param psduLength number of bytes in the PSDU
+     * \param p the packet to be transmitted
      */
     void PdDataRequest(const uint32_t psduLength, Ptr<Packet> p);
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.1
-     *  PLME-CCA.request
-     *  Perform a CCA per section 6.9.9
+     * IEEE 802.15.4-2006 section 6.2.2.1
+     * PLME-CCA.request
+     * Perform a CCA per section 6.9.9
      */
     void PlmeCcaRequest();
 
     /**
-     *  Cancel an ongoing CCA request.
+     * Cancel an ongoing CCA request.
      */
     void CcaCancel();
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.3
-     *  PLME-ED.request
-     *  Perform an ED per section 6.9.7
+     * IEEE 802.15.4-2006 section 6.2.2.3
+     * PLME-ED.request
+     * Perform an ED per section 6.9.7
      */
     void PlmeEdRequest();
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.5
-     *  PLME-GET.request
-     *  Get attributes per definition from Table 23 in section 6.4.2
-     *  @param id the attributed identifier
+     * IEEE 802.15.4-2006 section 6.2.2.5
+     * PLME-GET.request
+     * Get attributes per definition from Table 23 in section 6.4.2
+     * \param id the attributed identifier
      */
     void PlmeGetAttributeRequest(LrWpanPibAttributeIdentifier id);
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.7
-     *  PLME-SET-TRX-STATE.request
-     *  Set PHY state
-     *  @param state in RX_ON,TRX_OFF,FORCE_TRX_OFF,TX_ON
+     * IEEE 802.15.4-2006 section 6.2.2.7
+     * PLME-SET-TRX-STATE.request
+     * Set PHY state
+     * \param state in RX_ON,TRX_OFF,FORCE_TRX_OFF,TX_ON
      */
     void PlmeSetTRXStateRequest(LrWpanPhyEnumeration state);
 
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.9
-     *  PLME-SET.request
-     *  Set attributes per definition from Table 23 in section 6.4.2
-     *  @param id the attributed identifier
-     *  @param attribute the attribute value
+     * IEEE 802.15.4-2006 section 6.2.2.9
+     * PLME-SET.request
+     * Set attributes per definition from Table 23 in section 6.4.2
+     * \param id the attributed identifier
+     * \param attribute the attribute value
      */
     void PlmeSetAttributeRequest(LrWpanPibAttributeIdentifier id,
-                                 LrWpanPhyPibAttributes* attribute);
+                                 Ptr<LrWpanPhyPibAttributes> attribute);
 
     /**
      * set the callback for the end of a RX, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implements PD Indication SAP.
-     * @param c the callback
+     * \param c the callback
      */
     void SetPdDataIndicationCallback(PdDataIndicationCallback c);
 
     /**
      * set the callback for the end of a TX, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implements PD SAP.
-     * @param c the callback
+     * \param c the callback
      */
     void SetPdDataConfirmCallback(PdDataConfirmCallback c);
 
     /**
      * set the callback for the end of a CCA, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implement PLME CCA confirm SAP
-     * @param c the callback
+     * \param c the callback
      */
     void SetPlmeCcaConfirmCallback(PlmeCcaConfirmCallback c);
 
     /**
      * set the callback for the end of an ED, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implement PLME ED confirm SAP
-     * @param c the callback
+     * \param c the callback
      */
     void SetPlmeEdConfirmCallback(PlmeEdConfirmCallback c);
 
     /**
      * set the callback for the end of an GetAttribute, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implement PLME GetAttribute confirm SAP
-     * @param c the callback
+     * \param c the callback
      */
     void SetPlmeGetAttributeConfirmCallback(PlmeGetAttributeConfirmCallback c);
 
     /**
      * set the callback for the end of an SetTRXState, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implement PLME SetTRXState confirm SAP
-     * @param c the callback
+     * \param c the callback
      */
     void SetPlmeSetTRXStateConfirmCallback(PlmeSetTRXStateConfirmCallback c);
 
     /**
      * set the callback for the end of an SetAttribute, as part of the
-     * interconnections betweenthe PHY and the MAC. The callback
+     * interconnections between the PHY and the MAC. The callback
      * implement PLME SetAttribute confirm SAP
-     * @param c the callback
+     * \param c the callback
      */
     void SetPlmeSetAttributeConfirmCallback(PlmeSetAttributeConfirmCallback c);
 
     /**
      * Get The current channel page number in use in this PHY from the PIB attributes.
      *
-     * @return The current page number
+     * \return The current page number
      */
     uint8_t GetCurrentPage() const;
 
     /**
      * Get The current channel number in use in this PHY from the PIB attributes.
      *
-     * @return The current channel number
+     * \return The current channel number
      */
     uint8_t GetCurrentChannelNum() const;
 
     /**
      * implement PLME SetAttribute confirm SAP
      * bit rate is in bit/s.  Symbol rate is in symbol/s.
-     * @param isData is true for data rate or false for symbol rate
-     * @return the rate value of this PHY
+     * \param isData is true for data rate or false for symbol rate
+     * \return the rate value of this PHY
      */
     double GetDataOrSymbolRate(bool isData);
 
     /**
      * set the error model to use
      *
-     * @param e pointer to LrWpanErrorModel to use
+     * \param e pointer to LrWpanErrorModel to use
      */
     void SetErrorModel(Ptr<LrWpanErrorModel> e);
 
     /**
      * get the error model in use
      *
-     * @return pointer to LrWpanErrorModel in use
+     * \return pointer to LrWpanErrorModel in use
      */
     Ptr<LrWpanErrorModel> GetErrorModel() const;
+
+    /**
+     * Attach a receive ErrorModel to the LrWpanPhy.
+     *
+     * The LrWpanPhy may optionally include an ErrorModel in
+     * the packet receive chain. The error model is additive
+     * to any modulation-based error model based on SNR, and
+     * is typically used to force specific packet losses or
+     * for testing purposes.
+     *
+     * \param em Pointer to the ErrorModel.
+     */
+    void SetPostReceptionErrorModel(const Ptr<ErrorModel> em);
 
     /**
      * Get the duration of the SHR (preamble and SFD) in symbols, depending on
@@ -528,21 +571,6 @@ class LrWpanPhy : public SpectrumPhy
     typedef void (*StateTracedCallback)(Time time,
                                         LrWpanPhyEnumeration oldState,
                                         LrWpanPhyEnumeration newState);
-
-  protected:
-    /**
-     * The data and symbol rates for the different PHY options.
-     * See Table 1 in section 6.1.1 IEEE 802.15.4-2006, IEEE 802.15.4c-2009, IEEE 802.15.4d-2009.
-     * Bit rate is in kbit/s.  Symbol rate is in ksymbol/s.
-     */
-    static const LrWpanPhyDataAndSymbolRates dataSymbolRates[IEEE_802_15_4_INVALID_PHY_OPTION];
-    /**
-     * The preamble, SFD, and PHR lengths in symbols for the different PHY options.
-     * See Table 19 and Table 20 in section 6.3 IEEE 802.15.4-2006, IEEE 802.15.4c-2009, IEEE
-     * 802.15.4d-2009.
-     */
-    static const LrWpanPhyPpduHeaderSymbolNumber
-        ppduHeaderSymbolNumbers[IEEE_802_15_4_INVALID_PHY_OPTION];
 
   private:
     /**
@@ -696,7 +724,10 @@ class LrWpanPhy : public SpectrumPhy
 
     /**
      * The trace source fired when a packet ends the reception process from
-     * the medium.  Second quantity is received SINR.
+     * the medium. In essence, the notional event of receiving all the energy
+     * of a signal is traced. The received completed signal might represent
+     * a complete packet or a packet that is later on dropped because of interference,
+     * cancellation or post-rx corruption. Second quantity is the received SINR (LQI).
      *
      * \see class CallBackTraceSource
      */
@@ -704,6 +735,8 @@ class LrWpanPhy : public SpectrumPhy
 
     /**
      * The trace source fired when the phy layer drops a packet it has received.
+     * (Destruction of a packet due to interference, post-rx corruption or
+     *  cancellation of packet rx)
      *
      * \see class CallBackTraceSource
      */
@@ -738,10 +771,10 @@ class LrWpanPhy : public SpectrumPhy
     int8_t GetNominalTxPowerFromPib(uint8_t phyTransmitPower);
 
     /**
-     * Transform watts (W) to decibels milliwatts (DBm).
+     * Transform watts (W) to decibels milliwatts (dBm).
      *
-     * \param watt The Watts that will be converted to DBm.
-     * \return The value of Watts in DBm.
+     * \param watt The Watts that will be converted to dBm.
+     * \return The value of Watts in dBm.
      */
     double WToDbm(double watt);
 
@@ -886,18 +919,18 @@ class LrWpanPhy : public SpectrumPhy
     Time m_rxLastUpdate;
 
     /**
-     * Statusinformation of the currently received packet. The first parameter
-     * contains the frame, as well the signal power of the frame. The second
-     * parameter is set to false, if the frame is either invalid or destroyed
-     * due to interference.
+     * Status information of the currently received packet. The first parameter
+     * contains the frame, as well the signal power of the frame. If the second
+     * parameter is set to true, the frame is either invalid, destroyed
+     * due to interference or cancelled.
      */
     std::pair<Ptr<LrWpanSpectrumSignalParameters>, bool> m_currentRxPacket;
 
     /**
-     * Statusinformation of the currently transmitted packet. The first parameter
-     * contains the frame. The second parameter is set to false, if the frame not
-     * completely transmitted, in the event of a force transceiver switch, for
-     * example.
+     * Status information of the currently transmitted packet. The first parameter
+     * contains the frame. If the second parameter is set to true, the frame has not
+     * been completely transmitted (in the event of a force transceiver switch, for
+     * example).
      */
     PacketAndStatus m_currentTxPacket;
 
@@ -925,6 +958,8 @@ class LrWpanPhy : public SpectrumPhy
      * Uniform random variable stream.
      */
     Ptr<UniformRandomVariable> m_random;
+
+    Ptr<ErrorModel> m_postReceptionErrorModel; //!< Error model for receive packet events
 };
 
 } // namespace ns3

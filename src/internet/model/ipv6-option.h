@@ -1,4 +1,3 @@
-/* -*- Mode: C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -21,11 +20,11 @@
 #ifndef IPV6_OPTION_H
 #define IPV6_OPTION_H
 
+#include "ipv6-header.h"
 #include "ipv6-interface.h"
 
 #include "ns3/buffer.h"
 #include "ns3/ipv6-address.h"
-#include "ns3/ipv6-header.h"
 #include "ns3/node.h"
 #include "ns3/object.h"
 #include "ns3/packet.h"

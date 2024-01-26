@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015
  *
@@ -62,6 +61,12 @@ WifiInformationElementId
 VhtCapabilities::ElementId() const
 {
     return IE_VHT_CAPABILITIES;
+}
+
+void
+VhtCapabilities::Print(std::ostream& os) const
+{
+    os << "VHT Capabilities=" << GetVhtCapabilitiesInfo() << "|" << GetSupportedMcsAndNssSet();
 }
 
 uint16_t
@@ -383,15 +388,6 @@ uint16_t
 VhtCapabilities::GetRxHighestSupportedLgiDataRate() const
 {
     return m_rxHighestSupportedLongGuardIntervalDataRate;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const VhtCapabilities& vhtCapabilities)
-{
-    os << vhtCapabilities.GetVhtCapabilitiesInfo() << "|"
-       << vhtCapabilities.GetSupportedMcsAndNssSet();
-
-    return os;
 }
 
 } // namespace ns3

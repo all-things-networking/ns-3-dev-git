@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009-12 University of Washington
  *
@@ -35,6 +34,7 @@
 #include <fstream>
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_histogram.h>
+#include <gsl/gsl_randist.h>
 #include <gsl/gsl_sf_zeta.h>
 
 using namespace ns3;
@@ -86,7 +86,7 @@ class TestCaseBase : public TestCase
      * \param [in] start The minimum value of the lowest bin.
      * \param [in] end The maximum value of the last bin.
      * \param [in] underflow If \c true the lowest bin should contain the underflow,
-     * \param [in] overflow If \c ture the highest bin should contain the overflow.
+     * \param [in] overflow If \c true the highest bin should contain the overflow.
      * \returns A vector of the bin edges, including the top of the highest bin.
      * This vector has one more entry than the number of bins in the histogram.
      */
@@ -147,7 +147,7 @@ class TestCaseBase : public TestCase
          * Create a new instance of a random variable stream
          * \returns The new random variable stream instance.
          */
-        virtual Ptr<RandomVariableStream> Create(void) const = 0;
+        virtual Ptr<RandomVariableStream> Create() const = 0;
     };
 
     /**
@@ -169,7 +169,7 @@ class TestCaseBase : public TestCase
         }
 
         // Inherited
-        Ptr<RandomVariableStream> Create(void) const
+        Ptr<RandomVariableStream> Create() const override
         {
             auto rng = CreateObject<RNG>();
             rng->SetAttribute("Antithetic", BooleanValue(m_anti));
@@ -315,14 +315,14 @@ class TestCaseBase : public TestCase
      * based on time-of-day, and run number=0:
      *   NS_GLOBAL_VALUE="RngRun=0" ./test.py -s random-variable-stream-generators
      */
-    void SetTestSuiteSeed(void)
+    void SetTestSuiteSeed()
     {
-        if (m_seedSet == false)
+        if (!m_seedSet)
         {
             uint32_t seed;
             if (RngSeedManager::GetRun() == 0)
             {
-                seed = static_cast<uint32_t>(time(0));
+                seed = static_cast<uint32_t>(time(nullptr));
                 m_seedSet = true;
                 NS_LOG_DEBUG(
                     "Special run number value of zero; seeding with time of day: " << seed);
@@ -355,11 +355,11 @@ class UniformTestCase : public TestCaseBase
     UniformTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 };
 
 UniformTestCase::UniformTestCase()
@@ -384,7 +384,7 @@ UniformTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-UniformTestCase::DoRun(void)
+UniformTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -477,11 +477,11 @@ class UniformAntitheticTestCase : public TestCaseBase
     UniformAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 };
 
 UniformAntitheticTestCase::UniformAntitheticTestCase()
@@ -506,7 +506,7 @@ UniformAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-UniformAntitheticTestCase::DoRun(void)
+UniformAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -553,7 +553,7 @@ class ConstantTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation. */
     static constexpr double TOLERANCE{1e-8};
@@ -565,7 +565,7 @@ ConstantTestCase::ConstantTestCase()
 }
 
 void
-ConstantTestCase::DoRun(void)
+ConstantTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -604,7 +604,7 @@ class SequentialTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation. */
     static constexpr double TOLERANCE{1e-8};
@@ -616,7 +616,7 @@ SequentialTestCase::SequentialTestCase()
 }
 
 void
-SequentialTestCase::DoRun(void)
+SequentialTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -660,11 +660,11 @@ class NormalTestCase : public TestCaseBase
     NormalTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation, in rms. */
     static constexpr double TOLERANCE{5};
@@ -700,7 +700,7 @@ NormalTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-NormalTestCase::DoRun(void)
+NormalTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -746,11 +746,11 @@ class NormalAntitheticTestCase : public TestCaseBase
     NormalAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation, in rms. */
     static constexpr double TOLERANCE{5};
@@ -787,7 +787,7 @@ NormalAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-NormalAntitheticTestCase::DoRun(void)
+NormalAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -834,11 +834,11 @@ class ExponentialTestCase : public TestCaseBase
     ExponentialTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation, in rms. */
     static constexpr double TOLERANCE{5};
@@ -874,7 +874,7 @@ ExponentialTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-ExponentialTestCase::DoRun(void)
+ExponentialTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -915,11 +915,11 @@ class ExponentialAntitheticTestCase : public TestCaseBase
     ExponentialAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation, in rms. */
     static constexpr double TOLERANCE{5};
@@ -955,7 +955,7 @@ ExponentialAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) con
 }
 
 void
-ExponentialAntitheticTestCase::DoRun(void)
+ExponentialAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -999,11 +999,11 @@ class ParetoTestCase : public TestCaseBase
     ParetoTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1042,7 +1042,7 @@ ParetoTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-ParetoTestCase::DoRun(void)
+ParetoTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1092,11 +1092,11 @@ class ParetoAntitheticTestCase : public TestCaseBase
     ParetoAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1135,7 +1135,7 @@ ParetoAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-ParetoAntitheticTestCase::DoRun(void)
+ParetoAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1189,11 +1189,11 @@ class WeibullTestCase : public TestCaseBase
     WeibullTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1235,7 +1235,7 @@ WeibullTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-WeibullTestCase::DoRun(void)
+WeibullTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1298,11 +1298,11 @@ class WeibullAntitheticTestCase : public TestCaseBase
     WeibullAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1343,7 +1343,7 @@ WeibullAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-WeibullAntitheticTestCase::DoRun(void)
+WeibullAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1409,11 +1409,11 @@ class LogNormalTestCase : public TestCaseBase
     LogNormalTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1455,7 +1455,7 @@ LogNormalTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-LogNormalTestCase::DoRun(void)
+LogNormalTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1511,11 +1511,11 @@ class LogNormalAntitheticTestCase : public TestCaseBase
     LogNormalAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1557,7 +1557,7 @@ LogNormalAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-LogNormalAntitheticTestCase::DoRun(void)
+LogNormalAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1615,11 +1615,11 @@ class GammaTestCase : public TestCaseBase
     GammaTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1661,7 +1661,7 @@ GammaTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-GammaTestCase::DoRun(void)
+GammaTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1707,11 +1707,11 @@ class GammaAntitheticTestCase : public TestCaseBase
     GammaAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1753,7 +1753,7 @@ GammaAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-GammaAntitheticTestCase::DoRun(void)
+GammaAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1803,11 +1803,11 @@ class ErlangTestCase : public TestCaseBase
     ErlangTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1836,7 +1836,7 @@ ErlangTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
     double lambda = 1.0;
 
     // Note that Erlang distribution is equal to the gamma distribution
-    // when k is an iteger, which is why the gamma distribution's cdf
+    // when k is an integer, which is why the gamma distribution's cdf
     // function can be used here.
     for (std::size_t i = 0; i < N_BINS; ++i)
     {
@@ -1852,7 +1852,7 @@ ErlangTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-ErlangTestCase::DoRun(void)
+ErlangTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1898,11 +1898,11 @@ class ErlangAntitheticTestCase : public TestCaseBase
     ErlangAntitheticTestCase();
 
     // Inherited
-    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const;
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -1931,7 +1931,7 @@ ErlangAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
     double lambda = 1.0;
 
     // Note that Erlang distribution is equal to the gamma distribution
-    // when k is an iteger, which is why the gamma distribution's cdf
+    // when k is an integer, which is why the gamma distribution's cdf
     // function can be used here.
     for (std::size_t i = 0; i < N_BINS; ++i)
     {
@@ -1947,7 +1947,7 @@ ErlangAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
 }
 
 void
-ErlangAntitheticTestCase::DoRun(void)
+ErlangAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -1998,7 +1998,7 @@ class ZipfTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2013,7 +2013,7 @@ ZipfTestCase::ZipfTestCase()
 }
 
 void
-ZipfTestCase::DoRun(void)
+ZipfTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2078,7 +2078,7 @@ class ZipfAntitheticTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2093,7 +2093,7 @@ ZipfAntitheticTestCase::ZipfAntitheticTestCase()
 }
 
 void
-ZipfAntitheticTestCase::DoRun(void)
+ZipfAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2161,7 +2161,7 @@ class ZetaTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2176,7 +2176,7 @@ ZetaTestCase::ZetaTestCase()
 }
 
 void
-ZetaTestCase::DoRun(void)
+ZetaTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2224,7 +2224,7 @@ class ZetaAntitheticTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2239,7 +2239,7 @@ ZetaAntitheticTestCase::ZetaAntitheticTestCase()
 }
 
 void
-ZetaAntitheticTestCase::DoRun(void)
+ZetaAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2290,7 +2290,7 @@ class DeterministicTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /** Tolerance for testing rng values against expectation. */
     static constexpr double TOLERANCE{1e-8};
@@ -2302,7 +2302,7 @@ DeterministicTestCase::DeterministicTestCase()
 }
 
 void
-DeterministicTestCase::DoRun(void)
+DeterministicTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2365,7 +2365,7 @@ class EmpiricalTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2380,7 +2380,7 @@ EmpiricalTestCase::EmpiricalTestCase()
 }
 
 void
-EmpiricalTestCase::DoRun(void)
+EmpiricalTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2465,7 +2465,7 @@ class EmpiricalAntitheticTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 
     /**
      * Tolerance for testing rng values against expectation,
@@ -2480,7 +2480,7 @@ EmpiricalAntitheticTestCase::EmpiricalAntitheticTestCase()
 }
 
 void
-EmpiricalAntitheticTestCase::DoRun(void)
+EmpiricalAntitheticTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2544,7 +2544,7 @@ class NormalCachingTestCase : public TestCaseBase
 
   private:
     // Inherited
-    virtual void DoRun(void);
+    void DoRun() override;
 };
 
 NormalCachingTestCase::NormalCachingTestCase()
@@ -2553,7 +2553,7 @@ NormalCachingTestCase::NormalCachingTestCase()
 }
 
 void
-NormalCachingTestCase::DoRun(void)
+NormalCachingTestCase::DoRun()
 {
     NS_LOG_FUNCTION(this);
     SetTestSuiteSeed();
@@ -2564,6 +2564,312 @@ NormalCachingTestCase::DoRun(void)
 
     NS_TEST_ASSERT_MSG_LT(v1, 0, "Incorrect value returned, expected < 0");
     NS_TEST_ASSERT_MSG_GT(v2, 0, "Incorrect value returned, expected > 0");
+}
+
+/**
+ * \ingroup rng-tests
+ * Test case for bernoulli distribution random variable stream generator
+ */
+class BernoulliTestCase : public TestCaseBase
+{
+  public:
+    // Constructor
+    BernoulliTestCase();
+
+    // Inherited
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
+
+  private:
+    // Inherited
+    void DoRun() override;
+
+    /** Tolerance for testing rng values against expectation, in rms. */
+    static constexpr double TOLERANCE{5};
+};
+
+BernoulliTestCase::BernoulliTestCase()
+    : TestCaseBase("Bernoulli Random Variable Stream Generator")
+{
+}
+
+double
+BernoulliTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
+{
+    gsl_histogram* h = gsl_histogram_alloc(2);
+    auto range = UniformHistogramBins(h, 0, 1);
+
+    double p = 0.5;
+    std::vector<double> expected = {N_MEASUREMENTS * (1 - p), N_MEASUREMENTS * p};
+
+    double chiSquared = ChiSquared(h, expected, rng);
+
+    gsl_histogram_free(h);
+    return chiSquared;
+}
+
+void
+BernoulliTestCase::DoRun()
+{
+    NS_LOG_FUNCTION(this);
+    SetTestSuiteSeed();
+
+    auto generator = RngGenerator<BernoulliRandomVariable>();
+    double sum = ChiSquaredsAverage(&generator, N_RUNS);
+    double maxStatistic = gsl_cdf_chisq_Qinv(0.05, 1);
+    NS_TEST_ASSERT_MSG_LT(sum, maxStatistic, "Chi-squared statistic out of range");
+
+    double probability = 0.5;
+
+    // Create the RNG with the specified range.
+    Ptr<BernoulliRandomVariable> x = CreateObject<BernoulliRandomVariable>();
+    x->SetAttribute("Probability", DoubleValue(probability));
+
+    // Calculate the mean of these values.
+    double mean = probability;
+    double valueMean = Average(x);
+    double expectedMean = mean;
+    double expectedRms = std::sqrt(mean / N_MEASUREMENTS);
+
+    // Test that values have approximately the right mean value.
+    NS_TEST_ASSERT_MSG_EQ_TOL(valueMean,
+                              expectedMean,
+                              expectedRms * TOLERANCE,
+                              "Wrong mean value.");
+}
+
+/**
+ * \ingroup rng-tests
+ * Test case for antithetic bernoulli distribution random variable stream generator
+ */
+class BernoulliAntitheticTestCase : public TestCaseBase
+{
+  public:
+    // Constructor
+    BernoulliAntitheticTestCase();
+
+    // Inherited
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
+
+  private:
+    // Inherited
+    void DoRun() override;
+
+    /** Tolerance for testing rng values against expectation, in rms. */
+    static constexpr double TOLERANCE{5};
+};
+
+BernoulliAntitheticTestCase::BernoulliAntitheticTestCase()
+    : TestCaseBase("Antithetic Bernoulli Random Variable Stream Generator")
+{
+}
+
+double
+BernoulliAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
+{
+    gsl_histogram* h = gsl_histogram_alloc(2);
+    auto range = UniformHistogramBins(h, 0, 1);
+
+    double p = 0.5;
+    std::vector<double> expected = {N_MEASUREMENTS * (1 - p), N_MEASUREMENTS * p};
+
+    double chiSquared = ChiSquared(h, expected, rng);
+
+    gsl_histogram_free(h);
+    return chiSquared;
+}
+
+void
+BernoulliAntitheticTestCase::DoRun()
+{
+    NS_LOG_FUNCTION(this);
+    SetTestSuiteSeed();
+
+    auto generator = RngGenerator<BernoulliRandomVariable>(true);
+    double sum = ChiSquaredsAverage(&generator, N_RUNS);
+    double maxStatistic = gsl_cdf_chisq_Qinv(0.05, 1);
+    NS_TEST_ASSERT_MSG_LT(sum, maxStatistic, "Chi-squared statistic out of range");
+
+    double probability = 0.5;
+
+    // Create the RNG with the specified range.
+    Ptr<BernoulliRandomVariable> x = CreateObject<BernoulliRandomVariable>();
+    x->SetAttribute("Probability", DoubleValue(probability));
+
+    // Make this generate antithetic values.
+    x->SetAttribute("Antithetic", BooleanValue(true));
+
+    // Calculate the mean of these values.
+    double mean = probability;
+    double valueMean = Average(x);
+    double expectedMean = mean;
+    double expectedRms = std::sqrt(mean / N_MEASUREMENTS);
+
+    // Test that values have approximately the right mean value.
+    NS_TEST_ASSERT_MSG_EQ_TOL(valueMean,
+                              expectedMean,
+                              expectedRms * TOLERANCE,
+                              "Wrong mean value.");
+}
+
+/**
+ * \ingroup rng-tests
+ * Test case for binomial distribution random variable stream generator
+ */
+class BinomialTestCase : public TestCaseBase
+{
+  public:
+    // Constructor
+    BinomialTestCase();
+
+    // Inherited
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
+
+  private:
+    // Inherited
+    void DoRun() override;
+
+    /** Tolerance for testing rng values against expectation, in rms. */
+    static constexpr double TOLERANCE{5};
+};
+
+BinomialTestCase::BinomialTestCase()
+    : TestCaseBase("Binomial Random Variable Stream Generator")
+{
+}
+
+double
+BinomialTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
+{
+    uint32_t trials = 10;
+    double probability = 0.5;
+
+    gsl_histogram* h = gsl_histogram_alloc(trials + 1);
+    auto range = UniformHistogramBins(h, 0, trials);
+
+    std::vector<double> expected(trials + 1);
+    for (std::size_t i = 0; i < trials + 1; ++i)
+    {
+        expected[i] = N_MEASUREMENTS * gsl_ran_binomial_pdf(i, probability, trials);
+    }
+
+    double chiSquared = ChiSquared(h, expected, rng);
+
+    gsl_histogram_free(h);
+    return chiSquared;
+}
+
+void
+BinomialTestCase::DoRun()
+{
+    NS_LOG_FUNCTION(this);
+    SetTestSuiteSeed();
+
+    uint32_t trials = 10;
+    double probability = 0.5;
+
+    auto generator = RngGenerator<BinomialRandomVariable>();
+    double sum = ChiSquaredsAverage(&generator, N_RUNS);
+    double maxStatistic = gsl_cdf_chisq_Qinv(0.05, trials);
+    NS_TEST_ASSERT_MSG_LT(sum, maxStatistic, "Chi-squared statistic out of range");
+
+    // Create the RNG with the specified range.
+    Ptr<BinomialRandomVariable> x = CreateObject<BinomialRandomVariable>();
+    x->SetAttribute("Trials", IntegerValue(trials));
+    x->SetAttribute("Probability", DoubleValue(probability));
+
+    // Calculate the mean of these values.
+    double mean = trials * probability;
+    double valueMean = Average(x);
+    double expectedMean = mean;
+    double expectedRms = std::sqrt(mean / N_MEASUREMENTS);
+
+    // Test that values have approximately the right mean value.
+    NS_TEST_ASSERT_MSG_EQ_TOL(valueMean,
+                              expectedMean,
+                              expectedRms * TOLERANCE,
+                              "Wrong mean value.");
+}
+
+/**
+ * \ingroup rng-tests
+ * Test case for antithetic binomial distribution random variable stream generator
+ */
+class BinomialAntitheticTestCase : public TestCaseBase
+{
+  public:
+    // Constructor
+    BinomialAntitheticTestCase();
+
+    // Inherited
+    double ChiSquaredTest(Ptr<RandomVariableStream> rng) const override;
+
+  private:
+    // Inherited
+    void DoRun() override;
+
+    /** Tolerance for testing rng values against expectation, in rms. */
+    static constexpr double TOLERANCE{5};
+};
+
+BinomialAntitheticTestCase::BinomialAntitheticTestCase()
+    : TestCaseBase("Antithetic Binomial Random Variable Stream Generator")
+{
+}
+
+double
+BinomialAntitheticTestCase::ChiSquaredTest(Ptr<RandomVariableStream> rng) const
+{
+    uint32_t trials = 10;
+    double probability = 0.5;
+
+    gsl_histogram* h = gsl_histogram_alloc(trials + 1);
+    auto range = UniformHistogramBins(h, 0, trials);
+
+    std::vector<double> expected(trials + 1);
+    for (std::size_t i = 0; i < trials + 1; ++i)
+    {
+        expected[i] = N_MEASUREMENTS * gsl_ran_binomial_pdf(i, probability, trials);
+    }
+
+    double chiSquared = ChiSquared(h, expected, rng);
+
+    gsl_histogram_free(h);
+    return chiSquared;
+}
+
+void
+BinomialAntitheticTestCase::DoRun()
+{
+    NS_LOG_FUNCTION(this);
+    SetTestSuiteSeed();
+
+    uint32_t trials = 10;
+    double probability = 0.5;
+
+    auto generator = RngGenerator<BinomialRandomVariable>(true);
+    double sum = ChiSquaredsAverage(&generator, N_RUNS);
+    double maxStatistic = gsl_cdf_chisq_Qinv(0.05, trials);
+    NS_TEST_ASSERT_MSG_LT(sum, maxStatistic, "Chi-squared statistic out of range");
+
+    // Create the RNG with the specified range.
+    Ptr<BinomialRandomVariable> x = CreateObject<BinomialRandomVariable>();
+    x->SetAttribute("Trials", IntegerValue(trials));
+    x->SetAttribute("Probability", DoubleValue(probability));
+
+    // Make this generate antithetic values.
+    x->SetAttribute("Antithetic", BooleanValue(true));
+
+    // Calculate the mean of these values.
+    double mean = trials * probability;
+    double valueMean = Average(x);
+    double expectedMean = mean;
+    double expectedRms = std::sqrt(mean / N_MEASUREMENTS);
+
+    // Test that values have approximately the right mean value.
+    NS_TEST_ASSERT_MSG_EQ_TOL(valueMean,
+                              expectedMean,
+                              expectedRms * TOLERANCE,
+                              "Wrong mean value.");
 }
 
 /**
@@ -2618,6 +2924,10 @@ RandomVariableSuite::RandomVariableSuite()
     AddTestCase(new EmpiricalAntitheticTestCase);
     /// Issue #302:  NormalRandomVariable produces stale values
     AddTestCase(new NormalCachingTestCase);
+    AddTestCase(new BernoulliTestCase);
+    AddTestCase(new BernoulliAntitheticTestCase);
+    AddTestCase(new BinomialTestCase);
+    AddTestCase(new BinomialAntitheticTestCase);
 }
 
 static RandomVariableSuite randomVariableSuite; //!< Static variable for test initialization

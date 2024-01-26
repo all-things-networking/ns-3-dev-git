@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013
  *
@@ -45,7 +44,7 @@ AmpduSubframeHeader::GetInstanceTypeId() const
 
 AmpduSubframeHeader::AmpduSubframeHeader()
     : m_length(0),
-      m_eof(0),
+      m_eof(false),
       m_signature(0x4E) // Per 802.11 standard, the unique pattern is set to the value 0x4E.
 {
 }

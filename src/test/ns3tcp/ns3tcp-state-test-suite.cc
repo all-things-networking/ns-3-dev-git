@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 University of Washington
  *
@@ -99,7 +98,7 @@ class Ns3TcpStateTestCase : public TestCase
     bool m_needToClose;         //!< Check if the sending socket need to be closed.
 
     /**
-     * Check that the transmitted packets are consitent with the trace.
+     * Check that the transmitted packets are consistent with the trace.
      * This callback is hooked to ns3::Ipv4L3Protocol/Tx.
      *
      * \param context The callback context (unused).
@@ -112,7 +111,7 @@ class Ns3TcpStateTestCase : public TestCase
                   Ptr<Ipv4> ipv4,
                   uint32_t interface);
     /**
-     * Check that the received packets are consitent with the trace.
+     * Check that the received packets are consistent with the trace.
      * This callback is hooked to ns3::Ipv4L3Protocol/Tx.
      *
      * \param context The callback context (unused).
@@ -253,7 +252,7 @@ Ns3TcpStateTestCase::Ipv4L3Tx(std::string, Ptr<const Packet> packet, Ptr<Ipv4>, 
 
         NS_LOG_INFO("read " << readLen << " bytes");
 
-        uint8_t* actual = new uint8_t[readLen];
+        auto actual = new uint8_t[readLen];
         received->CopyData(actual, readLen);
 
         int result = memcmp(actual, expectedBuffer, readLen);

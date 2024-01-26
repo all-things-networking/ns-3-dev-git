@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -94,7 +93,7 @@ class PppHeader : public Header
      *
      * \return the protocol type being carried
      */
-    uint16_t GetProtocol();
+    uint16_t GetProtocol() const;
 
   private:
     /**

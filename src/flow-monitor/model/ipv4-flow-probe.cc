@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -18,12 +17,13 @@
 // Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt> <gjcarneiro@gmail.com>
 //
 
-#include "ns3/ipv4-flow-probe.h"
+#include "ipv4-flow-probe.h"
+
+#include "flow-monitor.h"
+#include "ipv4-flow-classifier.h"
 
 #include "ns3/config.h"
 #include "ns3/flow-id-tag.h"
-#include "ns3/flow-monitor.h"
-#include "ns3/ipv4-flow-classifier.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
@@ -62,7 +62,7 @@ class Ipv4FlowProbeTag : public Tag
     void Print(std::ostream& os) const override;
     Ipv4FlowProbeTag();
     /**
-     * \brief Consructor
+     * \brief Constructor
      * \param flowId the flow identifier
      * \param packetId the packet identifier
      * \param packetSize the packet size

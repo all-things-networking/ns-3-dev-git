@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
@@ -32,7 +31,8 @@
 namespace ns3
 {
 
-#define SU_STA_ID 65535
+/// STA_ID to identify a single user (SU)
+static constexpr uint16_t SU_STA_ID = 65535;
 
 class WifiTxVector;
 

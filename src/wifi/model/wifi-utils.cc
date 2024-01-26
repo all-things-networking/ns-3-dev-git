@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016
  *
@@ -89,7 +88,7 @@ GetMuBarSize(std::list<BlockAckReqType> types)
     WifiMacHeader hdr;
     hdr.SetType(WIFI_MAC_CTL_TRIGGER);
     CtrlTriggerHeader trigger;
-    trigger.SetType(MU_BAR_TRIGGER);
+    trigger.SetType(TriggerFrameType::MU_BAR_TRIGGER);
     for (auto& t : types)
     {
         auto userInfo = trigger.AddUserInfoField();
@@ -143,6 +142,39 @@ GetSize(Ptr<const Packet> packet, const WifiMacHeader* hdr, bool isAmpdu)
         size = packet->GetSize() + hdr->GetSize() + fcs.GetSerializedSize();
     }
     return size;
+}
+
+bool
+TidToLinkMappingValidForNegType1(const WifiTidLinkMapping& dlLinkMapping,
+                                 const WifiTidLinkMapping& ulLinkMapping)
+{
+    if (dlLinkMapping.empty() && ulLinkMapping.empty())
+    {
+        // default mapping is valid
+        return true;
+    }
+
+    if (dlLinkMapping.size() != 8 || ulLinkMapping.size() != 8)
+    {
+        // not all TIDs have been mapped
+        return false;
+    }
+
+    const auto& linkSet = dlLinkMapping.cbegin()->second;
+
+    for (const auto& linkMapping : {std::cref(dlLinkMapping), std::cref(ulLinkMapping)})
+    {
+        for (const auto& [tid, links] : linkMapping.get())
+        {
+            if (links != linkSet)
+            {
+                // distinct link sets
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 } // namespace ns3

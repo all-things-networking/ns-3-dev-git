@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -37,7 +36,7 @@
 //       ./ns3 run "tcp-star-server --ns3::OnOffApplication::DataRate=10000"
 //       ./ns3 run "tcp-star-server --ns3::OnOffApplication::PacketSize=500"
 // See the ns-3 tutorial for more info on the command line:
-// http://www.nsnam.org/tutorials.html
+// https://www.nsnam.org/docs/tutorial/html/index.html
 
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
@@ -180,8 +179,7 @@ void
 RipNgHeader::Print(std::ostream& os) const
 {
     os << "command " << int(m_command);
-    for (std::list<RipNgRte>::const_iterator iter = m_rteList.begin(); iter != m_rteList.end();
-         iter++)
+    for (auto iter = m_rteList.begin(); iter != m_rteList.end(); iter++)
     {
         os << " | ";
         iter->Print(os);
@@ -204,8 +202,7 @@ RipNgHeader::Serialize(Buffer::Iterator start) const
     i.WriteU8(1);
     i.WriteU16(0);
 
-    for (std::list<RipNgRte>::const_iterator iter = m_rteList.begin(); iter != m_rteList.end();
-         iter++)
+    for (auto iter = m_rteList.begin(); iter != m_rteList.end(); iter++)
     {
         iter->Serialize(i);
         i.Next(iter->GetSerializedSize());

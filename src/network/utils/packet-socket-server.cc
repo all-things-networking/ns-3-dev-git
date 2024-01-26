@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze
  *
@@ -20,12 +19,13 @@
 
 #include "packet-socket-server.h"
 
+#include "packet-socket-address.h"
+#include "packet-socket-factory.h"
+#include "packet-socket.h"
+
 #include "ns3/abort.h"
 #include "ns3/log.h"
 #include "ns3/nstime.h"
-#include "ns3/packet-socket-address.h"
-#include "ns3/packet-socket-factory.h"
-#include "ns3/packet-socket.h"
 #include "ns3/packet.h"
 #include "ns3/simulator.h"
 #include "ns3/socket-factory.h"

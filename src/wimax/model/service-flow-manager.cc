@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -69,9 +68,7 @@ ServiceFlowManager::~ServiceFlowManager()
 void
 ServiceFlowManager::DoDispose()
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         delete (*iter);
     }
@@ -93,15 +90,13 @@ ServiceFlowManager::DoClassify(Ipv4Address srcAddress,
                                uint8_t proto,
                                ServiceFlow::Direction dir) const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetDirection() == dir)
         {
             if ((*iter)->CheckClassifierMatch(srcAddress, dstAddress, srcPort, dstPort, proto))
             {
-                return (*iter);
+                return *iter;
             }
         }
     }
@@ -111,13 +106,11 @@ ServiceFlowManager::DoClassify(Ipv4Address srcAddress,
 ServiceFlow*
 ServiceFlowManager::GetServiceFlow(uint32_t sfid) const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetSfid() == sfid)
         {
-            return (*iter);
+            return *iter;
         }
     }
 
@@ -128,13 +121,11 @@ ServiceFlowManager::GetServiceFlow(uint32_t sfid) const
 ServiceFlow*
 ServiceFlowManager::GetServiceFlow(Cid cid) const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetCid() == cid.GetIdentifier())
         {
-            return (*iter);
+            return *iter;
         }
     }
 
@@ -143,17 +134,15 @@ ServiceFlowManager::GetServiceFlow(Cid cid) const
 }
 
 std::vector<ServiceFlow*>
-ServiceFlowManager::GetServiceFlows(enum ServiceFlow::SchedulingType schedulingType) const
+ServiceFlowManager::GetServiceFlows(ServiceFlow::SchedulingType schedulingType) const
 {
     std::vector<ServiceFlow*> tmpServiceFlows;
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if (((*iter)->GetSchedulingType() == schedulingType) ||
             (schedulingType == ServiceFlow::SF_TYPE_ALL))
         {
-            tmpServiceFlows.push_back((*iter));
+            tmpServiceFlows.push_back(*iter);
         }
     }
     return tmpServiceFlows;
@@ -174,9 +163,7 @@ ServiceFlowManager::AreServiceFlowsAllocated(std::vector<ServiceFlow*>* serviceF
 bool
 ServiceFlowManager::AreServiceFlowsAllocated(std::vector<ServiceFlow*> serviceFlowVector)
 {
-    for (std::vector<ServiceFlow*>::const_iterator iter = serviceFlowVector.begin();
-         iter != serviceFlowVector.end();
-         ++iter)
+    for (auto iter = serviceFlowVector.begin(); iter != serviceFlowVector.end(); ++iter)
     {
         if (!(*iter)->GetIsEnabled())
         {
@@ -189,12 +176,11 @@ ServiceFlowManager::AreServiceFlowsAllocated(std::vector<ServiceFlow*> serviceFl
 ServiceFlow*
 ServiceFlowManager::GetNextServiceFlowToAllocate()
 {
-    std::vector<ServiceFlow*>::iterator iter;
-    for (iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if (!(*iter)->GetIsEnabled())
         {
-            return (*iter);
+            return *iter;
         }
     }
     return nullptr;

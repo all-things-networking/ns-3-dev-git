@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -53,8 +52,9 @@ class ServiceFlowRecord
      */
     uint32_t GetGrantSize() const;
     /**
-     * \brief Set the grant time stamp. Used for data alocation for ugs flows, and unicast poll (bw
-     * request) for non-UGS flows \param grantTimeStamp the grant time stamp to set
+     * \brief Set the grant time stamp. Used for data allocation for ugs flows, and unicast poll
+     * (bw request) for non-UGS flows
+     * \param grantTimeStamp the grant time stamp to set
      */
     void SetGrantTimeStamp(Time grantTimeStamp);
     /**
@@ -141,7 +141,7 @@ class ServiceFlowRecord
     /**
      * \return The requested bandwidth
      */
-    uint32_t GetRequestedBandwidth();
+    uint32_t GetRequestedBandwidth() const;
 
     /**
      * \brief set the granted bandwidth
@@ -156,7 +156,7 @@ class ServiceFlowRecord
     /**
      * \return The granted bandwidth
      */
-    uint32_t GetGrantedBandwidth();
+    uint32_t GetGrantedBandwidth() const;
 
     /**
      * \brief set the temporary granted bandwidth
@@ -171,7 +171,7 @@ class ServiceFlowRecord
     /**
      * \return The temporary granted bandwidth
      */
-    uint32_t GetGrantedBandwidthTemp();
+    uint32_t GetGrantedBandwidthTemp() const;
 
     /**
      * \brief set BW since last expiry
@@ -186,7 +186,7 @@ class ServiceFlowRecord
     /**
      * \return The bandwidth since last expiry
      */
-    uint32_t GetBwSinceLastExpiry();
+    uint32_t GetBwSinceLastExpiry() const;
 
     /**
      * \brief set last grant time

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 Duy Nguyen
  *
@@ -179,7 +178,7 @@ WifiRemoteStation*
 MinstrelWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    MinstrelWifiRemoteStation* station = new MinstrelWifiRemoteStation();
+    auto station = new MinstrelWifiRemoteStation();
 
     station->m_nextStatsUpdate = Simulator::Now() + m_updateStats;
     station->m_col = 0;
@@ -425,7 +424,7 @@ MinstrelWifiManager::GetRtsTxVector(MinstrelWifiRemoteStation* station)
         channelWidth = 20;
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -645,7 +644,7 @@ MinstrelWifiManager::UpdateStats(MinstrelWifiRemoteStation* station)
 
             // calculating throughput
             station->m_minstrelTable[i].throughput =
-                tempProb * static_cast<uint32_t>((1000000 / txTime.GetMicroSeconds()));
+                tempProb * static_cast<uint32_t>(1000000 / txTime.GetMicroSeconds());
         }
         else
         {
@@ -780,7 +779,7 @@ void
 MinstrelWifiManager::DoReportRtsFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
     NS_LOG_DEBUG("DoReportRtsFailed m_txrate=" << station->m_txrate);
     station->m_shortRetry++;
 }
@@ -798,7 +797,7 @@ void
 MinstrelWifiManager::DoReportFinalRtsFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
     UpdateRetry(station);
 }
 
@@ -806,7 +805,7 @@ void
 MinstrelWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
     NS_LOG_DEBUG("DoReportDataFailed " << station << "\t rate " << station->m_txrate
                                        << "\tlongRetry \t" << station->m_longRetry);
     CheckInit(station);
@@ -827,7 +826,7 @@ MinstrelWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                     uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
 
     CheckInit(station);
     if (!station->m_initialized)
@@ -866,7 +865,7 @@ void
 MinstrelWifiManager::DoReportFinalDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
 
     CheckInit(station);
     if (!station->m_initialized)
@@ -940,7 +939,7 @@ WifiTxVector
 MinstrelWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
     return GetDataTxVector(station);
 }
 
@@ -948,7 +947,7 @@ WifiTxVector
 MinstrelWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
     return GetRtsTxVector(station);
 }
 
@@ -958,7 +957,7 @@ MinstrelWifiManager::DoNeedRetransmission(WifiRemoteStation* st,
                                           bool normally)
 {
     NS_LOG_FUNCTION(this << st << packet << normally);
-    MinstrelWifiRemoteStation* station = static_cast<MinstrelWifiRemoteStation*>(st);
+    auto station = static_cast<MinstrelWifiRemoteStation*>(st);
 
     CheckInit(station);
     if (!station->m_initialized)
@@ -1106,7 +1105,7 @@ MinstrelWifiManager::InitSampleTable(MinstrelWifiRemoteStation* station)
 }
 
 void
-MinstrelWifiManager::PrintSampleTable(MinstrelWifiRemoteStation* station)
+MinstrelWifiManager::PrintSampleTable(MinstrelWifiRemoteStation* station) const
 {
     uint8_t numSampleRates = station->m_nModes;
     std::stringstream table;
@@ -1128,7 +1127,7 @@ MinstrelWifiManager::PrintTable(MinstrelWifiRemoteStation* station)
     {
         std::ostringstream tmp;
         tmp << "minstrel-stats-" << station->m_state->m_address << ".txt";
-        station->m_statsFile.open(tmp.str().c_str(), std::ios::out);
+        station->m_statsFile.open(tmp.str(), std::ios::out);
     }
 
     station->m_statsFile

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -30,18 +29,18 @@ using namespace ns3;
 
 AnimationInterface* pAnim = nullptr;
 
-/// RGB struture
-struct rgb
+/// RGB structure
+struct Rgb
 {
     uint8_t r; ///< red
     uint8_t g; ///< green
     uint8_t b; ///< blue
 };
 
-struct rgb colors[] = {
+Rgb colors[] = {
     {255, 0, 0}, // Red
     {0, 255, 0}, // Blue
-    {0, 0, 255}  // Green
+    {0, 0, 255}, // Green
 };
 
 uint32_t resourceId1;
@@ -97,7 +96,7 @@ modify()
     {
         index = 0;
     }
-    struct rgb color = colors[index];
+    Rgb color = colors[index];
     for (uint32_t nodeId = 4; nodeId < 12; ++nodeId)
     {
         pAnim->UpdateNodeColor(nodeId, color.r, color.g, color.b);
@@ -212,7 +211,7 @@ main(int argc, char* argv[])
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     Simulator::Run();
-    std::cout << "Animation Trace file created:" << animFile.c_str() << std::endl;
+    std::cout << "Animation Trace file created:" << animFile << std::endl;
     Simulator::Destroy();
     delete pAnim;
     return 0;

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Alexander Krotov
  *
@@ -68,6 +67,10 @@ LteSecondaryCellSelectionTestSuite::LteSecondaryCellSelectionTestSuite()
 
 } // end of LteSecondaryCellSelectionTestSuite::LteSecondaryCellSelectionTestSuite ()
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteSecondaryCellSelectionTestSuite g_lteSecondaryCellSelectionTestSuite;
 
 /*

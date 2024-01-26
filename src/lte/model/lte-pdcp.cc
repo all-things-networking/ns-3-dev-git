@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011-2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,12 +17,13 @@
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/lte-pdcp.h"
+#include "lte-pdcp.h"
+
+#include "lte-pdcp-header.h"
+#include "lte-pdcp-sap.h"
+#include "lte-pdcp-tag.h"
 
 #include "ns3/log.h"
-#include "ns3/lte-pdcp-header.h"
-#include "ns3/lte-pdcp-sap.h"
-#include "ns3/lte-pdcp-tag.h"
 #include "ns3/simulator.h"
 
 namespace ns3
@@ -155,7 +155,7 @@ LtePdcp::GetLteRlcSapUser()
 }
 
 LtePdcp::Status
-LtePdcp::GetStatus()
+LtePdcp::GetStatus() const
 {
     Status s;
     s.txSn = m_txSequenceNumber;
@@ -191,8 +191,6 @@ LtePdcp::DoTransmitPdcpSdu(LtePdcpSapProvider::TransmitPdcpSduParameters params)
     }
 
     pdcpHeader.SetDcBit(LtePdcpHeader::DATA_PDU);
-
-    NS_LOG_LOGIC("PDCP header: " << pdcpHeader);
     p->AddHeader(pdcpHeader);
     p->AddByteTag(pdcpTag, 1, pdcpHeader.GetSerializedSize());
 
@@ -203,6 +201,7 @@ LtePdcp::DoTransmitPdcpSdu(LtePdcpSapProvider::TransmitPdcpSduParameters params)
     txParams.lcid = m_lcid;
     txParams.pdcpPdu = p;
 
+    NS_LOG_INFO("Transmitting PDCP PDU with header: " << pdcpHeader);
     m_rlcSapProvider->TransmitPdcpPdu(txParams);
 }
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  *
@@ -23,8 +22,6 @@
 #define LTE_NET_DEVICE_H
 
 #include <ns3/event-id.h>
-#include <ns3/lte-control-messages.h>
-#include <ns3/lte-phy.h>
 #include <ns3/mac64-address.h>
 #include <ns3/net-device.h>
 #include <ns3/nstime.h>

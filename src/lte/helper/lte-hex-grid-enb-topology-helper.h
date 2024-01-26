@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,7 +20,7 @@
 #ifndef LTE_HEX_GRID_ENB_TOPOLOGY_HELPER_H
 #define LTE_HEX_GRID_ENB_TOPOLOGY_HELPER_H
 
-#include <ns3/lte-helper.h>
+#include "lte-helper.h"
 
 namespace ns3
 {
@@ -41,8 +40,8 @@ class LteHexGridEnbTopologyHelper : public Object
     ~LteHexGridEnbTopologyHelper() override;
 
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
     void DoDispose() override;

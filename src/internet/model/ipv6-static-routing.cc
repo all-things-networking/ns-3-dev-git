@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -20,9 +19,9 @@
 
 #include "ipv6-static-routing.h"
 
+#include "ipv6-route.h"
 #include "ipv6-routing-table-entry.h"
 
-#include "ns3/ipv6-route.h"
 #include "ns3/log.h"
 #include "ns3/names.h"
 #include "ns3/net-device.h"
@@ -129,7 +128,7 @@ Ipv6StaticRouting::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit
             // Use not implemented
             *os << "-"
                 << "   ";
-            if (Names::FindName(m_ipv6->GetNetDevice(route.GetInterface())) != "")
+            if (!Names::FindName(m_ipv6->GetNetDevice(route.GetInterface())).empty())
             {
                 *os << Names::FindName(m_ipv6->GetNetDevice(route.GetInterface()));
             }
@@ -182,7 +181,7 @@ Ipv6StaticRouting::AddNetworkRouteTo(Ipv6Address network,
 
     if (!LookupRoute(route, metric))
     {
-        Ipv6RoutingTableEntry* routePtr = new Ipv6RoutingTableEntry(route);
+        auto routePtr = new Ipv6RoutingTableEntry(route);
         m_networkRoutes.emplace_back(routePtr, metric);
     }
 }
@@ -209,7 +208,7 @@ Ipv6StaticRouting::AddNetworkRouteTo(Ipv6Address network,
                                                                               prefixToUse);
     if (!LookupRoute(route, metric))
     {
-        Ipv6RoutingTableEntry* routePtr = new Ipv6RoutingTableEntry(route);
+        auto routePtr = new Ipv6RoutingTableEntry(route);
         m_networkRoutes.emplace_back(routePtr, metric);
     }
 }
@@ -226,7 +225,7 @@ Ipv6StaticRouting::AddNetworkRouteTo(Ipv6Address network,
         Ipv6RoutingTableEntry::CreateNetworkRouteTo(network, networkPrefix, interface);
     if (!LookupRoute(route, metric))
     {
-        Ipv6RoutingTableEntry* routePtr = new Ipv6RoutingTableEntry(route);
+        auto routePtr = new Ipv6RoutingTableEntry(route);
         m_networkRoutes.emplace_back(routePtr, metric);
     }
 }
@@ -253,7 +252,7 @@ Ipv6StaticRouting::AddMulticastRoute(Ipv6Address origin,
                                      std::vector<uint32_t> outputInterfaces)
 {
     NS_LOG_FUNCTION(this << origin << group << inputInterface);
-    Ipv6MulticastRoutingTableEntry* route = new Ipv6MulticastRoutingTableEntry();
+    auto route = new Ipv6MulticastRoutingTableEntry();
     *route = Ipv6MulticastRoutingTableEntry::CreateMulticastRoute(origin,
                                                                   group,
                                                                   inputInterface,
@@ -265,7 +264,7 @@ void
 Ipv6StaticRouting::SetDefaultMulticastRoute(uint32_t outputInterface)
 {
     NS_LOG_FUNCTION(this << outputInterface);
-    Ipv6RoutingTableEntry* route = new Ipv6RoutingTableEntry();
+    auto route = new Ipv6RoutingTableEntry();
     Ipv6Address network = Ipv6Address("ff00::"); /* RFC 3513 */
     Ipv6Prefix networkMask = Ipv6Prefix(8);
     *route = Ipv6RoutingTableEntry::CreateNetworkRouteTo(network, networkMask, outputInterface);
@@ -289,7 +288,7 @@ Ipv6StaticRouting::GetMulticastRoute(uint32_t index) const
     if (index < m_multicastRoutes.size())
     {
         uint32_t tmp = 0;
-        for (MulticastRoutesCI i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
+        for (auto i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
         {
             if (tmp == index)
             {
@@ -307,7 +306,7 @@ Ipv6StaticRouting::RemoveMulticastRoute(Ipv6Address origin,
                                         uint32_t inputInterface)
 {
     NS_LOG_FUNCTION(this << origin << group << inputInterface);
-    for (MulticastRoutesI i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
+    for (auto i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
     {
         Ipv6MulticastRoutingTableEntry* route = *i;
         if (origin == route->GetOrigin() && group == route->GetGroup() &&
@@ -327,7 +326,7 @@ Ipv6StaticRouting::RemoveMulticastRoute(uint32_t index)
     NS_LOG_FUNCTION(this << index);
     uint32_t tmp = 0;
 
-    for (MulticastRoutesI i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
+    for (auto i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
     {
         if (tmp == index)
         {
@@ -345,7 +344,7 @@ Ipv6StaticRouting::HasNetworkDest(Ipv6Address network, uint32_t interfaceIndex)
     NS_LOG_FUNCTION(this << network << interfaceIndex);
 
     /* in the network table */
-    for (NetworkRoutesI j = m_networkRoutes.begin(); j != m_networkRoutes.end(); j++)
+    for (auto j = m_networkRoutes.begin(); j != m_networkRoutes.end(); j++)
     {
         Ipv6RoutingTableEntry* rtentry = j->first;
         Ipv6Prefix prefix = rtentry->GetDestNetworkPrefix();
@@ -364,7 +363,7 @@ Ipv6StaticRouting::HasNetworkDest(Ipv6Address network, uint32_t interfaceIndex)
 bool
 Ipv6StaticRouting::LookupRoute(const Ipv6RoutingTableEntry& route, uint32_t metric)
 {
-    for (NetworkRoutesI j = m_networkRoutes.begin(); j != m_networkRoutes.end(); j++)
+    for (auto j = m_networkRoutes.begin(); j != m_networkRoutes.end(); j++)
     {
         Ipv6RoutingTableEntry* rtentry = j->first;
 
@@ -403,7 +402,7 @@ Ipv6StaticRouting::LookupStatic(Ipv6Address dst, Ptr<NetDevice> interface)
         return rtentry;
     }
 
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         Ipv6RoutingTableEntry* j = it->first;
         uint32_t metric = it->second;
@@ -459,7 +458,7 @@ Ipv6StaticRouting::LookupStatic(Ipv6Address dst, Ptr<NetDevice> interface)
                 else
                 {
                     rtentry->SetSource(
-                        m_ipv6->SourceAddressSelection(interfaceIdx, route->GetGateway()));
+                        m_ipv6->SourceAddressSelection(interfaceIdx, route->GetDest()));
                 }
 
                 rtentry->SetDestination(route->GetDest());
@@ -486,14 +485,13 @@ Ipv6StaticRouting::DoDispose()
 {
     NS_LOG_FUNCTION(this);
 
-    for (NetworkRoutesI j = m_networkRoutes.begin(); j != m_networkRoutes.end();
-         j = m_networkRoutes.erase(j))
+    for (auto j = m_networkRoutes.begin(); j != m_networkRoutes.end(); j = m_networkRoutes.erase(j))
     {
         delete j->first;
     }
     m_networkRoutes.clear();
 
-    for (MulticastRoutesI i = m_multicastRoutes.begin(); i != m_multicastRoutes.end();
+    for (auto i = m_multicastRoutes.begin(); i != m_multicastRoutes.end();
          i = m_multicastRoutes.erase(i))
     {
         delete (*i);
@@ -510,7 +508,7 @@ Ipv6StaticRouting::LookupStatic(Ipv6Address origin, Ipv6Address group, uint32_t 
     NS_LOG_FUNCTION(this << origin << group << interface);
     Ptr<Ipv6MulticastRoute> mrtentry = nullptr;
 
-    for (MulticastRoutesI i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
+    for (auto i = m_multicastRoutes.begin(); i != m_multicastRoutes.end(); i++)
     {
         Ipv6MulticastRoutingTableEntry* route = *i;
 
@@ -570,7 +568,7 @@ Ipv6StaticRouting::GetDefaultRoute()
     uint32_t shortestMetric = 0xffffffff;
     Ipv6RoutingTableEntry* result = nullptr;
 
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         Ipv6RoutingTableEntry* j = it->first;
         uint32_t metric = it->second;
@@ -607,7 +605,7 @@ Ipv6StaticRouting::GetRoute(uint32_t index) const
     NS_LOG_FUNCTION(this << index);
     uint32_t tmp = 0;
 
-    for (NetworkRoutesCI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         if (tmp == index)
         {
@@ -626,7 +624,7 @@ Ipv6StaticRouting::GetMetric(uint32_t index) const
     NS_LOG_FUNCTION(this << index);
     uint32_t tmp = 0;
 
-    for (NetworkRoutesCI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         if (tmp == index)
         {
@@ -645,7 +643,7 @@ Ipv6StaticRouting::RemoveRoute(uint32_t index)
     NS_LOG_FUNCTION(this << index);
     uint32_t tmp = 0;
 
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         if (tmp == index)
         {
@@ -666,7 +664,7 @@ Ipv6StaticRouting::RemoveRoute(Ipv6Address network,
 {
     NS_LOG_FUNCTION(this << network << prefix << ifIndex);
 
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end(); it++)
     {
         Ipv6RoutingTableEntry* rtentry = it->first;
         if (network == rtentry->GetDest() && rtentry->GetInterface() == ifIndex &&
@@ -716,10 +714,10 @@ bool
 Ipv6StaticRouting::RouteInput(Ptr<const Packet> p,
                               const Ipv6Header& header,
                               Ptr<const NetDevice> idev,
-                              UnicastForwardCallback ucb,
-                              MulticastForwardCallback mcb,
-                              LocalDeliverCallback lcb,
-                              ErrorCallback ecb)
+                              const UnicastForwardCallback& ucb,
+                              const MulticastForwardCallback& mcb,
+                              const LocalDeliverCallback& lcb,
+                              const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(this << p << header << header.GetSource() << header.GetDestination() << idev);
     NS_ASSERT(m_ipv6);
@@ -751,7 +749,7 @@ Ipv6StaticRouting::RouteInput(Ptr<const Packet> p,
     }
 
     // Check if input device supports IP forwarding
-    if (m_ipv6->IsForwarding(iif) == false)
+    if (!m_ipv6->IsForwarding(iif))
     {
         NS_LOG_LOGIC("Forwarding disabled for this interface");
         if (!ecb.IsNull())
@@ -810,7 +808,7 @@ Ipv6StaticRouting::NotifyInterfaceDown(uint32_t i)
     NS_LOG_FUNCTION(this << i);
 
     /* remove all static routes that are going through this interface */
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end();)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end();)
     {
         if (it->first->GetInterface() == i)
         {
@@ -846,7 +844,7 @@ Ipv6StaticRouting::NotifyRemoveAddress(uint32_t interface, Ipv6InterfaceAddress 
 
     // Remove all static routes that are going through this interface
     // which reference this network
-    for (NetworkRoutesI it = m_networkRoutes.begin(); it != m_networkRoutes.end();)
+    for (auto it = m_networkRoutes.begin(); it != m_networkRoutes.end();)
     {
         if (it->first->GetInterface() == interface && it->first->IsNetwork() &&
             it->first->GetDestNetwork() == networkAddress &&
@@ -869,7 +867,7 @@ Ipv6StaticRouting::NotifyAddRoute(Ipv6Address dst,
                                   uint32_t interface,
                                   Ipv6Address prefixToUse)
 {
-    NS_LOG_INFO(this << dst << mask << nextHop << interface << prefixToUse);
+    NS_LOG_FUNCTION(this << dst << mask << nextHop << interface << prefixToUse);
     if (nextHop == Ipv6Address::GetZero())
     {
         AddNetworkRouteTo(dst, mask, interface);
@@ -902,7 +900,7 @@ Ipv6StaticRouting::NotifyRemoveRoute(Ipv6Address dst,
     NS_LOG_FUNCTION(this << dst << mask << nextHop << interface);
     if (dst != Ipv6Address::GetZero())
     {
-        for (NetworkRoutesI j = m_networkRoutes.begin(); j != m_networkRoutes.end();)
+        for (auto j = m_networkRoutes.begin(); j != m_networkRoutes.end();)
         {
             Ipv6RoutingTableEntry* rtentry = j->first;
             Ipv6Prefix prefix = rtentry->GetDestNetworkPrefix();

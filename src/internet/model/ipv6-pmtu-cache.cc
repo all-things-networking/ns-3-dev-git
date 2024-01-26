@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Universita' di Firenze
  *
@@ -57,7 +56,7 @@ Ipv6PmtuCache::~Ipv6PmtuCache()
 void
 Ipv6PmtuCache::DoDispose()
 {
-    for (pathMtuTimerIter iter = m_pathMtuTimer.begin(); iter != m_pathMtuTimer.end(); iter++)
+    for (auto iter = m_pathMtuTimer.begin(); iter != m_pathMtuTimer.end(); iter++)
     {
         iter->second.Cancel();
     }

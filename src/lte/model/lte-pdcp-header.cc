@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,7 +17,7 @@
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/lte-pdcp-header.h"
+#include "lte-pdcp-header.h"
 
 #include "ns3/log.h"
 
@@ -100,7 +99,7 @@ LtePdcpHeader::Serialize(Buffer::Iterator start) const
     Buffer::Iterator i = start;
 
     i.WriteU8((m_dcBit << 7) | (m_sequenceNumber & 0x0F00) >> 8);
-    i.WriteU8((m_sequenceNumber & 0x00FF));
+    i.WriteU8(m_sequenceNumber & 0x00FF);
 }
 
 uint32_t

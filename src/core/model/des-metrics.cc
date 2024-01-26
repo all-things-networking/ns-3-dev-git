@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 LLNL
  *
@@ -51,17 +50,17 @@ DesMetrics::Initialize(std::vector<std::string> args, std::string outDir /* = ""
     m_initialized = true;
 
     std::string model_name("desTraceFile");
-    if (args.size() > 0)
+    if (!args.empty())
     {
         std::string arg0 = args[0];
         model_name = SystemPath::Split(arg0).back();
     }
     std::string jsonFile = model_name + ".json";
-    if (outDir != "")
+    if (!outDir.empty())
     {
         DesMetrics::m_outputDir = outDir;
     }
-    if (DesMetrics::m_outputDir != "")
+    if (!DesMetrics::m_outputDir.empty())
     {
         jsonFile = SystemPath::Append(DesMetrics::m_outputDir, jsonFile);
     }
@@ -71,13 +70,13 @@ DesMetrics::Initialize(std::vector<std::string> args, std::string outDir /* = ""
     const char* date = ctime(&current_time);
     std::string capture_date(date, 24); // discard trailing newline from ctime
 
-    m_os.open(jsonFile.c_str());
+    m_os.open(jsonFile);
     m_os << "{" << std::endl;
     m_os << " \"simulator_name\" : \"ns-3\"," << std::endl;
     m_os << " \"model_name\" : \"" << model_name << "\"," << std::endl;
     m_os << " \"capture_date\" : \"" << capture_date << "\"," << std::endl;
     m_os << " \"command_line_arguments\" : \"";
-    if (args.size() == 0)
+    if (args.empty())
     {
         for (std::size_t i = 0; i < args.size(); ++i)
         {

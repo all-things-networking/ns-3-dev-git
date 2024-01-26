@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011,2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -19,7 +18,7 @@
  *         Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include "ns3/lte-rlc-tm.h"
+#include "lte-rlc-tm.h"
 
 #include "ns3/log.h"
 #include "ns3/simulator.h"
@@ -114,7 +113,7 @@ LteRlcTm::DoNotifyTxOpportunity(LteMacSapUser::TxOpportunityParameters txOpParam
     // When submitting a new TMD PDU to lower layer, the transmitting TM RLC entity shall:
     // - submit a RLC SDU without any modification to lower layer.
 
-    if (m_txBuffer.size() == 0)
+    if (m_txBuffer.empty())
     {
         NS_LOG_LOGIC("No data pending");
         return;

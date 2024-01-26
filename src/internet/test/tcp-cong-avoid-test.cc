@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -29,7 +28,6 @@ NS_LOG_COMPONENT_DEFINE("TcpNewRenoCongAvoidTest");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Test the behavior of RFC congestion avoidance
  *
@@ -182,7 +180,6 @@ TcpNewRenoCongAvoidNormalTest::NormalClose(SocketWho who)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite for the behavior of RFC congestion avoidance
  */

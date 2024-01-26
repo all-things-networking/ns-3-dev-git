@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -54,7 +53,7 @@ class LtePdcpSapProvider
      * This method is to be called when upper RRC entity has a
      * RRC PDU ready to send
      *
-     * \param params
+     * \param params Parameters
      */
     virtual void TransmitPdcpSdu(TransmitPdcpSduParameters params) = 0;
 };
@@ -84,7 +83,7 @@ class LtePdcpSapUser
     /**
      * Called by the PDCP entity to notify the RRC entity of the reception of a new RRC PDU
      *
-     * \param params
+     * \param params Parameters
      */
     virtual void ReceivePdcpSdu(ReceivePdcpSduParameters params) = 0;
 };
@@ -101,22 +100,19 @@ class LtePdcpSpecificLtePdcpSapProvider : public LtePdcpSapProvider
      */
     LtePdcpSpecificLtePdcpSapProvider(C* pdcp);
 
+    // Delete default constructor to avoid misuse
+    LtePdcpSpecificLtePdcpSapProvider() = delete;
+
     // Interface implemented from LtePdcpSapProvider
     void TransmitPdcpSdu(TransmitPdcpSduParameters params) override;
 
   private:
-    LtePdcpSpecificLtePdcpSapProvider();
     C* m_pdcp; ///< the PDCP
 };
 
 template <class C>
 LtePdcpSpecificLtePdcpSapProvider<C>::LtePdcpSpecificLtePdcpSapProvider(C* pdcp)
     : m_pdcp(pdcp)
-{
-}
-
-template <class C>
-LtePdcpSpecificLtePdcpSapProvider<C>::LtePdcpSpecificLtePdcpSapProvider()
 {
 }
 
@@ -139,22 +135,19 @@ class LtePdcpSpecificLtePdcpSapUser : public LtePdcpSapUser
      */
     LtePdcpSpecificLtePdcpSapUser(C* rrc);
 
+    // Delete default constructor to avoid misuse
+    LtePdcpSpecificLtePdcpSapUser() = delete;
+
     // Interface implemented from LtePdcpSapUser
     void ReceivePdcpSdu(ReceivePdcpSduParameters params) override;
 
   private:
-    LtePdcpSpecificLtePdcpSapUser();
     C* m_rrc; ///< RRC
 };
 
 template <class C>
 LtePdcpSpecificLtePdcpSapUser<C>::LtePdcpSpecificLtePdcpSapUser(C* rrc)
     : m_rrc(rrc)
-{
-}
-
-template <class C>
-LtePdcpSpecificLtePdcpSapUser<C>::LtePdcpSpecificLtePdcpSapUser()
 {
 }
 

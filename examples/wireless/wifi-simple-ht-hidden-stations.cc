@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Sébastien Deronne
  *
@@ -60,7 +59,7 @@ main(int argc, char* argv[])
     double simulationTime = 10;  // seconds
     uint32_t nMpdus = 1;
     uint32_t maxAmpduSize = 0;
-    bool enableRts = 0;
+    bool enableRts = false;
     double minExpectedThroughput = 0;
     double maxExpectedThroughput = 0;
 

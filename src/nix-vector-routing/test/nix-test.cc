@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 NITK Surathkal
  *
@@ -118,7 +117,7 @@ NixVectorRoutingTest::NixVectorRoutingTest()
 void
 NixVectorRoutingTest::ReceivePkt(Ptr<Socket> socket)
 {
-    [[maybe_unused]] uint32_t availableData = socket->GetRxAvailable();
+    uint32_t availableData [[maybe_unused]] = socket->GetRxAvailable();
     m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
     NS_TEST_ASSERT_MSG_EQ(availableData,
                           m_receivedPacket->GetSize(),
@@ -298,8 +297,8 @@ NixVectorRoutingTest::DoRun()
     ifIndex = ipv6->GetInterfaceForDevice(dAdC.Get(0));
     Simulator::Schedule(Seconds(5), &Ipv6::SetDown, ipv6, ifIndex);
 
-    ipv4NixRouting.PrintRoutingTableAllAt(Seconds(7), cacheStreamv4);
-    ipv6NixRouting.PrintRoutingTableAllAt(Seconds(7), cacheStreamv6);
+    Ipv4NixVectorHelper::PrintRoutingTableAllAt(Seconds(7), cacheStreamv4);
+    Ipv6NixVectorHelper::PrintRoutingTableAllAt(Seconds(7), cacheStreamv6);
 
     SendData(Seconds(8), txSocket, Ipv4Address("10.1.3.2"));
     SendData(Seconds(8), txSocket, Ipv6Address("2001:3::200:ff:fe00:8"));

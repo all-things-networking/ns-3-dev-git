@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2009 INRIA, UDcast
  *
@@ -38,13 +37,13 @@ CsParameters::CsParameters(Tlv tlv)
     NS_ASSERT_MSG(tlv.GetType() == SfVectorTlvValue::IPV4_CS_Parameters, "Invalid TLV");
     CsParamVectorTlvValue* param = ((CsParamVectorTlvValue*)(tlv.PeekValue()));
 
-    for (std::vector<Tlv*>::const_iterator iter = param->Begin(); iter != param->End(); ++iter)
+    for (auto iter = param->Begin(); iter != param->End(); ++iter)
     {
         switch ((*iter)->GetType())
         {
         case CsParamVectorTlvValue::Classifier_DSC_Action: {
             m_classifierDscAction =
-                (enum CsParameters::Action)((U8TlvValue*)((*iter)->PeekValue()))->GetValue();
+                (CsParameters::Action)((U8TlvValue*)((*iter)->PeekValue()))->GetValue();
             break;
         }
         case CsParamVectorTlvValue::Packet_Classification_Rule: {
@@ -55,7 +54,7 @@ CsParameters::CsParameters(Tlv tlv)
     }
 }
 
-CsParameters::CsParameters(enum CsParameters::Action classifierDscAction,
+CsParameters::CsParameters(CsParameters::Action classifierDscAction,
                            IpcsClassifierRecord classifier)
 {
     m_classifierDscAction = classifierDscAction;
@@ -63,7 +62,7 @@ CsParameters::CsParameters(enum CsParameters::Action classifierDscAction,
 }
 
 void
-CsParameters::SetClassifierDscAction(enum CsParameters::Action action)
+CsParameters::SetClassifierDscAction(CsParameters::Action action)
 {
     m_classifierDscAction = action;
 }
@@ -74,7 +73,7 @@ CsParameters::SetPacketClassifierRule(IpcsClassifierRecord packetClassifierRule)
     m_packetClassifierRule = packetClassifierRule;
 }
 
-enum CsParameters::Action
+CsParameters::Action
 CsParameters::GetClassifierDscAction() const
 {
     return m_classifierDscAction;

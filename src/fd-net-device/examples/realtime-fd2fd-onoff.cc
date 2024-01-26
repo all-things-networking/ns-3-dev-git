@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington, 2012 INRIA
  *
@@ -29,10 +28,10 @@
 //  |  fd-net-device |--------------|  fd-net-device |
 //  +----------------+              +----------------+
 //
-// This example is aimed at meassuring the thoughput of the FdNetDevice
+// This example is aimed at measuring the throughput of the FdNetDevice
 // in a pure simulation. For this purpose two FdNetDevices, attached to
 // different nodes but in a same simulation, are connected using a socket pair.
-// TCP traffic is sent at a saturating data rate. Then the thoughput can
+// TCP traffic is sent at a saturating data rate. Then the throughput can
 // be obtained from the generated .pcap files.
 //
 // Steps to run the experiment:
@@ -126,4 +125,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(40.0));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

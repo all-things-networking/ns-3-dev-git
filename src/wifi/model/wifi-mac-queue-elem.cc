@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
  *
@@ -36,6 +35,7 @@ WifiMacQueueElem::WifiMacQueueElem(Ptr<WifiMpdu> item)
 WifiMacQueueElem::~WifiMacQueueElem()
 {
     deleter(mpdu);
+    inflights.clear();
 }
 
 } // namespace ns3

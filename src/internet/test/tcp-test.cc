@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  * Copyright (c) 2009 INRIA
@@ -53,7 +52,6 @@ NS_LOG_COMPONENT_DEFINE("TcpTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Test - send string data from client to server and back.
  */
@@ -222,13 +220,13 @@ TcpTestCase::DoRun()
     m_serverRxPayload = new uint8_t[m_totalBytes];
     for (uint32_t i = 0; i < m_totalBytes; ++i)
     {
-        uint8_t m = (uint8_t)(97 + (i % 26));
+        auto m = (uint8_t)(97 + (i % 26));
         m_sourceTxPayload[i] = m;
     }
     memset(m_sourceRxPayload, 0, m_totalBytes);
     memset(m_serverRxPayload, 0, m_totalBytes);
 
-    if (m_useIpv6 == true)
+    if (m_useIpv6)
     {
         SetupDefaultSim6();
     }
@@ -538,7 +536,6 @@ TcpTestCase::AddSimpleNetDevice6(Ptr<Node> node, Ipv6Address ipaddr, Ipv6Prefix 
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP TestSuite - send string data from client to server and back.
  */

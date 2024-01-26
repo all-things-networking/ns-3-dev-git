@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  *
@@ -23,6 +22,7 @@
 
 #include <ns3/spectrum-value.h>
 
+#include <map>
 #include <vector>
 
 namespace ns3
@@ -90,7 +90,7 @@ class LteSpectrumValueHelper
     /**
      *
      *
-     * \param txBandwidthConf the tranmission bandwidth
+     * \param txBandwidthConf the transmission bandwidth
      * configuration in number of resource blocks
      *
      * \return the nominal channel bandwidth in Hz as per 3GPP TS 36.101

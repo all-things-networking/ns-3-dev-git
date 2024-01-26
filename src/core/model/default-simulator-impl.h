@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -62,7 +61,7 @@ class DefaultSimulatorImpl : public SimulatorImpl
     void Destroy() override;
     bool IsFinished() const override;
     void Stop() override;
-    void Stop(const Time& delay) override;
+    EventId Stop(const Time& delay) override;
     EventId Schedule(const Time& delay, EventImpl* event) override;
     void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event) override;
     EventId ScheduleNow(EventImpl* event) override;
@@ -97,8 +96,9 @@ class DefaultSimulatorImpl : public SimulatorImpl
         /** The event implementation. */
         EventImpl* event;
     };
+
     /** Container type for the events from a different context. */
-    typedef std::list<struct EventWithContext> EventsWithContext;
+    typedef std::list<EventWithContext> EventsWithContext;
     /** The container of events from a different context. */
     EventsWithContext m_eventsWithContext;
     /**

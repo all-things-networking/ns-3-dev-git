@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 UPB
  * Copyright (c) 2017 NITK Surathkal
@@ -161,7 +160,7 @@ DhcpServer::StartApplication()
     uint32_t range = m_maxAddress.Get() - m_minAddress.Get() + 1;
     for (uint32_t searchSeq = 0; searchSeq < range; searchSeq++)
     {
-        Ipv4Address poolAddress = Ipv4Address(m_minAddress.Get() + searchSeq);
+        Ipv4Address poolAddress(m_minAddress.Get() + searchSeq);
         if (poolAddress != myOwnAddress)
         {
             NS_LOG_LOGIC("Adding " << poolAddress << " to the pool");
@@ -260,7 +259,7 @@ DhcpServer::SendOffer(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress 
 
     NS_LOG_INFO("DHCP DISCOVER from: " << from.GetIpv4() << " source port: " << from.GetPort());
 
-    LeasedAddressIter iter = m_leasedAddresses.find(sourceChaddr);
+    auto iter = m_leasedAddresses.find(sourceChaddr);
     if (iter != m_leasedAddresses.end())
     {
         // We know this client from some time ago
@@ -426,8 +425,7 @@ DhcpServer::AddStaticDhcpEntry(Address chaddr, Ipv4Address addr)
     NS_ASSERT_MSG(m_leasedAddresses.find(cleanedCaddr) == m_leasedAddresses.end(),
                   "Client has already an active lease: " << m_leasedAddresses[cleanedCaddr].first);
 
-    AvailableAddress::iterator it =
-        find(m_availableAddresses.begin(), m_availableAddresses.end(), addr);
+    auto it = find(m_availableAddresses.begin(), m_availableAddresses.end(), addr);
     NS_ASSERT_MSG(
         it == m_availableAddresses.end(),
         "Required address is not available (perhaps it has been already assigned): " << addr);

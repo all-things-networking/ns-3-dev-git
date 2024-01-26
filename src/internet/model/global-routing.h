@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright 2008 University of Washington
  *
@@ -83,6 +82,6 @@
  * By using a standard data format for reporting topology, existing
  * OSPF route computation code can be reused, and that is what is done
  * by the ns3::GlobalRouteManager.  The main computation functions are
- * ported from the quagga routing suite (http://www.quagga.net).
+ * ported from the quagga routing suite (https://www.nongnu.org/quagga/).
  *
  */

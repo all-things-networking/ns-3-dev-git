@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -73,7 +72,7 @@ NetDeviceContainer::Get(uint32_t i) const
 void
 NetDeviceContainer::Add(NetDeviceContainer other)
 {
-    for (Iterator i = other.Begin(); i != other.End(); i++)
+    for (auto i = other.Begin(); i != other.End(); i++)
     {
         m_devices.push_back(*i);
     }

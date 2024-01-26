@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -23,23 +22,23 @@
 #ifndef LTE_HELPER_H
 #define LTE_HELPER_H
 
-#include <ns3/cc-helper.h>
+#include "mac-stats-calculator.h"
+#include "phy-rx-stats-calculator.h"
+#include "phy-stats-calculator.h"
+#include "phy-tx-stats-calculator.h"
+#include "radio-bearer-stats-calculator.h"
+#include "radio-bearer-stats-connector.h"
+
 #include <ns3/component-carrier-enb.h>
 #include <ns3/config.h>
 #include <ns3/epc-tft.h>
 #include <ns3/eps-bearer.h>
-#include <ns3/mac-stats-calculator.h>
 #include <ns3/mobility-model.h>
 #include <ns3/names.h>
 #include <ns3/net-device-container.h>
 #include <ns3/net-device.h>
 #include <ns3/node-container.h>
 #include <ns3/node.h>
-#include <ns3/phy-rx-stats-calculator.h>
-#include <ns3/phy-stats-calculator.h>
-#include <ns3/phy-tx-stats-calculator.h>
-#include <ns3/radio-bearer-stats-calculator.h>
-#include <ns3/radio-bearer-stats-connector.h>
 #include <ns3/simulator.h>
 
 #include <map>
@@ -107,8 +106,8 @@ class LteHelper : public Object
     ~LteHelper() override;
 
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
     void DoDispose() override;
@@ -470,12 +469,13 @@ class LteHelper : public Object
     uint8_t ActivateDedicatedEpsBearer(Ptr<NetDevice> ueDevice, EpsBearer bearer, Ptr<EpcTft> tft);
 
     /**
-     *  \brief Manually trigger dedicated bearer de-activation at specific simulation time
-     *  \param ueDevice the UE on which dedicated bearer to be de-activated must be of the type
-     * LteUeNetDevice \param enbDevice eNB, must be of the type LteEnbNetDevice \param bearerId
-     * Bearer Identity which is to be de-activated
+     * \brief Manually trigger dedicated bearer de-activation at specific simulation time
+     * \param ueDevice the UE on which dedicated bearer to be de-activated must be of the type
+     * LteUeNetDevice
+     * \param enbDevice eNB, must be of the type LteEnbNetDevice
+     * \param bearerId Bearer Identity which is to be de-activated
      *
-     *  \warning Requires the use of EPC mode. See SetEpcHelper() method.
+     * \warning Requires the use of EPC mode. See SetEpcHelper() method.
      */
 
     void DeActivateDedicatedEpsBearer(Ptr<NetDevice> ueDevice,
@@ -726,13 +726,13 @@ class LteHelper : public Object
                            uint16_t targetCellId);
 
     /**
-     *  \brief The actual function to trigger a manual bearer de-activation
-     *  \param ueDevice the UE on which bearer to be de-activated must be of the type LteUeNetDevice
-     *  \param enbDevice eNB, must be of the type LteEnbNetDevice
-     *  \param bearerId Bearer Identity which is to be de-activated
+     * \brief The actual function to trigger a manual bearer de-activation
+     * \param ueDevice the UE on which bearer to be de-activated must be of the type LteUeNetDevice
+     * \param enbDevice eNB, must be of the type LteEnbNetDevice
+     * \param bearerId Bearer Identity which is to be de-activated
      *
-     *  This method is normally scheduled by DeActivateDedicatedEpsBearer() to run at a specific
-     *  time when a manual bearer de-activation is desired by the simulation user.
+     * This method is normally scheduled by DeActivateDedicatedEpsBearer() to run at a specific
+     * time when a manual bearer de-activation is desired by the simulation user.
      */
     void DoDeActivateDedicatedEpsBearer(Ptr<NetDevice> ueDevice,
                                         Ptr<NetDevice> enbDevice,

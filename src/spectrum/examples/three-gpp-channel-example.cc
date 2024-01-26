@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -80,8 +79,6 @@ DoBeamforming(Ptr<NetDevice> thisDevice,
               Ptr<PhasedArrayModel> thisAntenna,
               Ptr<NetDevice> otherDevice)
 {
-    PhasedArrayModel::ComplexVector antennaWeights;
-
     // retrieve the position of the two devices
     Vector aPos = thisDevice->GetNode()->GetObject<MobilityModel>()->GetPosition();
     Vector bPos = otherDevice->GetNode()->GetObject<MobilityModel>()->GetPosition();
@@ -92,20 +89,26 @@ DoBeamforming(Ptr<NetDevice> thisDevice,
 
     double vAngleRadian = completeAngle.GetInclination(); // the elevation angle
 
-    // retrieve the number of antenna elements
-    int totNoArrayElements = thisAntenna->GetNumberOfElements();
+    // retrieve the number of antenna elements and resize the vector
+    uint64_t totNoArrayElements = thisAntenna->GetNumElems();
+    PhasedArrayModel::ComplexVector antennaWeights(totNoArrayElements);
 
     // the total power is divided equally among the antenna elements
-    double power = 1 / sqrt(totNoArrayElements);
+    double power = 1.0 / sqrt(totNoArrayElements);
 
     // compute the antenna weights
-    for (int ind = 0; ind < totNoArrayElements; ind++)
+    const double sinVAngleRadian = sin(vAngleRadian);
+    const double cosVAngleRadian = cos(vAngleRadian);
+    const double sinHAngleRadian = sin(hAngleRadian);
+    const double cosHAngleRadian = cos(hAngleRadian);
+
+    for (uint64_t ind = 0; ind < totNoArrayElements; ind++)
     {
         Vector loc = thisAntenna->GetElementLocation(ind);
         double phase = -2 * M_PI *
-                       (sin(vAngleRadian) * cos(hAngleRadian) * loc.x +
-                        sin(vAngleRadian) * sin(hAngleRadian) * loc.y + cos(vAngleRadian) * loc.z);
-        antennaWeights.push_back(exp(std::complex<double>(0, phase)) * power);
+                       (sinVAngleRadian * cosHAngleRadian * loc.x +
+                        sinVAngleRadian * sinHAngleRadian * loc.y + cosVAngleRadian * loc.z);
+        antennaWeights[ind] = exp(std::complex<double>(0, phase)) * power;
     }
 
     // store the antenna weights
@@ -128,14 +131,14 @@ ComputeSnr(const ComputeSnrParams& params)
     {
         activeRbs0[i] = i;
     }
-    Ptr<SpectrumValue> txPsd =
+    auto txPsd =
         LteSpectrumValueHelper::CreateTxPowerSpectralDensity(2100, 100, params.txPow, activeRbs0);
-    Ptr<SpectrumSignalParameters> txParams = Create<SpectrumSignalParameters>();
+    auto txParams = Create<SpectrumSignalParameters>();
     txParams->psd = txPsd->Copy();
     NS_LOG_DEBUG("Average tx power " << 10 * log10(Sum(*txPsd) * 180e3) << " dB");
 
     // create the noise PSD
-    Ptr<SpectrumValue> noisePsd =
+    auto noisePsd =
         LteSpectrumValueHelper::CreateNoisePowerSpectralDensity(2100, 100, params.noiseFigure);
     NS_LOG_DEBUG("Average noise power " << 10 * log10(Sum(*noisePsd) * 180e3) << " dB");
 
@@ -149,11 +152,12 @@ ComputeSnr(const ComputeSnrParams& params)
     NS_ASSERT_MSG(params.rxAntenna, "params.rxAntenna is nullptr!");
 
     // apply the fast fading and the beamforming gain
-    Ptr<SpectrumValue> rxPsd = m_spectrumLossModel->CalcRxPowerSpectralDensity(txParams,
-                                                                               params.txMob,
-                                                                               params.rxMob,
-                                                                               params.txAntenna,
-                                                                               params.rxAntenna);
+    auto rxParams = m_spectrumLossModel->CalcRxPowerSpectralDensity(txParams,
+                                                                    params.txMob,
+                                                                    params.rxMob,
+                                                                    params.txAntenna,
+                                                                    params.rxAntenna);
+    auto rxPsd = rxParams->psd;
     NS_LOG_DEBUG("Average rx power " << 10 * log10(Sum(*rxPsd) * 180e3) << " dB");
 
     // compute the SNR
@@ -174,7 +178,7 @@ main(int argc, char* argv[])
     double txPow = 49.0;          // tx power in dBm
     double noiseFigure = 9.0;     // noise figure in dB
     double distance = 10.0;       // distance between tx and rx nodes in meters
-    uint32_t simTime = 10000;     // simulation time in milliseconds
+    uint32_t simTime = 1000;      // simulation time in milliseconds
     uint32_t timeRes = 10;        // time resolution in milliseconds
     std::string scenario = "UMa"; // 3GPP propagation scenario
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -34,7 +33,7 @@ operator<<(std::ostream& os, const UanPdp& pdp)
     os << pdp.GetNTaps() << '|';
     os << pdp.GetResolution().GetSeconds() << '|';
 
-    UanPdp::Iterator it = pdp.m_taps.begin();
+    auto it = pdp.m_taps.begin();
     for (; it != pdp.m_taps.end(); it++)
     {
         os << (*it).GetAmp() << '|';

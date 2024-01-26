@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  *   Copyright (c) 2020 University of Padova, Dep. of Information Engineering, SIGNET lab.
  *
@@ -154,14 +153,14 @@ UniformPlanarArrayTestCase::ComputeGain(Ptr<UniformPlanarArray> a)
 {
     // compute gain
     PhasedArrayModel::ComplexVector sv = a->GetSteeringVector(m_direction);
-    NS_TEST_EXPECT_MSG_EQ(sv.size(), a->GetNumberOfElements(), "steering vector of wrong size");
+    NS_TEST_EXPECT_MSG_EQ(sv.GetSize(), a->GetNumElems(), "steering vector of wrong size");
     PhasedArrayModel::ComplexVector bf = a->GetBeamformingVector(m_direction);
-    NS_TEST_EXPECT_MSG_EQ(bf.size(), a->GetNumberOfElements(), "beamforming vector of wrong size");
+    NS_TEST_EXPECT_MSG_EQ(bf.GetSize(), a->GetNumElems(), "beamforming vector of wrong size");
     std::pair<double, double> fp = a->GetElementFieldPattern(m_direction);
 
     // scalar product dot (sv, bf)
     std::complex<double> prod{0};
-    for (size_t i = 0; i < sv.size(); i++)
+    for (size_t i = 0; i < sv.GetSize(); i++)
     {
         prod += sv[i] * bf[i];
     }

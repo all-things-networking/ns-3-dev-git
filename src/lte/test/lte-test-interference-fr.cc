@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -16,9 +15,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: Piotr Gawlowicz <gawlowicz.p@gmail.com>
- * Based on lte-test-interference.{h,cc} by Manuel Requena <manuel.requena@cttc.es>
- *                                                                              Nicola Baldo
- * <nbaldo@cttc.es>
+ * Based on lte-test-interference.{h,cc} by:
+ *   Manuel Requena <manuel.requena@cttc.es>
+ *   Nicola Baldo <nbaldo@cttc.es>
  */
 
 #include "lte-test-interference-fr.h"
@@ -120,6 +119,10 @@ LteInterferenceFrTestSuite::LteInterferenceFrTestSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteInterferenceFrTestSuite LteInterferenceFrTestSuite;
 
 /**
@@ -214,7 +217,7 @@ LteInterferenceHardFrTestCase::DoRun()
     lteHelper->Attach(ueDevs2, enbDevs.Get(1));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);
@@ -401,7 +404,7 @@ LteInterferenceStrictFrTestCase::DoRun()
     lteHelper->Attach(ueDevs2, enbDevs.Get(1));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);

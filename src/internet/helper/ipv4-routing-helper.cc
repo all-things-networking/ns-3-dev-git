@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -184,7 +183,7 @@ Ipv4RoutingHelper::PrintArpCache(Ptr<Node> node, Ptr<OutputStreamWrapper> stream
 
         *os << "ARP Cache of node ";
         std::string found = Names::FindName(node);
-        if (Names::FindName(node) != "")
+        if (!Names::FindName(node).empty())
         {
             *os << found;
         }
@@ -218,7 +217,7 @@ Ipv4RoutingHelper::PrintArpCacheEvery(Time printInterval,
 
         *os << "ARP Cache of node ";
         std::string found = Names::FindName(node);
-        if (Names::FindName(node) != "")
+        if (!Names::FindName(node).empty())
         {
             *os << found;
         }

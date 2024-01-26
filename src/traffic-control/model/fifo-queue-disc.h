@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -21,7 +20,7 @@
 #ifndef FIFO_QUEUE_DISC_H
 #define FIFO_QUEUE_DISC_H
 
-#include "ns3/queue-disc.h"
+#include "queue-disc.h"
 
 namespace ns3
 {

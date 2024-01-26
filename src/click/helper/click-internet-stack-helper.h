@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -18,8 +17,6 @@
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Author: Lalith Suresh  <suresh.lalith@gmail.com>
  */
-
-#ifdef NS3_CLICK
 
 #ifndef CLICK_INTERNET_STACK_HELPER_H
 #define CLICK_INTERNET_STACK_HELPER_H
@@ -54,19 +51,32 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
     /**
      * Create a new ClickInternetStackHelper which uses Ipv4ClickRouting for routing
      */
-    ClickInternetStackHelper(void);
+    ClickInternetStackHelper();
 
     /**
      * Destroy the ClickInternetStackHelper
      */
-    virtual ~ClickInternetStackHelper(void);
-    ClickInternetStackHelper(const ClickInternetStackHelper&);
+    ~ClickInternetStackHelper() override;
+
+    /**
+     * Copy constructor.
+     *
+     * \param o Object to copy from.
+     */
+    ClickInternetStackHelper(const ClickInternetStackHelper& o);
+
+    /**
+     * Assignment operator.
+     *
+     * \param o Object to copy from.
+     * \return Reference to updated object.
+     */
     ClickInternetStackHelper& operator=(const ClickInternetStackHelper& o);
 
     /**
      * Return helper internal state to that of a newly constructed one
      */
-    void Reset(void);
+    void Reset();
 
     /**
      * Aggregate implementations of the ns3::Ipv4L3ClickProtocol, ns3::ArpL3Protocol,
@@ -100,35 +110,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
     /**
      * Aggregate IPv4, UDP, and TCP stacks to all nodes in the simulation
      */
-    void InstallAll(void) const;
-
-    /**
-     * \brief set the Tcp stack which will not need any other parameter.
-     *
-     * This function sets up the tcp stack to the given TypeId. It should not be
-     * used for NSC stack setup because the nsc stack needs the Library attribute
-     * to be setup, please use instead the version that requires an attribute
-     * and a value. If you choose to use this function anyways to set nsc stack
-     * the default value for the linux library will be used: "liblinux2.6.26.so".
-     *
-     * \param tid the type id, typically it is set to  "ns3::TcpL4Protocol"
-     */
-    void SetTcp(std::string tid);
-
-    /**
-     * \brief This function is used to setup the Network Simulation Cradle stack with library value.
-     *
-     * Give the NSC stack a shared library file name to use when creating the
-     * stack implementation.  The attr string is actually the attribute name to
-     * be setup and val is its value. The attribute is the stack implementation
-     * to be used and the value is the shared library name.
-     *
-     * \param tid The type id, for the case of nsc it would be "ns3::NscTcpL4Protocol"
-     * \param attr The attribute name that must be setup, for example "Library"
-     * \param val The attribute value, which will be in fact the shared library name
-     * (example:"liblinux2.6.26.so")
-     */
-    void SetTcp(std::string tid, std::string attr, const AttributeValue& val);
+    void InstallAll() const;
 
     /**
      * \brief Set a Click file to be used for a group of nodes.
@@ -174,41 +156,62 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
 
   private:
     /**
-     * @brief Enable pcap output the indicated Ipv4 and interface pair.
+     * \brief Enable pcap output the indicated Ipv4 and interface pair.
      *
-     * @param prefix Filename prefix to use for pcap files.
-     * @param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
-     * @param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * \param prefix Filename prefix to use for pcap files.
+     * \param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
+     * \param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * \param explicitFilename Whether the filename is explicit or not.
      */
-    virtual void EnablePcapIpv4Internal(std::string prefix,
-                                        Ptr<Ipv4> ipv4,
-                                        uint32_t interface,
-                                        bool explicitFilename);
+    void EnablePcapIpv4Internal(std::string prefix,
+                                Ptr<Ipv4> ipv4,
+                                uint32_t interface,
+                                bool explicitFilename) override;
 
     /**
-     * @brief Enable ascii trace output on the indicated Ipv4 and interface pair.
+     * \brief Enable ascii trace output on the indicated Ipv4 and interface pair.
      *
-     * @param stream An OutputStreamWrapper representing an existing file to use
+     * \param stream An OutputStreamWrapper representing an existing file to use
      *               when writing trace data.
-     * @param prefix Filename prefix to use for ascii trace files.
-     * @param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
-     * @param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * \param prefix Filename prefix to use for ascii trace files.
+     * \param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
+     * \param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * \param explicitFilename Whether the filename is explicit or not.
      */
-    virtual void EnableAsciiIpv4Internal(Ptr<OutputStreamWrapper> stream,
-                                         std::string prefix,
-                                         Ptr<Ipv4> ipv4,
-                                         uint32_t interface,
-                                         bool explicitFilename);
+    void EnableAsciiIpv4Internal(Ptr<OutputStreamWrapper> stream,
+                                 std::string prefix,
+                                 Ptr<Ipv4> ipv4,
+                                 uint32_t interface,
+                                 bool explicitFilename) override;
 
-    void Initialize(void);
-    ObjectFactory m_tcpFactory;
+    /**
+     * Initialize stack helper.
+     * Called by both constructor and Reset().
+     */
+    void Initialize();
 
+    /**
+     * Create and aggregate object from type ID.
+     *
+     * \param node Node.
+     * \param typeId Type ID.
+     */
     static void CreateAndAggregateObjectFromTypeId(Ptr<Node> node, const std::string typeId);
 
-    static void Cleanup(void);
-
+    /**
+     * Check if PCAP is hooked.
+     *
+     * \param ipv4 IPv4 stack.
+     * \return True if PCAP is hooked.
+     */
     bool PcapHooked(Ptr<Ipv4> ipv4);
 
+    /**
+     * Check if ASCII is hooked.
+     *
+     * \param ipv4 IPv4 stack.
+     * \return True if ASCII is hooked.
+     */
     bool AsciiHooked(Ptr<Ipv4> ipv4);
 
     /**
@@ -235,5 +238,3 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
 } // namespace ns3
 
 #endif /* CLICK_INTERNET_STACK_HELPER_H */
-
-#endif /* NS3_CLICK */

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
@@ -112,7 +111,7 @@ class RocketfuelTopologyReader : public TopologyReader
      * \param buf the first line of the file being read
      * \return The file type (RF_MAPS, RF_WEIGHTS, or RF_UNKNOWN)
      */
-    enum RF_FileType GetFileType(const std::string& buf);
+    RF_FileType GetFileType(const std::string& buf);
 
     int m_linksNumber;                          //!< Number of links.
     int m_nodesNumber;                          //!< Number of nodes.

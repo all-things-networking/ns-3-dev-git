@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA, 2008 Timo Bingmann
  *
@@ -98,12 +97,12 @@ class GnuplotDataset
      * Called by constructors of derived classes.
      * \param data the reference counted data object representing this dataset.
      */
-    GnuplotDataset(struct Data* data);
+    GnuplotDataset(Data* data);
 
     /**
      * Reference counted data object.
      */
-    struct Data* m_data;
+    Data* m_data;
 };
 
 /**
@@ -154,18 +153,18 @@ class Gnuplot2dDataset : public GnuplotDataset
      * Change default style for all newly created objects.
      * \param style the style of plotting to use for newly created datasets.
      */
-    static void SetDefaultStyle(enum Style style);
+    static void SetDefaultStyle(Style style);
 
     /**
      * \param style the style of plotting to use for this dataset.
      */
-    void SetStyle(enum Style style);
+    void SetStyle(Style style);
 
     /**
      * Change default errorbars style for all newly created objects.
      * \param errorBars the style of errorbars to use for newly created datasets.
      */
-    static void SetDefaultErrorBars(enum ErrorBars errorBars);
+    static void SetDefaultErrorBars(ErrorBars errorBars);
 
     /**
      * \param errorBars the style of errorbars to display.
@@ -175,7 +174,7 @@ class Gnuplot2dDataset : public GnuplotDataset
      * this dataset with the right GnuplotDataset::Add
      * method.
      */
-    void SetErrorBars(enum ErrorBars errorBars);
+    void SetErrorBars(ErrorBars errorBars);
 
     /**
      * \param x x coord to new data point
@@ -224,10 +223,10 @@ class Gnuplot2dDataset : public GnuplotDataset
     };
 
     /// The set of points in the dataset
-    typedef std::vector<struct Point> PointSet;
+    typedef std::vector<Point> PointSet;
 
-    static enum Style m_defaultStyle;         //!< default plot style
-    static enum ErrorBars m_defaultErrorBars; //!< default error bars type
+    static Style m_defaultStyle;         //!< default plot style
+    static ErrorBars m_defaultErrorBars; //!< default error bars type
 
     /// Forward declaration of the internal data class.
     struct Data2d;
@@ -319,7 +318,7 @@ class Gnuplot3dDataset : public GnuplotDataset
     };
 
     /// The set of points in the dataset
-    typedef std::vector<struct Point> PointSet;
+    typedef std::vector<Point> PointSet;
 
     static std::string m_defaultStyle; //!< default plot style
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright 2018. Lawrence Livermore National Security, LLC.
  *
@@ -20,14 +19,14 @@
 
 #include "mpi-test-fixtures.h"
 
-#include "mpi.h"
-
 #include "ns3/address.h"
 #include "ns3/inet-socket-address.h"
 #include "ns3/inet6-socket-address.h"
 #include "ns3/packet.h"
 #include "ns3/ptr.h"
 #include "ns3/simulator.h"
+
+#include <mpi.h>
 
 namespace ns3
 {
@@ -38,7 +37,7 @@ int SinkTracer::m_worldRank = -1;
 int SinkTracer::m_worldSize = -1;
 
 void
-SinkTracer::Init(void)
+SinkTracer::Init()
 {
     m_sinkCount = 0;
     m_line = 0;

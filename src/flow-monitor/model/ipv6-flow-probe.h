@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -22,8 +21,9 @@
 #ifndef IPV6_FLOW_PROBE_H
 #define IPV6_FLOW_PROBE_H
 
-#include "ns3/flow-probe.h"
-#include "ns3/ipv6-flow-classifier.h"
+#include "flow-probe.h"
+#include "ipv6-flow-classifier.h"
+
 #include "ns3/ipv6-l3-protocol.h"
 #include "ns3/queue-item.h"
 

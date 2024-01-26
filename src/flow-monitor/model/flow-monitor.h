@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -21,9 +20,10 @@
 #ifndef FLOW_MONITOR_H
 #define FLOW_MONITOR_H
 
+#include "flow-classifier.h"
+#include "flow-probe.h"
+
 #include "ns3/event-id.h"
-#include "ns3/flow-classifier.h"
-#include "ns3/flow-probe.h"
 #include "ns3/histogram.h"
 #include "ns3/nstime.h"
 #include "ns3/object.h"
@@ -273,6 +273,9 @@ class FlowMonitor : public Object
     /// \param enableHistograms if true, include also the histograms in the output
     /// \param enableProbes if true, include also the per-probe/flow pair statistics in the output
     void SerializeToXmlFile(std::string fileName, bool enableHistograms, bool enableProbes);
+
+    /// Reset all the statistics
+    void ResetAllStats();
 
   protected:
     void NotifyConstructionCompleted() override;

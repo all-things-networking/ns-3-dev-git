@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -24,8 +23,9 @@
 #ifndef LR_WPAN_CSMACA_H
 #define LR_WPAN_CSMACA_H
 
+#include "lr-wpan-mac.h"
+
 #include <ns3/event-id.h>
-#include <ns3/lr-wpan-mac.h>
 #include <ns3/object.h>
 
 namespace ns3
@@ -151,22 +151,6 @@ class LrWpanCsmaCa : public Object
      */
     uint8_t GetMacMaxCSMABackoffs() const;
     /**
-     * Set the number of symbols forming the basic time period used by the
-     * CSMA-CA algorithm.
-     * See IEEE 802.15.4-2006, section 7.4.1, Table 85.
-     *
-     * \param unitBackoffPeriod the period length in symbols
-     */
-    void SetUnitBackoffPeriod(uint64_t unitBackoffPeriod);
-    /**
-     * Get the number of symbols forming the basic time period used by the
-     * CSMA-CA algorithm.
-     * See IEEE 802.15.4-2006, section 7.4.1, Table 85.
-     *
-     * \return the period length in symbols
-     */
-    uint64_t GetUnitBackoffPeriod() const;
-    /**
      * Locates the time to the next backoff period boundary in the SUPERFRAME
      * and returns the amount of time left to this moment.
      *
@@ -204,9 +188,9 @@ class LrWpanCsmaCa : public Object
      */
     void DeferCsmaTimeout();
     /**
-     *  IEEE 802.15.4-2006 section 6.2.2.2
-     *  PLME-CCA.confirm status
-     *  @param status TRX_OFF, BUSY or IDLE
+     * IEEE 802.15.4-2006 section 6.2.2.2
+     * PLME-CCA.confirm status
+     * \param status TRX_OFF, BUSY or IDLE
      *
      * When Phy has completed CCA, it calls back here which in turn execute the final steps
      * of the CSMA-CA algorithm.
@@ -250,19 +234,19 @@ class LrWpanCsmaCa : public Object
      *
      * \returns the number of CSMA retries
      */
-    uint8_t GetNB();
+    uint8_t GetNB() const;
     /**
      * Get the value of the Battery Life Extension
      *
      * \returns  true or false to Battery Life Extension support
      */
-    bool GetBatteryLifeExtension();
+    bool GetBatteryLifeExtension() const;
 
   private:
     void DoDispose() override;
     /**
-     *  \brief Get the time left in the CAP portion of the Outgoing or Incoming superframe.
-     *  \return the time left in the CAP
+     * \brief Get the time left in the CAP portion of the Outgoing or Incoming superframe.
+     * \return the time left in the CAP
      */
     Time GetTimeLeftInCap();
     /**
@@ -278,7 +262,7 @@ class LrWpanCsmaCa : public Object
      */
     bool m_isSlotted;
     /**
-     * The MAC instance for which this CSMA/CA implemenation is configured.
+     * The MAC instance for which this CSMA/CA implementation is configured.
      */
     Ptr<LrWpanMac> m_mac;
     /**
@@ -300,7 +284,7 @@ class LrWpanCsmaCa : public Object
     /**
      * Minimum backoff exponent. 0 - macMaxBE, default 3
      */
-    uint8_t m_macMinBE; //
+    uint8_t m_macMinBE;
     /**
      * Maximum backoff exponent. 3 - 8, default 5
      */
@@ -309,10 +293,6 @@ class LrWpanCsmaCa : public Object
      * Maximum number of backoffs. 0 - 5, default 4
      */
     uint8_t m_macMaxCSMABackoffs;
-    /**
-     * Number of symbols per CSMA/CA time unit, default 20 symbols.
-     */
-    uint64_t m_aUnitBackoffPeriod;
     /**
      * Count the number of remaining random backoff periods left to delay.
      */

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA, 2008 Timo Bingmann
  *
@@ -110,7 +109,7 @@ GnuplotDataset::Data::~Data()
 
 std::string GnuplotDataset::m_defaultExtra = "";
 
-GnuplotDataset::GnuplotDataset(struct Data* data)
+GnuplotDataset::GnuplotDataset(Data* data)
     : m_data(data)
 {
 }
@@ -174,8 +173,8 @@ struct Gnuplot2dDataset::Data2d : public GnuplotDataset::Data
 {
     // *** Data Variables ***
 
-    enum Style m_style;         //!< The plotting style to use for this dataset.
-    enum ErrorBars m_errorBars; //!< Whether errorbars should be used for this dataset.
+    Style m_style;         //!< The plotting style to use for this dataset.
+    ErrorBars m_errorBars; //!< Whether errorbars should be used for this dataset.
 
     PointSet m_pointset; //!< The set of points in this data set
 
@@ -224,7 +223,7 @@ Gnuplot2dDataset::Data2d::PrintExpression(std::ostream& os,
         os << "\"" << dataFileName << "\" index " << dataFileDatasetIndex;
     }
 
-    if (m_title.size())
+    if (!m_title.empty())
     {
         os << " title \"" << m_title << "\"";
     }
@@ -285,7 +284,7 @@ Gnuplot2dDataset::Data2d::PrintExpression(std::ostream& os,
         break;
     }
 
-    if (m_extra.size())
+    if (!m_extra.empty())
     {
         os << " " << m_extra;
     }
@@ -294,7 +293,7 @@ Gnuplot2dDataset::Data2d::PrintExpression(std::ostream& os,
 void
 Gnuplot2dDataset::Data2d::PrintDataFile(std::ostream& os, bool generateOneOutputFile) const
 {
-    for (PointSet::const_iterator i = m_pointset.begin(); i != m_pointset.end(); ++i)
+    for (auto i = m_pointset.begin(); i != m_pointset.end(); ++i)
     {
         if (i->empty)
         {
@@ -335,15 +334,15 @@ Gnuplot2dDataset::Data2d::PrintDataFile(std::ostream& os, bool generateOneOutput
 bool
 Gnuplot2dDataset::Data2d::IsEmpty() const
 {
-    return (m_pointset.size() == 0);
+    return m_pointset.empty();
 }
 
 // --- Gnuplot2dDataset ---------------------------------------------------- //
 
 /// Default plot style static instance
-enum Gnuplot2dDataset::Style Gnuplot2dDataset::m_defaultStyle = LINES;
+Gnuplot2dDataset::Style Gnuplot2dDataset::m_defaultStyle = LINES;
 /// Default error bars type static instance
-enum Gnuplot2dDataset::ErrorBars Gnuplot2dDataset::m_defaultErrorBars = NONE;
+Gnuplot2dDataset::ErrorBars Gnuplot2dDataset::m_defaultErrorBars = NONE;
 
 Gnuplot2dDataset::Gnuplot2dDataset(const std::string& title)
     : GnuplotDataset(new Data2d(title))
@@ -351,25 +350,25 @@ Gnuplot2dDataset::Gnuplot2dDataset(const std::string& title)
 }
 
 void
-Gnuplot2dDataset::SetDefaultStyle(enum Style style)
+Gnuplot2dDataset::SetDefaultStyle(Style style)
 {
     m_defaultStyle = style;
 }
 
 void
-Gnuplot2dDataset::SetStyle(enum Style style)
+Gnuplot2dDataset::SetStyle(Style style)
 {
     reinterpret_cast<Data2d*>(m_data)->m_style = style;
 }
 
 void
-Gnuplot2dDataset::SetDefaultErrorBars(enum ErrorBars errorBars)
+Gnuplot2dDataset::SetDefaultErrorBars(ErrorBars errorBars)
 {
     m_defaultErrorBars = errorBars;
 }
 
 void
-Gnuplot2dDataset::SetErrorBars(enum ErrorBars errorBars)
+Gnuplot2dDataset::SetErrorBars(ErrorBars errorBars)
 {
     reinterpret_cast<Data2d*>(m_data)->m_errorBars = errorBars;
 }
@@ -379,7 +378,7 @@ Gnuplot2dDataset::Add(double x, double y)
 {
     NS_ASSERT(reinterpret_cast<Data2d*>(m_data)->m_errorBars == NONE);
 
-    struct Point data;
+    Point data;
     data.empty = false;
     data.x = x;
     data.y = y;
@@ -394,7 +393,7 @@ Gnuplot2dDataset::Add(double x, double y, double errorDelta)
     NS_ASSERT(reinterpret_cast<Data2d*>(m_data)->m_errorBars == X ||
               reinterpret_cast<Data2d*>(m_data)->m_errorBars == Y);
 
-    struct Point data;
+    Point data;
     data.empty = false;
     data.x = x;
     data.y = y;
@@ -408,7 +407,7 @@ Gnuplot2dDataset::Add(double x, double y, double xErrorDelta, double yErrorDelta
 {
     NS_ASSERT(reinterpret_cast<Data2d*>(m_data)->m_errorBars == XY);
 
-    struct Point data;
+    Point data;
     data.empty = false;
     data.x = x;
     data.y = y;
@@ -420,7 +419,7 @@ Gnuplot2dDataset::Add(double x, double y, double xErrorDelta, double yErrorDelta
 void
 Gnuplot2dDataset::AddEmptyLine()
 {
-    struct Point data;
+    Point data;
     data.empty = true;
     reinterpret_cast<Data2d*>(m_data)->m_pointset.push_back(data);
 }
@@ -475,12 +474,12 @@ Gnuplot2dFunction::Function2d::PrintExpression(std::ostream& os,
 {
     os << m_function;
 
-    if (m_title.size())
+    if (!m_title.empty())
     {
         os << " title \"" << m_title << "\"";
     }
 
-    if (m_extra.size())
+    if (!m_extra.empty())
     {
         os << " " << m_extra;
     }
@@ -560,17 +559,17 @@ Gnuplot3dDataset::Data3d::PrintExpression(std::ostream& os,
 {
     os << "\"-\" ";
 
-    if (m_style.size())
+    if (!m_style.empty())
     {
         os << " " << m_style;
     }
 
-    if (m_title.size())
+    if (!m_title.empty())
     {
         os << " title \"" << m_title << "\"";
     }
 
-    if (m_extra.size())
+    if (!m_extra.empty())
     {
         os << " " << m_extra;
     }
@@ -579,7 +578,7 @@ Gnuplot3dDataset::Data3d::PrintExpression(std::ostream& os,
 void
 Gnuplot3dDataset::Data3d::PrintDataFile(std::ostream& os, bool generateOneOutputFile) const
 {
-    for (PointSet::const_iterator i = m_pointset.begin(); i != m_pointset.end(); ++i)
+    for (auto i = m_pointset.begin(); i != m_pointset.end(); ++i)
     {
         if (i->empty)
         {
@@ -595,7 +594,7 @@ Gnuplot3dDataset::Data3d::PrintDataFile(std::ostream& os, bool generateOneOutput
 bool
 Gnuplot3dDataset::Data3d::IsEmpty() const
 {
-    return (m_pointset.size() == 0);
+    return m_pointset.empty();
 }
 
 // --- Gnuplot3dDataset ---------------------------------------------------- //
@@ -622,7 +621,7 @@ Gnuplot3dDataset::SetStyle(const std::string& style)
 void
 Gnuplot3dDataset::Add(double x, double y, double z)
 {
-    struct Point data;
+    Point data;
     data.empty = false;
     data.x = x;
     data.y = y;
@@ -633,7 +632,7 @@ Gnuplot3dDataset::Add(double x, double y, double z)
 void
 Gnuplot3dDataset::AddEmptyLine()
 {
-    struct Point data;
+    Point data;
     data.empty = true;
     reinterpret_cast<Data3d*>(m_data)->m_pointset.push_back(data);
 }
@@ -688,12 +687,12 @@ Gnuplot3dFunction::Function3d::PrintExpression(std::ostream& os,
 {
     os << m_function;
 
-    if (m_title.size())
+    if (!m_title.empty())
     {
         os << " title \"" << m_title << "\"";
     }
 
-    if (m_extra.size())
+    if (!m_extra.empty())
     {
         os << " " << m_extra;
     }
@@ -813,32 +812,32 @@ Gnuplot::GenerateOutput(std::ostream& os)
 void
 Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::string dataFileName)
 {
-    if (m_terminal.size())
+    if (!m_terminal.empty())
     {
         osControl << "set terminal " << m_terminal << std::endl;
     }
 
-    if (m_outputFilename.size())
+    if (!m_outputFilename.empty())
     {
         osControl << "set output \"" << m_outputFilename << "\"" << std::endl;
     }
 
-    if (m_title.size())
+    if (!m_title.empty())
     {
         osControl << "set title \"" << m_title << "\"" << std::endl;
     }
 
-    if (m_xLegend.size())
+    if (!m_xLegend.empty())
     {
         osControl << "set xlabel \"" << m_xLegend << "\"" << std::endl;
     }
 
-    if (m_yLegend.size())
+    if (!m_yLegend.empty())
     {
         osControl << "set ylabel \"" << m_yLegend << "\"" << std::endl;
     }
 
-    if (m_extra.size())
+    if (!m_extra.empty())
     {
         osControl << m_extra << std::endl;
     }
@@ -853,7 +852,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
 
     std::string command = m_datasets.begin()->m_data->GetCommand();
 
-    for (Datasets::const_iterator i = m_datasets.begin() + 1; i != m_datasets.end(); ++i)
+    for (auto i = m_datasets.begin() + 1; i != m_datasets.end(); ++i)
     {
         NS_ASSERT_MSG(command == i->m_data->GetCommand(),
                       "Cannot mix 'plot' and 'splot' GnuplotDatasets.");
@@ -864,7 +863,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
     // Print all dataset expressions
 
     bool isDataEmpty;
-    for (Datasets::const_iterator i = m_datasets.begin(); i != m_datasets.end();)
+    for (auto i = m_datasets.begin(); i != m_datasets.end();)
     {
         // Only print the dataset if it's not empty.
         isDataEmpty = i->m_data->IsEmpty();
@@ -890,7 +889,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
 
     // followed by the inline datafile.
 
-    for (Datasets::const_iterator i = m_datasets.begin(); i != m_datasets.end(); i++)
+    for (auto i = m_datasets.begin(); i != m_datasets.end(); i++)
     {
         i->m_data->PrintDataFile(osData, m_generateOneOutputFile);
     }
@@ -941,17 +940,17 @@ GnuplotCollection::GenerateOutput(std::ostream& os)
     // If this version of this function is called, it is assumed that a
     // single output file is being generated.
 
-    if (m_terminal.size())
+    if (!m_terminal.empty())
     {
         os << "set terminal " << m_terminal << std::endl;
     }
 
-    if (m_outputFilename.size())
+    if (!m_outputFilename.empty())
     {
         os << "set output \"" << m_outputFilename << "\"" << std::endl;
     }
 
-    for (Plots::iterator i = m_plots.begin(); i != m_plots.end(); ++i)
+    for (auto i = m_plots.begin(); i != m_plots.end(); ++i)
     {
         i->GenerateOutput(os);
     }
@@ -965,17 +964,17 @@ GnuplotCollection::GenerateOutput(std::ostream& osControl,
     // If this version of this function is called, it is assumed that
     // separate output and date files are being generated.
 
-    if (m_terminal.size())
+    if (!m_terminal.empty())
     {
         osControl << "set terminal " << m_terminal << std::endl;
     }
 
-    if (m_outputFilename.size())
+    if (!m_outputFilename.empty())
     {
         osControl << "set output \"" << m_outputFilename << "\"" << std::endl;
     }
 
-    for (Plots::iterator i = m_plots.begin(); i != m_plots.end(); ++i)
+    for (auto i = m_plots.begin(); i != m_plots.end(); ++i)
     {
         i->GenerateOutput(osControl, osData, dataFileName);
     }

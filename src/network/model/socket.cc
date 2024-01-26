@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation
  *               2007 INRIA
@@ -23,10 +22,10 @@
 #include "socket.h"
 
 #include "node.h"
+#include "packet.h"
 #include "socket-factory.h"
 
 #include "ns3/log.h"
-#include "ns3/packet.h"
 
 #include <limits>
 
@@ -74,9 +73,11 @@ Socket::CreateSocket(Ptr<Node> node, TypeId tid)
 {
     NS_LOG_FUNCTION(node << tid);
     Ptr<Socket> s;
-    NS_ASSERT(node);
+    NS_ASSERT_MSG(node, "CreateSocket: node is null.");
     Ptr<SocketFactory> socketFactory = node->GetObject<SocketFactory>(tid);
-    NS_ASSERT(socketFactory);
+    NS_ASSERT_MSG(socketFactory,
+                  "CreateSocket: can not create a "
+                      << tid.GetName() << " - perhaps the node is missing the required protocol.");
     s = socketFactory->CreateSocket();
     NS_ASSERT(s);
     return s;

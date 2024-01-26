@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Lawrence Livermore National Laboratory
  *
@@ -181,7 +180,7 @@ CsvReader::GetValueAs(std::string input, signed char& value) const
 
     std::istringstream tempStream(input);
 
-    std::int16_t tempOutput = 0;
+    int16_t tempOutput = 0;
     tempStream >> tempOutput;
 
     if (tempOutput >= std::numeric_limits<byte_type>::min() &&
@@ -248,7 +247,7 @@ CsvReader::GetValueAs(std::string input, unsigned char& value) const
 
     std::istringstream tempStream(input);
 
-    std::uint16_t tempOutput = 0;
+    uint16_t tempOutput = 0;
     tempStream >> tempOutput;
 
     if (tempOutput >= std::numeric_limits<byte_type>::min() &&
@@ -330,7 +329,7 @@ CsvReader::ParseLine(const std::string& line)
 
         start_col = end_col;
     }
-    m_blankRow = (m_columns.size() == 1) && (m_columns[0] == "");
+    m_blankRow = (m_columns.size() == 1) && (m_columns[0].empty());
     NS_LOG_LOGIC("blank row: " << m_blankRow);
 }
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -172,7 +171,7 @@ class MobilityHelper
      * Perform the work of MobilityHelper::Install on _all_ nodes which
      * exist in the simulation.
      */
-    void InstallAll();
+    void InstallAll() const;
 
     /**
      * \param stream an output stream wrapper

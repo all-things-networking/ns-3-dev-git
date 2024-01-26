@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -35,31 +34,17 @@
 #include <sstream>
 
 /**
- * \file
  * \ingroup topology
- * Example of TopologyReader: .read in a topology in a specificed format.
- */
-
-//  Document the available input files
-/**
- * \file RocketFuel_toposample_1239_weights.txt
- * Example TopologyReader input file in RocketFuel format;
- * to read this with topology-example-sim.cc use \c --format=Rocket
- */
-/**
- * \file Inet_toposample.txt
- * Example TopologyReader input file in Inet format;
- * to read this with topology-example-sim.cc use \c --format=Inet
- */
-/**
- * \file Inet_small_toposample.txt
- * Example TopologyReader input file in Inet format;
- * to read this with topology-example-sim.cc use \c --format=Inet
- */
-/**
- * \file Orbis_toposample.txt
- * Example TopologyReader input file in Orbis format;
- * to read this with topology-example-sim.cc use \c --format=Orbis
+ * Example of TopologyReader: read in a topology in a specified format.
+ *
+ * This example can be used with the following parameters:
+ *   - <tt>--format=Inet --input=src/topology-read/examples/Inet_small_toposample.txt</tt>
+ *   - <tt>--format=Inet --input=src/topology-read/examples/Inet_toposample.txt</tt>
+ *   - <tt>--format=Orbis --input=src/topology-read/examples/Orbis_toposample.txt</tt>
+ *   - <tt>--format=Rocket
+ *     --input=src/topology-read/examples/RocketFuel_sample_4755.r0.cch_maps.txt</tt>
+ *   - <tt>--format=Rocket
+ *     --input=src/topology-read/examples/RocketFuel_toposample_1239_weights.txt</tt>
  */
 
 using namespace ns3;
@@ -87,6 +72,8 @@ main(int argc, char* argv[])
 {
     std::string format("Inet");
     std::string input("src/topology-read/examples/Inet_small_toposample.txt");
+
+    LogComponentEnable("TopologyCreationExperiment", LOG_LEVEL_INFO);
 
     // Set up command line parameters used to control the experiment.
     CommandLine cmd(__FILE__);
@@ -135,7 +122,7 @@ main(int argc, char* argv[])
     int totlinks = inFile->LinksSize();
 
     NS_LOG_INFO("creating node containers");
-    NodeContainer* nc = new NodeContainer[totlinks];
+    auto nc = new NodeContainer[totlinks];
     TopologyReader::ConstLinksIterator iter;
     int i = 0;
     for (iter = inFile->LinksBegin(); iter != inFile->LinksEnd(); iter++, i++)
@@ -144,7 +131,7 @@ main(int argc, char* argv[])
     }
 
     NS_LOG_INFO("creating net device containers");
-    NetDeviceContainer* ndc = new NetDeviceContainer[totlinks];
+    auto ndc = new NetDeviceContainer[totlinks];
     PointToPointHelper p2p;
     for (int i = 0; i < totlinks; i++)
     {
@@ -156,7 +143,7 @@ main(int argc, char* argv[])
 
     // it crates little subnets, one for each couple of nodes.
     NS_LOG_INFO("creating IPv4 interfaces");
-    Ipv4InterfaceContainer* ipic = new Ipv4InterfaceContainer[totlinks];
+    auto ipic = new Ipv4InterfaceContainer[totlinks];
     for (int i = 0; i < totlinks; i++)
     {
         ipic[i] = address.Assign(ndc[i]);
@@ -179,7 +166,7 @@ main(int argc, char* argv[])
     // -- Send around packets to check the ttl
     // --------------------------------------------
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(ipv4AddrServer);
+    InetSocketAddress dst(ipv4AddrServer);
 
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(15000));

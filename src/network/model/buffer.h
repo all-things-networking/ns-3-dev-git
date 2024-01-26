@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
@@ -427,7 +426,7 @@ class Buffer
          * read.
          * The data is read in network format and returned in host format.
          *
-         * \warning this is the slow version, please use ReadNtohU16 (void)
+         * \warning this is the slow version, please use ReadNtohU16 ()
          */
         uint16_t SlowReadNtohU16();
         /**
@@ -437,7 +436,7 @@ class Buffer
          * read.
          * The data is read in network format and returned in host format.
          *
-         * \warning this is the slow version, please use ReadNtohU32 (void)
+         * \warning this is the slow version, please use ReadNtohU32 ()
          */
         uint32_t SlowReadNtohU32();
         /**
@@ -733,26 +732,26 @@ class Buffer
      * \brief Recycle the buffer memory
      * \param data the buffer data storage
      */
-    static void Recycle(struct Buffer::Data* data);
+    static void Recycle(Buffer::Data* data);
     /**
      * \brief Create a buffer data storage
      * \param size the storage size to create
      * \returns a pointer to the created buffer storage
      */
-    static struct Buffer::Data* Create(uint32_t size);
+    static Buffer::Data* Create(uint32_t size);
     /**
      * \brief Allocate a buffer data storage
      * \param reqSize the storage size to create
      * \returns a pointer to the allocated buffer storage
      */
-    static struct Buffer::Data* Allocate(uint32_t reqSize);
+    static Buffer::Data* Allocate(uint32_t reqSize);
     /**
      * \brief Deallocate the buffer memory
      * \param data the buffer data storage
      */
-    static void Deallocate(struct Buffer::Data* data);
+    static void Deallocate(Buffer::Data* data);
 
-    struct Data* m_data; //!< the buffer data storage
+    Data* m_data; //!< the buffer data storage
 
     /**
      * keep track of the maximum value of m_zeroAreaStart across
@@ -795,7 +794,7 @@ class Buffer
 
 #ifdef BUFFER_FREE_LIST
     /// Container for buffer data
-    typedef std::vector<struct Buffer::Data*> FreeList;
+    typedef std::vector<Buffer::Data*> FreeList;
 
     /// Local static destructor structure
     struct LocalStaticDestructor
@@ -803,9 +802,9 @@ class Buffer
         ~LocalStaticDestructor();
     };
 
-    static uint32_t g_maxSize;                                   //!< Max observed data size
-    static FreeList* g_freeList;                                 //!< Buffer data container
-    static struct LocalStaticDestructor g_localStaticDestructor; //!< Local static destructor
+    static uint32_t g_maxSize;                            //!< Max observed data size
+    static FreeList* g_freeList;                          //!< Buffer data container
+    static LocalStaticDestructor g_localStaticDestructor; //!< Local static destructor
 #endif
 };
 

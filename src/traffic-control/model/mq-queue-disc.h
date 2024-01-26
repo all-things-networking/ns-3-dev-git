@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *
@@ -22,7 +21,7 @@
 #ifndef MQ_QUEUE_DISC_H
 #define MQ_QUEUE_DISC_H
 
-#include "ns3/queue-disc.h"
+#include "queue-disc.h"
 
 namespace ns3
 {

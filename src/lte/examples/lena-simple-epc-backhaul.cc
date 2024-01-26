@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -15,11 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Authors: Manuel Requena <manuel.requena@cttc.es>
+ * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
+#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/lte-module.h"
@@ -159,7 +158,7 @@ main(int argc, char* argv[])
         for (uint16_t i = 0; i < numNodePairs; ++i)
         {
             Ptr<Node> enb = enbNodes.Get(i);
-            std::vector<uint16_t> cellIds(1, i);
+            std::vector<uint16_t> cellIds(1, i + 1);
 
             // Create a point to point link between the eNB and the SGW with
             // the corresponding new NetDevices on each side

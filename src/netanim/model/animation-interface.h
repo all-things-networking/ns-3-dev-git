@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -16,7 +15,7 @@
  * Author: George F. Riley<riley@ece.gatech.edu>
  * Author: John Abraham <john.abraham@gatech.edu>
  * Contributions: Eugene Kalishenko <ydginster@gmail.com> (Open Source and Linux Laboratory
- * http://dev.osll.ru/)
+ * http://wiki.osll.ru/doku.php/start)
  */
 
 // Interface between ns3 and the network animator
@@ -51,7 +50,7 @@ namespace ns3
 
 #define MAX_PKTS_PER_TRACE_FILE 100000
 #define PURGE_INTERVAL 5
-#define NETANIM_VERSION "netanim-3.108"
+#define NETANIM_VERSION "netanim-3.109"
 #define CHECK_STARTED_INTIMEWINDOW                                                                 \
     {                                                                                              \
         if (!m_started || !IsInTimeWindow())                                                       \
@@ -98,11 +97,11 @@ class AnimationInterface
     /**
      * Counter Types
      */
-    typedef enum
+    enum CounterType
     {
         UINT32_COUNTER,
         DOUBLE_COUNTER
-    } CounterType;
+    };
 
     /**
      * \brief typedef for WriteCallBack used for listening to AnimationInterface
@@ -254,9 +253,9 @@ class AnimationInterface
     /**
      * \brief Helper function to set Constant Position for a given node
      * \param n Ptr to the node
-     * \param x X co-ordinate of the node
-     * \param y Y co-ordinate of the node
-     * \param z Z co-ordinate of the node
+     * \param x X coordinate of the node
+     * \param y Y coordinate of the node
+     * \param z Z coordinate of the node
      *
      */
     static void SetConstantPosition(Ptr<Node> n, double x, double y, double z = 0);
@@ -284,6 +283,15 @@ class AnimationInterface
      *
      */
     void UpdateNodeImage(uint32_t nodeId, uint32_t resourceId);
+
+    /**
+     * \brief Helper function to update the size of a node
+     * \param n Ptr to the node
+     * \param width Width of the node
+     * \param height Height of the node
+     *
+     */
+    void UpdateNodeSize(Ptr<Node> n, double width, double height);
 
     /**
      * \brief Helper function to update the size of a node
@@ -326,8 +334,8 @@ class AnimationInterface
     /**
      * \brief Helper function to set the background image
      * \param fileName File name of the background image
-     * \param x X co-ordinate of the image
-     * \param y Y co-ordinate of the image
+     * \param x X coordinate of the image
+     * \param y Y coordinate of the image
      * \param scaleX X scale of the image
      * \param scaleY Y scale of the image
      * \param opacity Opacity of the background: A value between 0.0 and 1.0. 0.0 is transparent,
@@ -374,7 +382,7 @@ class AnimationInterface
      *
      * \returns true if AnimationInterface was started
      */
-    bool IsStarted();
+    bool IsStarted() const;
 
     /**
      * \brief Do not trace packets. This helps reduce the trace file size if AnimationInterface is
@@ -397,7 +405,7 @@ class AnimationInterface
      *
      * \returns Number of packets recorded in the current trace file
      */
-    uint64_t GetTracePktCount();
+    uint64_t GetTracePktCount() const;
 
     /**
      *
@@ -466,27 +474,27 @@ class AnimationInterface
     };
 
     /// RGB structure
-    typedef struct
+    struct Rgb
     {
         uint8_t r; ///< r
         uint8_t g; ///< g
         uint8_t b; ///< b
-    } Rgb;         ///< RGB structure
+    };             ///< RGB structure
 
     /// P2pLinkNodeIdPair structure
-    typedef struct
+    struct P2pLinkNodeIdPair
     {
         uint32_t fromNode; ///< from node
         uint32_t toNode;   ///< to node
-    } P2pLinkNodeIdPair;   ///< P2P link node id pair
+    };                     ///< P2P link node id pair
 
     /// LinkProperties structure
-    typedef struct
+    struct LinkProperties
     {
         std::string fromNodeDescription; ///< from node description
         std::string toNodeDescription;   ///< to node description
         std::string linkDescription;     ///< link description
-    } LinkProperties;                    ///< link properties
+    };                                   ///< link properties
 
     /// LinkPairCompare structure
     struct LinkPairCompare
@@ -515,37 +523,36 @@ class AnimationInterface
     };
 
     /// Ipv4RouteTrackElement structure
-    typedef struct
+    struct Ipv4RouteTrackElement
     {
         std::string destination; ///< destination
         uint32_t fromNodeId;     ///< from node ID
-    } Ipv4RouteTrackElement;     ///< IPv4 route track element
+    };                           ///< IPv4 route track element
 
     /// Ipv4RoutePathElement structure
-    typedef struct
+    struct Ipv4RoutePathElement
     {
         uint32_t nodeId;     ///< node ID
         std::string nextHop; ///< next hop
-    } Ipv4RoutePathElement;  ///< IPv4 route path element
+    };                       ///< IPv4 route path element
 
     /// ProtocolType enumeration
-    typedef enum
+    enum ProtocolType
     {
         UAN,
         LTE,
         WIFI,
         WIMAX,
         CSMA,
-        LRWPAN,
-        WAVE
-    } ProtocolType;
+        LRWPAN
+    };
 
     /// NodeSize structure
-    typedef struct
+    struct NodeSize
     {
         double width;  ///< width
         double height; ///< height
-    } NodeSize;        ///< node size
+    };                 ///< node size
 
     typedef std::map<P2pLinkNodeIdPair, LinkProperties, LinkPairCompare>
         LinkPropertiesMap;                                       ///< LinkPropertiesMap typedef
@@ -619,7 +626,7 @@ class AnimationInterface
     bool m_enablePacketMetadata;           ///< enable packet metadata
     Time m_startTime;                      ///< start time
     Time m_stopTime;                       ///< stop time
-    uint64_t m_maxPktsPerFile;             ///< maximum pakets per file
+    uint64_t m_maxPktsPerFile;             ///< maximum packets per file
     std::string m_originalFileName;        ///< original file name
     Time m_routingStopTime;                ///< routing stop time
     std::string m_routingFileName;         ///< routing file name
@@ -661,7 +668,6 @@ class AnimationInterface
     AnimUidPacketInfoMap m_pendingLtePackets;    ///< pending LTE packets
     AnimUidPacketInfoMap m_pendingCsmaPackets;   ///< pending CSMA packets
     AnimUidPacketInfoMap m_pendingUanPackets;    ///< pending UAN packets
-    AnimUidPacketInfoMap m_pendingWavePackets;   ///< pending WAVE packets
 
     std::map<uint32_t, Vector> m_nodeLocation;         ///< node location
     std::map<std::string, uint32_t> m_macToNodeIdMap;  ///< MAC to node ID map
@@ -1040,7 +1046,7 @@ class AnimationInterface
      * \param tx the transmit device
      * \param rx the receive device
      * \param txTime the transmit time
-     * \param rxTime the reeive time
+     * \param rxTime the receive time
      */
     void DevTxTrace(std::string context,
                     Ptr<const Packet> p,
@@ -1069,19 +1075,6 @@ class AnimationInterface
     void WifiPhyRxBeginTrace(std::string context,
                              Ptr<const Packet> p,
                              RxPowerWattPerChannelBand rxPowersW);
-    /**
-     * WAVE Phy transmit begin trace function
-     * \param context the context
-     * \param p the packet
-     */
-    void WavePhyTxBeginTrace(std::string context, Ptr<const Packet> p);
-    /**
-     * WAVE Phy receive begin trace function
-     *
-     * \param context the context
-     * \param p the packet
-     */
-    void WavePhyRxBeginTrace(std::string context, Ptr<const Packet> p);
     /**
      * LR-WPAN Phy receive begin trace function
      *
@@ -1493,7 +1486,6 @@ class AnimationInterface
  * When Anim receives a Tx Notification we tag the packet with a unique global uint64_t identifier
  * before recording Tx information
  * When Anim receives Rx notifications the tag is used to retrieve Tx information recorded earlier
- *
  */
 
 class AnimByteTag : public Tag
@@ -1502,56 +1494,48 @@ class AnimByteTag : public Tag
     /**
      * \brief Get Type Id
      * \returns Type Id
-     *
      */
     static TypeId GetTypeId();
 
     /**
      * \brief Get Instance Type Id
      * \returns Type Id
-     *
      */
     TypeId GetInstanceTypeId() const override;
 
     /**
      * \brief Get Serialized Size
      * \returns Serialized Size (i.e size of uint64_t)
-     *
      */
     uint32_t GetSerializedSize() const override;
 
     /**
      * \brief Serialize function
      * \param i Tag Buffer
-     *
      */
     void Serialize(TagBuffer i) const override;
 
     /**
      * \brief Deserialize function
      * \param i Tag Buffer
-     *
      */
     void Deserialize(TagBuffer i) override;
 
     /**
      * \brief Print tag info
      * \param os Reference of ostream object
-     *
      */
     void Print(std::ostream& os) const override;
 
     /**
      * \brief Set global Uid in tag
      * \param AnimUid global Uid
-     *
      */
     void Set(uint64_t AnimUid);
 
     /**
      * \brief Get Uid in tag
      * \returns Uid in tag
-     *
      */
     uint64_t Get() const;
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -40,7 +39,8 @@ class Socket;
  *
  * Note: The RTT calculated is reported through a trace source.
  */
-class V4Ping : public Application
+class NS_DEPRECATED_3_38("Use Ping instead - the attributes might have been renamed.") V4Ping
+    : public Application
 {
   public:
     /**

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington
  *
@@ -36,7 +35,6 @@ using namespace ns3;
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Mobility Trace Test Case
  */
@@ -115,7 +113,6 @@ MobilityTraceTestCase::DoRun()
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Mobility Trace Test Suite
  */
@@ -132,4 +129,8 @@ MobilityTraceTestSuite::MobilityTraceTestSuite()
     AddTestCase(new MobilityTraceTestCase, TestCase::QUICK);
 }
 
-static MobilityTraceTestSuite mobilityTraceTestSuite; ///< the test suite
+/**
+ * \ingroup mobility-test
+ * Static variable for test initialization
+ */
+static MobilityTraceTestSuite mobilityTraceTestSuite;

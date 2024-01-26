@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
@@ -20,9 +19,9 @@
 #ifndef JAKES_STATIONARY_LOSS_MODEL_H
 #define JAKES_STATIONARY_LOSS_MODEL_H
 
-#include "ns3/jakes-process.h"
-#include "ns3/propagation-cache.h"
-#include "ns3/propagation-loss-model.h"
+#include "jakes-process.h"
+#include "propagation-cache.h"
+#include "propagation-loss-model.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -46,7 +45,7 @@ class IsotropicAntennaModelTestCase : public TestCase
     /**
      * Constructor
      * \param a Antenna angle
-     * \param expectedGainDb Expeted antenna gain
+     * \param expectedGainDb Expected antenna gain
      */
     IsotropicAntennaModelTestCase(Angles a, double expectedGainDb);
 
@@ -106,7 +105,7 @@ IsotropicAntennaModelTestSuite::IsotropicAntennaModelTestSuite()
     AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, 0), 0.0), TestCase::QUICK);
     AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI), 0.0), TestCase::QUICK);
     AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI_2), 0.0), TestCase::QUICK);
-};
+}
 
 /// Static variable for test initialization
 static IsotropicAntennaModelTestSuite g_staticIsotropicAntennaModelTestSuiteInstance;

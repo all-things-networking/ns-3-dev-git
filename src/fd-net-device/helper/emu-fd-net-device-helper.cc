@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
@@ -35,7 +34,6 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
-#include <linux/if_tun.h>
 #include <memory>
 #include <net/ethernet.h>
 #include <net/if.h>
@@ -113,7 +111,7 @@ EmuFdNetDeviceHelper::SetFileDescriptor(Ptr<FdNetDevice> device) const
     // Figure out which interface index corresponds to the device name in the corresponding
     // attribute.
     //
-    struct ifreq ifr;
+    ifreq ifr;
     bzero(&ifr, sizeof(ifr));
     strncpy((char*)ifr.ifr_name, m_deviceName.c_str(), IFNAMSIZ - 1);
 
@@ -183,7 +181,7 @@ EmuFdNetDeviceHelper::SetFileDescriptor(Ptr<FdNetDevice> device) const
     if ((ifr.ifr_flags & IFF_PROMISC) == 0)
     {
         NS_FATAL_ERROR("EmuFdNetDeviceHelper::SetFileDescriptor (): "
-                       << m_deviceName.c_str() << " is not in promiscuous mode");
+                       << m_deviceName << " is not in promiscuous mode");
     }
 
     if ((ifr.ifr_flags & IFF_BROADCAST) != IFF_BROADCAST)
@@ -202,7 +200,7 @@ EmuFdNetDeviceHelper::SetFileDescriptor(Ptr<FdNetDevice> device) const
     }
 
     // Set the MTU of the device to the mtu of the associated network interface
-    struct ifreq ifr2;
+    ifreq ifr2;
 
     bzero(&ifr2, sizeof(ifr2));
     strcpy(ifr2.ifr_name, m_deviceName.c_str());
@@ -366,7 +364,7 @@ EmuFdNetDeviceHelper::CreateFileDescriptor() const
         // get the data that comes back from the socket creator process.  It will
         // be a magic number that we use as a consistency/sanity check.
         //
-        struct iovec iov;
+        iovec iov;
         uint32_t magic;
         iov.iov_base = &magic;
         iov.iov_len = sizeof(magic);
@@ -395,7 +393,7 @@ EmuFdNetDeviceHelper::CreateFileDescriptor() const
         // So, initialize the message header that describes the ancillary/control
         // data we expect to receive and point it to buffer.
         //
-        struct msghdr msg;
+        msghdr msg;
         msg.msg_name = nullptr;
         msg.msg_namelen = 0;
         msg.msg_iov = &iov;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -28,13 +27,13 @@
 #ifndef NS3_GRANTED_TIME_WINDOW_MPI_INTERFACE_H
 #define NS3_GRANTED_TIME_WINDOW_MPI_INTERFACE_H
 
-#include "mpi.h"
 #include "parallel-communication-interface.h"
 
 #include "ns3/buffer.h"
 #include "ns3/nstime.h"
 
 #include <list>
+#include <mpi.h>
 #include <stdint.h>
 
 namespace ns3
@@ -94,21 +93,21 @@ class GrantedTimeWindowMpiInterface : public ParallelCommunicationInterface, Obj
 {
   public:
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
-    static TypeId GetTypeId(void);
+    static TypeId GetTypeId();
 
     // Inherited
-    virtual void Destroy();
-    virtual uint32_t GetSystemId();
-    virtual uint32_t GetSize();
-    virtual bool IsEnabled();
-    virtual void Enable(int* pargc, char*** pargv);
-    virtual void Enable(MPI_Comm communicator);
-    virtual void Disable();
-    virtual void SendPacket(Ptr<Packet> p, const Time& rxTime, uint32_t node, uint32_t dev);
-    virtual MPI_Comm GetCommunicator();
+    void Destroy() override;
+    uint32_t GetSystemId() override;
+    uint32_t GetSize() override;
+    bool IsEnabled() override;
+    void Enable(int* pargc, char*** pargv) override;
+    void Enable(MPI_Comm communicator) override;
+    void Disable() override;
+    void SendPacket(Ptr<Packet> p, const Time& rxTime, uint32_t node, uint32_t dev) override;
+    MPI_Comm GetCommunicator() override;
 
   private:
     /*

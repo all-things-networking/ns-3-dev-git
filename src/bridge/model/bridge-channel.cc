@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -53,9 +52,7 @@ BridgeChannel::~BridgeChannel()
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    for (std::vector<Ptr<Channel>>::iterator iter = m_bridgedChannels.begin();
-         iter != m_bridgedChannels.end();
-         iter++)
+    for (auto iter = m_bridgedChannels.begin(); iter != m_bridgedChannels.end(); iter++)
     {
         *iter = nullptr;
     }
@@ -72,9 +69,7 @@ std::size_t
 BridgeChannel::GetNDevices() const
 {
     uint32_t ndevices = 0;
-    for (std::vector<Ptr<Channel>>::const_iterator iter = m_bridgedChannels.begin();
-         iter != m_bridgedChannels.end();
-         iter++)
+    for (auto iter = m_bridgedChannels.begin(); iter != m_bridgedChannels.end(); iter++)
     {
         ndevices += (*iter)->GetNDevices();
     }
@@ -85,9 +80,7 @@ Ptr<NetDevice>
 BridgeChannel::GetDevice(std::size_t i) const
 {
     std::size_t ndevices = 0;
-    for (std::vector<Ptr<Channel>>::const_iterator iter = m_bridgedChannels.begin();
-         iter != m_bridgedChannels.end();
-         iter++)
+    for (auto iter = m_bridgedChannels.begin(); iter != m_bridgedChannels.end(); iter++)
     {
         if ((i - ndevices) < (*iter)->GetNDevices())
         {

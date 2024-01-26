@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -71,7 +70,7 @@ FlameRtable::AddPath(const Mac48Address destination,
                      const uint8_t cost,
                      const uint16_t seqnum)
 {
-    std::map<Mac48Address, Route>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         Route newroute;
@@ -94,12 +93,12 @@ FlameRtable::AddPath(const Mac48Address destination,
 FlameRtable::LookupResult
 FlameRtable::Lookup(Mac48Address destination)
 {
-    std::map<Mac48Address, Route>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         return LookupResult();
     }
-    if ((i->second.whenExpire < Simulator::Now()))
+    if (i->second.whenExpire < Simulator::Now())
     {
         NS_LOG_DEBUG("Route has expired, sorry.");
         m_routes.erase(i);

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 University of Washington
  *
@@ -167,7 +166,8 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
     else
     {
         NS_LOG_DEBUG("No MCS found for mode " << mode << ": use fallback error rate model");
-        return m_fallbackErrorModel->GetChunkSuccessRate(mode, txVector, snr, nbits, staId);
+        return m_fallbackErrorModel
+            ->GetChunkSuccessRate(mode, txVector, snr, nbits, numRxAntennas, field, staId);
     }
     bool ldpc = txVector.IsLdpc();
     NS_LOG_FUNCTION(this << +mcs << roundedSnr << size << ldpc);
@@ -182,7 +182,8 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
     {
         NS_LOG_WARN("Table missing for MCS: "
                     << +mcs << " in TableBasedErrorRateModel: use fallback error rate model");
-        return m_fallbackErrorModel->GetChunkSuccessRate(mode, txVector, snr, nbits, staId);
+        return m_fallbackErrorModel
+            ->GetChunkSuccessRate(mode, txVector, snr, nbits, numRxAntennas, field, staId);
     }
 
     auto errorTable = (ldpc ? AwgnErrorTableLdpc1458

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017-2018 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,10 +20,13 @@
 #ifndef EPC_SGW_APPLICATION_H
 #define EPC_SGW_APPLICATION_H
 
+#include "epc-gtpc-header.h"
+
 #include "ns3/address.h"
 #include "ns3/application.h"
-#include "ns3/epc-gtpc-header.h"
 #include "ns3/socket.h"
+
+#include <map>
 
 namespace ns3
 {
@@ -136,7 +138,7 @@ class EpcSgwApplication : public Application
      *
      * \param packet packet to be sent
      * \param pgwAddr the address of the PGW
-     * \param teid the Tunnel Enpoint Identifier
+     * \param teid the Tunnel Endpoint Identifier
      */
     void SendToS5uSocket(Ptr<Packet> packet, Ipv4Address pgwAddr, uint32_t teid);
 
@@ -145,7 +147,7 @@ class EpcSgwApplication : public Application
      *
      * \param packet packet to be sent
      * \param enbS1uAddress the address of the eNB
-     * \param teid the Tunnel Enpoint IDentifier
+     * \param teid the Tunnel Endpoint Identifier
      */
     void SendToS1uSocket(Ptr<Packet> packet, Ipv4Address enbS1uAddress, uint32_t teid);
 

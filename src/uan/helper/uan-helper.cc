@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * uan-helper.cc
  *
@@ -60,8 +59,8 @@ static void
 AsciiPhyTxEvent(std::ostream* os,
                 std::string context,
                 Ptr<const Packet> packet,
-                [[maybe_unused]] double txPowerDb,
-                UanTxMode mode)
+                double txPowerDb [[maybe_unused]],
+                UanTxMode mode [[maybe_unused]])
 {
     *os << "+ " << Simulator::Now().GetSeconds() << " " << context << " " << *packet << std::endl;
 }
@@ -79,8 +78,8 @@ static void
 AsciiPhyRxOkEvent(std::ostream* os,
                   std::string context,
                   Ptr<const Packet> packet,
-                  [[maybe_unused]] double snr,
-                  UanTxMode mode)
+                  double snr [[maybe_unused]],
+                  UanTxMode mode [[maybe_unused]])
 {
     *os << "r " << Simulator::Now().GetSeconds() << " " << context << " " << *packet << std::endl;
 }
@@ -114,7 +113,7 @@ UanHelper::EnableAscii(std::ostream& os, uint32_t nodeid, uint32_t deviceid)
 void
 UanHelper::EnableAscii(std::ostream& os, NetDeviceContainer d)
 {
-    for (NetDeviceContainer::Iterator i = d.Begin(); i != d.End(); ++i)
+    for (auto i = d.Begin(); i != d.End(); ++i)
     {
         Ptr<NetDevice> dev = *i;
         EnableAscii(os, dev->GetNode()->GetId(), dev->GetIfIndex());
@@ -125,7 +124,7 @@ void
 UanHelper::EnableAscii(std::ostream& os, NodeContainer n)
 {
     NetDeviceContainer devs;
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         for (uint32_t j = 0; j < node->GetNDevices(); ++j)
@@ -157,7 +156,7 @@ NetDeviceContainer
 UanHelper::Install(NodeContainer c, Ptr<UanChannel> channel) const
 {
     NetDeviceContainer devices;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); i++)
+    for (auto i = c.Begin(); i != c.End(); i++)
     {
         Ptr<Node> node = *i;
 
@@ -194,7 +193,7 @@ UanHelper::AssignStreams(NetDeviceContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
     Ptr<NetDevice> netDevice;
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         netDevice = (*i);
         Ptr<UanNetDevice> uan = DynamicCast<UanNetDevice>(netDevice);

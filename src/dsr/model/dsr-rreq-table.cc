@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -72,9 +71,7 @@ DsrRreqTable::RemoveLeastExpire()
     NS_LOG_FUNCTION(this);
     Ipv4Address firstExpire;
     Time max = Seconds(0.0);
-    for (std::map<Ipv4Address, RreqTableEntry>::const_iterator i = m_rreqDstMap.begin();
-         i != m_rreqDstMap.end();
-         ++i)
+    for (auto i = m_rreqDstMap.begin(); i != m_rreqDstMap.end(); ++i)
     {
         Ipv4Address dst = i->first;
         RreqTableEntry rreqTableEntry = i->second;
@@ -91,7 +88,7 @@ void
 DsrRreqTable::FindAndUpdate(Ipv4Address dst)
 {
     NS_LOG_FUNCTION(this << dst);
-    std::map<Ipv4Address, RreqTableEntry>::const_iterator i = m_rreqDstMap.find(dst);
+    auto i = m_rreqDstMap.find(dst);
     if (i == m_rreqDstMap.end())
     {
         NS_LOG_LOGIC("The request table entry for " << dst << " not found");
@@ -124,7 +121,7 @@ void
 DsrRreqTable::RemoveRreqEntry(Ipv4Address dst)
 {
     NS_LOG_FUNCTION(this << dst);
-    std::map<Ipv4Address, RreqTableEntry>::const_iterator i = m_rreqDstMap.find(dst);
+    auto i = m_rreqDstMap.find(dst);
     if (i == m_rreqDstMap.end())
     {
         NS_LOG_LOGIC("The request table entry not found");
@@ -140,17 +137,15 @@ uint32_t
 DsrRreqTable::GetRreqCnt(Ipv4Address dst)
 {
     NS_LOG_FUNCTION(this << dst);
-    std::map<Ipv4Address, RreqTableEntry>::const_iterator i = m_rreqDstMap.find(dst);
+    auto i = m_rreqDstMap.find(dst);
     if (i == m_rreqDstMap.end())
     {
         NS_LOG_LOGIC("Request table entry not found");
         return 0;
     }
-    else
-    {
-        RreqTableEntry rreqTableEntry = i->second;
-        return rreqTableEntry.m_reqNo;
-    }
+
+    RreqTableEntry rreqTableEntry = i->second;
+    return rreqTableEntry.m_reqNo;
 }
 
 // ----------------------------------------------------------------------------------------------------------
@@ -162,32 +157,30 @@ uint32_t
 DsrRreqTable::CheckUniqueRreqId(Ipv4Address dst)
 {
     NS_LOG_LOGIC("The size of id cache " << m_rreqIdCache.size());
-    std::map<Ipv4Address, uint32_t>::const_iterator i = m_rreqIdCache.find(dst);
+    auto i = m_rreqIdCache.find(dst);
     if (i == m_rreqIdCache.end())
     {
         NS_LOG_LOGIC("No Request id for " << dst << " found, initialize it to 0");
         m_rreqIdCache[dst] = 0;
         return 0;
     }
+
+    NS_LOG_LOGIC("Request id for " << dst << " found in the cache");
+    uint32_t rreqId = m_rreqIdCache[dst];
+    if (rreqId >= m_maxRreqId)
+    {
+        NS_LOG_DEBUG("The request id increase past the max value, " << m_maxRreqId
+                                                                    << " so reset it to 0");
+        rreqId = 0;
+        m_rreqIdCache[dst] = rreqId;
+    }
     else
     {
-        NS_LOG_LOGIC("Request id for " << dst << " found in the cache");
-        uint32_t rreqId = m_rreqIdCache[dst];
-        if (rreqId >= m_maxRreqId)
-        {
-            NS_LOG_DEBUG("The request id increase past the max value, " << m_maxRreqId
-                                                                        << " so reset it to 0");
-            rreqId = 0;
-            m_rreqIdCache[dst] = rreqId;
-        }
-        else
-        {
-            rreqId++;
-            m_rreqIdCache[dst] = rreqId;
-        }
-        NS_LOG_INFO("The Request id for " << dst << " is " << rreqId);
-        return rreqId;
+        rreqId++;
+        m_rreqIdCache[dst] = rreqId;
     }
+    NS_LOG_INFO("The Request id for " << dst << " is " << rreqId);
+    return rreqId;
 }
 
 uint32_t
@@ -215,7 +208,7 @@ BlackList*
 DsrRreqTable::FindUnidirectional(Ipv4Address neighbor)
 {
     PurgeNeighbor(); // purge the neighbor cache
-    for (std::vector<BlackList>::iterator i = m_blackList.begin(); i != m_blackList.end(); ++i)
+    for (auto i = m_blackList.begin(); i != m_blackList.end(); ++i)
     {
         if (i->m_neighborAddress == neighbor)
         {
@@ -229,7 +222,7 @@ bool
 DsrRreqTable::MarkLinkAsUnidirectional(Ipv4Address neighbor, Time blacklistTimeout)
 {
     NS_LOG_LOGIC("Add neighbor address in blacklist " << m_blackList.size());
-    for (std::vector<BlackList>::iterator i = m_blackList.begin(); i != m_blackList.end(); i++)
+    for (auto i = m_blackList.begin(); i != m_blackList.end(); i++)
     {
         if (i->m_neighborAddress == neighbor)
         {
@@ -265,8 +258,7 @@ DsrRreqTable::FindSourceEntry(Ipv4Address src, Ipv4Address dst, uint16_t id)
     /*
      * this function will return false if the entry is not found, true if duplicate entry find
      */
-    std::map<Ipv4Address, std::list<DsrReceivedRreqEntry>>::const_iterator i =
-        m_sourceRreqMap.find(src);
+    auto i = m_sourceRreqMap.find(src);
     if (i == m_sourceRreqMap.end())
     {
         NS_LOG_LOGIC("The source request table entry for " << src << " not found");
@@ -277,35 +269,30 @@ DsrRreqTable::FindSourceEntry(Ipv4Address src, Ipv4Address dst, uint16_t id)
         m_sourceRreqMap[src] = receivedRreqEntryList;
         return false;
     }
-    else
+
+    NS_LOG_LOGIC("Find the request table entry for  " << src << ", check if it is exact duplicate");
+    /*
+     * Drop the most aged packet when buffer reaches to max
+     */
+    receivedRreqEntryList = i->second;
+    if (receivedRreqEntryList.size() >= m_requestIdSize)
     {
-        NS_LOG_LOGIC("Find the request table entry for  " << src
-                                                          << ", check if it is exact duplicate");
-        /*
-         * Drop the most aged packet when buffer reaches to max
-         */
-        receivedRreqEntryList = i->second;
-        if (receivedRreqEntryList.size() >= m_requestIdSize)
-        {
-            receivedRreqEntryList.pop_front();
-        }
-        Ipv4Address src = i->first;
-        // We loop the receive rreq entry to find duplicate
-        for (std::list<DsrReceivedRreqEntry>::const_iterator j = receivedRreqEntryList.begin();
-             j != receivedRreqEntryList.end();
-             ++j)
-        {
-            if (*j == rreqEntry) /// Check if we have found one duplication entry or not
-            {
-                return true;
-            }
-        }
-        /// if this entry is not found, we need to save the entry in the cache, and then return
-        /// false for the check
-        receivedRreqEntryList.push_back(rreqEntry);
-        m_sourceRreqMap[src] = receivedRreqEntryList;
-        return false;
+        receivedRreqEntryList.pop_front();
     }
+
+    // We loop the receive rreq entry to find duplicate
+    for (auto j = receivedRreqEntryList.begin(); j != receivedRreqEntryList.end(); ++j)
+    {
+        if (*j == rreqEntry) /// Check if we have found one duplication entry or not
+        {
+            return true;
+        }
+    }
+    /// if this entry is not found, we need to save the entry in the cache, and then return
+    /// false for the check
+    receivedRreqEntryList.push_back(rreqEntry);
+    m_sourceRreqMap[src] = receivedRreqEntryList;
+    return false;
 }
 
 } // namespace dsr

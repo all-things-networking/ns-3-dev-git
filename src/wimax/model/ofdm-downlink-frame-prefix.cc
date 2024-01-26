@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -233,11 +232,8 @@ OfdmDownlinkFramePrefix::GetSerializedSize() const
 {
     int dlFramePrefixElementsSize = 0;
 
-    for (std::vector<DlFramePrefixIe>::const_iterator iter = m_dlFramePrefixElements.begin();
-         iter != m_dlFramePrefixElements.end();
-         iter++)
+    for (const auto& dlFramePrefixElement : m_dlFramePrefixElements)
     {
-        DlFramePrefixIe dlFramePrefixElement = *iter;
         dlFramePrefixElementsSize += dlFramePrefixElement.GetSize();
     }
 
@@ -252,11 +248,8 @@ OfdmDownlinkFramePrefix::Serialize(Buffer::Iterator start) const
     i.WriteU32(m_frameNumber);
     i.WriteU8(m_configurationChangeCount);
 
-    for (std::vector<DlFramePrefixIe>::const_iterator iter = m_dlFramePrefixElements.begin();
-         iter != m_dlFramePrefixElements.end();
-         iter++)
+    for (const auto& dlFramePrefixElement : m_dlFramePrefixElements)
     {
-        DlFramePrefixIe dlFramePrefixElement = *iter;
         i = dlFramePrefixElement.Write(i);
     }
 

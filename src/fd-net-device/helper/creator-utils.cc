@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) University of Washington
  *
@@ -40,7 +39,7 @@ namespace ns3
 {
 
 /// Flag to enable / disable verbose log mode
-int gVerbose = 0;
+bool gVerbose = false;
 
 /**
  * \brief Send the file descriptor back to the code that invoked the creation.

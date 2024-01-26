@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  *   Copyright (c) 2009 INRIA
  *   Copyright (c) 2018 Natale Patriciello <natale.patriciello@gmail.com>
@@ -21,7 +20,7 @@
 #ifndef SEQ_TS_SIZE_HEADER_H
 #define SEQ_TS_SIZE_HEADER_H
 
-#include <ns3/seq-ts-header.h>
+#include "seq-ts-header.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -88,7 +87,7 @@ class Experiment
      * \param name Mode name.
      * \return The new mode.
      */
-    UanTxMode CreateMode(uint32_t kass, uint32_t fc, bool upperblock, std::string name);
+    UanTxMode CreateMode(uint32_t kass, uint32_t fc, bool upperblock, std::string name) const;
     /**
      * Create m_numRates matching control and data modes.
      *

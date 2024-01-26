@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
@@ -329,12 +328,7 @@ PieQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
     }
 
     double u = m_uv->GetValue();
-    if (u > p)
-    {
-        return false;
-    }
-
-    return true;
+    return u <= p;
 }
 
 void
@@ -443,7 +437,7 @@ PieQueueDisc::CalculateP()
         m_burstAllowance -= m_tUpdate;
     }
 
-    uint32_t burstResetLimit = static_cast<uint32_t>(BURST_RESET_TIMEOUT / m_tUpdate.GetSeconds());
+    auto burstResetLimit = static_cast<uint32_t>(BURST_RESET_TIMEOUT / m_tUpdate.GetSeconds());
     if ((qDelay.GetSeconds() < 0.5 * m_qDelayRef.GetSeconds()) &&
         (m_qDelayOld.GetSeconds() < (0.5 * m_qDelayRef.GetSeconds())) && (m_dropProb == 0) &&
         !missingInitFlag)

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -714,7 +713,7 @@ FindPathTestCase::DoRun()
 
     Ptr<TestObject> objectNotThere = CreateObject<TestObject>();
     found = Names::FindPath(objectNotThere);
-    NS_TEST_ASSERT_MSG_EQ(found, "", "Unexpectedly found a non-existent Object");
+    NS_TEST_ASSERT_MSG_EQ(found.empty(), true, "Unexpectedly found a non-existent Object");
 }
 
 /**

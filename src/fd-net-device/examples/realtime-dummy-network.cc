@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington, 2012 INRIA
  *
@@ -68,9 +67,9 @@ main(int argc, char* argv[])
     addresses.SetBase("10.0.0.0", "255.255.255.0");
     Ipv4InterfaceContainer interfaces = addresses.Assign(devices);
 
-    Ptr<V4Ping> app = CreateObject<V4Ping>();
-    app->SetAttribute("Remote", Ipv4AddressValue(interfaces.GetAddress(0)));
-    app->SetAttribute("Verbose", BooleanValue(true));
+    Ptr<Ping> app = CreateObject<Ping>();
+    app->SetAttribute("Destination", AddressValue(interfaces.GetAddress(0)));
+    app->SetAttribute("VerboseMode", EnumValue(Ping::VerboseMode::VERBOSE));
     nodes.Get(1)->AddApplication(app);
     app->SetStartTime(Seconds(0.0));
     app->SetStopTime(Seconds(4.0));
@@ -80,4 +79,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(5.));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

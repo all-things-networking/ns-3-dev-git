@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -23,18 +22,23 @@
 #include "icmpv6-header.h"
 #include "icmpv6-l4-protocol.h"
 #include "ipv6-l3-protocol.h"
+#include "ipv6-packet-info-tag.h"
+#include "ipv6-route.h"
+#include "ipv6-routing-protocol.h"
 
 #include "ns3/inet6-socket-address.h"
-#include "ns3/ipv6-packet-info-tag.h"
-#include "ns3/ipv6-route.h"
-#include "ns3/ipv6-routing-protocol.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
 #include "ns3/uinteger.h"
 
+#ifdef __WIN32__
+#include "win32-internet.h"
+#else
 #include <netinet/in.h>
 #include <sys/socket.h>
+#endif
+
 #include <sys/types.h>
 
 namespace ns3
@@ -96,14 +100,14 @@ Ipv6RawSocketImpl::GetNode() const
     return m_node;
 }
 
-enum Socket::SocketErrno
+Socket::SocketErrno
 Ipv6RawSocketImpl::GetErrno() const
 {
     NS_LOG_FUNCTION(this);
     return m_err;
 }
 
-enum Socket::SocketType
+Socket::SocketType
 Ipv6RawSocketImpl::GetSocketType() const
 {
     return NS3_SOCK_RAW;
@@ -135,7 +139,7 @@ Ipv6RawSocketImpl::Bind()
 int
 Ipv6RawSocketImpl::Bind6()
 {
-    return (Bind());
+    return Bind();
 }
 
 int
@@ -289,7 +293,7 @@ Ipv6RawSocketImpl::SendTo(Ptr<Packet> p, uint32_t flags, const Address& toAddres
                 p->CopyData(&type, sizeof(type));
                 if (type == Icmpv6Header::ICMPV6_ECHO_REQUEST)
                 {
-                    Icmpv6Echo hdr(1);
+                    Icmpv6Echo hdr(true);
                     p->RemoveHeader(hdr);
                     hdr.CalculatePseudoHeaderChecksum(route->GetSource(),
                                                       dst,
@@ -417,7 +421,7 @@ Ipv6RawSocketImpl::GetRxAvailable() const
     NS_LOG_FUNCTION(this);
     uint32_t rx = 0;
 
-    for (std::list<Data>::const_iterator it = m_data.begin(); it != m_data.end(); ++it)
+    for (auto it = m_data.begin(); it != m_data.end(); ++it)
     {
         rx += (it->packet)->GetSize();
     }
@@ -506,11 +510,7 @@ Ipv6RawSocketImpl::ForwardUp(Ptr<const Packet> p, Ipv6Header hdr, Ptr<NetDevice>
 bool
 Ipv6RawSocketImpl::SetAllowBroadcast(bool allowBroadcast)
 {
-    if (!allowBroadcast)
-    {
-        return false;
-    }
-    return true;
+    return allowBroadcast;
 }
 
 bool
@@ -534,25 +534,25 @@ Ipv6RawSocketImpl::Icmpv6FilterSetBlockAll()
 void
 Ipv6RawSocketImpl::Icmpv6FilterSetPass(uint8_t type)
 {
-    (m_icmpFilter.icmpv6Filt[(type) >> 5]) |= (uint32_t(1) << ((type)&31));
+    m_icmpFilter.icmpv6Filt[type >> 5] |= (uint32_t(1) << (type & 31));
 }
 
 void
 Ipv6RawSocketImpl::Icmpv6FilterSetBlock(uint8_t type)
 {
-    (m_icmpFilter.icmpv6Filt[(type) >> 5]) &= ~(uint32_t(1) << ((type)&31));
+    m_icmpFilter.icmpv6Filt[(type) >> 5] &= ~(uint32_t(1) << (type & 31));
 }
 
 bool
 Ipv6RawSocketImpl::Icmpv6FilterWillPass(uint8_t type)
 {
-    return (((m_icmpFilter.icmpv6Filt[(type) >> 5]) & (uint32_t(1) << ((type)&31))) != 0);
+    return ((m_icmpFilter.icmpv6Filt[type >> 5]) & (uint32_t(1) << (type & 31))) != 0;
 }
 
 bool
 Ipv6RawSocketImpl::Icmpv6FilterWillBlock(uint8_t type)
 {
-    return (((m_icmpFilter.icmpv6Filt[(type) >> 5]) & (uint32_t(1) << ((type)&31))) == 0);
+    return ((m_icmpFilter.icmpv6Filt[type >> 5]) & (uint32_t(1) << (type & 31))) == 0;
 }
 
 } /* namespace ns3 */

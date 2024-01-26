@@ -15,9 +15,8 @@ foreach(libname ${libs})
     message(STATUS "Processing src/${libname}")
     add_subdirectory(${libname})
   else()
-    message(
-      ${HIGHLIGHTED_STATUS}
-      "Skipping src/${libname} : it does not contain a CMakeLists.txt file"
+    message(${HIGHLIGHTED_STATUS}
+            "Skipping src/${libname}: it does not contain a CMakeLists.txt file"
     )
   endif()
 endforeach()
@@ -86,4 +85,8 @@ if(${NS3_MONOLIB})
   if(${NS3_CLANG_TIMETRACE})
     add_dependencies(timeTraceReport ${lib-ns3-monolib})
   endif()
+endif()
+
+if(${NS3_FETCH_OPTIONAL_COMPONENTS})
+  add_dependency_to_optional_modules_dependencies()
 endif()

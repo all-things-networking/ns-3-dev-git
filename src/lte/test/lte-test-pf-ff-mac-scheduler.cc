@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -212,6 +211,10 @@ LenaTestPfFfMacSchedulerSuite::LenaTestPfFfMacSchedulerSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestPfFfMacSchedulerSuite lenaTestPfFfMacSchedulerSuite;
 
 // --------------- T E S T - C A S E   # 1 ------------------------------
@@ -294,7 +297,7 @@ LenaPfFfMacSchedulerTestCase1::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -396,7 +399,7 @@ LenaPfFfMacSchedulerTestCase2::BuildNameString(uint16_t nUser, std::vector<doubl
 {
     std::ostringstream oss;
     oss << "distances (m) = [ ";
-    for (std::vector<double>::iterator it = dist.begin(); it != dist.end(); ++it)
+    for (auto it = dist.begin(); it != dist.end(); ++it)
     {
         oss << *it << " ";
     }
@@ -473,7 +476,7 @@ LenaPfFfMacSchedulerTestCase2::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 

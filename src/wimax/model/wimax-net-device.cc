@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -169,8 +168,6 @@ WimaxNetDevice::DoDispose()
     m_broadcastConnection = nullptr;
     m_connectionManager = nullptr;
     m_burstProfileManager = nullptr;
-    m_bandwidthManager = nullptr;
-    m_connectionManager = nullptr;
     m_bandwidthManager = nullptr;
 
     NetDevice::DoDispose();
@@ -520,7 +517,7 @@ WimaxNetDevice::Receive(Ptr<const PacketBurst> burst)
     NS_LOG_DEBUG("WimaxNetDevice::Receive, station = " << GetMacAddress());
 
     Ptr<PacketBurst> b = burst->Copy();
-    for (std::list<Ptr<Packet>>::const_iterator iter = b->Begin(); iter != b->End(); ++iter)
+    for (auto iter = b->Begin(); iter != b->End(); ++iter)
     {
         Ptr<Packet> packet = *iter;
         DoReceive(packet);

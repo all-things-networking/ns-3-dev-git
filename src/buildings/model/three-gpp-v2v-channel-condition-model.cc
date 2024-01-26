@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 SIGNET Lab, Department of Information Engineering,
  * University of Padova
@@ -20,9 +19,10 @@
 
 #include "three-gpp-v2v-channel-condition-model.h"
 
+#include "building-list.h"
+
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
-#include <ns3/building-list.h>
 
 namespace ns3
 {

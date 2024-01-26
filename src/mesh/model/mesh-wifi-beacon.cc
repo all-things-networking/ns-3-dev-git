@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -18,7 +17,7 @@
  * Author: Pavel Boyko <boyko@iitp.ru>
  */
 
-#include "ns3/mesh-wifi-beacon.h"
+#include "mesh-wifi-beacon.h"
 
 #include "ns3/nstime.h"
 #include "ns3/wifi-mac-header.h"
@@ -26,10 +25,11 @@
 namespace ns3
 {
 
-MeshWifiBeacon::MeshWifiBeacon(Ssid ssid, SupportedRates rates, uint64_t us)
+MeshWifiBeacon::MeshWifiBeacon(Ssid ssid, AllSupportedRates rates, uint64_t us)
 {
-    m_header.SetSsid(ssid);
-    m_header.SetSupportedRates(rates);
+    m_header.Get<Ssid>() = ssid;
+    m_header.Get<SupportedRates>() = rates.rates;
+    m_header.Get<ExtendedSupportedRatesIE>() = rates.extendedRates;
     m_header.SetBeaconIntervalUs(us);
 }
 

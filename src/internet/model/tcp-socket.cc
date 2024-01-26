@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -37,17 +36,19 @@ NS_LOG_COMPONENT_DEFINE("TcpSocket");
 
 NS_OBJECT_ENSURE_REGISTERED(TcpSocket);
 
-const char* const TcpSocket::TcpStateName[TcpSocket::LAST_STATE] = {"CLOSED",
-                                                                    "LISTEN",
-                                                                    "SYN_SENT",
-                                                                    "SYN_RCVD",
-                                                                    "ESTABLISHED",
-                                                                    "CLOSE_WAIT",
-                                                                    "LAST_ACK",
-                                                                    "FIN_WAIT_1",
-                                                                    "FIN_WAIT_2",
-                                                                    "CLOSING",
-                                                                    "TIME_WAIT"};
+const char* const TcpSocket::TcpStateName[TcpSocket::LAST_STATE] = {
+    "CLOSED",
+    "LISTEN",
+    "SYN_SENT",
+    "SYN_RCVD",
+    "ESTABLISHED",
+    "CLOSE_WAIT",
+    "LAST_ACK",
+    "FIN_WAIT_1",
+    "FIN_WAIT_2",
+    "CLOSING",
+    "TIME_WAIT",
+};
 
 TypeId
 TcpSocket::GetTypeId()

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  * Copyright (c) 2020 NITK Surathkal (adapted for COBALT)
@@ -28,8 +27,9 @@
 #ifndef FQ_COBALT_QUEUE_DISC
 #define FQ_COBALT_QUEUE_DISC
 
+#include "queue-disc.h"
+
 #include "ns3/object-factory.h"
-#include "ns3/queue-disc.h"
 
 #include <list>
 #include <map>

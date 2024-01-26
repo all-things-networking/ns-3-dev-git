@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
@@ -183,7 +182,6 @@ TcpBbrCheckGainValuesTest::ExecuteTest()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP BBR TestSuite
  */

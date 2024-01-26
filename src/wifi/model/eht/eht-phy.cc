@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 DERONNE SOFTWARE ENGINEERING
  *
@@ -99,6 +98,19 @@ EhtPhy::GetSigMode(WifiPpduField field, const WifiTxVector& txVector) const
     }
 }
 
+WifiMode
+EhtPhy::GetSigBMode(const WifiTxVector& txVector) const
+{
+    if (txVector.IsDlMu())
+    {
+        return HePhy::GetSigBMode(txVector);
+    }
+    // we get here in case of EHT SU transmission
+    // TODO fix the MCS used for EHT-SIG
+    auto smallestMcs = std::min<uint8_t>(5, txVector.GetMode().GetMcsValue());
+    return VhtPhy::GetVhtMcs(smallestMcs);
+}
+
 Time
 EhtPhy::GetDuration(WifiPpduField field, const WifiTxVector& txVector) const
 {
@@ -117,6 +129,41 @@ EhtPhy::GetDuration(WifiPpduField field, const WifiTxVector& txVector) const
     }
 }
 
+uint32_t
+EhtPhy::GetSigBSize(const WifiTxVector& txVector) const
+{
+    if (ns3::IsDlMu(txVector.GetPreambleType()) && ns3::IsEht(txVector.GetPreambleType()))
+    {
+        return EhtPpdu::GetEhtSigFieldSize(
+            txVector.GetChannelWidth(),
+            txVector.GetRuAllocation(
+                m_wifiPhy ? m_wifiPhy->GetOperatingChannel().GetPrimaryChannelIndex(20) : 0),
+            txVector.GetEhtPpduType(),
+            txVector.IsSigBCompression(),
+            txVector.IsSigBCompression() ? txVector.GetHeMuUserInfoMap().size() : 0);
+    }
+    return HePhy::GetSigBSize(txVector);
+}
+
+Time
+EhtPhy::CalculateNonHeDurationForHeTb(const WifiTxVector& txVector) const
+{
+    Time duration = GetDuration(WIFI_PPDU_FIELD_PREAMBLE, txVector) +
+                    GetDuration(WIFI_PPDU_FIELD_NON_HT_HEADER, txVector) +
+                    GetDuration(WIFI_PPDU_FIELD_U_SIG, txVector);
+    return duration;
+}
+
+Time
+EhtPhy::CalculateNonHeDurationForHeMu(const WifiTxVector& txVector) const
+{
+    Time duration = GetDuration(WIFI_PPDU_FIELD_PREAMBLE, txVector) +
+                    GetDuration(WIFI_PPDU_FIELD_NON_HT_HEADER, txVector) +
+                    GetDuration(WIFI_PPDU_FIELD_U_SIG, txVector) +
+                    GetDuration(WIFI_PPDU_FIELD_EHT_SIG, txVector);
+    return duration;
+}
+
 const PhyEntity::PpduFormats&
 EhtPhy::GetPpduFormats() const
 {
@@ -129,13 +176,10 @@ EhtPhy::BuildPpdu(const WifiConstPsduMap& psdus, const WifiTxVector& txVector, T
     NS_LOG_FUNCTION(this << psdus << txVector << ppduDuration);
     return Create<EhtPpdu>(psdus,
                            txVector,
-                           m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-                               txVector.GetChannelWidth()),
+                           m_wifiPhy->GetOperatingChannel(),
                            ppduDuration,
-                           m_wifiPhy->GetPhyBand(),
                            ObtainNextUid(txVector),
-                           HePpdu::PSD_NON_HE_PORTION,
-                           m_wifiPhy->GetOperatingChannel().GetPrimaryChannelIndex(20));
+                           HePpdu::PSD_NON_HE_PORTION);
 }
 
 PhyEntity::PhyFieldRxStatus
@@ -223,11 +267,11 @@ EhtPhy::GetEhtMcs(uint8_t index)
 }
 
 #define GET_EHT_MCS(x)                                                                             \
-    WifiMode EhtPhy::GetEhtMcs##x(void)                                                            \
+    WifiMode EhtPhy::GetEhtMcs##x()                                                                \
     {                                                                                              \
         static WifiMode mcs = CreateEhtMcs(x);                                                     \
         return mcs;                                                                                \
-    };
+    }
 
 GET_EHT_MCS(0)
 GET_EHT_MCS(1)

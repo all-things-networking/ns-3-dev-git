@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 University of Washington
  *
@@ -80,7 +79,7 @@ std::string
 PcapHelper::GetFilenameFromDevice(std::string prefix, Ptr<NetDevice> device, bool useObjectNames)
 {
     NS_LOG_FUNCTION(prefix << device << useObjectNames);
-    NS_ABORT_MSG_UNLESS(prefix.size(), "Empty prefix string");
+    NS_ABORT_MSG_UNLESS(!prefix.empty(), "Empty prefix string");
 
     std::ostringstream oss;
     oss << prefix << "-";
@@ -96,7 +95,7 @@ PcapHelper::GetFilenameFromDevice(std::string prefix, Ptr<NetDevice> device, boo
         devicename = Names::FindName(device);
     }
 
-    if (nodename.size())
+    if (!nodename.empty())
     {
         oss << nodename;
     }
@@ -107,7 +106,7 @@ PcapHelper::GetFilenameFromDevice(std::string prefix, Ptr<NetDevice> device, boo
 
     oss << "-";
 
-    if (devicename.size())
+    if (!devicename.empty())
     {
         oss << devicename;
     }
@@ -128,7 +127,7 @@ PcapHelper::GetFilenameFromInterfacePair(std::string prefix,
                                          bool useObjectNames)
 {
     NS_LOG_FUNCTION(prefix << object << interface << useObjectNames);
-    NS_ABORT_MSG_UNLESS(prefix.size(), "Empty prefix string");
+    NS_ABORT_MSG_UNLESS(!prefix.empty(), "Empty prefix string");
 
     std::ostringstream oss;
     oss << prefix << "-";
@@ -144,11 +143,11 @@ PcapHelper::GetFilenameFromInterfacePair(std::string prefix,
         nodename = Names::FindName(node);
     }
 
-    if (objname.size())
+    if (!objname.empty())
     {
         oss << objname;
     }
-    else if (nodename.size())
+    else if (!nodename.empty())
     {
         oss << nodename;
     }
@@ -217,7 +216,7 @@ AsciiTraceHelper::GetFilenameFromDevice(std::string prefix,
                                         bool useObjectNames)
 {
     NS_LOG_FUNCTION(prefix << device << useObjectNames);
-    NS_ABORT_MSG_UNLESS(prefix.size(), "Empty prefix string");
+    NS_ABORT_MSG_UNLESS(!prefix.empty(), "Empty prefix string");
 
     std::ostringstream oss;
     oss << prefix << "-";
@@ -233,7 +232,7 @@ AsciiTraceHelper::GetFilenameFromDevice(std::string prefix,
         devicename = Names::FindName(device);
     }
 
-    if (nodename.size())
+    if (!nodename.empty())
     {
         oss << nodename;
     }
@@ -244,7 +243,7 @@ AsciiTraceHelper::GetFilenameFromDevice(std::string prefix,
 
     oss << "-";
 
-    if (devicename.size())
+    if (!devicename.empty())
     {
         oss << devicename;
     }
@@ -265,7 +264,7 @@ AsciiTraceHelper::GetFilenameFromInterfacePair(std::string prefix,
                                                bool useObjectNames)
 {
     NS_LOG_FUNCTION(prefix << object << interface << useObjectNames);
-    NS_ABORT_MSG_UNLESS(prefix.size(), "Empty prefix string");
+    NS_ABORT_MSG_UNLESS(!prefix.empty(), "Empty prefix string");
 
     std::ostringstream oss;
     oss << prefix << "-";
@@ -281,11 +280,11 @@ AsciiTraceHelper::GetFilenameFromInterfacePair(std::string prefix,
         nodename = Names::FindName(node);
     }
 
-    if (objname.size())
+    if (!objname.empty())
     {
         oss << objname;
     }
-    else if (nodename.size())
+    else if (!nodename.empty())
     {
         oss << nodename;
     }
@@ -439,7 +438,7 @@ PcapHelperForDevice::EnablePcap(std::string prefix,
 void
 PcapHelperForDevice::EnablePcap(std::string prefix, NetDeviceContainer d, bool promiscuous)
 {
-    for (NetDeviceContainer::Iterator i = d.Begin(); i != d.End(); ++i)
+    for (auto i = d.Begin(); i != d.End(); ++i)
     {
         Ptr<NetDevice> dev = *i;
         EnablePcap(prefix, dev, promiscuous);
@@ -450,7 +449,7 @@ void
 PcapHelperForDevice::EnablePcap(std::string prefix, NodeContainer n, bool promiscuous)
 {
     NetDeviceContainer devs;
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         for (uint32_t j = 0; j < node->GetNDevices(); ++j)
@@ -475,7 +474,7 @@ PcapHelperForDevice::EnablePcap(std::string prefix,
 {
     NodeContainer n = NodeContainer::GetGlobal();
 
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetId() != nodeid)
@@ -568,7 +567,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
                                            std::string prefix,
                                            NetDeviceContainer d)
 {
-    for (NetDeviceContainer::Iterator i = d.Begin(); i != d.End(); ++i)
+    for (auto i = d.Begin(); i != d.End(); ++i)
     {
         Ptr<NetDevice> dev = *i;
         EnableAsciiInternal(stream, prefix, dev, false);
@@ -602,7 +601,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
                                            NodeContainer n)
 {
     NetDeviceContainer devs;
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         for (uint32_t j = 0; j < node->GetNDevices(); ++j)
@@ -666,7 +665,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
 {
     NodeContainer n = NodeContainer::GetGlobal();
 
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetId() != nodeid)

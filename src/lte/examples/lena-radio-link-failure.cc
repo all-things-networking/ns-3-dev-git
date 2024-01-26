@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Fraunhofer ESK
  *
@@ -50,7 +49,7 @@ uint32_t oldByteCounter = 0;             //!< Old Byte counter,
 void
 PrintUePosition(uint64_t imsi)
 {
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         int nDevs = node->GetNDevices();
@@ -113,19 +112,21 @@ NotifyConnectionEstablishedEnb(std::string context, uint64_t imsi, uint16_t cell
 }
 
 /// Map each of UE RRC states to its string representation.
-static const std::string g_ueRrcStateName[LteUeRrc::NUM_STATES] = {"IDLE_START",
-                                                                   "IDLE_CELL_SEARCH",
-                                                                   "IDLE_WAIT_MIB_SIB1",
-                                                                   "IDLE_WAIT_MIB",
-                                                                   "IDLE_WAIT_SIB1",
-                                                                   "IDLE_CAMPED_NORMALLY",
-                                                                   "IDLE_WAIT_SIB2",
-                                                                   "IDLE_RANDOM_ACCESS",
-                                                                   "IDLE_CONNECTING",
-                                                                   "CONNECTED_NORMALLY",
-                                                                   "CONNECTED_HANDOVER",
-                                                                   "CONNECTED_PHY_PROBLEM",
-                                                                   "CONNECTED_REESTABLISHING"};
+static const std::string g_ueRrcStateName[LteUeRrc::NUM_STATES] = {
+    "IDLE_START",
+    "IDLE_CELL_SEARCH",
+    "IDLE_WAIT_MIB_SIB1",
+    "IDLE_WAIT_MIB",
+    "IDLE_WAIT_SIB1",
+    "IDLE_CAMPED_NORMALLY",
+    "IDLE_WAIT_SIB2",
+    "IDLE_RANDOM_ACCESS",
+    "IDLE_CONNECTING",
+    "CONNECTED_NORMALLY",
+    "CONNECTED_HANDOVER",
+    "CONNECTED_PHY_PROBLEM",
+    "CONNECTED_REESTABLISHING",
+};
 
 /**
  * \param s The UE RRC state.
@@ -306,7 +307,7 @@ ReceivePacket(Ptr<const Packet> packet, const Address&)
 }
 
 /**
- * Write the troughput to file.
+ * Write the throughput to file.
  *
  * \param firstWrite True if first time writing.
  * \param binSize Bin size.
@@ -317,14 +318,14 @@ Throughput(bool firstWrite, Time binSize, std::string fileName)
 {
     std::ofstream output;
 
-    if (firstWrite == true)
+    if (firstWrite)
     {
-        output.open(fileName.c_str(), std::ofstream::out);
+        output.open(fileName, std::ofstream::out);
         firstWrite = false;
     }
     else
     {
-        output.open(fileName.c_str(), std::ofstream::app);
+        output.open(fileName, std::ofstream::app);
     }
 
     // Instantaneous throughput every 200 ms
@@ -380,7 +381,7 @@ main(int argc, char* argv[])
 
     if (enableNsLogs)
     {
-        LogLevel logLevel =
+        auto logLevel =
             (LogLevel)(LOG_PREFIX_FUNC | LOG_PREFIX_NODE | LOG_PREFIX_TIME | LOG_LEVEL_ALL);
         LogComponentEnable("LteUeRrc", logLevel);
         LogComponentEnable("LteUeMac", logLevel);
@@ -631,7 +632,7 @@ main(int argc, char* argv[])
     Config::ConnectWithoutContext(oss.str(), MakeCallback(&ReceivePacket));
 
     bool firstWrite = true;
-    std::string rrcType = useIdealRrc == 1 ? "ideal_rrc" : "real_rrc";
+    std::string rrcType = useIdealRrc ? "ideal_rrc" : "real_rrc";
     std::string fileName = "rlf_dl_thrput_" + std::to_string(enbNodes.GetN()) + "_eNB_" + rrcType;
     Time binSize = Seconds(0.2);
     Simulator::Schedule(Seconds(0.47), &Throughput, firstWrite, binSize, fileName);

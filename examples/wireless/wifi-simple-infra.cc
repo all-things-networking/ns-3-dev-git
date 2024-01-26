@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 The Boeing Company
  *
@@ -169,7 +168,7 @@ main(int argc, char* argv[])
     WifiHelper wifi;
     if (verbose)
     {
-        wifi.EnableLogComponents(); // Turn on all Wifi logging
+        WifiHelper::EnableLogComponents(); // Turn on all Wifi logging
     }
     wifi.SetStandard(WIFI_STANDARD_80211b);
 

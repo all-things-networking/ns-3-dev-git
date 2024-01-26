@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -48,7 +47,7 @@ OlsrHelper::Copy() const
 void
 OlsrHelper::ExcludeInterface(Ptr<Node> node, uint32_t interface)
 {
-    std::map<Ptr<Node>, std::set<uint32_t>>::iterator it = m_interfaceExclusions.find(node);
+    auto it = m_interfaceExclusions.find(node);
 
     if (it == m_interfaceExclusions.end())
     {
@@ -68,7 +67,7 @@ OlsrHelper::Create(Ptr<Node> node) const
 {
     Ptr<olsr::RoutingProtocol> agent = m_agentFactory.Create<olsr::RoutingProtocol>();
 
-    std::map<Ptr<Node>, std::set<uint32_t>>::const_iterator it = m_interfaceExclusions.find(node);
+    auto it = m_interfaceExclusions.find(node);
 
     if (it != m_interfaceExclusions.end())
     {
@@ -90,7 +89,7 @@ OlsrHelper::AssignStreams(NodeContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
     Ptr<Node> node;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         node = (*i);
         Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();

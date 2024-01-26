@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2004,2005,2006 INRIA
  *
@@ -170,7 +169,7 @@ Time
 RraaWifiManager::GetCalcTxTime(WifiMode mode) const
 {
     NS_LOG_FUNCTION(this << mode);
-    for (TxTime::const_iterator i = m_calcTxTime.begin(); i != m_calcTxTime.end(); i++)
+    for (auto i = m_calcTxTime.begin(); i != m_calcTxTime.end(); i++)
     {
         if (mode == i->second)
         {
@@ -192,10 +191,8 @@ WifiRraaThresholds
 RraaWifiManager::GetThresholds(RraaWifiRemoteStation* station, WifiMode mode) const
 {
     NS_LOG_FUNCTION(this << station << mode);
-    struct WifiRraaThresholds threshold;
-    for (RraaThresholdsTable::const_iterator i = station->m_thresholds.begin();
-         i != station->m_thresholds.end();
-         i++)
+    WifiRraaThresholds threshold;
+    for (auto i = station->m_thresholds.begin(); i != station->m_thresholds.end(); i++)
     {
         if (mode == i->second)
         {
@@ -209,7 +206,7 @@ RraaWifiManager::GetThresholds(RraaWifiRemoteStation* station, WifiMode mode) co
 WifiRemoteStation*
 RraaWifiManager::DoCreateStation() const
 {
-    RraaWifiRemoteStation* station = new RraaWifiRemoteStation();
+    auto station = new RraaWifiRemoteStation();
     station->m_initialized = false;
     station->m_adaptiveRtsWnd = 0;
     station->m_rtsCounter = 0;
@@ -304,7 +301,7 @@ void
 RraaWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    RraaWifiRemoteStation* station = static_cast<RraaWifiRemoteStation*>(st);
+    auto station = static_cast<RraaWifiRemoteStation*>(st);
     station->m_lastFrameFail = true;
     CheckTimeout(station);
     station->m_counter--;
@@ -336,7 +333,7 @@ RraaWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    RraaWifiRemoteStation* station = static_cast<RraaWifiRemoteStation*>(st);
+    auto station = static_cast<RraaWifiRemoteStation*>(st);
     station->m_lastFrameFail = false;
     CheckTimeout(station);
     station->m_counter--;
@@ -359,7 +356,7 @@ WifiTxVector
 RraaWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    RraaWifiRemoteStation* station = static_cast<RraaWifiRemoteStation*>(st);
+    auto station = static_cast<RraaWifiRemoteStation*>(st);
     uint16_t channelWidth = GetChannelWidth(station);
     if (channelWidth > 20 && channelWidth != 22)
     {
@@ -389,14 +386,14 @@ WifiTxVector
 RraaWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    RraaWifiRemoteStation* station = static_cast<RraaWifiRemoteStation*>(st);
+    auto station = static_cast<RraaWifiRemoteStation*>(st);
     uint16_t channelWidth = GetChannelWidth(station);
     if (channelWidth > 20 && channelWidth != 22)
     {
         channelWidth = 20;
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -420,7 +417,7 @@ bool
 RraaWifiManager::DoNeedRts(WifiRemoteStation* st, uint32_t size, bool normally)
 {
     NS_LOG_FUNCTION(this << st << size << normally);
-    RraaWifiRemoteStation* station = static_cast<RraaWifiRemoteStation*>(st);
+    auto station = static_cast<RraaWifiRemoteStation*>(st);
     CheckInit(station);
     if (m_basic)
     {
@@ -446,7 +443,7 @@ RraaWifiManager::RunBasicAlgorithm(RraaWifiRemoteStation* station)
 {
     NS_LOG_FUNCTION(this << station);
     WifiRraaThresholds thresholds = GetThresholds(station, station->m_rateIndex);
-    double ploss = (station->m_nFailed / thresholds.m_ewnd);
+    auto ploss = (static_cast<double>(station->m_nFailed) / thresholds.m_ewnd);
     if (station->m_counter == 0 || ploss > thresholds.m_mtl)
     {
         if (ploss > thresholds.m_mtl)

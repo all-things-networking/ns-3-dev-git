@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright 2007 University of Washington
  *
@@ -45,11 +44,12 @@ UdpEchoClient::GetTypeId()
             .SetParent<Application>()
             .SetGroupName("Applications")
             .AddConstructor<UdpEchoClient>()
-            .AddAttribute("MaxPackets",
-                          "The maximum number of packets the application will send",
-                          UintegerValue(100),
-                          MakeUintegerAccessor(&UdpEchoClient::m_count),
-                          MakeUintegerChecker<uint32_t>())
+            .AddAttribute(
+                "MaxPackets",
+                "The maximum number of packets the application will send (zero means infinite)",
+                UintegerValue(100),
+                MakeUintegerAccessor(&UdpEchoClient::m_count),
+                MakeUintegerChecker<uint32_t>())
             .AddAttribute("Interval",
                           "The time to wait between packets",
                           TimeValue(Seconds(1.0)),
@@ -141,7 +141,7 @@ UdpEchoClient::StartApplication()
     {
         TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
         m_socket = Socket::CreateSocket(GetNode(), tid);
-        if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+        if (Ipv4Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -150,7 +150,7 @@ UdpEchoClient::StartApplication()
             m_socket->Connect(
                 InetSocketAddress(Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
+        else if (Ipv6Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -159,7 +159,7 @@ UdpEchoClient::StartApplication()
             m_socket->Connect(
                 Inet6SocketAddress(Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (InetSocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (InetSocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -167,7 +167,7 @@ UdpEchoClient::StartApplication()
             }
             m_socket->Connect(m_peerAddress);
         }
-        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -392,7 +392,7 @@ UdpEchoClient::Send()
                        << Inet6SocketAddress::ConvertFrom(m_peerAddress).GetPort());
     }
 
-    if (m_sent < m_count)
+    if (m_sent < m_count || m_count == 0)
     {
         ScheduleTransmit(m_interval);
     }

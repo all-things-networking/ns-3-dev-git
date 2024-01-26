@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Lalith Suresh
  *
@@ -27,19 +26,18 @@
 #include "ns3/packet.h"
 #include "ns3/test.h"
 
-#include <sys/time.h>
-#include <sys/types.h>
-
-#ifdef NS3_CLICK
-#include <click/simclick.h>
-#endif
-
 #include <map>
 #include <string>
+#include <sys/time.h>
+#include <sys/types.h>
 
 class ClickTrivialTest;
 class ClickIfidFromNameTest;
 class ClickIpMacAddressFromNameTest;
+// These are in #include <click/simclick.h>,
+// here we just need a forward declaration.
+struct simclick_node;
+typedef struct simclick_node simclick_node_t;
 
 namespace ns3
 {
@@ -56,28 +54,37 @@ class UniformRandomVariable;
  * \ingroup click
  * \brief Class to allow a node to use Click for external routing
  */
-
 class Ipv4ClickRouting : public Ipv4RoutingProtocol
 {
-#ifdef NS3_CLICK
   public:
     // Allow test cases to access private members
     friend class ::ClickTrivialTest;
     friend class ::ClickIfidFromNameTest;
     friend class ::ClickIpMacAddressFromNameTest;
 
-    static TypeId GetTypeId(void);
+    /**
+     * Get type ID.
+     *
+     * \return TypeId.
+     */
+    static TypeId GetTypeId();
 
+    /** Constructor. */
     Ipv4ClickRouting();
-    virtual ~Ipv4ClickRouting();
+    ~Ipv4ClickRouting() override;
 
-    Ptr<UniformRandomVariable> GetRandomVariable(void);
+    /**
+     * Get the uniform random variable.
+     *
+     * \return Uniform random variable.
+     */
+    Ptr<UniformRandomVariable> GetRandomVariable();
 
   protected:
-    virtual void DoInitialize(void);
+    void DoInitialize() override;
 
   public:
-    virtual void DoDispose();
+    void DoDispose() override;
 
     /**
      * \brief Click configuration file to be used by the node's Click Instance.
@@ -106,27 +113,30 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
     /**
      * \brief Read Handler interface for a node's Click Elements.
      *        Allows a user to read state information of a Click element.
-     * \param elementName name of the Click element
-     * \param handlerName name of the handler to be read
+     * \param elementName name of the Click element.
+     * \param handlerName name of the handler to be read.
+     * \return String read.
      */
     std::string ReadHandler(std::string elementName, std::string handlerName);
 
     /**
-     * \brief Write Handler interface for a node's Click Elements
+     * \brief Write Handler interface for a node's Click Elements.
      *        Allows a user to modify state information of a Click element.
-     * \param elementName name of the Click element
-     * \param handlerName name of the handler to be read
-     * \param writeString string to be written using the write handler
+     * \param elementName name of the Click element.
+     * \param handlerName name of the handler to be read.
+     * \param writeString string to be written using the write handler.
+     * \return Write operation status.
      */
     int WriteHandler(std::string elementName, std::string handlerName, std::string writeString);
 
     /**
-     *
      * \brief Sets an interface to run on promiscuous mode.
+     * \param ifid Interface ID.
      */
     void SetPromisc(int ifid);
 
   private:
+    /// Pointer to the simclick node
     simclick_node_t* m_simNode;
 
     /**
@@ -138,9 +148,10 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
   public:
     /**
      * \brief Allows the Click service methods, which reside outside Ipv4ClickRouting, to get the
-     * required Ipv4ClickRouting instances. \param simnode The Click simclick_node_t instance for
-     * which the Ipv4ClickRouting instance is required \return A Ptr to the required
-     * Ipv4ClickRouting instance
+     * required Ipv4ClickRouting instances.
+     * \param simnode The Click simclick_node_t instance for which the Ipv4ClickRouting instance is
+     * required
+     * \return A Ptr to the required Ipv4ClickRouting instance
      */
     static Ptr<Ipv4ClickRouting> GetClickInstanceFromSimNode(simclick_node_t* simnode);
 
@@ -149,7 +160,7 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
      * \brief Provides for SIMCLICK_GET_DEFINES
      * \return The defines mapping for .click configuration file parsing
      */
-    std::map<std::string, std::string> GetDefines(void);
+    std::map<std::string, std::string> GetDefines();
 
     /**
      * \brief Provides for SIMCLICK_IFID_FROM_NAME
@@ -187,6 +198,7 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
 
     /**
      * \brief Provides for SIMCLICK_IF_READY
+     * \param ifid Interface ID
      * \return Returns 1, if the interface is ready, -1 if ifid is invalid
      */
     bool IsInterfaceReady(int ifid);
@@ -195,7 +207,7 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
      * \brief Set the Ipv4 instance to be used
      * \param ipv4 The Ipv4 instance
      */
-    virtual void SetIpv4(Ptr<Ipv4> ipv4);
+    void SetIpv4(Ptr<Ipv4> ipv4) override;
 
   private:
     /**
@@ -205,7 +217,8 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
     void AddSimNodeToClickMapping();
 
     /**
-     * \brief Get current simulation time as a timeval
+     * \brief Get current simulation time as a timeval.
+     * \return Current simulation time as a timeval.
      */
     struct timeval GetTimevalFromNow() const;
 
@@ -256,39 +269,35 @@ class Ipv4ClickRouting : public Ipv4RoutingProtocol
     void Receive(Ptr<Packet> p, Mac48Address receiverAddr, Mac48Address dest);
 
     // From Ipv4RoutingProtocol
-    virtual Ptr<Ipv4Route> RouteOutput(Ptr<Packet> p,
-                                       const Ipv4Header& header,
-                                       Ptr<NetDevice> oif,
-                                       Socket::SocketErrno& sockerr);
-    virtual bool RouteInput(Ptr<const Packet> p,
-                            const Ipv4Header& header,
-                            Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb);
-    virtual void PrintRoutingTable(Ptr<OutputStreamWrapper> stream,
-                                   Time::Unit unit = Time::S) const;
-    virtual void NotifyInterfaceUp(uint32_t interface);
-    virtual void NotifyInterfaceDown(uint32_t interface);
-    virtual void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address);
-    virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address);
+    Ptr<Ipv4Route> RouteOutput(Ptr<Packet> p,
+                               const Ipv4Header& header,
+                               Ptr<NetDevice> oif,
+                               Socket::SocketErrno& sockerr) override;
+    bool RouteInput(Ptr<const Packet> p,
+                    const Ipv4Header& header,
+                    Ptr<const NetDevice> idev,
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
+    void PrintRoutingTable(Ptr<OutputStreamWrapper> stream,
+                           Time::Unit unit = Time::S) const override;
+    void NotifyInterfaceUp(uint32_t interface) override;
+    void NotifyInterfaceDown(uint32_t interface) override;
+    void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address) override;
+    void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address) override;
 
   private:
-    std::string m_clickFile;
-    std::map<std::string, std::string> m_defines;
-    std::string m_nodeName;
-    std::string m_clickRoutingTableElement;
+    std::string m_clickFile;                      //!< Name of .click configuration file
+    std::map<std::string, std::string> m_defines; //!< Defines for .click configuration file parsing
+    std::string m_nodeName;                       //!< Name of the node
+    std::string m_clickRoutingTableElement;       //!< Name of the routing table element
 
-    std::map<std::string, uint32_t> m_ifaceIdFromName;
-    std::map<std::string, Address> m_ifaceMacFromName;
-    std::map<std::string, Ipv4Address> m_ifaceAddrFromName;
-    bool m_clickInitialised;
-    bool m_nonDefaultName;
+    bool m_clickInitialised; //!< Whether click has been initialized
+    bool m_nonDefaultName;   //!< Whether a non-default name has been set
 
-    Ptr<Ipv4> m_ipv4;
-    Ptr<UniformRandomVariable> m_random;
-#endif /* NS3_CLICK */
+    Ptr<Ipv4> m_ipv4;                    //!< Pointer to the IPv4 object
+    Ptr<UniformRandomVariable> m_random; //!< Uniform random variable
 };
 
 } // namespace ns3

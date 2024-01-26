@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -83,8 +82,7 @@ PointToPointHelper::EnablePcapInternal(std::string prefix,
     Ptr<PointToPointNetDevice> device = nd->GetObject<PointToPointNetDevice>();
     if (!device)
     {
-        NS_LOG_INFO("PointToPointHelper::EnablePcapInternal(): Device "
-                    << device << " not of type ns3::PointToPointNetDevice");
+        NS_LOG_INFO("Device " << device << " not of type ns3::PointToPointNetDevice");
         return;
     }
 
@@ -118,8 +116,7 @@ PointToPointHelper::EnableAsciiInternal(Ptr<OutputStreamWrapper> stream,
     Ptr<PointToPointNetDevice> device = nd->GetObject<PointToPointNetDevice>();
     if (!device)
     {
-        NS_LOG_INFO("PointToPointHelper::EnableAsciiInternal(): Device "
-                    << device << " not of type ns3::PointToPointNetDevice");
+        NS_LOG_INFO("Device " << device << " not of type ns3::PointToPointNetDevice");
         return;
     }
 
@@ -200,7 +197,7 @@ PointToPointHelper::EnableAsciiInternal(Ptr<OutputStreamWrapper> stream,
     uint32_t deviceid = nd->GetIfIndex();
     std::ostringstream oss;
 
-    oss << "/NodeList/" << nd->GetNode()->GetId() << "/DeviceList/" << deviceid
+    oss << "/NodeList/" << nodeid << "/DeviceList/" << deviceid
         << "/$ns3::PointToPointNetDevice/MacRx";
     Config::Connect(oss.str(),
                     MakeBoundCallback(&AsciiTraceHelper::DefaultReceiveSinkWithContext, stream));

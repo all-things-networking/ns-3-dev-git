@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009, 2010 MIRKO BANCHI
  *
@@ -1285,7 +1284,7 @@ MultiStaCtrlBAckResponseHeaderTest::DoRun()
     uint16_t aid6 = 2045;
     bool ackType6 = true;
     uint8_t tid6 = 6;
-    Mac48Address address6 = Mac48Address("00:00:00:00:00:01");
+    Mac48Address address6("00:00:00:00:00:01");
 
     blockAck.SetAid11(aid6, 5);
     blockAck.SetAckType(ackType6, 5);

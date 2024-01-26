@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -19,14 +18,15 @@
  *          Pavel Boyko <boyko@iitp.ru>
  */
 
-#include "ns3/mesh-wifi-interface-mac.h"
+#include "mesh-wifi-interface-mac.h"
+
+#include "mesh-wifi-beacon.h"
 
 #include "ns3/boolean.h"
 #include "ns3/channel-access-manager.h"
 #include "ns3/double.h"
 #include "ns3/log.h"
 #include "ns3/mac-tx-middle.h"
-#include "ns3/mesh-wifi-beacon.h"
 #include "ns3/pointer.h"
 #include "ns3/qos-txop.h"
 #include "ns3/random-variable-stream.h"
@@ -167,7 +167,7 @@ MeshWifiInterfaceMac::AssignStreams(int64_t stream)
     NS_LOG_FUNCTION(this << stream);
     int64_t currentStream = stream;
     m_coefficient->SetStream(currentStream++);
-    for (PluginList::const_iterator i = m_plugins.begin(); i < m_plugins.end(); i++)
+    for (auto i = m_plugins.begin(); i < m_plugins.end(); i++)
     {
         currentStream += (*i)->AssignStreams(currentStream);
     }
@@ -240,7 +240,7 @@ MeshWifiInterfaceMac::ForwardDown(Ptr<Packet> packet, Mac48Address from, Mac48Ad
     // Address 1 is unknown here. Routing plugin is responsible to correctly set it.
     hdr.SetAddr1(Mac48Address());
     // Filter packet through all installed plugins
-    for (PluginList::const_iterator i = m_plugins.end() - 1; i != m_plugins.begin() - 1; i--)
+    for (auto i = m_plugins.end() - 1; i != m_plugins.begin() - 1; i--)
     {
         bool drop = !((*i)->UpdateOutcomingFrame(packet, hdr, from, to));
         if (drop)
@@ -286,7 +286,7 @@ MeshWifiInterfaceMac::SendManagementFrame(Ptr<Packet> packet, const WifiMacHeade
 {
     // Filter management frames:
     WifiMacHeader header = hdr;
-    for (PluginList::const_iterator i = m_plugins.end() - 1; i != m_plugins.begin() - 1; i--)
+    for (auto i = m_plugins.end() - 1; i != m_plugins.begin() - 1; i--)
     {
         bool drop = !((*i)->UpdateOutcomingFrame(packet, header, Mac48Address(), Mac48Address()));
         if (drop)
@@ -318,12 +318,12 @@ MeshWifiInterfaceMac::SendManagementFrame(Ptr<Packet> packet, const WifiMacHeade
     }
 }
 
-SupportedRates
+AllSupportedRates
 MeshWifiInterfaceMac::GetSupportedRates() const
 {
     // set the set of supported rates and make sure that we indicate
     // the Basic Rate set in this set of supported rates.
-    SupportedRates rates;
+    AllSupportedRates rates;
     for (const auto& mode : GetWifiPhy()->GetModeList())
     {
         uint16_t gi = ConvertGuardIntervalToNanoSeconds(mode, GetWifiPhy()->GetDevice());
@@ -340,7 +340,7 @@ MeshWifiInterfaceMac::GetSupportedRates() const
 }
 
 bool
-MeshWifiInterfaceMac::CheckSupportedRates(SupportedRates rates) const
+MeshWifiInterfaceMac::CheckSupportedRates(AllSupportedRates rates) const
 {
     for (uint32_t i = 0; i < GetWifiRemoteStationManager()->GetNBasicModes(); i++)
     {
@@ -429,7 +429,7 @@ MeshWifiInterfaceMac::SendBeacon()
     MeshWifiBeacon beacon(GetSsid(), GetSupportedRates(), m_beaconInterval.GetMicroSeconds());
 
     // Ask all plugins to add their specific information elements to beacon
-    for (PluginList::const_iterator i = m_plugins.begin(); i != m_plugins.end(); ++i)
+    for (auto i = m_plugins.begin(); i != m_plugins.end(); ++i)
     {
         (*i)->UpdateBeacon(beacon);
     }
@@ -460,9 +460,11 @@ MeshWifiInterfaceMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
                                              << " microseconds");
 
         // update supported rates
-        if (beacon_hdr.GetSsid().IsEqual(GetSsid()))
+        if (beacon_hdr.Get<Ssid>()->IsEqual(GetSsid()))
         {
-            SupportedRates rates = beacon_hdr.GetSupportedRates();
+            NS_ASSERT(beacon_hdr.Get<SupportedRates>());
+            auto rates = AllSupportedRates{*beacon_hdr.Get<SupportedRates>(),
+                                           beacon_hdr.Get<ExtendedSupportedRatesIE>()};
 
             for (const auto& mode : GetWifiPhy()->GetModeList())
             {
@@ -485,7 +487,7 @@ MeshWifiInterfaceMac::Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId)
         m_stats.recvFrames++;
     }
     // Filter frame through all installed plugins
-    for (PluginList::iterator i = m_plugins.begin(); i != m_plugins.end(); ++i)
+    for (auto i = m_plugins.begin(); i != m_plugins.end(); ++i)
     {
         bool drop = !((*i)->Receive(packet, *hdr));
         if (drop)
@@ -595,7 +597,7 @@ MeshWifiInterfaceMac::ResetStats()
 }
 
 void
-MeshWifiInterfaceMac::ConfigureStandard(enum WifiStandard standard)
+MeshWifiInterfaceMac::ConfigureStandard(WifiStandard standard)
 {
     NS_ABORT_IF(!GetQosSupported());
     WifiMac::ConfigureStandard(standard);

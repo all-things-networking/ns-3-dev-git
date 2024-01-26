@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -21,8 +20,9 @@
 #ifndef NETMAP_NET_DEVICE_HELPER_H
 #define NETMAP_NET_DEVICE_HELPER_H
 
+#include "fd-net-device-helper.h"
+
 #include "ns3/attribute.h"
-#include "ns3/fd-net-device-helper.h"
 #include "ns3/fd-net-device.h"
 #include "ns3/net-device-container.h"
 #include "ns3/netmap-net-device.h"
@@ -55,7 +55,7 @@ class NetmapNetDeviceHelper : public FdNetDeviceHelper
      * \brief Get the device name of this device.
      * \returns The device name of this device.
      */
-    std::string GetDeviceName(void);
+    std::string GetDeviceName();
 
     /**
      * \brief Set the device name of this device.
@@ -83,7 +83,7 @@ class NetmapNetDeviceHelper : public FdNetDeviceHelper
      * socket.  We do this to avoid having the entire simulation running as root.
      * \return the rawSocket number
      */
-    virtual int CreateFileDescriptor(void) const;
+    virtual int CreateFileDescriptor() const;
 
     /**
      * \brief Switch the fd in netmap mode.

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Egemen K. Cetinkaya, Justin P. Rohrer, and Amit Dandekar
  *
@@ -61,7 +60,7 @@ using namespace ns3;
 // ---------- Prototypes ------------------------------------------------------
 
 std::vector<std::vector<bool>> readNxNMatrix(std::string adj_mat_file_name);
-std::vector<std::vector<double>> readCordinatesFile(std::string node_coordinates_file_name);
+std::vector<std::vector<double>> readCoordinatesFile(std::string node_coordinates_file_name);
 void printCoordinateArray(const char* description, std::vector<std::vector<double>> coord_array);
 void printMatrix(const char* description, std::vector<std::vector<bool>> array);
 
@@ -116,9 +115,9 @@ main(int argc, char* argv[])
     // ---------- Read Node Coordinates File -----------------------------------
 
     std::vector<std::vector<double>> coord_array;
-    coord_array = readCordinatesFile(node_coordinates_file_name);
+    coord_array = readCoordinatesFile(node_coordinates_file_name);
 
-    // Optionally display node co-ordinates file
+    // Optionally display node coordinates file
     // printCoordinateArray (node_coordinates_file_name.c_str (),coord_array);
 
     int n_nodes = coord_array.size();
@@ -164,7 +163,7 @@ main(int argc, char* argv[])
     {
         for (size_t j = 0; j < Adj_Matrix[i].size(); j++)
         {
-            if (Adj_Matrix[i][j] == 1)
+            if (Adj_Matrix[i][j])
             {
                 NodeContainer n_links = NodeContainer(nodes.Get(i), nodes.Get(j));
                 NetDeviceContainer n_devs = p2p.Install(n_links);
@@ -273,11 +272,11 @@ main(int argc, char* argv[])
 
     AsciiTraceHelper ascii;
     p2p.EnableAsciiAll(ascii.CreateFileStream(tr_name));
-    // p2p.EnablePcapAll (pcap_name.c_str());
+    // p2p.EnablePcapAll(pcap_name);
 
     // Ptr<FlowMonitor> flowmon;
     // FlowMonitorHelper flowmonHelper;
-    // flowmon = flowmonHelper.InstallAll ();
+    // flowmon = flowmonHelper.InstallAll();
 
     // Configure animator with default settings
 
@@ -286,7 +285,7 @@ main(int argc, char* argv[])
 
     Simulator::Stop(Seconds(SimTime));
     Simulator::Run();
-    // flowmon->SerializeToXmlFile (flow_name.c_str(), true, true);
+    // flowmon->SerializeToXmlFile(flow_name, true, true);
     Simulator::Destroy();
 
     // ---------- End of Simulation Monitoring ---------------------------------
@@ -300,10 +299,10 @@ std::vector<std::vector<bool>>
 readNxNMatrix(std::string adj_mat_file_name)
 {
     std::ifstream adj_mat_file;
-    adj_mat_file.open(adj_mat_file_name.c_str(), std::ios::in);
+    adj_mat_file.open(adj_mat_file_name, std::ios::in);
     if (adj_mat_file.fail())
     {
-        NS_FATAL_ERROR("File " << adj_mat_file_name.c_str() << " not found");
+        NS_FATAL_ERROR("File " << adj_mat_file_name << " not found");
     }
     std::vector<std::vector<bool>> array;
     int i = 0;
@@ -313,7 +312,7 @@ readNxNMatrix(std::string adj_mat_file_name)
     {
         std::string line;
         getline(adj_mat_file, line);
-        if (line == "")
+        if (line.empty())
         {
             NS_LOG_WARN("WARNING: Ignoring blank row in the array: " << i);
             break;
@@ -362,13 +361,13 @@ readNxNMatrix(std::string adj_mat_file_name)
 }
 
 std::vector<std::vector<double>>
-readCordinatesFile(std::string node_coordinates_file_name)
+readCoordinatesFile(std::string node_coordinates_file_name)
 {
     std::ifstream node_coordinates_file;
-    node_coordinates_file.open(node_coordinates_file_name.c_str(), std::ios::in);
+    node_coordinates_file.open(node_coordinates_file_name, std::ios::in);
     if (node_coordinates_file.fail())
     {
-        NS_FATAL_ERROR("File " << node_coordinates_file_name.c_str() << " not found");
+        NS_FATAL_ERROR("File " << node_coordinates_file_name << " not found");
     }
     std::vector<std::vector<double>> coord_array;
     int m = 0;
@@ -378,7 +377,7 @@ readCordinatesFile(std::string node_coordinates_file_name)
         std::string line;
         getline(node_coordinates_file, line);
 
-        if (line == "")
+        if (line.empty())
         {
             NS_LOG_WARN("WARNING: Ignoring blank row: " << m);
             break;

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Magister Solutions
  *
@@ -21,6 +20,8 @@
 
 #include "three-gpp-http-client.h"
 
+#include "three-gpp-http-variables.h"
+
 #include <ns3/callback.h>
 #include <ns3/double.h>
 #include <ns3/inet-socket-address.h>
@@ -31,7 +32,6 @@
 #include <ns3/simulator.h>
 #include <ns3/socket.h>
 #include <ns3/tcp-socket-factory.h>
-#include <ns3/three-gpp-http-variables.h>
 #include <ns3/uinteger.h>
 
 NS_LOG_COMPONENT_DEFINE("ThreeGppHttpClient");
@@ -48,6 +48,9 @@ ThreeGppHttpClient::ThreeGppHttpClient()
       m_objectClientTs(MilliSeconds(0)),
       m_objectServerTs(MilliSeconds(0)),
       m_embeddedObjectsToBeRequested(0),
+      m_pageLoadStartTs(MilliSeconds(0)),
+      m_numberEmbeddedObjectsRequested(0),
+      m_numberBytesPage(0),
       m_httpVariables(CreateObject<ThreeGppHttpVariables>())
 {
     NS_LOG_FUNCTION(this);
@@ -77,6 +80,10 @@ ThreeGppHttpClient::GetTypeId()
                           UintegerValue(80), // the default HTTP port
                           MakeUintegerAccessor(&ThreeGppHttpClient::m_remoteServerPort),
                           MakeUintegerChecker<uint16_t>())
+            .AddTraceSource("RxPage",
+                            "A page has been received.",
+                            MakeTraceSourceAccessor(&ThreeGppHttpClient::m_rxPageTrace),
+                            "ns3::ThreeGppHttpClient::RxPageTracedCallback")
             .AddTraceSource(
                 "ConnectionEstablished",
                 "Connection to the destination web server has been established.",
@@ -163,29 +170,21 @@ ThreeGppHttpClient::GetStateString(ThreeGppHttpClient::State_t state)
     {
     case NOT_STARTED:
         return "NOT_STARTED";
-        break;
     case CONNECTING:
         return "CONNECTING";
-        break;
     case EXPECTING_MAIN_OBJECT:
         return "EXPECTING_MAIN_OBJECT";
-        break;
     case PARSING_MAIN_OBJECT:
         return "PARSING_MAIN_OBJECT";
-        break;
     case EXPECTING_EMBEDDED_OBJECT:
         return "EXPECTING_EMBEDDED_OBJECT";
-        break;
     case READING:
         return "READING";
-        break;
     case STOPPED:
         return "STOPPED";
-        break;
     default:
         NS_FATAL_ERROR("Unknown state");
         return "FATAL_ERROR";
-        break;
     }
 }
 
@@ -364,10 +363,10 @@ ThreeGppHttpClient::OpenConnection()
     {
         m_socket = Socket::CreateSocket(GetNode(), TcpSocketFactory::GetTypeId());
 
-        [[maybe_unused]] int ret;
-
         if (Ipv4Address::IsMatchingType(m_remoteServerAddress))
         {
+            int ret [[maybe_unused]];
+
             ret = m_socket->Bind();
             NS_LOG_DEBUG(this << " Bind() return value= " << ret
                               << " GetErrNo= " << m_socket->GetErrno() << ".");
@@ -382,6 +381,8 @@ ThreeGppHttpClient::OpenConnection()
         }
         else if (Ipv6Address::IsMatchingType(m_remoteServerAddress))
         {
+            int ret [[maybe_unused]];
+
             ret = m_socket->Bind6();
             NS_LOG_DEBUG(this << " Bind6() return value= " << ret
                               << " GetErrNo= " << m_socket->GetErrno() << ".");
@@ -446,6 +447,7 @@ ThreeGppHttpClient::RequestMainObject()
         else
         {
             SwitchToState(EXPECTING_MAIN_OBJECT);
+            m_pageLoadStartTs = Simulator::Now(); // start counting page loading time
         }
     }
     else
@@ -627,6 +629,7 @@ ThreeGppHttpClient::ReceiveEmbeddedObject(Ptr<Packet> packet, const Address& fro
                  * downloaded completely. Now is the time to read it.
                  */
                 NS_LOG_INFO(this << " Finished receiving a web page.");
+                FinishReceivingPage(); // trigger callback for page loading time
                 EnterReadingTime();
             }
 
@@ -668,6 +671,7 @@ ThreeGppHttpClient::Receive(Ptr<Packet> packet)
         m_constructedPacket->AddHeader(httpHeader);
     }
     uint32_t contentSize = packet->GetSize();
+    m_numberBytesPage += contentSize; // increment counter of page size
 
     /* Note that the packet does not contain header at this point.
      * The content is purely raw data, which was the only intended data to be received.
@@ -723,6 +727,8 @@ ThreeGppHttpClient::ParseMainObject()
     if (m_state == PARSING_MAIN_OBJECT)
     {
         m_embeddedObjectsToBeRequested = m_httpVariables->GetNumOfEmbeddedObjects();
+        // saving total number of embedded objects
+        m_numberEmbeddedObjectsRequested = m_embeddedObjectsToBeRequested;
         NS_LOG_INFO(this << " Parsing has determined " << m_embeddedObjectsToBeRequested
                          << " embedded object(s) in the main object.");
 
@@ -742,6 +748,7 @@ ThreeGppHttpClient::ParseMainObject()
              * enjoy the plain web page.
              */
             NS_LOG_INFO(this << " Finished receiving a web page.");
+            FinishReceivingPage(); // trigger callback for page loading time
             EnterReadingTime();
         }
     }
@@ -823,6 +830,18 @@ ThreeGppHttpClient::SwitchToState(ThreeGppHttpClient::State_t state)
     m_state = state;
     NS_LOG_INFO(this << " HttpClient " << oldState << " --> " << newState << ".");
     m_stateTransitionTrace(oldState, newState);
+}
+
+void
+ThreeGppHttpClient::FinishReceivingPage()
+{
+    m_rxPageTrace(this,
+                  Simulator::Now() - m_pageLoadStartTs,
+                  m_numberEmbeddedObjectsRequested,
+                  m_numberBytesPage);
+    // Reset counter variables.
+    m_numberEmbeddedObjectsRequested = 0;
+    m_numberBytesPage = 0;
 }
 
 } // namespace ns3

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -18,11 +17,13 @@
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
+#include "spectrum-signal-parameters.h"
+
+#include "spectrum-phy.h"
+#include "spectrum-value.h"
+
 #include <ns3/antenna-model.h>
 #include <ns3/log.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-signal-parameters.h>
-#include <ns3/spectrum-value.h>
 
 namespace ns3
 {
@@ -46,6 +47,10 @@ SpectrumSignalParameters::SpectrumSignalParameters(const SpectrumSignalParameter
     duration = p.duration;
     txPhy = p.txPhy;
     txAntenna = p.txAntenna;
+    spectrumChannelMatrix = p.spectrumChannelMatrix; // we do not need a deep copy, it will not be
+                                                     // changed once is created
+    precodingMatrix =
+        p.precodingMatrix; // we do not need a deep copy, it will not be changed once is created
 }
 
 Ptr<SpectrumSignalParameters>

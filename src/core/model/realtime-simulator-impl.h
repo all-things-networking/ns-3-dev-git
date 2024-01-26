@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -92,7 +91,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     void Destroy() override;
     bool IsFinished() const override;
     void Stop() override;
-    void Stop(const Time& delay) override;
+    EventId Stop(const Time& delay) override;
     EventId Schedule(const Time& delay, EventImpl* event) override;
     void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event) override;
     EventId ScheduleNow(EventImpl* event) override;

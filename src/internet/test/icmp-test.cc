@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan.
  *
@@ -400,7 +399,7 @@ void
 IcmpV6EchoReplyTestCase::SendData(Ptr<Socket> socket, Ipv6Address dst)
 {
     Ptr<Packet> p = Create<Packet>();
-    Icmpv6Echo echo(1);
+    Icmpv6Echo echo(true);
     echo.SetSeq(1);
     echo.SetId(0XB1ED);
     p->AddHeader(echo);
@@ -538,7 +537,7 @@ void
 IcmpV6TimeExceedTestCase::SendData(Ptr<Socket> socket, Ipv6Address dst)
 {
     Ptr<Packet> p = Create<Packet>();
-    Icmpv6Echo echo(1);
+    Icmpv6Echo echo(true);
     echo.SetSeq(1);
     echo.SetId(0XB1ED);
     p->AddHeader(echo);

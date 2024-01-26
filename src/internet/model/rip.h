@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' di Firenze, Italy
  *
@@ -21,13 +20,14 @@
 #ifndef RIP_H
 #define RIP_H
 
+#include "ipv4-interface.h"
+#include "ipv4-l3-protocol.h"
+#include "ipv4-routing-protocol.h"
+#include "ipv4-routing-table-entry.h"
+#include "rip-header.h"
+
 #include "ns3/inet-socket-address.h"
-#include "ns3/ipv4-interface.h"
-#include "ns3/ipv4-l3-protocol.h"
-#include "ns3/ipv4-routing-protocol.h"
-#include "ns3/ipv4-routing-table-entry.h"
 #include "ns3/random-variable-stream.h"
-#include "ns3/rip-header.h"
 
 #include <list>
 
@@ -193,10 +193,10 @@ class Rip : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;
     void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address) override;

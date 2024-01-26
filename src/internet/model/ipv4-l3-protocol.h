@@ -1,4 +1,3 @@
-// -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*-
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
@@ -21,10 +20,11 @@
 #ifndef IPV4_L3_PROTOCOL_H
 #define IPV4_L3_PROTOCOL_H
 
+#include "ipv4-header.h"
+#include "ipv4-routing-protocol.h"
+#include "ipv4.h"
+
 #include "ns3/ipv4-address.h"
-#include "ns3/ipv4-header.h"
-#include "ns3/ipv4-routing-protocol.h"
-#include "ns3/ipv4.h"
 #include "ns3/net-device.h"
 #include "ns3/nstime.h"
 #include "ns3/ptr.h"
@@ -631,6 +631,11 @@ class Ipv4L3Protocol : public Ipv4
     Time m_expire;      //!< duplicate entry expiration delay
     Time m_purge;       //!< time between purging expired duplicate entries
     EventId m_cleanDpd; //!< event to cleanup expired duplicate entries
+
+    Ipv4RoutingProtocol::UnicastForwardCallback m_ucb;   ///< Unicast forward callback
+    Ipv4RoutingProtocol::MulticastForwardCallback m_mcb; ///< Multicast forward callback
+    Ipv4RoutingProtocol::LocalDeliverCallback m_lcb;     ///< Local delivery callback
+    Ipv4RoutingProtocol::ErrorCallback m_ecb;            ///< Error callback
 };
 
 } // Namespace ns3

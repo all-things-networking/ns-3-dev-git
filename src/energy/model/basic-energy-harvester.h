@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
@@ -22,16 +21,15 @@
 #ifndef BASIC_ENERGY_HARVESTER
 #define BASIC_ENERGY_HARVESTER
 
-#include <iostream>
-
-// include from ns-3
+#include "device-energy-model.h"
 #include "energy-harvester.h"
 
-#include "ns3/device-energy-model.h"
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/traced-value.h"
+
+#include <iostream>
 
 namespace ns3
 {

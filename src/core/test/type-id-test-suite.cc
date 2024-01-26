@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
@@ -60,10 +59,8 @@ class UniqueTypeIdTestCase : public TestCase
   private:
     void DoRun() override;
 
-    enum
-    {
-        HashChainFlag = 0x80000000
-    };
+    /// Hash chaining flag, copied from type-id.cc:IidManager
+    static constexpr auto HASH_CHAIN_FLAG{0x80000000};
 };
 
 UniqueTypeIdTestCase::UniqueTypeIdTestCase()
@@ -94,7 +91,7 @@ UniqueTypeIdTestCase::DoRun()
     {
         const TypeId tid = TypeId::GetRegistered(i);
         std::cout << suite << "" << std::setw(6) << tid.GetUid();
-        if (tid.GetHash() & HashChainFlag)
+        if (tid.GetHash() & HASH_CHAIN_FLAG)
         {
             std::cout << "  chain";
         }
@@ -109,9 +106,9 @@ UniqueTypeIdTestCase::DoRun()
                               TypeId::LookupByName(tid.GetName()).GetUid(),
                               "LookupByName returned different TypeId for " << tid.GetName());
 
-        // Mask off HashChainFlag in this test, since tid might have been chained
-        NS_TEST_ASSERT_MSG_EQ((tid.GetHash() & (~HashChainFlag)),
-                              (hasher.clear().GetHash32(tid.GetName()) & (~HashChainFlag)),
+        // Mask off HASH_CHAIN_FLAG in this test, since tid might have been chained
+        NS_TEST_ASSERT_MSG_EQ((tid.GetHash() & (~HASH_CHAIN_FLAG)),
+                              (hasher.clear().GetHash32(tid.GetName()) & (~HASH_CHAIN_FLAG)),
                               "TypeId .hash and Hash32 (.name) unequal for " << tid.GetName());
 
         NS_TEST_ASSERT_MSG_EQ(tid.GetUid(),
@@ -136,10 +133,8 @@ class CollisionTestCase : public TestCase
   private:
     void DoRun() override;
 
-    enum
-    {
-        HashChainFlag = 0x80000000
-    };
+    /// Hash chaining flag, copied from type-id.cc:IidManager
+    static constexpr auto HASH_CHAIN_FLAG{0x80000000};
 };
 
 CollisionTestCase::CollisionTestCase()
@@ -168,14 +163,14 @@ CollisionTestCase::DoRun()
     TypeId t2(t2Name);
 
     // Check that they are alphabetical: t1 name < t2 name
-    NS_TEST_ASSERT_MSG_EQ((t1.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_EQ((t1.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "First and lesser TypeId has HashChainFlag set");
+                          "First and lesser TypeId has HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: first,lesser  not chained: OK" << std::endl;
 
-    NS_TEST_ASSERT_MSG_NE((t2.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_NE((t2.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "Second and greater TypeId does not have HashChainFlag set");
+                          "Second and greater TypeId does not have HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: second,greater    chained: OK" << std::endl;
 
     // Register colliding types in reverse alphabetical order
@@ -189,14 +184,14 @@ CollisionTestCase::DoRun()
     TypeId t4(t4Name);
 
     // Check that they are alphabetical: t3 name > t4 name
-    NS_TEST_ASSERT_MSG_NE((t3.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_NE((t3.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "First and greater TypeId does not have HashChainFlag set");
+                          "First and greater TypeId does not have HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: first,greater     chained: OK" << std::endl;
 
-    NS_TEST_ASSERT_MSG_EQ((t4.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_EQ((t4.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "Second and lesser TypeId has HashChainFlag set");
+                          "Second and lesser TypeId has HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: second,lesser not chained: OK" << std::endl;
 
     /** TODO Extra credit:  register three types whose hashes collide
@@ -322,7 +317,7 @@ DeprecatedAttributeTestCase::DoRun()
     std::cerr << suite << "DeprecatedAttribute TypeId: " << tid.GetUid() << std::endl;
 
     //  Try the lookups
-    struct TypeId::AttributeInformation ainfo;
+    TypeId::AttributeInformation ainfo;
     NS_TEST_ASSERT_MSG_EQ(tid.LookupAttributeByName("attribute", &ainfo),
                           true,
                           "lookup new attribute");
@@ -335,7 +330,7 @@ DeprecatedAttributeTestCase::DoRun()
     std::cerr << suite << "lookup old attribute:"
               << (ainfo.supportLevel == TypeId::DEPRECATED ? "deprecated" : "error") << std::endl;
 
-    struct TypeId::TraceSourceInformation tinfo;
+    TypeId::TraceSourceInformation tinfo;
     Ptr<const TraceSourceAccessor> acc;
     acc = tid.LookupTraceSourceByName("trace", &tinfo);
     NS_TEST_ASSERT_MSG_NE(acc, nullptr, "lookup new trace source");
@@ -369,10 +364,8 @@ class LookupTimeTestCase : public TestCase
      */
     void Report(const std::string how, const uint32_t delta) const;
 
-    enum
-    {
-        REPETITIONS = 100000
-    };
+    /// Number of repetitions
+    static constexpr uint32_t REPETITIONS{100000};
 };
 
 LookupTimeTestCase::LookupTimeTestCase()
@@ -398,7 +391,7 @@ LookupTimeTestCase::DoRun()
         for (uint16_t i = 0; i < nids; ++i)
         {
             const TypeId tid = TypeId::GetRegistered(i);
-            const TypeId sid = TypeId::LookupByName(tid.GetName());
+            const TypeId sid [[maybe_unused]] = TypeId::LookupByName(tid.GetName());
         }
     }
     int stop = clock();
@@ -410,7 +403,7 @@ LookupTimeTestCase::DoRun()
         for (uint16_t i = 0; i < nids; ++i)
         {
             const TypeId tid = TypeId::GetRegistered(i);
-            const TypeId sid = TypeId::LookupByHash(tid.GetHash());
+            const TypeId sid [[maybe_unused]] = TypeId::LookupByHash(tid.GetHash());
         }
     }
     stop = clock();

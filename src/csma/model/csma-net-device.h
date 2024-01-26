@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Emmanuelle Laprise
  *
@@ -21,8 +20,9 @@
 #ifndef CSMA_NET_DEVICE_H
 #define CSMA_NET_DEVICE_H
 
+#include "backoff.h"
+
 #include "ns3/address.h"
-#include "ns3/backoff.h"
 #include "ns3/callback.h"
 #include "ns3/data-rate.h"
 #include "ns3/mac48-address.h"
@@ -172,14 +172,14 @@ class CsmaNetDevice : public NetDevice
      * \param p a reference to the received packet
      * \param sender the CsmaNetDevice that transmitted the packet in the first place
      */
-    void Receive(Ptr<Packet> p, Ptr<CsmaNetDevice> sender);
+    void Receive(Ptr<const Packet> p, Ptr<CsmaNetDevice> sender);
 
     /**
      * Is the send side of the network device enabled?
      *
      * \returns True if the send side is enabled, otherwise false.
      */
-    bool IsSendEnabled();
+    bool IsSendEnabled() const;
 
     /**
      * Enable or disable the send side of the network device.
@@ -193,7 +193,7 @@ class CsmaNetDevice : public NetDevice
      *
      * \returns True if the receiver side is enabled, otherwise false.
      */
-    bool IsReceiveEnabled();
+    bool IsReceiveEnabled() const;
 
     /**
      * Enable or disable the receive side of the network device.

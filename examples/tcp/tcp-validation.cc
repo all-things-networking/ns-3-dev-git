@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Cable Television Laboratories, Inc.
  * Copyright (c) 2020 Tom Henderson (adapted for DCTCP testing)
@@ -35,7 +34,7 @@
 
 // This program is designed to observe long-running TCP congestion control
 // behavior over a configurable bottleneck link.  The program is also
-// instrumented to check progam data against validated results, when
+// instrumented to check program data against validated results, when
 // the validation option is enabled.
 //
 // ---> downstream (primary data transfer from servers to clients)
@@ -182,7 +181,7 @@ TraceFirstCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 {
     // TCP segment size is configured below to be 1448 bytes
     // so that we can report cwnd in units of segments
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << static_cast<double>(newCwnd) / 1448
                   << std::endl;
@@ -226,7 +225,7 @@ TraceFirstCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 void
 TraceFirstDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAcked, double alpha)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << alpha << std::endl;
     }
@@ -278,7 +277,7 @@ TraceFirstDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAck
 void
 TraceFirstRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << newRtt.GetSeconds() * 1000
                   << std::endl;
@@ -297,7 +296,7 @@ TraceSecondCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 {
     // TCP segment size is configured below to be 1448 bytes
     // so that we can report cwnd in units of segments
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << static_cast<double>(newCwnd) / 1448
                   << std::endl;
@@ -314,7 +313,7 @@ TraceSecondCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 void
 TraceSecondRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << newRtt.GetSeconds() * 1000
                   << std::endl;
@@ -332,7 +331,7 @@ TraceSecondRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 void
 TraceSecondDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAcked, double alpha)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << alpha << std::endl;
     }
@@ -345,9 +344,9 @@ TraceSecondDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAc
  * \param rtt RTT value.
  */
 void
-TracePingRtt(std::ofstream* ofStream, Time rtt)
+TracePingRtt(std::ofstream* ofStream, uint16_t, Time rtt)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << rtt.GetSeconds() * 1000 << std::endl;
     }
@@ -386,7 +385,7 @@ TraceSecondRx(Ptr<const Packet> packet, const Address& address)
 void
 TraceQueueDrop(std::ofstream* ofStream, Ptr<const QueueDiscItem> item)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << std::hex << item->Hash() << std::endl;
     }
@@ -403,7 +402,7 @@ TraceQueueDrop(std::ofstream* ofStream, Ptr<const QueueDiscItem> item)
 void
 TraceQueueMark(std::ofstream* ofStream, Ptr<const QueueDiscItem> item, const char* reason)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << std::hex << item->Hash() << std::endl;
     }
@@ -422,7 +421,7 @@ void
 TraceQueueLength(std::ofstream* ofStream, DataRate queueLinkRate, uint32_t oldVal, uint32_t newVal)
 {
     // output in units of ms
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << std::fixed
                   << static_cast<double>(newVal * 8) / (queueLinkRate.GetBitRate() / 1000)
@@ -439,7 +438,7 @@ TraceQueueLength(std::ofstream* ofStream, DataRate queueLinkRate, uint32_t oldVa
 void
 TraceMarksFrequency(std::ofstream* ofStream, Time marksSamplingInterval)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << g_marksObserved << std::endl;
     }
@@ -460,7 +459,7 @@ void
 TraceFirstThroughput(std::ofstream* ofStream, Time throughputInterval)
 {
     double throughput = g_firstBytesReceived * 8 / throughputInterval.GetSeconds() / 1e6;
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " " << throughput << std::endl;
     }
@@ -509,7 +508,7 @@ TraceFirstThroughput(std::ofstream* ofStream, Time throughputInterval)
 void
 TraceSecondThroughput(std::ofstream* ofStream, Time throughputInterval)
 {
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         *ofStream << Simulator::Now().GetSeconds() << " "
                   << g_secondBytesReceived * 8 / throughputInterval.GetSeconds() / 1e6 << std::endl;
@@ -682,7 +681,7 @@ main(int argc, char* argv[])
     cmd.Parse(argc, argv);
 
     // If validation is selected, perform some configuration checks
-    if (g_validate != "")
+    if (!g_validate.empty())
     {
         NS_ABORT_MSG_UNLESS(g_validate == "dctcp-10ms" || g_validate == "dctcp-80ms" ||
                                 g_validate == "cubic-50ms-no-ecn" || g_validate == "cubic-50ms-ecn",
@@ -690,7 +689,7 @@ main(int argc, char* argv[])
         if (g_validate == "dctcp-10ms" || g_validate == "dctcp-80ms")
         {
             NS_ABORT_MSG_UNLESS(firstTcpType == "dctcp", "Incorrect TCP");
-            NS_ABORT_MSG_UNLESS(secondTcpType == "", "Incorrect TCP");
+            NS_ABORT_MSG_UNLESS(secondTcpType.empty(), "Incorrect TCP");
             NS_ABORT_MSG_UNLESS(linkRate == DataRate("50Mbps"), "Incorrect data rate");
             NS_ABORT_MSG_UNLESS(queueUseEcn == true, "Incorrect ECN configuration");
             NS_ABORT_MSG_UNLESS(stopTime >= Seconds(15), "Incorrect stopTime");
@@ -706,7 +705,7 @@ main(int argc, char* argv[])
         else if (g_validate == "cubic-50ms-no-ecn" || g_validate == "cubic-50ms-ecn")
         {
             NS_ABORT_MSG_UNLESS(firstTcpType == "cubic", "Incorrect TCP");
-            NS_ABORT_MSG_UNLESS(secondTcpType == "", "Incorrect TCP");
+            NS_ABORT_MSG_UNLESS(secondTcpType.empty(), "Incorrect TCP");
             NS_ABORT_MSG_UNLESS(baseRtt == MilliSeconds(50), "Incorrect RTT");
             NS_ABORT_MSG_UNLESS(linkRate == DataRate("50Mbps"), "Incorrect data rate");
             NS_ABORT_MSG_UNLESS(stopTime >= Seconds(20), "Incorrect stopTime");
@@ -747,7 +746,7 @@ main(int argc, char* argv[])
         firstTcpTypeId = TcpDctcp::GetTypeId();
         Config::SetDefault("ns3::CoDelQueueDisc::CeThreshold", TimeValue(ceThreshold));
         Config::SetDefault("ns3::FqCoDelQueueDisc::CeThreshold", TimeValue(ceThreshold));
-        if (queueUseEcn == false)
+        if (!queueUseEcn)
         {
             std::cout << "Warning: using DCTCP with queue ECN disabled" << std::endl;
         }
@@ -772,7 +771,7 @@ main(int argc, char* argv[])
         enableSecondTcp = true;
         secondTcpTypeId = TcpDctcp::GetTypeId();
     }
-    else if (secondTcpType == "")
+    else if (secondTcpType.empty())
     {
         enableSecondTcp = false;
         NS_LOG_DEBUG("No second TCP selected");
@@ -842,31 +841,30 @@ main(int argc, char* argv[])
     std::ofstream queueMarkOfStream;
     std::ofstream queueMarksFrequencyOfStream;
     std::ofstream queueLengthOfStream;
-    if (g_validate == "")
+    if (g_validate.empty())
     {
-        pingOfStream.open(pingTraceFile.c_str(), std::ofstream::out);
-        firstTcpRttOfStream.open(firstTcpRttTraceFile.c_str(), std::ofstream::out);
-        firstTcpCwndOfStream.open(firstTcpCwndTraceFile.c_str(), std::ofstream::out);
-        firstTcpThroughputOfStream.open(firstTcpThroughputTraceFile.c_str(), std::ofstream::out);
+        pingOfStream.open(pingTraceFile, std::ofstream::out);
+        firstTcpRttOfStream.open(firstTcpRttTraceFile, std::ofstream::out);
+        firstTcpCwndOfStream.open(firstTcpCwndTraceFile, std::ofstream::out);
+        firstTcpThroughputOfStream.open(firstTcpThroughputTraceFile, std::ofstream::out);
         if (firstTcpType == "dctcp")
         {
-            firstTcpDctcpOfStream.open(firstDctcpTraceFile.c_str(), std::ofstream::out);
+            firstTcpDctcpOfStream.open(firstDctcpTraceFile, std::ofstream::out);
         }
         if (enableSecondTcp)
         {
-            secondTcpRttOfStream.open(secondTcpRttTraceFile.c_str(), std::ofstream::out);
-            secondTcpCwndOfStream.open(secondTcpCwndTraceFile.c_str(), std::ofstream::out);
-            secondTcpThroughputOfStream.open(secondTcpThroughputTraceFile.c_str(),
-                                             std::ofstream::out);
+            secondTcpRttOfStream.open(secondTcpRttTraceFile, std::ofstream::out);
+            secondTcpCwndOfStream.open(secondTcpCwndTraceFile, std::ofstream::out);
+            secondTcpThroughputOfStream.open(secondTcpThroughputTraceFile, std::ofstream::out);
             if (secondTcpType == "dctcp")
             {
-                secondTcpDctcpOfStream.open(secondDctcpTraceFile.c_str(), std::ofstream::out);
+                secondTcpDctcpOfStream.open(secondDctcpTraceFile, std::ofstream::out);
             }
         }
-        queueDropOfStream.open(queueDropTraceFile.c_str(), std::ofstream::out);
-        queueMarkOfStream.open(queueMarkTraceFile.c_str(), std::ofstream::out);
-        queueMarksFrequencyOfStream.open(queueMarksFrequencyTraceFile.c_str(), std::ofstream::out);
-        queueLengthOfStream.open(queueLengthTraceFile.c_str(), std::ofstream::out);
+        queueDropOfStream.open(queueDropTraceFile, std::ofstream::out);
+        queueMarkOfStream.open(queueMarkTraceFile, std::ofstream::out);
+        queueMarksFrequencyOfStream.open(queueMarksFrequencyTraceFile, std::ofstream::out);
+        queueLengthOfStream.open(queueLengthTraceFile, std::ofstream::out);
     }
 
     ////////////////////////////////////////////////////////////
@@ -935,7 +933,7 @@ main(int argc, char* argv[])
         proto->SetAttribute("SocketType", TypeIdValue(secondTcpTypeId));
     }
 
-    // InternetStackHelper will install a base TrafficControLayer on the node,
+    // InternetStackHelper will install a base TrafficControlLayer on the node,
     // but the Ipv4AddressHelper below will install the default FqCoDelQueueDisc
     // on all single device nodes.  The below code overrides the configuration
     // that is normally done by the Ipv4AddressHelper::Install() method by
@@ -977,12 +975,13 @@ main(int argc, char* argv[])
     ////////////////////////////////////////////////////////////
     // application setup                                      //
     ////////////////////////////////////////////////////////////
-    V4PingHelper pingHelper("192.168.1.2");
+    PingHelper pingHelper(Ipv4Address("192.168.1.2"));
     pingHelper.SetAttribute("Interval", TimeValue(pingInterval));
     pingHelper.SetAttribute("Size", UintegerValue(pingSize));
+    pingHelper.SetAttribute("VerboseMode", EnumValue(Ping::VerboseMode::SILENT));
     ApplicationContainer pingContainer = pingHelper.Install(pingServer);
-    Ptr<V4Ping> v4Ping = pingContainer.Get(0)->GetObject<V4Ping>();
-    v4Ping->TraceConnectWithoutContext("Rtt", MakeBoundCallback(&TracePingRtt, &pingOfStream));
+    Ptr<Ping> ping = pingContainer.Get(0)->GetObject<Ping>();
+    ping->TraceConnectWithoutContext("Rtt", MakeBoundCallback(&TracePingRtt, &pingOfStream));
     pingContainer.Start(Seconds(1));
     pingContainer.Stop(stopTime - Seconds(1));
 
@@ -1090,7 +1089,7 @@ main(int argc, char* argv[])
     Simulator::Run();
     Simulator::Destroy();
 
-    if (g_validate == "")
+    if (g_validate.empty())
     {
         pingOfStream.close();
         firstTcpCwndOfStream.close();

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -28,11 +27,12 @@
 #include "ns3/simulator.h"
 #include "ns3/test.h"
 
+#include <map>
+
 using namespace ns3;
 
 /**
- * \ingroup wifi-test
- * \ingroup tests wifi-test wifi module tests
+ * \ingroup lte-test
  *
  * \brief This system test program creates different test cases with a single eNB and
  * several UEs, all having the same Radio Bearer specification. In each test
@@ -86,7 +86,7 @@ class CarrierAggregationTestCase : public TestCase
                       uint16_t sizeTb,
                       uint8_t componentCarrierId);
     /// Write result to file function
-    void WriteResultToFile();
+    void WriteResultToFile() const;
 
   private:
     void DoRun() override;
@@ -119,8 +119,7 @@ class CarrierAggregationTestCase : public TestCase
 };
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * \ingroup lte-test
  *
  * \brief Test Carrier Aggregation Suite
  */

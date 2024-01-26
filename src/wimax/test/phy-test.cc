@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -97,14 +96,14 @@ Ns3WimaxSimpleOFDMTestCase::DoRunOnce(double FrameDuration)
     Simulator::Run();
     for (int i = 0; i < 3; i++)
     {
-        if (ssDevs.Get(i)->GetObject<SubscriberStationNetDevice>()->IsRegistered() == false)
+        if (!ssDevs.Get(i)->GetObject<SubscriberStationNetDevice>()->IsRegistered())
         {
             NS_LOG_DEBUG("SS[" << i << "] not registered");
             return true; // Test fail because SS[i] is not registered
         }
     }
     Simulator::Destroy();
-    return (false); // Test was ok, all the SSs are registered
+    return false; // Test was ok, all the SSs are registered
 }
 
 void
@@ -114,7 +113,7 @@ Ns3WimaxSimpleOFDMTestCase::DoRun()
     for (int i = 0; i < 7; i++)
     {
         NS_LOG_DEBUG("Frame Duration = " << frameDuratioTab[i]);
-        if (DoRunOnce(frameDuratioTab[i]) != false)
+        if (DoRunOnce(frameDuratioTab[i]))
         {
             return;
         }

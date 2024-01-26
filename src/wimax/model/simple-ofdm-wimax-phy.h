@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -23,6 +22,7 @@
 #define SIMPLE_OFDM_WIMAX_PHY_H
 
 #include "bvec.h"
+#include "snr-to-block-error-rate-manager.h"
 #include "wimax-connection.h"
 #include "wimax-phy.h"
 
@@ -30,7 +30,6 @@
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
-#include "ns3/snr-to-block-error-rate-manager.h"
 
 #include <list>
 #include <stdint.h>
@@ -242,24 +241,24 @@ class SimpleOfdmWimaxPhy : public WimaxPhy
      * \param burst the packet burst
      * \returns the BVEC
      */
-    bvec ConvertBurstToBits(Ptr<const PacketBurst> burst);
+    Bvec ConvertBurstToBits(Ptr<const PacketBurst> burst);
     /**
      * Convert bits to burst
      * \param buffer the BVEC
      * \returns the packet burst
      */
-    Ptr<PacketBurst> ConvertBitsToBurst(bvec buffer);
+    Ptr<PacketBurst> ConvertBitsToBurst(Bvec buffer);
     /**
      * Create FEC blocks
      * \param buffer the BVEC
      * \param modulationType the modulation type
      */
-    void CreateFecBlocks(const bvec& buffer, WimaxPhy::ModulationType modulationType);
+    void CreateFecBlocks(const Bvec& buffer, WimaxPhy::ModulationType modulationType);
     /**
      * Recreate buffer
      * \returns BVEC
      */
-    bvec RecreateBuffer();
+    Bvec RecreateBuffer();
     /**
      * Get FEC block size
      * \param type the modulation type
@@ -304,13 +303,13 @@ class SimpleOfdmWimaxPhy : public WimaxPhy
      * \param burstSize the burst size
      * \param modulationType the modulation type
      * \param direction the direction
-     * \param drop the drop
+     * \param drop whether to drop
      * \param burst the burst
      */
     void EndReceiveFecBlock(uint32_t burstSize,
                             WimaxPhy::ModulationType modulationType,
                             uint8_t direction,
-                            uint8_t drop,
+                            bool drop,
                             Ptr<PacketBurst> burst);
     /**
      * Start end dummy FEC block
@@ -443,10 +442,10 @@ class SimpleOfdmWimaxPhy : public WimaxPhy
     uint16_t m_fecBlockSize;     ///< in bits, size of FEC block transmitted after PHY operations
     uint32_t m_currentBurstSize; ///< current burst size
 
-    std::list<bvec>* m_receivedFecBlocks; ///< a list of received FEC blocks until they are combined
+    std::list<Bvec>* m_receivedFecBlocks; ///< a list of received FEC blocks until they are combined
                                           ///< to recreate the full burst buffer
     uint32_t m_nrFecBlocksSent;   ///< counting the number of FEC blocks sent (within a burst)
-    std::list<bvec>* m_fecBlocks; ///< the FEC blocks
+    std::list<Bvec>* m_fecBlocks; ///< the FEC blocks
     Time m_blockTime;             ///< block time
 
     TracedCallback<Ptr<const PacketBurst>> m_traceRx; ///< trace receive callback
@@ -468,7 +467,7 @@ class SimpleOfdmWimaxPhy : public WimaxPhy
     uint16_t m_blockSize;               ///< block size
     uint32_t m_paddingBits;             ///< padding bits
     uint16_t m_nbErroneousBlock;        ///< erroneous blocks
-    uint16_t m_nrRecivedFecBlocks;      ///< number received FEC blocks
+    uint16_t m_nrReceivedFecBlocks;     ///< number received FEC blocks
     uint16_t m_nfft;                    ///< NFFT
     double m_g;                         ///< G value
     double m_bandWidth;                 ///< bandwidth

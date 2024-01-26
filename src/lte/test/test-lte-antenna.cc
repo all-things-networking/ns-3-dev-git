@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -42,7 +41,6 @@ NS_LOG_COMPONENT_DEFINE("LteAntennaTest");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Tests that the propagation model and the antenna parameters are
  * generate the correct values. Different test cases are created by specifying different
@@ -176,7 +174,7 @@ LteEnbAntennaTestCase::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate the default EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+    EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -265,7 +263,6 @@ LteEnbAntennaTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte Enb Antenna Test Suite
  */
@@ -311,4 +308,8 @@ LteAntennaTestSuite::LteAntennaTestSuite()
     AddTestCase(new LteEnbAntennaTestCase(-120.0, 120.0, 1, -0.1, -12.754), TestCase::QUICK);
 }
 
-static LteAntennaTestSuite lteAntennaTestSuite;
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
+static LteAntennaTestSuite g_lteAntennaTestSuite;

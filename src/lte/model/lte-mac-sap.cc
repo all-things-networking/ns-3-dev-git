@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,7 +17,7 @@
  * Author: Nicola Baldo  <nbaldo@cttc.es>
  */
 
-#include "ns3/lte-mac-sap.h"
+#include "lte-mac-sap.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,13 +17,15 @@
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/applications-module.h>
 #include <ns3/core-module.h>
 #include <ns3/internet-module.h>
 #include <ns3/lte-module.h>
 #include <ns3/mobility-module.h>
 #include <ns3/network-module.h>
+#include <ns3/packet-sink-helper.h>
+#include <ns3/packet-sink.h>
 #include <ns3/point-to-point-module.h>
+#include <ns3/udp-client-server-helper.h>
 
 using namespace ns3;
 
@@ -32,7 +33,6 @@ NS_LOG_COMPONENT_DEFINE("LteX2HandoverTest");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief HandoverEvent structure
  */
@@ -46,7 +46,6 @@ struct HandoverEvent
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test X2 Handover. In this test is used NoOpHandoverAlgorithm and
  * the request for handover is generated manually, and it is not based on measurements.
@@ -124,7 +123,6 @@ class LteX2HandoverTestCase : public TestCase
 
     /**
      * \ingroup lte-test
-     * \ingroup tests
      *
      * \brief BearerData structure
      */
@@ -139,7 +137,6 @@ class LteX2HandoverTestCase : public TestCase
 
     /**
      * \ingroup lte-test
-     * \ingroup tests
      *
      * \brief UeData structure
      */
@@ -232,9 +229,9 @@ LteX2HandoverTestCase::DoRun()
     uint32_t previousSeed = RngSeedManager::GetSeed();
     uint64_t previousRun = RngSeedManager::GetRun();
     Config::Reset();
-    // This test is sensitive to random variable stream assigments
+    // This test is sensitive to random variable stream assignments
     RngSeedManager::SetSeed(1);
-    RngSeedManager::SetRun(2);
+    RngSeedManager::SetRun(3);
     Config::SetDefault("ns3::UdpClient::Interval", TimeValue(m_udpClientInterval));
     Config::SetDefault("ns3::UdpClient::MaxPackets", UintegerValue(1000000));
     Config::SetDefault("ns3::UdpClient::PacketSize", UintegerValue(m_udpClientPktSize));
@@ -279,7 +276,7 @@ LteX2HandoverTestCase::DoRun()
     NetDeviceContainer enbDevices;
     enbDevices = m_lteHelper->InstallEnbDevice(enbNodes);
     stream += m_lteHelper->AssignStreams(enbDevices, stream);
-    for (NetDeviceContainer::Iterator it = enbDevices.Begin(); it != enbDevices.End(); ++it)
+    for (auto it = enbDevices.Begin(); it != enbDevices.End(); ++it)
     {
         Ptr<LteEnbRrc> enbRrc = (*it)->GetObject<LteEnbNetDevice>()->GetRrc();
         enbRrc->SetAttribute("AdmitHandoverRequest", BooleanValue(m_admitHo));
@@ -432,7 +429,7 @@ LteX2HandoverTestCase::DoRun()
             Ptr<NetDevice> ueDev = ueDevices.Get(u);
             for (uint32_t b = 0; b < m_nDedicatedBearers; ++b)
             {
-                enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+                EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
                 EpsBearer bearer(q);
                 m_lteHelper->ActivateDataRadioBearer(ueDev, bearer);
             }
@@ -443,7 +440,7 @@ LteX2HandoverTestCase::DoRun()
 
     // check initial RRC connection
     const Time maxRrcConnectionEstablishmentDuration = Seconds(0.080);
-    for (NetDeviceContainer::Iterator it = ueDevices.Begin(); it != ueDevices.End(); ++it)
+    for (auto it = ueDevices.Begin(); it != ueDevices.End(); ++it)
     {
         Simulator::Schedule(maxRrcConnectionEstablishmentDuration,
                             &LteX2HandoverTestCase::CheckConnected,
@@ -455,8 +452,7 @@ LteX2HandoverTestCase::DoRun()
     // schedule handover events and corresponding checks
 
     Time stopTime = Seconds(0);
-    for (std::list<HandoverEvent>::iterator hoEventIt = m_handoverEventList.begin();
-         hoEventIt != m_handoverEventList.end();
+    for (auto hoEventIt = m_handoverEventList.begin(); hoEventIt != m_handoverEventList.end();
          ++hoEventIt)
     {
         // Teleport the UE between both eNBs just before the handover starts
@@ -572,8 +568,8 @@ LteX2HandoverTestCase::CheckConnected(Ptr<NetDevice> ueDevice, Ptr<NetDevice> en
                           m_nDedicatedBearers + 1,
                           "wrong num bearers at UE");
 
-    ObjectMapValue::Iterator enbBearerIt = enbDataRadioBearerMapValue.Begin();
-    ObjectMapValue::Iterator ueBearerIt = ueDataRadioBearerMapValue.Begin();
+    auto enbBearerIt = enbDataRadioBearerMapValue.Begin();
+    auto ueBearerIt = ueDataRadioBearerMapValue.Begin();
     while (enbBearerIt != enbDataRadioBearerMapValue.End() &&
            ueBearerIt != ueDataRadioBearerMapValue.End())
     {
@@ -624,7 +620,7 @@ LteX2HandoverTestCase::TeleportUeNearTargetEnb(Ptr<Node> ueNode, Ptr<Node> enbNo
 void
 LteX2HandoverTestCase::SaveStatsAfterHandover(uint32_t ueIndex)
 {
-    for (std::list<BearerData>::iterator it = m_ueDataVector.at(ueIndex).bearerDataList.begin();
+    for (auto it = m_ueDataVector.at(ueIndex).bearerDataList.begin();
          it != m_ueDataVector.at(ueIndex).bearerDataList.end();
          ++it)
     {
@@ -637,7 +633,7 @@ void
 LteX2HandoverTestCase::CheckStatsAWhileAfterHandover(uint32_t ueIndex)
 {
     uint32_t b = 1;
-    for (std::list<BearerData>::iterator it = m_ueDataVector.at(ueIndex).bearerDataList.begin();
+    for (auto it = m_ueDataVector.at(ueIndex).bearerDataList.begin();
          it != m_ueDataVector.at(ueIndex).bearerDataList.end();
          ++it)
     {
@@ -658,7 +654,6 @@ LteX2HandoverTestCase::CheckStatsAWhileAfterHandover(uint32_t ueIndex)
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief LTE X2 Handover Test Suite.
  *
@@ -714,187 +709,388 @@ LteX2HandoverTestSuite::LteX2HandoverTestSuite()
     ue2bwd.sourceEnbDeviceIndex = 1;
     ue2bwd.targetEnbDeviceIndex = 0;
 
-    std::string hel0name("none");
-    std::list<HandoverEvent> hel0;
+    std::string handoverEventList0name("none");
+    std::list<HandoverEvent> handoverEventList0;
 
-    std::string hel1name("1 fwd");
-    const std::list<HandoverEvent> hel1{
+    std::string handoverEventList1name("1 fwd");
+    const std::list<HandoverEvent> handoverEventList1{
         ue1fwd,
     };
 
-    std::string hel2name("1 fwd & bwd");
-    const std::list<HandoverEvent> hel2{
+    std::string handoverEventList2name("1 fwd & bwd");
+    const std::list<HandoverEvent> handoverEventList2{
         ue1fwd,
         ue1bwd,
     };
 
-    std::string hel3name("1 fwd & bwd & fwd");
-    const std::list<HandoverEvent> hel3{
+    std::string handoverEventList3name("1 fwd & bwd & fwd");
+    const std::list<HandoverEvent> handoverEventList3{
         ue1fwd,
         ue1bwd,
         ue1fwdagain,
     };
 
-    std::string hel4name("1+2 fwd");
-    const std::list<HandoverEvent> hel4{
+    std::string handoverEventList4name("1+2 fwd");
+    const std::list<HandoverEvent> handoverEventList4{
         ue1fwd,
         ue2fwd,
     };
 
-    std::string hel5name("1+2 fwd & bwd");
-    const std::list<HandoverEvent> hel5{
+    std::string handoverEventList5name("1+2 fwd & bwd");
+    const std::list<HandoverEvent> handoverEventList5{
         ue1fwd,
         ue1bwd,
         ue2fwd,
         ue2bwd,
     };
 
-    std::string hel6name("2 fwd");
-    const std::list<HandoverEvent> hel6{
-        ue2fwd,
-    };
+    // std::string handoverEventList6name("2 fwd");
+    // const std::list<HandoverEvent> handoverEventList6{
+    //     ue2fwd,
+    // };
 
-    std::string hel7name("2 fwd & bwd");
-    const std::list<HandoverEvent> hel7{
-        ue2fwd,
-        ue2bwd,
-    };
+    // std::string handoverEventList7name("2 fwd & bwd");
+    // const std::list<HandoverEvent> handoverEventList7{
+    //     ue2fwd,
+    //     ue2bwd,
+    // };
 
     std::vector<std::string> schedulers{
         "ns3::RrFfMacScheduler",
         "ns3::PfFfMacScheduler",
     };
 
-    for (std::vector<std::string>::iterator schedIt = schedulers.begin();
-         schedIt != schedulers.end();
-         ++schedIt)
+    for (auto schedIt = schedulers.begin(); schedIt != schedulers.end(); ++schedIt)
     {
-        for (int32_t useIdealRrc = 1; useIdealRrc >= 0; --useIdealRrc)
+        for (auto useIdealRrc : {true, false})
         {
-            //                                     nUes, nDBearers, helist, name, sched, admitHo,
-            //                                     idealRrc
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 0, hel0, hel0name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel0, hel0name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 5, hel0, hel0name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 5, hel0, hel0name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 0, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 1, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 2, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 0, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 1, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 2, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 1, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 2, hel1, hel1name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 1, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 2, hel1, hel1name, *schedIt, false, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 0, hel2, hel2name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 1, hel2, hel2name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 2, hel2, hel2name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 0, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 1, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(1, 2, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 1, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 2, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::QUICK);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 1, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 2, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 0, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 1, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(2, 2, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 0, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 1, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 2, hel3, hel3name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 0, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 1, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 2, hel4, hel4name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 0, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 1, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::EXTENSIVE);
-            AddTestCase(
-                new LteX2HandoverTestCase(3, 2, hel5, hel5name, *schedIt, true, useIdealRrc),
-                TestCase::QUICK);
+            // nUes, nDBearers, helist, name, sched, admitHo, idealRrc
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  0,
+                                                  handoverEventList0,
+                                                  handoverEventList0name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList0,
+                                                  handoverEventList0name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  5,
+                                                  handoverEventList0,
+                                                  handoverEventList0name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  5,
+                                                  handoverEventList0,
+                                                  handoverEventList0name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  0,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  1,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  2,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  0,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  1,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  2,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  1,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  2,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  1,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  2,
+                                                  handoverEventList1,
+                                                  handoverEventList1name,
+                                                  *schedIt,
+                                                  false,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  0,
+                                                  handoverEventList2,
+                                                  handoverEventList2name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  1,
+                                                  handoverEventList2,
+                                                  handoverEventList2name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  2,
+                                                  handoverEventList2,
+                                                  handoverEventList2name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  0,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  1,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(1,
+                                                  2,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  1,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  2,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::QUICK);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  1,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  2,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  0,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  1,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(2,
+                                                  2,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  0,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  1,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  2,
+                                                  handoverEventList3,
+                                                  handoverEventList3name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  0,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  1,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  2,
+                                                  handoverEventList4,
+                                                  handoverEventList4name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  0,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  1,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::EXTENSIVE);
+            AddTestCase(new LteX2HandoverTestCase(3,
+                                                  2,
+                                                  handoverEventList5,
+                                                  handoverEventList5name,
+                                                  *schedIt,
+                                                  true,
+                                                  useIdealRrc),
+                        TestCase::QUICK);
         }
     }
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteX2HandoverTestSuite g_lteX2HandoverTestSuiteInstance;

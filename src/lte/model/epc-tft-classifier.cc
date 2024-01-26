@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
@@ -188,9 +187,7 @@ EpcTftClassifier::Classify(Ptr<Packet> p, EpcTft::Direction direction, uint16_t 
                                 protocol,
                                 ipv4Header.GetIdentification());
 
-            std::map<std::tuple<uint32_t, uint32_t, uint8_t, uint16_t>,
-                     std::pair<uint32_t, uint32_t>>::iterator it =
-                m_classifiedIpv4Fragments.find(fragmentKey);
+            auto it = m_classifiedIpv4Fragments.find(fragmentKey);
 
             if (it != m_classifiedIpv4Fragments.end())
             {

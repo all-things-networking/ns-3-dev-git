@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Université Pierre et Marie Curie
  *
@@ -102,7 +101,7 @@ class SllHeader : public Header
     /**
      * \return Packet type
      */
-    enum PacketType GetPacketType() const;
+    PacketType GetPacketType() const;
 
     /**
      * \param type Depends on source and address of the packet

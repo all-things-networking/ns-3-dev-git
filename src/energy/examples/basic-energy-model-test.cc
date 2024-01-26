@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
@@ -92,35 +91,35 @@ BasicEnergyUpdateTest::DoRun()
     // run state switch tests
     if (StateSwitchTest(WifiPhyState::IDLE))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy idle)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::CCA_BUSY))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy cca busy)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::TX))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy tx)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::RX))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy rx)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::SWITCHING))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy switching)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::SLEEP))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy sleep)." << std::endl;
     }
-    return 0;
+    return false;
 }
 
 bool
@@ -146,7 +145,7 @@ BasicEnergyUpdateTest::StateSwitchTest(WifiPhyState state)
     // retrieve device energy model from energy source
     DeviceEnergyModelContainer models = source->FindDeviceEnergyModels("ns3::WifiRadioEnergyModel");
     // check list
-    if ((models.GetN() == 0))
+    if (models.GetN() == 0)
     {
         std::cerr << "Model list is empty!." << std::endl;
         return true;
@@ -303,7 +302,7 @@ BasicEnergyDepletionTest::DoRun()
     /*
      * Run simulation with different simulation time and update interval.
      */
-    uint8_t ret = 0;
+    bool ret = false;
 
     for (double simTimeS = 0.0; simTimeS <= m_simTimeS; simTimeS += m_timeStepS)
     {
@@ -312,7 +311,7 @@ BasicEnergyDepletionTest::DoRun()
         {
             if (DepletionTestCase(simTimeS, updateIntervalS))
             {
-                ret = 1;
+                ret = true;
                 std::cerr << "Depletion test case problem." << std::endl;
             }
             // reset callback count

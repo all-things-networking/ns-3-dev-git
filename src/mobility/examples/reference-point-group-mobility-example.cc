@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Institute for the Wireless Internet of Things, Northeastern University,
  * Boston, MA Copyright (c) 2021 University of Washington: for HierarchicalMobilityModel
@@ -17,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: Michele Polese <michele.polese@gmail.com>
- * Heavily edited by Tom Henderson (to reuse HierachicalMobilityModel)
+ * Heavily edited by Tom Henderson (to reuse HierarchicalMobilityModel)
  */
 
 /**
@@ -34,7 +33,7 @@
  * and different child mobility models.
  *
  * There is no node associated with the parent (reference) model.
- * Instead, all nodes are associated with a hiearchical mobility model
+ * Instead, all nodes are associated with a hierarchical mobility model
  * containing both the parent and child models, and the position of
  * the node is the vector sum of these parent and child positions.
  *
@@ -141,7 +140,7 @@ main(int argc, char* argv[])
     waypointMm->AddWaypoint(Waypoint(Seconds(700), Vector(90, 10, 0)));
     waypointMm->AddWaypoint(Waypoint(Seconds(800), Vector(10, 10, 0)));
 
-    // Each HierachicalMobilityModel contains the above model as the Parent,
+    // Each HierarchicalMobilityModel contains the above model as the Parent,
     // and a user defined model as the Child.  Two MobilityModel objects are
     // instantiated per node (one hierarchical, and one child model), and
     // a single parent model is reused across all nodes.
@@ -151,7 +150,7 @@ main(int argc, char* argv[])
     // configuration.
 
     int64_t streamIndex = 1;
-    if (useHelper == false)
+    if (!useHelper)
     {
         // Assign random variable stream numbers on the parent and each child
         streamIndex += waypointMm->AssignStreams(streamIndex);

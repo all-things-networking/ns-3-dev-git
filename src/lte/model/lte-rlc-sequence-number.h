@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -26,8 +25,6 @@
 #include <iostream>
 #include <limits>
 #include <stdint.h>
-
-// #include "ns3/lte-rlc.h"
 
 namespace ns3
 {
@@ -147,7 +144,7 @@ class SequenceNumber10
     uint16_t operator-(const SequenceNumber10& other) const
     {
         uint16_t diff = m_value - other.m_value;
-        return (diff);
+        return diff;
     }
 
     /**

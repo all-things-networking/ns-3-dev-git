@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -100,14 +99,7 @@ bool
 Ipv4RoutingTableEntry::IsHost() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_destNetworkMask == Ipv4Mask::GetOnes())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return m_destNetworkMask == Ipv4Mask::GetOnes();
 }
 
 Ipv4Address
@@ -128,14 +120,7 @@ bool
 Ipv4RoutingTableEntry::IsDefault() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_dest == Ipv4Address::GetZero())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return m_dest == Ipv4Address::GetZero();
 }
 
 Ipv4Address
@@ -156,14 +141,7 @@ bool
 Ipv4RoutingTableEntry::IsGateway() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_gateway == Ipv4Address::GetZero())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_gateway != Ipv4Address::GetZero();
 }
 
 Ipv4Address

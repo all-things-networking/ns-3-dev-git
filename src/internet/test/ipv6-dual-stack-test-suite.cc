@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  * Copyright (c) 2009 INRIA
@@ -53,7 +52,6 @@ NS_LOG_COMPONENT_DEFINE("Ipv6DualStackTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv6 dual stack Test
  */
@@ -355,7 +353,6 @@ DualStackTestCase::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv6 dual stack TestSuite
  */

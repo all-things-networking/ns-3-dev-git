@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  *
@@ -34,7 +33,7 @@ namespace std
 /**
  * \brief Stream insertion operator.
  *
- * \note This function scope is stricly local, and can not be
+ * \note This function scope is strictly local, and can not be
  * used in other source files.
  *
  * \param [in] os The reference to the output stream.
@@ -44,7 +43,7 @@ namespace std
 ostream&
 operator<<(ostream& os, const vector<int>& v)
 {
-    vector<int>::const_iterator it = v.begin();
+    auto it = v.begin();
     while (it != v.end())
     {
         os << *it << " ";
@@ -67,7 +66,7 @@ NS_LOG_COMPONENT_DEFINE("LteSpectrumValueHelper");
  * filter: awk '{if ((NR % 7) == 1) printf("{"); printf ("%s",$0); if ((NR % 7) == 0)
  * printf("},\n"); else printf(", ");}' | sed 's/ – /, /g'
  */
-static const struct EutraChannelNumbers
+struct EutraChannelNumbers
 {
     uint8_t band;       ///< band
     double fDlLow;      ///<  DL low
@@ -78,7 +77,10 @@ static const struct EutraChannelNumbers
     uint32_t nOffsUl;   ///< number offset UL
     uint32_t rangeNul1; ///< range UL 1
     uint32_t rangeNul2; ///< range UL 2
-} g_eutraChannelNumbers[] = {
+};
+
+/// Eutra channel numbers
+static const EutraChannelNumbers g_eutraChannelNumbers[]{
     {1, 2110, 0, 0, 599, 1920, 18000, 18000, 18599},
     {2, 1930, 600, 600, 1199, 1850, 18600, 18600, 19199},
     {3, 1805, 1200, 1200, 1949, 1710, 19200, 19200, 19949},
@@ -105,7 +107,8 @@ static const struct EutraChannelNumbers
     {37, 1910, 37550, 37550, 37749, 1910, 37550, 37550, 37749},
     {38, 2570, 37750, 37750, 38249, 2570, 37750, 37750, 38249},
     {39, 1880, 38250, 38250, 38649, 1880, 38250, 38250, 38649},
-    {40, 2300, 38650, 38650, 39649, 2300, 38650, 38650, 39649}}; ///< eutra channel numbers
+    {40, 2300, 38650, 38650, 39649, 2300, 38650, 38650, 39649},
+};
 
 /// number of EUTRA bands
 #define NUM_EUTRA_BANDS (sizeof(g_eutraChannelNumbers) / sizeof(EutraChannelNumbers))
@@ -249,7 +252,7 @@ LteSpectrumValueHelper::GetSpectrumModel(uint32_t earfcn, uint16_t txBandwidthCo
     NS_LOG_FUNCTION(earfcn << txBandwidthConfiguration);
     Ptr<SpectrumModel> ret;
     LteSpectrumModelId key(earfcn, txBandwidthConfiguration);
-    std::map<LteSpectrumModelId, Ptr<SpectrumModel>>::iterator it = g_lteSpectrumModelMap.find(key);
+    auto it = g_lteSpectrumModelMap.find(key);
     if (it != g_lteSpectrumModelMap.end())
     {
         ret = it->second;
@@ -294,7 +297,7 @@ LteSpectrumValueHelper::CreateTxPowerSpectralDensity(uint32_t earfcn,
 
     double txPowerDensity = (powerTxW / (txBandwidthConfiguration * 180000));
 
-    for (std::vector<int>::iterator it = activeRbs.begin(); it != activeRbs.end(); it++)
+    for (auto it = activeRbs.begin(); it != activeRbs.end(); it++)
     {
         int rbId = (*it);
         (*txPsd)[rbId] = txPowerDensity;
@@ -320,11 +323,11 @@ LteSpectrumValueHelper::CreateTxPowerSpectralDensity(uint32_t earfcn,
     // powerTx is expressed in dBm. We must convert it into natural unit.
     double basicPowerTxW = std::pow(10., (powerTx - 30) / 10);
 
-    for (std::vector<int>::iterator it = activeRbs.begin(); it != activeRbs.end(); it++)
+    for (auto it = activeRbs.begin(); it != activeRbs.end(); it++)
     {
         int rbId = (*it);
 
-        std::map<int, double>::iterator powerIt = powerTxMap.find(rbId);
+        auto powerIt = powerTxMap.find(rbId);
 
         double txPowerDensity;
 
@@ -362,7 +365,7 @@ LteSpectrumValueHelper::CreateUlTxPowerSpectralDensity(uint16_t earfcn,
 
     double txPowerDensity = (powerTxW / (activeRbs.size() * 180000));
 
-    for (std::vector<int>::iterator it = activeRbs.begin(); it != activeRbs.end(); it++)
+    for (auto it = activeRbs.begin(); it != activeRbs.end(); it++)
     {
         int rbId = (*it);
         (*txPsd)[rbId] = txPowerDensity;

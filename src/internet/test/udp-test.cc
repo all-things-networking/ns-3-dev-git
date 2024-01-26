@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  *
@@ -58,7 +57,6 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief UDP Socket Loopback over IPv4 Test
  */
@@ -116,7 +114,6 @@ UdpSocketLoopbackTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief UDP Socket Loopback over IPv6 Test
  */
@@ -142,15 +139,11 @@ Udp6SocketLoopbackTest::Udp6SocketLoopbackTest()
 void
 Udp6SocketLoopbackTest::ReceivePkt(Ptr<Socket> socket)
 {
-    uint32_t availableData;
-    availableData = socket->GetRxAvailable();
+    uint32_t availableData [[maybe_unused]] = socket->GetRxAvailable();
     m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
     NS_TEST_ASSERT_MSG_EQ(availableData,
                           m_receivedPacket->GetSize(),
                           "ReceivedPacket size is not equal to the Rx buffer size");
-    // cast availableData to void, to suppress 'availableData' set but not used
-    // compiler warning
-    (void)availableData;
 }
 
 void
@@ -177,7 +170,6 @@ Udp6SocketLoopbackTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief UDP Socket over IPv4 Test
  */
@@ -529,7 +521,6 @@ UdpSocketImplTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief UDP Socket over IPv6 Test
  */
@@ -601,29 +592,21 @@ Udp6SocketImplTest::ReceivePacket2(Ptr<Socket> socket, Ptr<Packet> packet, const
 void
 Udp6SocketImplTest::ReceivePkt(Ptr<Socket> socket)
 {
-    uint32_t availableData;
-    availableData = socket->GetRxAvailable();
+    uint32_t availableData [[maybe_unused]] = socket->GetRxAvailable();
     m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
     NS_TEST_ASSERT_MSG_EQ(availableData,
                           m_receivedPacket->GetSize(),
                           "ReceivedPacket size is not equal to the Rx buffer size");
-    // cast availableData to void, to suppress 'availableData' set but not used
-    // compiler warning
-    (void)availableData;
 }
 
 void
 Udp6SocketImplTest::ReceivePkt2(Ptr<Socket> socket)
 {
-    uint32_t availableData;
-    availableData = socket->GetRxAvailable();
+    uint32_t availableData [[maybe_unused]] = socket->GetRxAvailable();
     m_receivedPacket2 = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
     NS_TEST_ASSERT_MSG_EQ(availableData,
                           m_receivedPacket2->GetSize(),
                           "ReceivedPacket size is not equal to the Rx buffer size");
-    // cast availableData to void, to suppress 'availableData' set but not used
-    // compiler warning
-    (void)availableData;
 }
 
 void
@@ -781,7 +764,6 @@ Udp6SocketImplTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief UDP TestSuite
  */

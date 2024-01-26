@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -109,6 +108,7 @@ class TypeHeader : public Header
 /**
  * \brief Stream output operator
  * \param os output stream
+ * \param h the TypeHeader
  * \return updated stream
  */
 std::ostream& operator<<(std::ostream& os, const TypeHeader& h);
@@ -485,7 +485,7 @@ class RrepHeader : public Header
      */
     void SetPrefixSize(uint8_t sz);
     /**
-     * \brief Set the pefix size
+     * \brief Set the prefix size
      * \return the prefix size
      */
     uint8_t GetPrefixSize() const;
@@ -626,8 +626,9 @@ class RerrHeader : public Header
     bool AddUnDestination(Ipv4Address dst, uint32_t seqNo);
     /**
      * \brief Delete pair (address + sequence number) from REER header, if the number of unreachable
-     * destinations > 0 \param un unreachable pair (address + sequence number) \return true on
-     * success
+     * destinations > 0
+     * \param un unreachable pair (address + sequence number)
+     * \return true on success
      */
     bool RemoveUnDestination(std::pair<Ipv4Address, uint32_t>& un);
     /// Clear header

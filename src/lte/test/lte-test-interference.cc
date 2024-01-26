@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -188,6 +187,10 @@ LteInterferenceTestSuite::LteInterferenceTestSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteInterferenceTestSuite lteLinkAdaptationWithInterferenceTestSuite;
 
 /**
@@ -275,7 +278,7 @@ LteInterferenceTestCase::DoRun()
     lteHelper->Attach(ueDevs2, enbDevs.Get(1));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 CTTC
  *
@@ -20,10 +19,11 @@
 #ifndef PHASED_ARRAY_SPECTRUM_PROPAGATION_LOSS_MODEL_H
 #define PHASED_ARRAY_SPECTRUM_PROPAGATION_LOSS_MODEL_H
 
+#include "spectrum-value.h"
+
 #include <ns3/mobility-model.h>
 #include <ns3/object.h>
 #include <ns3/phased-array-model.h>
-#include <ns3/spectrum-value.h>
 
 namespace ns3
 {
@@ -62,6 +62,13 @@ class PhasedArraySpectrumPropagationLossModel : public Object
     void SetNext(Ptr<PhasedArraySpectrumPropagationLossModel> next);
 
     /**
+     * Return the pointer to the next PhasedArraySpectrumPropagationLossModel, if any.
+     *
+     * @return Pointer to the next model, if any
+     */
+    Ptr<PhasedArraySpectrumPropagationLossModel> GetNext() const;
+
+    /**
      * This method is to be called to calculate
      *
      * @param txPsd the spectrum signal parameters.
@@ -70,10 +77,12 @@ class PhasedArraySpectrumPropagationLossModel : public Object
      * @param aPhasedArrayModel the instance of the phased antenna array of the sender
      * @param bPhasedArrayModel the instance of the phased antenna array of the receiver
      *
-     * @return set of values Vs frequency representing the received
-     * power in the same units used for the txPower parameter.
+     * @return SpectrumSignalParameters in which is updated the PSD to contain
+     * a set of values Vs frequency representing the received
+     * power in the same units used for the txPower parameter,
+     * and additional chanSpectrumMatrix is computed to support MIMO systems.
      */
-    Ptr<SpectrumValue> CalcRxPowerSpectralDensity(
+    Ptr<SpectrumSignalParameters> CalcRxPowerSpectralDensity(
         Ptr<const SpectrumSignalParameters> txPsd,
         Ptr<const MobilityModel> a,
         Ptr<const MobilityModel> b,
@@ -92,10 +101,12 @@ class PhasedArraySpectrumPropagationLossModel : public Object
      * @param aPhasedArrayModel the instance of the phased antenna array of the sender
      * @param bPhasedArrayModel the instance of the phased antenna array of the receiver
      *
-     * @return set of values Vs frequency representing the received
-     * power in the same units used for the txPower parameter.
+     * @return SpectrumSignalParameters in which is updated the PSD to contain
+     * a set of values Vs frequency representing the received
+     * power in the same units used for the txPower parameter,
+     * and additional chanSpectrumMatrix is set.
      */
-    virtual Ptr<SpectrumValue> DoCalcRxPowerSpectralDensity(
+    virtual Ptr<SpectrumSignalParameters> DoCalcRxPowerSpectralDensity(
         Ptr<const SpectrumSignalParameters> params,
         Ptr<const MobilityModel> a,
         Ptr<const MobilityModel> b,

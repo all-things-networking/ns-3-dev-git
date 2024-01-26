@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington, 2012 INRIA
  *
@@ -65,7 +64,7 @@ main(int argc, char* argv[])
     cmd.Parse(argc, argv);
 
     std::string factory;
-    if (tcpMode == 1)
+    if (tcpMode)
     {
         factory = "ns3::TcpSocketFactory";
     }
@@ -141,4 +140,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(30.0));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

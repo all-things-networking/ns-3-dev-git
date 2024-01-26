@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 UPB
  * Copyright (c) 2017 NITK Surathkal
@@ -43,7 +42,7 @@ DhcpHeader::DhcpHeader()
     m_secs = 0;
     m_hops = 0;
     m_flags = 0;
-    Ipv4Address addr = Ipv4Address("0.0.0.0");
+    Ipv4Address addr("0.0.0.0");
     m_yiAddr = addr;
     m_ciAddr = addr;
     m_siAddr = addr;
@@ -76,7 +75,7 @@ DhcpHeader::~DhcpHeader()
 void
 DhcpHeader::SetType(uint8_t type)
 {
-    if (m_opt[OP_MSGTYPE] == false)
+    if (!m_opt[OP_MSGTYPE])
     {
         m_len += 3;
         m_opt[OP_MSGTYPE] = true;
@@ -155,7 +154,7 @@ DhcpHeader::GetYiaddr() const
 void
 DhcpHeader::SetDhcps(Ipv4Address addr)
 {
-    if (m_opt[OP_SERVID] == false)
+    if (!m_opt[OP_SERVID])
     {
         m_len += 6;
         m_opt[OP_SERVID] = true;
@@ -172,7 +171,7 @@ DhcpHeader::GetDhcps() const
 void
 DhcpHeader::SetReq(Ipv4Address addr)
 {
-    if (m_opt[OP_ADDREQ] == false)
+    if (!m_opt[OP_ADDREQ])
     {
         m_len += 6;
         m_opt[OP_ADDREQ] = true;
@@ -189,7 +188,7 @@ DhcpHeader::GetReq() const
 void
 DhcpHeader::SetMask(uint32_t addr)
 {
-    if (m_opt[OP_MASK] == false)
+    if (!m_opt[OP_MASK])
     {
         m_len += 6;
         m_opt[OP_MASK] = true;
@@ -206,7 +205,7 @@ DhcpHeader::GetMask() const
 void
 DhcpHeader::SetRouter(Ipv4Address addr)
 {
-    if (m_opt[OP_ROUTE] == false)
+    if (!m_opt[OP_ROUTE])
     {
         m_len += 6;
         m_opt[OP_ROUTE] = true;
@@ -223,7 +222,7 @@ DhcpHeader::GetRouter() const
 void
 DhcpHeader::SetLease(uint32_t time)
 {
-    if (m_opt[OP_LEASE] == false)
+    if (!m_opt[OP_LEASE])
     {
         m_len += 6;
         m_opt[OP_LEASE] = true;
@@ -240,7 +239,7 @@ DhcpHeader::GetLease() const
 void
 DhcpHeader::SetRenew(uint32_t time)
 {
-    if (m_opt[OP_RENEW] == false)
+    if (!m_opt[OP_RENEW])
     {
         m_len += 6;
         m_opt[OP_RENEW] = true;
@@ -257,7 +256,7 @@ DhcpHeader::GetRenew() const
 void
 DhcpHeader::SetRebind(uint32_t time)
 {
-    if (m_opt[OP_REBIND] == false)
+    if (!m_opt[OP_REBIND])
     {
         m_len += 6;
         m_opt[OP_REBIND] = true;
@@ -339,7 +338,7 @@ DhcpHeader::Serialize(Buffer::Iterator start) const
     {
         i.WriteU8(OP_MSGTYPE);
         i.WriteU8(1);
-        i.WriteU8((m_op + 1));
+        i.WriteU8(m_op + 1);
     }
     if (m_opt[OP_ADDREQ])
     {
@@ -384,8 +383,8 @@ uint32_t
 DhcpHeader::Deserialize(Buffer::Iterator start)
 {
     uint32_t len;
-    uint32_t clen = start.GetSize();
-    if (clen < 240)
+    uint32_t cLen = start.GetSize();
+    if (cLen < 240)
     {
         NS_LOG_WARN("Malformed Packet");
         return 0;
@@ -417,7 +416,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
     bool loop = true;
     do
     {
-        if (len + 1 <= clen)
+        if (len + 1 <= cLen)
         {
             option = i.ReadU8();
             len += 1;
@@ -430,7 +429,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
         switch (option)
         {
         case OP_MASK:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 m_mask = i.ReadNtohU32();
@@ -443,7 +442,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_ROUTE:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 ReadFrom(i, m_route);
@@ -456,7 +455,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_MSGTYPE:
-            if (len + 2 < clen)
+            if (len + 2 < cLen)
             {
                 i.ReadU8();
                 m_op = (i.ReadU8() - 1);
@@ -469,7 +468,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_SERVID:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 ReadFrom(i, m_dhcps);
@@ -482,7 +481,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_ADDREQ:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 ReadFrom(i, m_req);
@@ -495,7 +494,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_LEASE:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 m_lease = i.ReadNtohU32();
@@ -508,7 +507,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_RENEW:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 m_renew = i.ReadNtohU32();
@@ -521,7 +520,7 @@ DhcpHeader::Deserialize(Buffer::Iterator start)
             }
             break;
         case OP_REBIND:
-            if (len + 5 < clen)
+            if (len + 5 < cLen)
             {
                 i.ReadU8();
                 m_rebind = i.ReadNtohU32();

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -22,10 +21,10 @@
 #ifndef LTE_CCM_RRC_SAP_H
 #define LTE_CCM_RRC_SAP_H
 
-#include <ns3/eps-bearer.h>
-#include <ns3/lte-enb-cmac-sap.h>
-#include <ns3/lte-mac-sap.h>
-#include <ns3/lte-rrc-sap.h>
+#include "eps-bearer.h"
+#include "lte-enb-cmac-sap.h"
+#include "lte-mac-sap.h"
+#include "lte-rrc-sap.h"
 
 #include <map>
 
@@ -106,7 +105,7 @@ class LteCcmRrcSapProvider
      * \param lcid the Logical Channel id
      * \param lcGroup the Logical Channel group
      * \param msu a pointer to the LteMacSapUser, the LteEnbComponentCarrierManager
-     *             has to store a LteMacSapUser for each Rlc istance, in order to
+     *             has to store a LteMacSapUser for each Rlc instance, in order to
      *             properly redirect the packet
      * \return vector of LcsConfig contains the lc configuration for each Mac
      *                the size of the vector is equal to the number of component
@@ -137,7 +136,7 @@ class LteCcmRrcSapProvider
     /**
      * \brief Add the Signal Bearer for a specific Ue in LteEnbComponenCarrierManager
      * \param lcInfo this structure it is hard-coded in the LteEnbRrc
-     * \param rlcMacSapUser it is the MacSapUser of the Rlc istance
+     * \param rlcMacSapUser it is the MacSapUser of the Rlc instance
      * \return the LteMacSapUser of the ComponentCarrierManager
      *
      */

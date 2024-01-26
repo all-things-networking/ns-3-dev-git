@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -19,10 +18,12 @@
  *
  */
 
+#include "mobility-building-info.h"
+
+#include "building-list.h"
+
 #include <ns3/assert.h>
-#include <ns3/building-list.h>
 #include <ns3/log.h>
-#include <ns3/mobility-building-info.h>
 #include <ns3/pointer.h>
 #include <ns3/position-allocator.h>
 #include <ns3/simulator.h>
@@ -138,28 +139,28 @@ uint8_t
 MobilityBuildingInfo::GetFloorNumber()
 {
     NS_LOG_FUNCTION(this);
-    return (m_nFloor);
+    return m_nFloor;
 }
 
 uint8_t
 MobilityBuildingInfo::GetRoomNumberX()
 {
     NS_LOG_FUNCTION(this);
-    return (m_roomX);
+    return m_roomX;
 }
 
 uint8_t
 MobilityBuildingInfo::GetRoomNumberY()
 {
     NS_LOG_FUNCTION(this);
-    return (m_roomY);
+    return m_roomY;
 }
 
 Ptr<Building>
 MobilityBuildingInfo::GetBuilding()
 {
     NS_LOG_FUNCTION(this);
-    return (m_myBuilding);
+    return m_myBuilding;
 }
 
 void
@@ -167,7 +168,7 @@ MobilityBuildingInfo::MakeConsistent(Ptr<MobilityModel> mm)
 {
     bool found = false;
     Vector pos = mm->GetPosition();
-    for (BuildingList::Iterator bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
+    for (auto bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
     {
         NS_LOG_LOGIC("checking building " << (*bit)->GetId() << " with boundaries "
                                           << (*bit)->GetBoundaries());

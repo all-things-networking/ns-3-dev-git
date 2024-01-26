@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -112,11 +111,13 @@ class PeerManagementProtocol : public Object
     /**
      * Deliver Peer link management information to the protocol-part
      * \param interface is a interface ID of a given MAC (interfaceID rather than MAC address,
-     * because many interfaces may have the same MAC) \param peerAddress is address of peer \param
-     * peerMeshPointAddress is address of peer mesh point device (equal to peer address when only
-     * one interface) \param aid is association ID, which peer has assigned to us \param
-     * peerManagementElement is peer link management element \param meshConfig is mesh configuration
-     * element taken from the peer management frame
+     * because many interfaces may have the same MAC)
+     * \param peerAddress is address of peer
+     * \param peerMeshPointAddress is address of peer mesh point device (equal to peer address when
+     * only one interface)
+     * \param aid is association ID, which peer has assigned to us
+     * \param peerManagementElement is peer link management element
+     * \param meshConfig is mesh configuration element taken from the peer management frame
      */
     void ReceivePeerLinkFrame(uint32_t interface,
                               Mac48Address peerAddress,
@@ -155,8 +156,8 @@ class PeerManagementProtocol : public Object
     /// \name Interface to other protocols (MLME)
     ///@{
     /**
-     *  Set peer link status change callback
-     *  \param cb the callback
+     * Set peer link status change callback
+     * \param cb the callback
      */
     void SetPeerLinkStatusCallback(Callback<void, Mac48Address, Mac48Address, uint32_t, bool> cb);
     /**
@@ -188,7 +189,7 @@ class PeerManagementProtocol : public Object
      * Get number of links
      * \returns the number of links
      */
-    uint8_t GetNumberOfLinks();
+    uint8_t GetNumberOfLinks() const;
     /**
      * Set mesh ID to a string value
      * \param s the mesh ID string value
@@ -284,7 +285,7 @@ class PeerManagementProtocol : public Object
      * \param peerAddress the peer address
      * \returns true is should send an open
      */
-    bool ShouldSendOpen(uint32_t interface, Mac48Address peerAddress);
+    bool ShouldSendOpen(uint32_t interface, Mac48Address peerAddress) const;
     /**
      * \brief External peer-chooser
      * \param interface the interface to use
@@ -292,18 +293,20 @@ class PeerManagementProtocol : public Object
      * \param reasonCode reason code
      * \returns true is should send an open
      */
-    bool ShouldAcceptOpen(uint32_t interface, Mac48Address peerAddress, PmpReasonCode& reasonCode);
+    bool ShouldAcceptOpen(uint32_t interface,
+                          Mac48Address peerAddress,
+                          PmpReasonCode& reasonCode) const;
     /**
      * \brief Indicates changes in peer links
      * \param interface the interface
      * \param peerAddress the peer address
-     * \param peerMeshPointAddres the peer mesh point address
+     * \param peerMeshPointAddress the peer mesh point address
      * \param ostate old state
      * \param nstate new state
      */
     void PeerLinkStatus(uint32_t interface,
                         Mac48Address peerAddress,
-                        Mac48Address peerMeshPointAddres,
+                        Mac48Address peerMeshPointAddress,
                         PeerLink::PeerState ostate,
                         PeerLink::PeerState nstate);
     /**
@@ -408,7 +411,8 @@ class PeerManagementProtocol : public Object
          */
         void Print(std::ostream& os) const;
     };
-    struct Statistics m_stats; ///< statistics
+
+    Statistics m_stats; ///< statistics
 
     /// Add randomness to beacon shift
     Ptr<UniformRandomVariable> m_beaconShift;

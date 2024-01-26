@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2008 Louis Pasteur University
  *
@@ -21,7 +20,6 @@
 #ifndef IPV6_HEADER_H
 #define IPV6_HEADER_H
 
-#include "ns3/deprecated.h"
 #include "ns3/header.h"
 #include "ns3/ipv6-address.h"
 
@@ -90,7 +88,7 @@ class Ipv6Header : public Header
         IPV6_EXT_ROUTING = 43,
         IPV6_EXT_FRAGMENTATION = 44,
         IPV6_EXT_CONFIDENTIALITY = 50,
-        IPV6_EXT_AUTHENTIFICATION = 51,
+        IPV6_EXT_AUTHENTICATION = 51,
         IPV6_ICMPV6 = 58,
         IPV6_EXT_END = 59,
         IPV6_EXT_DESTINATION = 60,
@@ -230,26 +228,10 @@ class Ipv6Header : public Header
     void SetSource(Ipv6Address src);
 
     /**
-     * \brief Set the "Source address" field.
-     * \deprecated Use SetSource () function instead (same functionality)
-     * \param src the source address
-     */
-    NS_DEPRECATED_3_35
-    void SetSourceAddress(Ipv6Address src);
-
-    /**
      * \brief Get the "Source address" field.
      * \return the source address
      */
     Ipv6Address GetSource() const;
-
-    /**
-     * \brief Get the "Source address" field.
-     * \deprecated Use GetSource () function instead (same functionality)
-     * \return the source address
-     */
-    NS_DEPRECATED_3_35
-    Ipv6Address GetSourceAddress() const;
 
     /**
      * \brief Set the "Destination address" field.
@@ -258,26 +240,10 @@ class Ipv6Header : public Header
     void SetDestination(Ipv6Address dst);
 
     /**
-     * \brief Set the "Destination address" field.
-     * \deprecated Use SetDestination () function instead (same functionality)
-     * \param dst the destination address
-     */
-    NS_DEPRECATED_3_35
-    void SetDestinationAddress(Ipv6Address dst);
-
-    /**
      * \brief Get the "Destination address" field.
      * \return the destination address
      */
     Ipv6Address GetDestination() const;
-
-    /**
-     * \brief Get the "Destination address" field.
-     * \deprecated Use GetDestination () function instead (same functionality)
-     * \return the destination address
-     */
-    NS_DEPRECATED_3_35
-    Ipv6Address GetDestinationAddress() const;
 
     /**
      * \brief Print some information about the packet.

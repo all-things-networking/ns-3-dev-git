@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 University of Washington
  *
@@ -19,7 +18,7 @@
 #ifndef DROPTAIL_H
 #define DROPTAIL_H
 
-#include "ns3/queue.h"
+#include "queue.h"
 
 namespace ns3
 {

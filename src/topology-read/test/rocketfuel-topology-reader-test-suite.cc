@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
@@ -34,8 +33,9 @@
 using namespace ns3;
 
 /**
- * \ingroup topology
  * \defgroup topology-test Topology module tests
+ * \ingroup topology
+ * \ingroup tests
  */
 
 /**
@@ -46,7 +46,6 @@ using namespace ns3;
 
 /**
  * \ingroup topology-test
- * \ingroup tests
 
  * \brief Rocketfuel Topology Reader Weights Test
  */
@@ -91,8 +90,6 @@ RocketfuelTopologyReaderWeightsTest::DoRun()
 
 /**
  * \ingroup topology-test
- * \ingroup tests
-
  * \brief Rocketfuel Topology Reader Maps Test
  */
 class RocketfuelTopologyReaderMapsTest : public TestCase
@@ -136,7 +133,6 @@ RocketfuelTopologyReaderMapsTest::DoRun()
 
 /**
  * \ingroup topology-test
- * \ingroup tests
  *
  * \brief Rocketfuel Topology Reader TestSuite
  */
@@ -155,5 +151,8 @@ RocketfuelTopologyReaderTestSuite::RocketfuelTopologyReaderTestSuite()
     AddTestCase(new RocketfuelTopologyReaderMapsTest(), TestCase::QUICK);
 }
 
-static RocketfuelTopologyReaderTestSuite
-    g_rocketfuelTopologyReaderTestSuite; //!< Static variable for test initialization
+/**
+ * \ingroup topology-test
+ * Static variable for test initialization
+ */
+static RocketfuelTopologyReaderTestSuite g_rocketfuelTopologyReaderTestSuite;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 NITK Surathkal
  *
@@ -256,7 +255,7 @@ main(int argc, char* argv[])
                                       interfaces01.GetAddress(1),
                                       routingStream);
         // Trace routing tables
-        nixRouting.PrintRoutingTableAllAt(Seconds(8), routingStream);
+        Ipv4NixVectorHelper::PrintRoutingTableAllAt(Seconds(8), routingStream);
     }
     else
     {
@@ -303,7 +302,7 @@ main(int argc, char* argv[])
                                       interfaces01.GetAddress(1, 1),
                                       routingStream);
         // Trace routing tables
-        nixRouting.PrintRoutingTableAllAt(Seconds(8), routingStream);
+        Ipv6NixVectorHelper::PrintRoutingTableAllAt(Seconds(8), routingStream);
     }
 
     UdpEchoServerHelper echoServer(9);

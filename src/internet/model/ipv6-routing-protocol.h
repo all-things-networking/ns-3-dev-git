@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -133,10 +132,10 @@ class Ipv6RoutingProtocol : public Object
     virtual bool RouteInput(Ptr<const Packet> p,
                             const Ipv6Header& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb) = 0;
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb) = 0;
 
     /**
      * \brief Notify when specified interface goes UP.
@@ -172,9 +171,9 @@ class Ipv6RoutingProtocol : public Object
      *
      * Protocols are expected to implement this method to be notified whenever
      * a new address is removed from an interface. Typically used to remove the 'network route' of
-     * an interface. Can be invoked on an up or down interface. \param interface the index of the
-     * interface we are being notified about \param address a new address being added to an
-     * interface
+     * an interface. Can be invoked on an up or down interface.
+     * \param interface the index of the interface we are being notified about
+     * \param address a new address being added to an interface
      */
     virtual void NotifyRemoveAddress(uint32_t interface, Ipv6InterfaceAddress address) = 0;
 

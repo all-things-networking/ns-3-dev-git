@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,7 +20,7 @@
 #ifndef LTE_VENDOR_SPECIFIC_PARAMETERS
 #define LTE_VENDOR_SPECIFIC_PARAMETERS
 
-#include <ns3/ff-mac-common.h>
+#include "ff-mac-common.h"
 
 #define SRS_CQI_RNTI_VSP 1
 
@@ -47,7 +46,7 @@ class SrsCqiRntiVsp : public VendorSpecificValue
      *
      * \returns the RNTI
      */
-    uint16_t GetRnti();
+    uint16_t GetRnti() const;
 
   private:
     uint16_t m_rnti; ///< the rnti

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -15,7 +14,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Author: Manuel Requena <manuel.requena@cttc.es> : Based on lte-ue-phy code
+ * Author: Manuel Requena <manuel.requena@cttc.es>
+ * (Based on lte-ue-phy code)
  */
 
 #ifndef LTE_TEST_UE_PHY_H
@@ -29,7 +29,6 @@ namespace ns3
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Defines a simplified LtePhy class that is used for testing purposes
  * of downlink and uplink SINR generation. Used in LteDownlinkDataSinrTestCase

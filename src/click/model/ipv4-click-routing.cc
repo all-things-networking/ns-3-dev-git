@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Lalith Suresh
  *
@@ -18,18 +17,18 @@
  * Authors: Lalith Suresh <suresh.lalith@gmail.com>
  */
 
-#ifdef NS3_CLICK
-
 #include "ipv4-click-routing.h"
 
+#include "ipv4-l3-click-protocol.h"
+
 #include "ns3/ipv4-interface.h"
-#include "ns3/ipv4-l3-click-protocol.h"
 #include "ns3/log.h"
 #include "ns3/mac48-address.h"
 #include "ns3/node.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
 
+#include <click/simclick.h>
 #include <cstdarg>
 #include <cstdlib>
 #include <map>
@@ -50,7 +49,7 @@ NS_OBJECT_ENSURE_REGISTERED(Ipv4ClickRouting);
 std::map<simclick_node_t*, Ptr<Ipv4ClickRouting>> Ipv4ClickRouting::m_clickInstanceFromSimNode;
 
 TypeId
-Ipv4ClickRouting::GetTypeId(void)
+Ipv4ClickRouting::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::Ipv4ClickRouting")
                             .SetParent<Ipv4RoutingProtocol>()
@@ -62,7 +61,7 @@ Ipv4ClickRouting::GetTypeId(void)
 
 Ipv4ClickRouting::Ipv4ClickRouting()
     : m_nonDefaultName(false),
-      m_ipv4(0)
+      m_ipv4(nullptr)
 {
     m_random = CreateObject<UniformRandomVariable>();
     m_simNode = new simclick_node_t;
@@ -87,7 +86,7 @@ Ipv4ClickRouting::DoInitialize()
         m_nodeName = name.str();
     }
 
-    NS_ASSERT(m_clickFile.length() > 0);
+    NS_ASSERT(!m_clickFile.empty());
 
     // Even though simclick_click_create() will halt programme execution
     // if it is unable to initialise a Click router, we play safe
@@ -113,7 +112,7 @@ Ipv4ClickRouting::SetIpv4(Ptr<Ipv4> ipv4)
 }
 
 Ptr<UniformRandomVariable>
-Ipv4ClickRouting::GetRandomVariable(void)
+Ipv4ClickRouting::GetRandomVariable()
 {
     return m_random;
 }
@@ -125,7 +124,7 @@ Ipv4ClickRouting::DoDispose()
     {
         simclick_click_kill(m_simNode);
     }
-    m_ipv4 = 0;
+    m_ipv4 = nullptr;
     delete m_simNode;
     Ipv4RoutingProtocol::DoDispose();
 }
@@ -143,7 +142,7 @@ Ipv4ClickRouting::SetDefines(std::map<std::string, std::string> defines)
 }
 
 std::map<std::string, std::string>
-Ipv4ClickRouting::GetDefines(void)
+Ipv4ClickRouting::GetDefines()
 {
     return m_defines;
 }
@@ -227,14 +226,7 @@ Ipv4ClickRouting::GetInterfaceId(const char* ifname)
 bool
 Ipv4ClickRouting::IsInterfaceReady(int ifid)
 {
-    if (ifid >= 0 && ifid < (int)m_ipv4->GetNInterfaces())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ifid >= 0 && ifid < static_cast<int>(m_ipv4->GetNInterfaces());
 }
 
 std::string
@@ -285,19 +277,21 @@ Ipv4ClickRouting::GetTimevalFromNow() const
     struct timeval curtime;
     uint64_t remainder = 0;
 
-    curtime.tv_sec = Simulator::Now().GetSeconds();
-    curtime.tv_usec = Simulator::Now().GetMicroSeconds() % 1000000;
+    Time now = Simulator::Now();
 
-    switch (Simulator::Now().GetResolution())
+    curtime.tv_sec = now.GetSeconds();
+    curtime.tv_usec = now.GetMicroSeconds() % 1000000;
+
+    switch (Time::GetResolution())
     {
     case Time::NS:
-        remainder = Simulator::Now().GetNanoSeconds() % 1000;
+        remainder = now.GetNanoSeconds() % 1000;
         break;
     case Time::PS:
-        remainder = Simulator::Now().GetPicoSeconds() % 1000000;
+        remainder = now.GetPicoSeconds() % 1000000;
         break;
     case Time::FS:
-        remainder = Simulator::Now().GetFemtoSeconds() % 1000000000;
+        remainder = now.GetFemtoSeconds() % 1000000000;
         break;
     default:
         break;
@@ -402,7 +396,7 @@ Ipv4ClickRouting::Send(Ptr<Packet> p, Ipv4Address src, Ipv4Address dst)
     }
 
     int len = p->GetSize();
-    uint8_t* buf = new uint8_t[len];
+    auto buf = new uint8_t[len];
     p->CopyData(buf, len);
 
     // ... and send the packet on the corresponding Click interface.
@@ -430,7 +424,7 @@ Ipv4ClickRouting::Receive(Ptr<Packet> p, Mac48Address receiverAddr, Mac48Address
     }
 
     int len = p->GetSize();
-    uint8_t* buf = new uint8_t[len];
+    auto buf = new uint8_t[len];
     p->CopyData(buf, len);
 
     // ... and send the packet to the corresponding Click interface
@@ -442,8 +436,11 @@ Ipv4ClickRouting::Receive(Ptr<Packet> p, Mac48Address receiverAddr, Mac48Address
 std::string
 Ipv4ClickRouting::ReadHandler(std::string elementName, std::string handlerName)
 {
-    char* handle =
-        simclick_click_read_handler(m_simNode, elementName.c_str(), handlerName.c_str(), 0, 0);
+    char* handle = simclick_click_read_handler(m_simNode,
+                                               elementName.c_str(),
+                                               handlerName.c_str(),
+                                               nullptr,
+                                               nullptr);
     std::string ret(handle);
 
     // This is required because Click does not free
@@ -498,7 +495,7 @@ Ipv4ClickRouting::RouteOutput(Ptr<Packet> p,
     std::string s = ReadHandler(m_clickRoutingTableElement, addr.str());
     NS_LOG_DEBUG("string from click routing table: " << s);
 
-    size_t pos = s.find(" ");
+    size_t pos = s.find(' ');
     Ipv4Address destination;
     int interfaceId;
     if (pos == std::string::npos)
@@ -560,10 +557,10 @@ bool
 Ipv4ClickRouting::RouteInput(Ptr<const Packet> p,
                              const Ipv4Header& header,
                              Ptr<const NetDevice> idev,
-                             UnicastForwardCallback ucb,
-                             MulticastForwardCallback mcb,
-                             LocalDeliverCallback lcb,
-                             ErrorCallback ecb)
+                             const UnicastForwardCallback& ucb,
+                             const MulticastForwardCallback& mcb,
+                             const LocalDeliverCallback& lcb,
+                             const ErrorCallback& ecb)
 {
     NS_FATAL_ERROR("Click router does not have a RouteInput() interface!");
     return false;
@@ -631,7 +628,7 @@ simclick_sim_send(simclick_node_t* simnode,
                                                 << ifid << " " << type << " " << data << " "
                                                 << len);
 
-    if (simnode == NULL)
+    if (!simnode)
     {
         return -1;
     }
@@ -815,12 +812,12 @@ simclick_sim_command(simclick_node_t* simnode, int cmd, ...)
         // Try to fill the buffer with up to size bytes.
         // If this is not enough space, write the required buffer size into
         // the size variable and return an error code.
-        // Otherwise return the bytes actually writte into the buffer in size.
+        // Otherwise return the bytes actually written into the buffer in size.
 
         // Append key/value pair, separated by \0.
         std::map<std::string, std::string> defines = clickInstance->GetDefines();
-        std::map<std::string, std::string>::const_iterator it = defines.begin();
-        while (it != defines.end())
+
+        for (auto it = defines.begin(); it != defines.end(); it++)
         {
             size_t available = *size - required;
             if (it->first.length() + it->second.length() + 2 <= available)
@@ -835,7 +832,6 @@ simclick_sim_command(simclick_node_t* simnode, int cmd, ...)
             {
                 required += it->first.length() + it->second.length() + 2;
             }
-            it++;
         }
         if (required > *size)
         {
@@ -852,5 +848,3 @@ simclick_sim_command(simclick_node_t* simnode, int cmd, ...)
     va_end(val);
     return retval;
 }
-
-#endif // NS3_CLICK

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018
  *
@@ -98,24 +97,13 @@ class HeRu
          */
         bool GetPrimary80MHz() const;
         /**
-         * Set the RU PHY index
+         * Get the RU PHY index
          *
          * \param bw the width of the channel of which the RU is part (in MHz)
          * \param p20Index the index of the primary20 channel
-         */
-        void SetPhyIndex(uint16_t bw, uint8_t p20Index);
-        /**
-         * Return true if the RU PHY index has been set, false otherwise
-         *
-         * \return true if the RU PHY index has been set, false otherwise
-         */
-        bool IsPhyIndexSet() const;
-        /**
-         * Get the RU PHY index
-         *
          * \return the RU PHY index
          */
-        std::size_t GetPhyIndex() const;
+        std::size_t GetPhyIndex(uint16_t bw, uint8_t p20Index) const;
 
         /**
          * Compare this RU to the given RU.
@@ -131,16 +119,47 @@ class HeRu
          * \return true if this RU differs from the given RU, false otherwise
          */
         bool operator!=(const RuSpec& other) const;
+        /**
+         * Compare this RU to the given RU.
+         *
+         * \param other the given RU
+         * \return true if this RU is smaller than the given RU, false otherwise
+         */
+        bool operator<(const RuSpec& other) const;
 
       private:
-        RuType m_ruType;        //!< RU type
-        std::size_t m_index;    /**< RU index (starting at 1) as defined by Tables 27-7
-                                     to 27-9 of 802.11ax D8.0 */
-        bool m_primary80MHz;    //!< true if the RU is allocated in the primary 80MHz channel
-        std::size_t m_phyIndex; /**< the RU PHY index, which is used to indicate whether an
-                                     RU is located in the lower half or the higher half of
-                                     a 160MHz channel. For channel widths less than 160MHz,
-                                     the RU PHY index equals the RU index */
+        RuType m_ruType;     //!< RU type
+        std::size_t m_index; /**< RU index (starting at 1) as defined by Tables 27-7
+                                  to 27-9 of 802.11ax D8.0 */
+        bool m_primary80MHz; //!< true if the RU is allocated in the primary 80MHz channel
+    };
+
+    /**
+     * Struct providing a function call operator to compare two RUs.
+     */
+    struct RuSpecCompare
+    {
+        /**
+         * Constructor.
+         *
+         * \param channelWidth the channel width in MHz
+         * \param p20Index the index of the primary20 channel
+         */
+        RuSpecCompare(uint16_t channelWidth, uint8_t p20Index);
+        /**
+         * Function call operator.
+         *
+         * \param lhs left hand side RU
+         * \param rhs right hand side RU
+         * \return true if the left hand side RU has its leftmost tone at a lower
+         *         frequency than the leftmost tone of the right hand side RU,
+         *         false otherwise
+         */
+        bool operator()(const RuSpec& lhs, const RuSpec& rhs) const;
+
+      private:
+        uint16_t m_channelWidth; ///< The channel width in MHz
+        uint8_t m_p20Index;      ///< Primary20 channel index
     };
 
     /**
@@ -209,9 +228,13 @@ class HeRu
      * \param bw the bandwidth (MHz) of the HE PPDU (20, 40, 80, 160)
      * \param ru the given RU allocation
      * \param toneRanges the given set of tone ranges
+     * \param p20Index the index of the primary20 channel
      * \return true if the given RU overlaps with the given set of tone ranges.
      */
-    static bool DoesOverlap(uint16_t bw, RuSpec ru, const SubcarrierGroup& toneRanges);
+    static bool DoesOverlap(uint16_t bw,
+                            RuSpec ru,
+                            const SubcarrierGroup& toneRanges,
+                            uint8_t p20Index);
 
     /**
      * Find the RU allocation of the given RU type overlapping the given

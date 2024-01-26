@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Universita' di Firenze, Italy
  *
@@ -22,6 +21,7 @@
 #include "orbis-topology-reader.h"
 
 #include "ns3/log.h"
+#include "ns3/names.h"
 #include "ns3/node-container.h"
 
 #include <cstdlib>
@@ -65,7 +65,7 @@ NodeContainer
 OrbisTopologyReader::Read()
 {
     std::ifstream topgen;
-    topgen.open(GetFileName().c_str());
+    topgen.open(GetFileName());
     std::map<std::string, Ptr<Node>> nodeMap;
     NodeContainer nodes;
 
@@ -100,6 +100,8 @@ OrbisTopologyReader::Read()
             if (!nodeMap[from])
             {
                 Ptr<Node> tmpNode = CreateObject<Node>();
+                std::string nodename = "OrbisTopology/NodeName/" + from;
+                Names::Add(nodename, tmpNode);
                 nodeMap[from] = tmpNode;
                 nodes.Add(tmpNode);
                 nodesNumber++;
@@ -108,6 +110,8 @@ OrbisTopologyReader::Read()
             if (!nodeMap[to])
             {
                 Ptr<Node> tmpNode = CreateObject<Node>();
+                std::string nodename = "OrbisTopology/NodeName/" + to;
+                Names::Add(nodename, tmpNode);
                 nodeMap[to] = tmpNode;
                 nodes.Add(tmpNode);
                 nodesNumber++;

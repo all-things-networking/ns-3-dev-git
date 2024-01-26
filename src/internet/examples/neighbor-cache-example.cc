@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 ZHIHENG DONG
  *
@@ -22,7 +21,7 @@
  * This example shows how to generate neighbor caches on the scope of
  * a channel, a NetDeviceContainer, an InterfaceContainer and globally.
  * The example also shows a scenario that auto-generated neighbor caches
- * can avoid droping packets because of ARP message or Neighbor Discover
+ * can avoid dropping packets because of ARP message or Neighbor Discover
  * message.
  * If the user runs the example without any command line option, NeighborCacheHelper
  * will generate neighbor cache for all devices and the output is their
@@ -284,14 +283,13 @@
 #include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/network-module.h"
-#include "ns3/point-to-point-module.h"
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("NeighborCacheExample");
 
 /**
- * Neigbor Cache example class.
+ * neighbor Cache example class.
  *
  * It handles the creation and run of an example.
  */
@@ -410,6 +408,14 @@ NeighborCacheExample::Run()
     csmaDevicesRight = csmaRight.Install(csmaNodesRight);
 
     InternetStackHelper stack;
+    if (!m_useIpv6)
+    {
+        stack.SetIpv6StackInstall(false);
+    }
+    else
+    {
+        stack.SetIpv4StackInstall(false);
+    }
     // disabled Ipv4ArpJitter and Ipv6NsRsJitter to avoid the influence on packet dropped
     stack.SetIpv4ArpJitter(false);
     stack.SetIpv6NsRsJitter(false);

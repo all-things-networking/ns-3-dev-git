@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
@@ -22,7 +21,7 @@
 #ifndef TCP_OPTION_WINSCALE_H
 #define TCP_OPTION_WINSCALE_H
 
-#include "ns3/tcp-option.h"
+#include "tcp-option.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -21,11 +20,11 @@
 #ifndef UAN_TRANSDUCER_H
 #define UAN_TRANSDUCER_H
 
+#include "uan-prop-model.h"
 #include "uan-tx-mode.h"
 
 #include "ns3/object.h"
 #include "ns3/packet.h"
-#include "ns3/uan-prop-model.h"
 
 #include <list>
 

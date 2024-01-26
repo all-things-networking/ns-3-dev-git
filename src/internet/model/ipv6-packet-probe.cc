@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Bucknell University
  *
@@ -22,7 +21,7 @@
  * Adapted to Ipv6 by: Tommaso Pecorella (tommaso.pecorella@unifi.it)
  */
 
-#include "ns3/ipv6-packet-probe.h"
+#include "ipv6-packet-probe.h"
 
 #include "ns3/config.h"
 #include "ns3/log.h"

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *               2009,2010 Contributors
@@ -77,7 +76,6 @@ AreVectorsEqual(const Vector& actual, const Vector& limit, double tol)
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Every test case is supposed to:
  *  1. Generate short mobility trace file
@@ -116,11 +114,11 @@ class Ns2MobilityHelperTest : public TestCase
         /**
          * Less-than operator - used to sort by timestamp
          * \param o object to compare to
-         * \returns true if the timestamp of the 1nd operand is less than the other one's
+         * \returns true if the timestamp of the 1st operand is less than the other one's
          */
         bool operator<(const ReferencePoint& o) const
         {
-            return (time < o.time);
+            return time < o.time;
         }
     };
 
@@ -146,7 +144,7 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Set NS-2 trace to read as single large string (don't forget to add \\n and quote \"'s)
-     *  \param trace the mobility trace
+     * \param trace the mobility trace
      */
     void SetTrace(const std::string& trace)
     {
@@ -196,7 +194,7 @@ class Ns2MobilityHelperTest : public TestCase
     bool WriteTrace()
     {
         m_traceFile = CreateTempDirFilename("Ns2MobilityHelperTest.tcl");
-        std::ofstream of(m_traceFile.c_str());
+        std::ofstream of(m_traceFile);
         NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(of.is_open(), true, "Need to write tmp. file");
         of << m_trace;
         of.close();
@@ -204,7 +202,7 @@ class Ns2MobilityHelperTest : public TestCase
     }
 
     /// Create and name nodes
-    void CreateNodes()
+    void CreateNodes() const
     {
         NodeContainer nodes;
         nodes.Create(m_nodeCount);
@@ -323,7 +321,6 @@ class Ns2MobilityHelperTest : public TestCase
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief The test suite
  */
@@ -511,7 +508,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 3, Vector(0, -1, 0), Vector(0, 0, 0));
         AddTestCase(t, TestCase::QUICK);
 
-        // Sqare setdest with values in the form 1.0e+2
+        // Square setdest with values in the form 1.0e+2
         t = new Ns2MobilityHelperTest("Foalt numbers in 1.0e+2 format", Seconds(6));
         t->SetTrace("$node_(0) set X_ 0.0\n"
                     "$node_(0) set Y_ 0.0\n"

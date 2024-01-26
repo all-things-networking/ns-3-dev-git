@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 INRIA
  *
@@ -226,7 +225,7 @@ int64x64_t::Invert(const uint64_t v)
     a <<= 64;
     int64x64_t result;
     result._v = Udiv(a, v);
-    int64x64_t tmp = int64x64_t(v, false);
+    int64x64_t tmp(v, 0);
     tmp.MulByInvert(result);
     if (tmp.GetHigh() != 1)
     {

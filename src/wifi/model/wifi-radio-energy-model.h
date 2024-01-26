@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
@@ -171,7 +170,7 @@ class WifiRadioEnergyModel : public DeviceEnergyModel
     ~WifiRadioEnergyModel() override;
 
     /**
-     * \brief Sets pointer to EnergySouce installed on node.
+     * \brief Sets pointer to EnergySource installed on node.
      *
      * \param source Pointer to EnergySource installed on node.
      *
@@ -332,7 +331,7 @@ class WifiRadioEnergyModel : public DeviceEnergyModel
     /**
      * \returns Pointer to the PHY listener.
      */
-    WifiRadioEnergyModelPhyListener* GetPhyListener();
+    std::shared_ptr<WifiRadioEnergyModelPhyListener> GetPhyListener();
 
   private:
     void DoDispose() override;
@@ -385,7 +384,7 @@ class WifiRadioEnergyModel : public DeviceEnergyModel
     WifiRadioEnergyRechargedCallback m_energyRechargedCallback;
 
     /// WifiPhy listener
-    WifiRadioEnergyModelPhyListener* m_listener;
+    std::shared_ptr<WifiRadioEnergyModelPhyListener> m_listener;
 
     EventId m_switchToOffEvent; ///< switch to off event
 };

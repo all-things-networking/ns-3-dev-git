@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -23,11 +22,12 @@
 #ifndef BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 #define BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 
+#include "building.h"
+#include "mobility-building-info.h"
+
 #include "ns3/nstime.h"
 #include "ns3/propagation-loss-model.h"
 #include "ns3/random-variable-stream.h"
-#include <ns3/building.h>
-#include <ns3/mobility-building-info.h>
 
 namespace ns3
 {

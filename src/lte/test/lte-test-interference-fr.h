@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -16,9 +15,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Author: Piotr Gawlowicz <gawlowicz.p@gmail.com>
- * Based on lte-test-interference.{h,cc} by Manuel Requena <manuel.requena@cttc.es>
- *                                          Nicola Baldo <nbaldo@cttc.es>
- *
+ * Based on lte-test-interference.{h,cc} by:
+ *   Manuel Requena <manuel.requena@cttc.es>
+ *   Nicola Baldo <nbaldo@cttc.es>
  */
 
 #ifndef LTE_TEST_INTERFERENCE_FR_H
@@ -30,7 +29,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for the interference test when using different
  * frequency reuse algorithms.Check if the interfence values correspond to
@@ -44,7 +42,6 @@ class LteInterferenceFrTestSuite : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte interference test when using hard frequency reuse algorithm. Check
  * if the interfence values correspond to theoretical values.
@@ -57,7 +54,7 @@ class LteInterferenceHardFrTestCase : public TestCase
      *
      * \param name the reference name
      * \param d1 distance between ENB and UE
-     * \param d2 distnace between ENB and other UE
+     * \param d2 distance between ENB and other UE
      * \param dlSinr the DL SINR
      * \param ulSinr the UL SINR
      */
@@ -78,7 +75,6 @@ class LteInterferenceHardFrTestCase : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte interference test when using strict frequency reuse algorithm.
  */
@@ -90,7 +86,7 @@ class LteInterferenceStrictFrTestCase : public TestCase
      *
      * \param name the reference name
      * \param d1 distance between ENB and UE
-     * \param d2 distnace between ENB and other UE
+     * \param d2 distance between ENB and other UE
      * \param commonDlSinr the DL SINR
      * \param commonUlSinr the UL SINR
      * \param edgeDlSinr the DL SINR

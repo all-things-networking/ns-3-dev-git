@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -20,7 +19,8 @@
  */
 
 #include "ns3/dsss-phy.h"
-#include "ns3/eht-phy.h" //includes OFDM, HT, VHT and HE
+#include "ns3/eht-phy.h"  //includes OFDM, HT, VHT and HE
+#include "ns3/eht-ppdu.h" //includes OFDM, HT, VHT and HE
 #include "ns3/erp-ofdm-phy.h"
 #include "ns3/he-ru.h"
 #include "ns3/log.h"
@@ -30,11 +30,12 @@
 #include "ns3/wifi-psdu.h"
 #include "ns3/yans-wifi-phy.h"
 
+#include <list>
 #include <numeric>
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE("InterferenceHelperTxDurationTest");
+NS_LOG_COMPONENT_DEFINE("TxDurationTest");
 
 /**
  * \ingroup wifi-test
@@ -153,7 +154,7 @@ TxDurationTest::CheckPayloadDuration(uint32_t size,
     txVector.SetChannelWidth(channelWidth);
     txVector.SetGuardInterval(guardInterval);
     txVector.SetNss(1);
-    txVector.SetStbc(0);
+    txVector.SetStbc(false);
     txVector.SetNess(0);
     std::list<WifiPhyBand> testedBands;
     Ptr<YansWifiPhy> phy = CreateObject<YansWifiPhy>();
@@ -205,7 +206,7 @@ TxDurationTest::CheckTxDuration(uint32_t size,
     txVector.SetChannelWidth(channelWidth);
     txVector.SetGuardInterval(guardInterval);
     txVector.SetNss(1);
-    txVector.SetStbc(0);
+    txVector.SetStbc(false);
     txVector.SetNess(0);
     std::list<WifiPhyBand> testedBands;
     Ptr<YansWifiPhy> phy = CreateObject<YansWifiPhy>();
@@ -273,8 +274,12 @@ TxDurationTest::CheckMuTxDuration(std::list<uint32_t> sizes,
     txVector.SetPreambleType(preamble);
     txVector.SetChannelWidth(channelWidth);
     txVector.SetGuardInterval(guardInterval);
-    txVector.SetStbc(0);
+    txVector.SetStbc(false);
     txVector.SetNess(0);
+    if (IsEht(preamble))
+    {
+        txVector.SetEhtPpduType(0);
+    }
     std::list<uint16_t> staIds;
 
     uint16_t staId = 1;
@@ -284,7 +289,7 @@ TxDurationTest::CheckMuTxDuration(std::list<uint32_t> sizes,
         staIds.push_back(staId++);
     }
     txVector.SetSigBMode(VhtPhy::GetVhtMcs0());
-    txVector.SetRuAllocation({192, 192});
+    txVector.SetRuAllocation({192, 192}, 0);
 
     Ptr<YansWifiPhy> phy = CreateObject<YansWifiPhy>();
     std::list<WifiPhyBand> testedBands{
@@ -300,7 +305,7 @@ TxDurationTest::CheckMuTxDuration(std::list<uint32_t> sizes,
                 MicroSeconds(6); // 2.4 GHz band should be at the end of the bands to test
         }
         Time calculatedDuration = NanoSeconds(0);
-        uint32_t longuestSize = 0;
+        uint32_t longestSize = 0;
         auto iterStaId = staIds.begin();
         for (auto& size : sizes)
         {
@@ -310,7 +315,7 @@ TxDurationTest::CheckMuTxDuration(std::list<uint32_t> sizes,
             {
                 calculatedDuration = ppduDurationForSta;
                 staId = *iterStaId;
-                longuestSize = size;
+                longestSize = size;
             }
             ++iterStaId;
         }
@@ -319,7 +324,7 @@ TxDurationTest::CheckMuTxDuration(std::list<uint32_t> sizes,
         if (calculatedDuration != knownDuration ||
             calculatedDuration != calculatedDurationUsingList)
         {
-            std::cerr << "size=" << longuestSize << " band=" << testedBand << " staId=" << staId
+            std::cerr << "size=" << longestSize << " band=" << testedBand << " staId=" << staId
                       << " nss=" << +txVector.GetNss(staId) << " mode=" << txVector.GetMode(staId)
                       << " channelWidth=" << channelWidth << " guardInterval=" << guardInterval
                       << " datarate="
@@ -586,7 +591,8 @@ TxDurationTest::DoRun()
                              WIFI_PREAMBLE_LONG,
                              MicroSeconds(8208 + 192));
 
-    // values from http://mailman.isi.edu/pipermail/ns-developers/2009-July/006226.html
+    // values from
+    // https://web.archive.org/web/20100711002639/http://mailman.isi.edu/pipermail/ns-developers/2009-July/006226.html
     retval = retval && CheckTxDuration(14,
                                        DsssPhy::GetDsssRate1Mbps(),
                                        22,
@@ -1237,59 +1243,53 @@ TxDurationTest::DoRun()
     retval = retval &&
              CheckMuTxDuration(
                  std::list<uint32_t>{1536, 1536},
-                 std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, HePhy::GetHeMcs0(), 1},
-                                         {{HeRu::RU_242_TONE, 2, true}, HePhy::GetHeMcs0(), 1}},
+                 std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 0, 1},
+                                         {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
                  40,
                  800,
                  WIFI_PREAMBLE_HE_MU,
                  NanoSeconds(
                      1493600)) // equivalent to HE_SU for 20 MHz with 2 extra HE-SIG-B (i.e. 8 us)
-             && CheckMuTxDuration(
-                    std::list<uint32_t>{1536, 1536},
-                    std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, HePhy::GetHeMcs1(), 1},
-                                            {{HeRu::RU_242_TONE, 2, true}, HePhy::GetHeMcs0(), 1}},
-                    40,
-                    800,
-                    WIFI_PREAMBLE_HE_MU,
-                    NanoSeconds(1493600)) // shouldn't change if first PSDU is shorter
-             && CheckMuTxDuration(
-                    std::list<uint32_t>{1536, 76},
-                    std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, HePhy::GetHeMcs0(), 1},
-                                            {{HeRu::RU_242_TONE, 2, true}, HePhy::GetHeMcs0(), 1}},
-                    40,
-                    800,
-                    WIFI_PREAMBLE_HE_MU,
-                    NanoSeconds(1493600));
+             && CheckMuTxDuration(std::list<uint32_t>{1536, 1536},
+                                  std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 1, 1},
+                                                          {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
+                                  40,
+                                  800,
+                                  WIFI_PREAMBLE_HE_MU,
+                                  NanoSeconds(1493600)) // shouldn't change if first PSDU is shorter
+             && CheckMuTxDuration(std::list<uint32_t>{1536, 76},
+                                  std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 0, 1},
+                                                          {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
+                                  40,
+                                  800,
+                                  WIFI_PREAMBLE_HE_MU,
+                                  NanoSeconds(1493600));
 
     NS_TEST_EXPECT_MSG_EQ(retval, true, "an 802.11ax MU duration failed");
 
     // 802.11be MU durations
-    retval =
-        retval &&
-        CheckMuTxDuration(
-            std::list<uint32_t>{1536, 1536},
-            std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, EhtPhy::GetEhtMcs0(), 1},
-                                    {{HeRu::RU_242_TONE, 2, true}, EhtPhy::GetEhtMcs0(), 1}},
-            40,
-            800,
-            WIFI_PREAMBLE_EHT_MU,
-            NanoSeconds(1493600)) // equivalent to 802.11ax MU
-        && CheckMuTxDuration(
-               std::list<uint32_t>{1536, 1536},
-               std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, EhtPhy::GetEhtMcs1(), 1},
-                                       {{HeRu::RU_242_TONE, 2, true}, EhtPhy::GetEhtMcs0(), 1}},
-               40,
-               800,
-               WIFI_PREAMBLE_EHT_MU,
-               NanoSeconds(1493600)) // shouldn't change if first PSDU is shorter
-        && CheckMuTxDuration(
-               std::list<uint32_t>{1536, 76},
-               std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, EhtPhy::GetEhtMcs0(), 1},
-                                       {{HeRu::RU_242_TONE, 2, true}, EhtPhy::GetEhtMcs0(), 1}},
-               40,
-               800,
-               WIFI_PREAMBLE_EHT_MU,
-               NanoSeconds(1493600));
+    retval = retval &&
+             CheckMuTxDuration(std::list<uint32_t>{1536, 1536},
+                               std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 0, 1},
+                                                       {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
+                               40,
+                               800,
+                               WIFI_PREAMBLE_EHT_MU,
+                               NanoSeconds(1493600)) // equivalent to 802.11ax MU
+             && CheckMuTxDuration(std::list<uint32_t>{1536, 1536},
+                                  std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 1, 1},
+                                                          {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
+                                  40,
+                                  800,
+                                  WIFI_PREAMBLE_EHT_MU,
+                                  NanoSeconds(1493600)) // shouldn't change if first PSDU is shorter
+             && CheckMuTxDuration(std::list<uint32_t>{1536, 76},
+                                  std::list<HeMuUserInfo>{{{HeRu::RU_242_TONE, 1, true}, 0, 1},
+                                                          {{HeRu::RU_242_TONE, 2, true}, 0, 1}},
+                                  40,
+                                  800,
+                                  WIFI_PREAMBLE_EHT_MU,
+                                  NanoSeconds(1493600));
 
     NS_TEST_EXPECT_MSG_EQ(retval, true, "an 802.11be MU duration failed");
 
@@ -1305,47 +1305,91 @@ TxDurationTest::DoRun()
 class HeSigBDurationTest : public TestCase
 {
   public:
-    HeSigBDurationTest();
-    ~HeSigBDurationTest() override;
-    void DoRun() override;
+    /**
+     * OFDMA or MU-MIMO
+     */
+    enum MuType
+    {
+        OFDMA = 0,
+        MU_MIMO
+    };
+
+    /**
+     * Constructor
+     *
+     * \param userInfos the HE MU specific per-user information to use for the test
+     * \param sigBMode the mode to transmit HE-SIG-B for the test
+     * \param channelWidth the channel width in MHz to select for the test
+     * \param expectedMuType the expected MU type (OFDMA or MU-MIMO)
+     * \param expectedRuAllocation the expected RU_ALLOCATION
+     * \param expectedNumUsersPerCc the expected number of users per content channel
+     * \param expectedSigBDuration the expected duration of the HE-SIG-B header
+     */
+    HeSigBDurationTest(const std::list<HeMuUserInfo>& userInfos,
+                       const WifiMode& sigBMode,
+                       uint16_t channelWidth,
+                       MuType expectedMuType,
+                       const RuAllocation& expectedRuAllocation,
+                       const std::pair<std::size_t, std::size_t>& expectedNumUsersPerCc,
+                       Time expectedSigBDuration);
 
   private:
+    void DoRun() override;
+
     /**
-     * Build a TXVECTOR for HE MU with the given bandwith and user informations.
-     *
-     * \param bw the channel width of the PPDU in MHz
-     * \param userInfos the list of HE MU specific user transmission parameters
+     * Build a TXVECTOR for HE MU.
      *
      * \return the configured HE MU TXVECTOR
      */
-    static WifiTxVector BuildTxVector(uint16_t bw, std::list<HeMuUserInfo> userInfos);
+    WifiTxVector BuildTxVector() const;
+
+    std::list<HeMuUserInfo> m_userInfos; ///< HE MU specific per-user information
+    WifiMode m_sigBMode;                 ///< Mode used to transmit HE-SIG-B
+    uint16_t m_channelWidth;             ///< Channel width in MHz
+    MuType m_expectedMuType;             ///< Expected MU type (OFDMA or MU-MIMO)
+    RuAllocation m_expectedRuAllocation; ///< Expected RU_ALLOCATION
+    std::pair<std::size_t, std::size_t>
+        m_expectedNumUsersPerCc; ///< Expected number of users per content channel
+    Time m_expectedSigBDuration; ///< Expected duration of the HE-SIG-B header
 };
 
-HeSigBDurationTest::HeSigBDurationTest()
-    : TestCase("Check HE-SIG-B duration computation")
-{
-}
-
-HeSigBDurationTest::~HeSigBDurationTest()
+HeSigBDurationTest::HeSigBDurationTest(
+    const std::list<HeMuUserInfo>& userInfos,
+    const WifiMode& sigBMode,
+    uint16_t channelWidth,
+    MuType expectedMuType,
+    const RuAllocation& expectedRuAllocation,
+    const std::pair<std::size_t, std::size_t>& expectedNumUsersPerCc,
+    Time expectedSigBDuration)
+    : TestCase{"Check HE-SIG-B duration computation"},
+      m_userInfos{userInfos},
+      m_sigBMode{sigBMode},
+      m_channelWidth{channelWidth},
+      m_expectedMuType{expectedMuType},
+      m_expectedRuAllocation{expectedRuAllocation},
+      m_expectedNumUsersPerCc{expectedNumUsersPerCc},
+      m_expectedSigBDuration{expectedSigBDuration}
 {
 }
 
 WifiTxVector
-HeSigBDurationTest::BuildTxVector(uint16_t bw, std::list<HeMuUserInfo> userInfos)
+HeSigBDurationTest::BuildTxVector() const
 {
     WifiTxVector txVector;
     txVector.SetPreambleType(WIFI_PREAMBLE_HE_MU);
-    txVector.SetChannelWidth(bw);
+    txVector.SetChannelWidth(m_channelWidth);
     txVector.SetGuardInterval(3200);
-    txVector.SetStbc(0);
+    txVector.SetStbc(false);
     txVector.SetNess(0);
     std::list<uint16_t> staIds;
     uint16_t staId = 1;
-    for (const auto& userInfo : userInfos)
+    for (const auto& userInfo : m_userInfos)
     {
         txVector.SetHeMuUserInfo(staId, userInfo);
         staIds.push_back(staId++);
     }
+    txVector.SetSigBMode(m_sigBMode);
+    NS_ASSERT(m_expectedMuType == OFDMA ? txVector.IsDlOfdma() : txVector.IsDlMuMimo());
     return txVector;
 }
 
@@ -1353,107 +1397,42 @@ void
 HeSigBDurationTest::DoRun()
 {
     const auto& hePhy = WifiPhy::GetStaticPhyEntity(WIFI_MOD_CLASS_HE);
+    const auto& txVector = BuildTxVector();
 
-    // 20 MHz band
-    std::list<HeMuUserInfo> userInfos;
-    userInfos.push_back({{HeRu::RU_106_TONE, 1, true}, HePhy::GetHeMcs11(), 1});
-    userInfos.push_back({{HeRu::RU_106_TONE, 2, true}, HePhy::GetHeMcs10(), 4});
-    WifiTxVector txVector = BuildTxVector(20, userInfos);
-    txVector.SetSigBMode(VhtPhy::GetVhtMcs5());
-    txVector.SetRuAllocation({96});
+    // Verify mode for HE-SIG-B field
     NS_TEST_EXPECT_MSG_EQ(hePhy->GetSigMode(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          VhtPhy::GetVhtMcs5(),
-                          "HE-SIG-B should be sent at MCS 5");
-    std::pair<std::size_t, std::size_t> numUsersPerCc = txVector.GetNumRusPerHeSigBContentChannel();
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.first,
-                          2,
-                          "Both users should be on HE-SIG-B content channel 1");
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.second,
-                          0,
-                          "Both users should be on HE-SIG-B content channel 2");
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetDuration(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          MicroSeconds(4),
-                          "HE-SIG-B should only last one OFDM symbol");
+                          m_sigBMode,
+                          "Incorrect mode used to send HE-SIG-B");
 
-    // 40 MHz band, even number of users per HE-SIG-B content channel
-    userInfos.push_back({{HeRu::RU_52_TONE, 5, true}, HePhy::GetHeMcs4(), 1});
-    userInfos.push_back({{HeRu::RU_52_TONE, 6, true}, HePhy::GetHeMcs6(), 2});
-    userInfos.push_back({{HeRu::RU_52_TONE, 7, true}, HePhy::GetHeMcs5(), 3});
-    userInfos.push_back({{HeRu::RU_52_TONE, 8, true}, HePhy::GetHeMcs6(), 2});
-    txVector = BuildTxVector(40, userInfos);
-    txVector.SetSigBMode(VhtPhy::GetVhtMcs4());
-    txVector.SetRuAllocation({96, 112});
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetSigMode(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          VhtPhy::GetVhtMcs4(),
-                          "HE-SIG-B should be sent at MCS 4");
-    numUsersPerCc = txVector.GetNumRusPerHeSigBContentChannel();
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.first,
-                          2,
-                          "Two users should be on HE-SIG-B content channel 1");
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.second,
-                          4,
-                          "Four users should be on HE-SIG-B content channel 2");
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetDuration(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          MicroSeconds(4),
-                          "HE-SIG-B should only last one OFDM symbol");
+    // Verify RU_ALLOCATION in TXVECTOR
+    NS_TEST_EXPECT_MSG_EQ((txVector.GetRuAllocation(0) == m_expectedRuAllocation),
+                          true,
+                          "Incorrect RU_ALLOCATION");
 
-    // 40 MHz band, odd number of users per HE-SIG-B content channel
-    userInfos.push_back({{HeRu::RU_26_TONE, 14, true}, HePhy::GetHeMcs3(), 1});
-    txVector = BuildTxVector(40, userInfos);
-    txVector.SetSigBMode(VhtPhy::GetVhtMcs3());
-    txVector.SetRuAllocation({96, 15});
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetSigMode(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          VhtPhy::GetVhtMcs3(),
-                          "HE-SIG-B should be sent at MCS 3");
-    numUsersPerCc = txVector.GetNumRusPerHeSigBContentChannel();
+    // Verify number of users for content channels 1 and 2
+    const auto& numUsersPerCc = HePpdu::GetNumRusPerHeSigBContentChannel(
+        txVector.GetChannelWidth(),
+        txVector.GetRuAllocation(0),
+        txVector.IsSigBCompression(),
+        txVector.IsSigBCompression() ? txVector.GetHeMuUserInfoMap().size() : 0);
+    const auto contentChannels = HePpdu::GetHeSigBContentChannels(txVector, 0);
     NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.first,
-                          2,
-                          "Two users should be on HE-SIG-B content channel 1");
+                          m_expectedNumUsersPerCc.first,
+                          "Incorrect number of users in HE-SIG-B content channel 1");
     NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.second,
-                          5,
-                          "Five users should be on HE-SIG-B content channel 2");
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetDuration(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          MicroSeconds(8),
-                          "HE-SIG-B should last two OFDM symbols");
+                          m_expectedNumUsersPerCc.second,
+                          "Incorrect number of users in HE-SIG-B content channel 2");
+    NS_TEST_EXPECT_MSG_EQ(contentChannels.at(0).size(),
+                          m_expectedNumUsersPerCc.first,
+                          "Incorrect number of users in HE-SIG-B content channel 1");
+    NS_TEST_EXPECT_MSG_EQ((contentChannels.size() > 1 ? contentChannels.at(1).size() : 0),
+                          m_expectedNumUsersPerCc.second,
+                          "Incorrect number of users in HE-SIG-B content channel 2");
 
-    // 80 MHz band
-    userInfos.push_back({{HeRu::RU_242_TONE, 3, true}, HePhy::GetHeMcs1(), 1});
-    userInfos.push_back({{HeRu::RU_242_TONE, 4, true}, HePhy::GetHeMcs4(), 1});
-    txVector = BuildTxVector(80, userInfos);
-    txVector.SetSigBMode(VhtPhy::GetVhtMcs1());
-    txVector.SetRuAllocation({96, 15, 192, 192});
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetSigMode(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          VhtPhy::GetVhtMcs1(),
-                          "HE-SIG-B should be sent at MCS 1");
-    numUsersPerCc = txVector.GetNumRusPerHeSigBContentChannel();
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.first,
-                          3,
-                          "Three users should be on HE-SIG-B content channel 1");
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.second,
-                          6,
-                          "Six users should be on HE-SIG-B content channel 2");
+    // Verify total HE-SIG-B duration
     NS_TEST_EXPECT_MSG_EQ(hePhy->GetDuration(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          MicroSeconds(16),
-                          "HE-SIG-B should last four OFDM symbols");
-
-    // 160 MHz band
-    userInfos.push_back({{HeRu::RU_996_TONE, 1, false}, HePhy::GetHeMcs1(), 1});
-    txVector = BuildTxVector(160, userInfos);
-    txVector.SetSigBMode(VhtPhy::GetVhtMcs1());
-    txVector.SetRuAllocation({96, 15, 192, 192, 208, 208, 208, 208});
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetSigMode(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          VhtPhy::GetVhtMcs1(),
-                          "HE-SIG-B should be sent at MCS 1");
-    numUsersPerCc = txVector.GetNumRusPerHeSigBContentChannel();
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.first,
-                          4,
-                          "Four users should be on HE-SIG-B content channel 1");
-    NS_TEST_EXPECT_MSG_EQ(numUsersPerCc.second,
-                          7,
-                          "Seven users should be on HE-SIG-B content channel 2");
-    NS_TEST_EXPECT_MSG_EQ(hePhy->GetDuration(WIFI_PPDU_FIELD_SIG_B, txVector),
-                          MicroSeconds(20),
-                          "HE-SIG-B should last five OFDM symbols");
+                          m_expectedSigBDuration,
+                          "Incorrect duration for HE-SIG-B");
 }
 
 /**
@@ -1551,9 +1530,11 @@ PhyHeaderSectionsTest::DoRun()
     // -> long PPDU format
     txVector.SetPreambleType(WIFI_PREAMBLE_LONG);
     nonHtMode = DsssPhy::GetDsssRate1Mbps();
-    sections = {{WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(144)}, nonHtMode}},
-                {WIFI_PPDU_FIELD_NON_HT_HEADER,
-                 {{ppduStart + MicroSeconds(144), ppduStart + MicroSeconds(192)}, nonHtMode}}};
+    sections = {
+        {WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(144)}, nonHtMode}},
+        {WIFI_PPDU_FIELD_NON_HT_HEADER,
+         {{ppduStart + MicroSeconds(144), ppduStart + MicroSeconds(192)}, nonHtMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // -> long PPDU format if data rate is 1 Mbps (even if preamble is tagged short)
@@ -1564,9 +1545,11 @@ PhyHeaderSectionsTest::DoRun()
     txVector.SetMode(DsssPhy::GetDsssRate11Mbps());
     nonHtMode = DsssPhy::GetDsssRate2Mbps();
     txVector.SetPreambleType(WIFI_PREAMBLE_SHORT);
-    sections = {{WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(72)}, nonHtMode}},
-                {WIFI_PPDU_FIELD_NON_HT_HEADER,
-                 {{ppduStart + MicroSeconds(72), ppduStart + MicroSeconds(96)}, nonHtMode}}};
+    sections = {
+        {WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(72)}, nonHtMode}},
+        {WIFI_PPDU_FIELD_NON_HT_HEADER,
+         {{ppduStart + MicroSeconds(72), ppduStart + MicroSeconds(96)}, nonHtMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // ==================================================================================
@@ -1578,7 +1561,8 @@ PhyHeaderSectionsTest::DoRun()
         // number to use to deduce rate and BW info for each variant
         {OFDM_PHY_DEFAULT, 1},
         {OFDM_PHY_10_MHZ, 2},
-        {OFDM_PHY_5_MHZ, 4}};
+        {OFDM_PHY_5_MHZ, 4},
+    };
     for (auto variant : variants)
     {
         phyEntity = Create<OfdmPhy>(variant.first);
@@ -1587,11 +1571,13 @@ PhyHeaderSectionsTest::DoRun()
         txVector.SetChannelWidth(bw);
         txVector.SetMode(OfdmPhy::GetOfdmRate(12000000 / ratio, bw));
         nonHtMode = OfdmPhy::GetOfdmRate(6000000 / ratio, bw);
-        sections = {{WIFI_PPDU_FIELD_PREAMBLE,
-                     {{ppduStart, ppduStart + MicroSeconds(16 * ratio)}, nonHtMode}},
-                    {WIFI_PPDU_FIELD_NON_HT_HEADER,
-                     {{ppduStart + MicroSeconds(16 * ratio), ppduStart + MicroSeconds(20 * ratio)},
-                      nonHtMode}}};
+        sections = {
+            {WIFI_PPDU_FIELD_PREAMBLE,
+             {{ppduStart, ppduStart + MicroSeconds(16 * ratio)}, nonHtMode}},
+            {WIFI_PPDU_FIELD_NON_HT_HEADER,
+             {{ppduStart + MicroSeconds(16 * ratio), ppduStart + MicroSeconds(20 * ratio)},
+              nonHtMode}},
+        };
         CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
     }
 
@@ -1601,9 +1587,11 @@ PhyHeaderSectionsTest::DoRun()
     txVector.SetChannelWidth(20);
     txVector.SetMode(ErpOfdmPhy::GetErpOfdmRate(54000000));
     nonHtMode = ErpOfdmPhy::GetErpOfdmRate6Mbps();
-    sections = {{WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(16)}, nonHtMode}},
-                {WIFI_PPDU_FIELD_NON_HT_HEADER,
-                 {{ppduStart + MicroSeconds(16), ppduStart + MicroSeconds(20)}, nonHtMode}}};
+    sections = {
+        {WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(16)}, nonHtMode}},
+        {WIFI_PPDU_FIELD_NON_HT_HEADER,
+         {{ppduStart + MicroSeconds(16), ppduStart + MicroSeconds(20)}, nonHtMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // ==================================================================================
@@ -1626,7 +1614,8 @@ PhyHeaderSectionsTest::DoRun()
          {{ppduStart + MicroSeconds(20), ppduStart + MicroSeconds(28)}, htSigMode}},
         {WIFI_PPDU_FIELD_TRAINING,
          {{ppduStart + MicroSeconds(28), ppduStart + MicroSeconds(40)}, // 1 HT-STF + 2 HT-LTFs
-          htSigMode}}};
+          htSigMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
     txVector.SetChannelWidth(20); // shouldn't have any impact
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
@@ -1660,7 +1649,8 @@ PhyHeaderSectionsTest::DoRun()
          {{ppduStart + MicroSeconds(20), ppduStart + MicroSeconds(28)}, sigAMode}},
         {WIFI_PPDU_FIELD_TRAINING,
          {{ppduStart + MicroSeconds(28), ppduStart + MicroSeconds(56)}, // 1 VHT-STF + 6 VHT-LTFs
-          sigAMode}}};
+          sigAMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // -> VHT SU format for 7 SS
@@ -1689,24 +1679,25 @@ PhyHeaderSectionsTest::DoRun()
     txVector.SetNss(2); // HE-LTF duration assumed to be always 8 us for the time being (see note in
                         // HePhy::GetTrainingDuration)
     txVector.SetMode(HePhy::GetHeMcs9());
-    std::map<uint16_t, HeMuUserInfo> userInfoMap = {
-        {1, {{HeRu::RU_106_TONE, 1, true}, HePhy::GetHeMcs4(), 2}},
-        {2, {{HeRu::RU_106_TONE, 1, true}, HePhy::GetHeMcs9(), 1}}};
+    std::map<uint16_t, HeMuUserInfo> userInfoMap = {{1, {{HeRu::RU_106_TONE, 1, true}, 4, 2}},
+                                                    {2, {{HeRu::RU_106_TONE, 1, true}, 9, 1}}};
     sigAMode = HePhy::GetVhtMcs0();
     sigBMode = HePhy::GetVhtMcs4(); // because of first user info map
 
     // -> HE SU format
     txVector.SetPreambleType(WIFI_PREAMBLE_HE_SU);
-    sections = {{WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(16)}, nonHtMode}},
-                {WIFI_PPDU_FIELD_NON_HT_HEADER,
-                 {{ppduStart + MicroSeconds(16), ppduStart + MicroSeconds(24)}, // L-SIG + RL-SIG
-                  nonHtMode}},
-                {WIFI_PPDU_FIELD_SIG_A,
-                 {{ppduStart + MicroSeconds(24), ppduStart + MicroSeconds(32)}, sigAMode}},
-                {WIFI_PPDU_FIELD_TRAINING,
-                 {{ppduStart + MicroSeconds(32),
-                   ppduStart + MicroSeconds(52)}, // 1 HE-STF (@ 4 us) + 2 HE-LTFs (@ 8 us)
-                  sigAMode}}};
+    sections = {
+        {WIFI_PPDU_FIELD_PREAMBLE, {{ppduStart, ppduStart + MicroSeconds(16)}, nonHtMode}},
+        {WIFI_PPDU_FIELD_NON_HT_HEADER,
+         {{ppduStart + MicroSeconds(16), ppduStart + MicroSeconds(24)}, // L-SIG + RL-SIG
+          nonHtMode}},
+        {WIFI_PPDU_FIELD_SIG_A,
+         {{ppduStart + MicroSeconds(24), ppduStart + MicroSeconds(32)}, sigAMode}},
+        {WIFI_PPDU_FIELD_TRAINING,
+         {{ppduStart + MicroSeconds(32),
+           ppduStart + MicroSeconds(52)}, // 1 HE-STF (@ 4 us) + 2 HE-LTFs (@ 8 us)
+          sigAMode}},
+    };
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // -> HE ER SU format
@@ -1735,7 +1726,7 @@ PhyHeaderSectionsTest::DoRun()
     // -> HE MU format
     txVector.SetPreambleType(WIFI_PREAMBLE_HE_MU);
     txVector.SetSigBMode(sigBMode);
-    txVector.SetRuAllocation({96});
+    txVector.SetRuAllocation({96}, 0);
     sections[WIFI_PPDU_FIELD_SIG_A] = {{ppduStart + MicroSeconds(24), ppduStart + MicroSeconds(32)},
                                        sigAMode};
     sections[WIFI_PPDU_FIELD_SIG_B] = {
@@ -1747,21 +1738,21 @@ PhyHeaderSectionsTest::DoRun()
         sigBMode};
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
     txVector.SetChannelWidth(160); // shouldn't have any impact
-    txVector.SetRuAllocation({96, 113, 113, 113, 113, 113, 113, 113});
+    txVector.SetRuAllocation({96, 113, 113, 113, 113, 113, 113, 113}, 0);
 
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 
     // ==================================================================================
     // 11be (EHT)
-    sections.erase(WIFI_PPDU_FIELD_SIG_A); // FIXME: do we keep using seperate type for 11be?
-    sections.erase(WIFI_PPDU_FIELD_SIG_B); // FIXME: do we keep using seperate type for 11be?
+    sections.erase(WIFI_PPDU_FIELD_SIG_A); // FIXME: do we keep using separate type for 11be?
+    sections.erase(WIFI_PPDU_FIELD_SIG_B); // FIXME: do we keep using separate type for 11be?
     phyEntity = Create<EhtPhy>();
     txVector.SetChannelWidth(20);
     txVector.SetNss(2); // EHT-LTF duration assumed to be always 8 us for the time being (see note
                         // in HePhy::GetTrainingDuration)
     txVector.SetMode(EhtPhy::GetEhtMcs9());
-    userInfoMap = {{1, {{HeRu::RU_106_TONE, 1, true}, EhtPhy::GetEhtMcs4(), 2}},
-                   {2, {{HeRu::RU_106_TONE, 1, true}, EhtPhy::GetEhtMcs9(), 1}}};
+    userInfoMap = {{1, {{HeRu::RU_106_TONE, 1, true}, 4, 2}},
+                   {2, {{HeRu::RU_106_TONE, 1, true}, 9, 1}}};
     WifiMode uSigMode = EhtPhy::GetVhtMcs0();
     WifiMode ehtSigMode = EhtPhy::GetVhtMcs4(); // because of first user info map
 
@@ -1779,7 +1770,8 @@ PhyHeaderSectionsTest::DoRun()
 
     // -> EHT MU format
     txVector.SetPreambleType(WIFI_PREAMBLE_EHT_MU);
-    txVector.SetRuAllocation({96});
+    txVector.SetEhtPpduType(0); // EHT MU transmission
+    txVector.SetRuAllocation({96}, 0);
     sections[WIFI_PPDU_FIELD_U_SIG] = {{ppduStart + MicroSeconds(24), ppduStart + MicroSeconds(32)},
                                        uSigMode};
     sections[WIFI_PPDU_FIELD_EHT_SIG] = {
@@ -1791,7 +1783,7 @@ PhyHeaderSectionsTest::DoRun()
         ehtSigMode};
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
     txVector.SetChannelWidth(160); // shouldn't have any impact
-    txVector.SetRuAllocation({96, 113, 113, 113, 113, 113, 113, 113});
+    txVector.SetRuAllocation({96, 113, 113, 113, 113, 113, 113, 113}, 0);
 
     CheckPhyHeaderSections(phyEntity->GetPhyHeaderSections(txVector, ppduStart), sections);
 }
@@ -1811,9 +1803,437 @@ class TxDurationTestSuite : public TestSuite
 TxDurationTestSuite::TxDurationTestSuite()
     : TestSuite("wifi-devices-tx-duration", UNIT)
 {
-    AddTestCase(new HeSigBDurationTest, TestCase::QUICK);
     AddTestCase(new TxDurationTest, TestCase::QUICK);
+
     AddTestCase(new PhyHeaderSectionsTest, TestCase::QUICK);
+
+    // 20 MHz band, HeSigBDurationTest::OFDMA, even number of users per HE-SIG-B content channel
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_106_TONE, 1, true}, 11, 1}, {{HeRu::RU_106_TONE, 2, true}, 10, 4}},
+                    VhtPhy::GetVhtMcs5(),
+                    20,
+                    HeSigBDurationTest::OFDMA,
+                    {96},
+                    std::make_pair(2, 0), // both users in HE-SIG-B content channel 1
+                    MicroSeconds(4)),     // one OFDM symbol;
+                TestCase::QUICK);
+
+    // 40 MHz band, HeSigBDurationTest::OFDMA, even number of users per HE-SIG-B content channel
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_106_TONE, 1, true}, 11, 1},
+                                {{HeRu::RU_106_TONE, 2, true}, 10, 4},
+                                {{HeRu::RU_52_TONE, 5, true}, 4, 1},
+                                {{HeRu::RU_52_TONE, 6, true}, 6, 2},
+                                {{HeRu::RU_52_TONE, 7, true}, 5, 3},
+                                {{HeRu::RU_52_TONE, 8, true}, 6, 2}},
+                               VhtPhy::GetVhtMcs4(),
+                               40,
+                               HeSigBDurationTest::OFDMA,
+                               {96, 112},
+                               std::make_pair(2, 4), // two users in HE-SIG-B content channel 1 and
+                                                     // four users in HE-SIG-B content channel 2
+                               MicroSeconds(4)),     // one OFDM symbol;
+        TestCase::QUICK);
+
+    // 40 MHz band, HeSigBDurationTest::OFDMA, odd number of users per HE-SIG-B content channel
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_106_TONE, 1, true}, 11, 1},
+                                {{HeRu::RU_106_TONE, 2, true}, 10, 4},
+                                {{HeRu::RU_52_TONE, 5, true}, 4, 1},
+                                {{HeRu::RU_52_TONE, 6, true}, 6, 2},
+                                {{HeRu::RU_52_TONE, 7, true}, 5, 3},
+                                {{HeRu::RU_52_TONE, 8, true}, 6, 2},
+                                {{HeRu::RU_26_TONE, 14, true}, 3, 1}},
+                               VhtPhy::GetVhtMcs3(),
+                               40,
+                               HeSigBDurationTest::OFDMA,
+                               {96, 15},
+                               std::make_pair(2, 5), // two users in HE-SIG-B content channel 1 and
+                                                     // five users in HE-SIG-B content channel 2
+                               MicroSeconds(8)),     // two OFDM symbols
+        TestCase::QUICK);
+
+    // 80 MHz band, OFDMA
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_106_TONE, 1, true}, 11, 1},
+                                {{HeRu::RU_106_TONE, 2, true}, 10, 4},
+                                {{HeRu::RU_52_TONE, 5, true}, 4, 1},
+                                {{HeRu::RU_52_TONE, 6, true}, 6, 2},
+                                {{HeRu::RU_52_TONE, 7, true}, 5, 3},
+                                {{HeRu::RU_52_TONE, 8, true}, 6, 2},
+                                {{HeRu::RU_26_TONE, 14, true}, 3, 1},
+                                {{HeRu::RU_242_TONE, 3, true}, 1, 1},
+                                {{HeRu::RU_242_TONE, 4, true}, 4, 1}},
+                               VhtPhy::GetVhtMcs1(),
+                               80,
+                               HeSigBDurationTest::OFDMA,
+                               {96, 15, 192, 192},
+                               std::make_pair(3, 6), // three users in HE-SIG-B content channel 1
+                                                     // and six users in HE-SIG-B content channel 2
+                               MicroSeconds(16)),    // four OFDM symbols
+        TestCase::QUICK);
+
+    // 160 MHz band, OFDMA
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_106_TONE, 1, true}, 11, 1},
+                                {{HeRu::RU_106_TONE, 2, true}, 10, 4},
+                                {{HeRu::RU_52_TONE, 5, true}, 4, 1},
+                                {{HeRu::RU_52_TONE, 6, true}, 6, 2},
+                                {{HeRu::RU_52_TONE, 7, true}, 5, 3},
+                                {{HeRu::RU_52_TONE, 8, true}, 6, 2},
+                                {{HeRu::RU_26_TONE, 14, true}, 3, 1},
+                                {{HeRu::RU_242_TONE, 3, true}, 1, 1},
+                                {{HeRu::RU_242_TONE, 4, true}, 4, 1},
+                                {{HeRu::RU_996_TONE, 1, false}, 1, 1}},
+                               VhtPhy::GetVhtMcs1(),
+                               160,
+                               HeSigBDurationTest::OFDMA,
+                               {96, 15, 192, 192, 208, 208, 208, 208},
+                               std::make_pair(4, 7), // four users in HE-SIG-B content channel 1 and
+                                                     // seven users in HE-SIG-B content channel 2
+                               MicroSeconds(20)),    // five OFDM symbols
+        TestCase::QUICK);
+
+    // 20 MHz band, HeSigBDurationTest::OFDMA, one unallocated RU at the middle
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_26_TONE, 1, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 2, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 3, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 4, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 6, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 7, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 8, true}, 11, 1},
+                                {{HeRu::RU_26_TONE, 9, true}, 11, 1}},
+                               VhtPhy::GetVhtMcs5(),
+                               20,
+                               HeSigBDurationTest::OFDMA,
+                               {0},
+                               std::make_pair(9, 0), // 9 users in HE-SIG-B content channel 1
+                               MicroSeconds(8)),     // two OFDM symbols
+        TestCase::QUICK);
+
+    // 40 MHz band, HeSigBDurationTest::OFDMA, unallocated RUs at the begin and at the end of the
+    // first 20 MHz subband and in the middle of the second 20 MHz subband
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_52_TONE, 2, true}, 10, 1},
+                                {{HeRu::RU_52_TONE, 3, true}, 10, 2},
+                                {{HeRu::RU_52_TONE, 5, true}, 11, 1},
+                                {{HeRu::RU_52_TONE, 8, true}, 11, 2}},
+                               VhtPhy::GetVhtMcs5(),
+                               40,
+                               HeSigBDurationTest::OFDMA,
+                               {112, 112},
+                               std::make_pair(4, 4), // 4 users in both HE-SIG-B content channels
+                               MicroSeconds(4)),     // two OFDM symbols
+        TestCase::QUICK);
+
+    // 40 MHz band, HeSigBDurationTest::OFDMA, one unallocated RUs in the first 20 MHz subband and
+    // two unallocated RUs in second 20 MHz subband
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_52_TONE, 1, true}, 10, 1},
+                                {{HeRu::RU_52_TONE, 2, true}, 10, 2},
+                                {{HeRu::RU_52_TONE, 3, true}, 11, 1},
+                                {{HeRu::RU_52_TONE, 5, true}, 11, 2},
+                                {{HeRu::RU_52_TONE, 6, true}, 11, 3}},
+                               VhtPhy::GetVhtMcs5(),
+                               40,
+                               HeSigBDurationTest::OFDMA,
+                               {112, 112},
+                               std::make_pair(4, 4), // 4 users in both HE-SIG-B content channels
+                               MicroSeconds(4)),     // two OFDM symbols
+        TestCase::QUICK);
+
+    // 20 MHz band, MU-MIMO, 2 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_242_TONE, 1, true}, 11, 1}, {{HeRu::RU_242_TONE, 1, true}, 10, 4}},
+                    VhtPhy::GetVhtMcs5(),
+                    20,
+                    HeSigBDurationTest::MU_MIMO,
+                    {192},
+                    std::make_pair(2, 0), // both users in HE-SIG-B content channel 1
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 20 MHz band, MU-MIMO, 3 users
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_242_TONE, 1, true}, 4, 3},
+                                {{HeRu::RU_242_TONE, 1, true}, 5, 2},
+                                {{HeRu::RU_242_TONE, 1, true}, 6, 1}},
+                               VhtPhy::GetVhtMcs4(),
+                               20,
+                               HeSigBDurationTest::MU_MIMO,
+                               {192},
+                               std::make_pair(3, 0), // all users in HE-SIG-B content channel 1
+                               MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 20 MHz band, MU-MIMO, 4 users
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_242_TONE, 1, true}, 4, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 5, 2},
+                                {{HeRu::RU_242_TONE, 1, true}, 6, 3},
+                                {{HeRu::RU_242_TONE, 1, true}, 7, 2}},
+                               VhtPhy::GetVhtMcs4(),
+                               20,
+                               HeSigBDurationTest::MU_MIMO,
+                               {192},
+                               std::make_pair(4, 0), // all users in HE-SIG-B content channel 1
+                               MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 20 MHz band, MU-MIMO, 6 users
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_242_TONE, 1, true}, 4, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 5, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 6, 2},
+                                {{HeRu::RU_242_TONE, 1, true}, 7, 2},
+                                {{HeRu::RU_242_TONE, 1, true}, 8, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 9, 1}},
+                               VhtPhy::GetVhtMcs4(),
+                               20,
+                               HeSigBDurationTest::MU_MIMO,
+                               {192},
+                               std::make_pair(6, 0), // all users in HE-SIG-B content channel 1
+                               MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 20 MHz band, MU-MIMO, 8 users
+    AddTestCase(
+        new HeSigBDurationTest({{{HeRu::RU_242_TONE, 1, true}, 4, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 5, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 6, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 7, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 8, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 9, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 10, 1},
+                                {{HeRu::RU_242_TONE, 1, true}, 11, 1}},
+                               VhtPhy::GetVhtMcs4(),
+                               20,
+                               HeSigBDurationTest::MU_MIMO,
+                               {192},
+                               std::make_pair(8, 0), // all users in HE-SIG-B content channel 1
+                               MicroSeconds(8)),     // two OFDM symbols
+        TestCase::QUICK);
+
+    // 40 MHz band, MU-MIMO, 2 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_484_TONE, 1, true}, 11, 1}, {{HeRu::RU_484_TONE, 1, true}, 10, 4}},
+                    VhtPhy::GetVhtMcs5(),
+                    40,
+                    HeSigBDurationTest::MU_MIMO,
+                    {200, 200},
+                    std::make_pair(1, 1), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 40 MHz band, MU-MIMO, 3 users
+    AddTestCase(
+        new HeSigBDurationTest(
+            {{{HeRu::RU_484_TONE, 1, true}, 4, 3},
+             {{HeRu::RU_484_TONE, 1, true}, 5, 2},
+             {{HeRu::RU_484_TONE, 1, true}, 6, 1}},
+            VhtPhy::GetVhtMcs4(),
+            40,
+            HeSigBDurationTest::MU_MIMO,
+            {200, 200},
+            std::make_pair(2, 1), // 2 users in content channel 1 and 1 user in content channel 2
+            MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 40 MHz band, MU-MIMO, 4 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_484_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 5, 2},
+                     {{HeRu::RU_484_TONE, 1, true}, 6, 3},
+                     {{HeRu::RU_484_TONE, 1, true}, 7, 2}},
+                    VhtPhy::GetVhtMcs4(),
+                    40,
+                    HeSigBDurationTest::MU_MIMO,
+                    {200, 200},
+                    std::make_pair(2, 2), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 40 MHz band, MU-MIMO, 6 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_484_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 6, 2},
+                     {{HeRu::RU_484_TONE, 1, true}, 7, 2},
+                     {{HeRu::RU_484_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 9, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    40,
+                    HeSigBDurationTest::MU_MIMO,
+                    {200, 200},
+                    std::make_pair(3, 3), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 40 MHz band, MU-MIMO, 8 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_484_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 6, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 7, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 9, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 10, 1},
+                     {{HeRu::RU_484_TONE, 1, true}, 11, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    40,
+                    HeSigBDurationTest::MU_MIMO,
+                    {200, 200},
+                    std::make_pair(4, 4), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 80 MHz band, MU-MIMO, 2 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_996_TONE, 1, true}, 11, 1}, {{HeRu::RU_996_TONE, 1, true}, 10, 4}},
+                    VhtPhy::GetVhtMcs5(),
+                    80,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208},
+                    std::make_pair(1, 1), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 80 MHz band, MU-MIMO, 3 users
+    AddTestCase(
+        new HeSigBDurationTest(
+            {{{HeRu::RU_996_TONE, 1, true}, 4, 3},
+             {{HeRu::RU_996_TONE, 1, true}, 5, 2},
+             {{HeRu::RU_996_TONE, 1, true}, 6, 1}},
+            VhtPhy::GetVhtMcs4(),
+            80,
+            HeSigBDurationTest::MU_MIMO,
+            {208, 208, 208, 208},
+            std::make_pair(2, 1), // 2 users in content channel 1 and 1 user in content channel 2
+            MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 80 MHz band, MU-MIMO, 4 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 5, 2},
+                     {{HeRu::RU_996_TONE, 1, true}, 6, 3},
+                     {{HeRu::RU_996_TONE, 1, true}, 7, 2}},
+                    VhtPhy::GetVhtMcs4(),
+                    80,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208},
+                    std::make_pair(2, 2), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 80 MHz band, MU-MIMO, 6 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 6, 2},
+                     {{HeRu::RU_996_TONE, 1, true}, 7, 2},
+                     {{HeRu::RU_996_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 9, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    80,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208},
+                    std::make_pair(3, 3), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 80 MHz band, MU-MIMO, 8 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 6, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 7, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 9, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 10, 1},
+                     {{HeRu::RU_996_TONE, 1, true}, 11, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    80,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208},
+                    std::make_pair(4, 4), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 160 MHz band, MU-MIMO, 2 users
+    AddTestCase(
+        new HeSigBDurationTest(
+            {{{HeRu::RU_2x996_TONE, 1, true}, 11, 1}, {{HeRu::RU_2x996_TONE, 1, true}, 10, 4}},
+            VhtPhy::GetVhtMcs5(),
+            160,
+            HeSigBDurationTest::MU_MIMO,
+            {208, 208, 208, 208, 208, 208, 208, 208},
+            std::make_pair(1, 1), // users equally split between the two content channels
+            MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 160 MHz band, MU-MIMO, 3 users
+    AddTestCase(
+        new HeSigBDurationTest(
+            {{{HeRu::RU_2x996_TONE, 1, true}, 4, 3},
+             {{HeRu::RU_2x996_TONE, 1, true}, 5, 2},
+             {{HeRu::RU_2x996_TONE, 1, true}, 6, 1}},
+            VhtPhy::GetVhtMcs4(),
+            160,
+            HeSigBDurationTest::MU_MIMO,
+            {208, 208, 208, 208, 208, 208, 208, 208},
+            std::make_pair(2, 1), // 2 users in content channel 1 and 1 user in content channel 2
+            MicroSeconds(4)),     // one OFDM symbol
+        TestCase::QUICK);
+
+    // 160 MHz band, MU-MIMO, 4 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_2x996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 5, 2},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 6, 3},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 7, 2}},
+                    VhtPhy::GetVhtMcs4(),
+                    160,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208, 208, 208, 208, 208},
+                    std::make_pair(2, 2), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 160 MHz band, MU-MIMO, 6 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_2x996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 6, 2},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 7, 2},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 9, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    160,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208, 208, 208, 208, 208},
+                    std::make_pair(3, 3), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
+
+    // 160 MHz band, MU-MIMO, 8 users
+    AddTestCase(new HeSigBDurationTest(
+                    {{{HeRu::RU_2x996_TONE, 1, true}, 4, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 5, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 6, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 7, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 8, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 9, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 10, 1},
+                     {{HeRu::RU_2x996_TONE, 1, true}, 11, 1}},
+                    VhtPhy::GetVhtMcs4(),
+                    160,
+                    HeSigBDurationTest::MU_MIMO,
+                    {208, 208, 208, 208, 208, 208, 208, 208},
+                    std::make_pair(4, 4), // users equally split between the two content channels
+                    MicroSeconds(4)),     // one OFDM symbol
+                TestCase::QUICK);
 }
 
 static TxDurationTestSuite g_txDurationTestSuite; ///< the test suite

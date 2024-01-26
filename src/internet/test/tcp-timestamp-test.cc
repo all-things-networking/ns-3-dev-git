@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -30,7 +29,6 @@ NS_LOG_COMPONENT_DEFINE("TimestampTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP TimeStamp enabling Test.
  */
@@ -211,7 +209,6 @@ TimestampTestCase::Rx(const Ptr<const Packet> p, const TcpHeader& h, SocketWho w
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP TimeStamp values Test.
  */
@@ -292,7 +289,6 @@ TimestampValueTestCase::Check()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP TimeStamp TestSuite.
  */

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -27,8 +26,6 @@
 #include "ns3/wifi-psdu.h"
 
 class AmpduAggregationTest;
-class TwoLevelAggregationTest;
-class HeAggregationTest;
 
 namespace ns3
 {
@@ -47,10 +44,6 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
   public:
     /// allow AmpduAggregationTest class access
     friend class ::AmpduAggregationTest;
-    /// allow TwoLevelAggregationTest class access
-    friend class ::TwoLevelAggregationTest;
-    /// allow HeAggregationTest class access
-    friend class ::HeAggregationTest;
 
     /**
      * \brief Get the type ID.
@@ -142,31 +135,6 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
                                                Time ppduDurationLimit) const;
 
     /**
-     * \param respHdr Add block ack response from originator (action
-     *        frame).
-     * \param originator Address of peer station involved in block ack
-     *        mechanism.
-     * \param startingSeq Sequence number of the first MPDU of all
-     *        packets for which block ack was negotiated.
-     *
-     * This function is typically invoked only by ns3::WifiMac
-     * when the STA (which may be non-AP in ESS, or in an IBSS) has
-     * received an ADDBA Request frame and is transmitting an ADDBA
-     * Response frame. At this point the frame exchange manager must
-     * allocate buffers to collect all correctly received packets belonging
-     * to the category for which block ack was negotiated.
-     */
-    void CreateBlockAckAgreement(const MgtAddBaResponseHeader* respHdr,
-                                 Mac48Address originator,
-                                 uint16_t startingSeq);
-    /**
-     * Destroy a Block Ack agreement.
-     *
-     * \param originator the originator MAC address
-     * \param tid the TID associated with the Block Ack agreement
-     */
-    void DestroyBlockAckAgreement(Mac48Address originator, uint8_t tid);
-    /**
      * This method can be called to accept a received ADDBA Request. An
      * ADDBA Response will be constructed and queued for transmission.
      *
@@ -174,33 +142,6 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
      * \param originator the MAC address of the originator.
      */
     void SendAddBaResponse(const MgtAddBaRequestHeader* reqHdr, Mac48Address originator);
-    /**
-     * Get the maximum supported buffer size for a Block Ack agreement. This value
-     * is typically included in ADDBA Response frames.
-     *
-     * \return the maximum supported buffer size for a Block Ack agreement
-     */
-    virtual uint16_t GetSupportedBaBufferSize() const;
-
-    /**
-     * Return true if a Block Ack agreement has been established with the given
-     * originator for the given TID.
-     *
-     * \param originator the MAC address of the given originator
-     * \param tid the Traffic ID
-     * \return true if a Block Ack agreement has been established with the given
-     *         originator for the given TID
-     */
-    bool GetBaAgreementEstablished(Mac48Address originator, uint8_t tid) const;
-
-    /**
-     * Get the type of BlockAck frames sent to the given originator.
-     *
-     * \param originator the MAC address of the given originator
-     * \param tid the Traffic ID
-     * \return the type of BlockAck frames sent to the given originator
-     */
-    BlockAckType GetBlockAckType(Mac48Address originator, uint8_t tid) const;
 
     /**
      * Sends DELBA frame to cancel a block ack agreement with STA
@@ -211,6 +152,21 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
      * \param byOriginator flag to indicate whether this is set by the originator.
      */
     void SendDelbaFrame(Mac48Address addr, uint8_t tid, bool byOriginator);
+
+    /**
+     * Get the next BlockAckRequest or MU-BAR Trigger Frame to send, if any. If TID and recipient
+     * address are given, then only return a BlockAckRequest, if any, addressed to that recipient
+     * and for the given TID.
+     *
+     * \param ac the AC whose queue is searched for BlockAckRequest or Trigger Frames
+     * \param optTid the TID (optional)
+     * \param optAddress the recipient of the BAR (optional)
+     *
+     * \return the next BAR or Trigger Frame to be sent, if any
+     */
+    Ptr<WifiMpdu> GetBar(AcIndex ac,
+                         std::optional<uint8_t> optTid = std::nullopt,
+                         std::optional<Mac48Address> optAddress = std::nullopt);
 
   protected:
     void DoDispose() override;
@@ -226,10 +182,12 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
     void NotifyReceivedNormalAck(Ptr<WifiMpdu> mpdu) override;
     void NotifyPacketDiscarded(Ptr<const WifiMpdu> mpdu) override;
     void RetransmitMpduAfterMissedAck(Ptr<WifiMpdu> mpdu) const override;
-    void ReleaseSequenceNumber(Ptr<WifiMpdu> mpdu) const override;
+    void ReleaseSequenceNumbers(Ptr<const WifiPsdu> psdu) const override;
     void ForwardMpduDown(Ptr<WifiMpdu> mpdu, WifiTxVector& txVector) override;
+    void FinalizeMacHeader(Ptr<const WifiPsdu> psdu) override;
     void CtsTimeout(Ptr<WifiMpdu> rts, const WifiTxVector& txVector) override;
     void TransmissionSucceeded() override;
+    void ProtectionCompleted() override;
 
     /**
      * Get a PSDU containing the given MPDU
@@ -293,12 +251,11 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
     void DequeuePsdu(Ptr<const WifiPsdu> psdu);
 
     /**
-     * If the Block Ack Manager associated with the given EDCA has a BlockAckReq frame
-     * to transmit (the duration of which plus the response fits within the given
-     * available time, if the latter is not Time::Min() and this is not the initial
-     * frame of a TXOP), transmit the frame and return true. Otherwise, return false.
+     * If the given MPDU contains a BlockAckReq frame (the duration of which plus the response
+     * fits within the given available time, if the latter is not Time::Min() and this is not
+     * the initial frame of a TXOP), transmit the frame and return true. Otherwise, return false.
      *
-     * \param edca the EDCAF which has been granted the opportunity to transmit
+     * \param mpdu the given MPDU
      * \param availableTime the amount of time allowed for the frame exchange. Equals
      *                      Time::Min() in case the TXOP limit is null
      * \param initialFrame true if the frame being transmitted is the initial frame
@@ -306,7 +263,7 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
      *                     limit can be exceeded
      * \return true if frame is transmitted, false otherwise
      */
-    virtual bool SendMpduFromBaManager(Ptr<QosTxop> edca, Time availableTime, bool initialFrame);
+    virtual bool SendMpduFromBaManager(Ptr<WifiMpdu> mpdu, Time availableTime, bool initialFrame);
 
     /**
      * Given a non-broadcast QoS data frame, prepare the PSDU to transmit by attempting
@@ -347,12 +304,16 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
      * \param startingSeq the BA agreement starting sequence number
      * \param timeout timeout value.
      * \param immediateBAck flag to indicate whether immediate BlockAck is used.
+     * \param availableTime the amount of time allowed for the frame exchange. Equals
+     *                      Time::Min() in case the TXOP limit is null
+     * \return true if ADDBA Request frame is transmitted, false otherwise
      */
-    void SendAddBaRequest(Mac48Address recipient,
+    bool SendAddBaRequest(Mac48Address recipient,
                           uint8_t tid,
                           uint16_t startingSeq,
                           uint16_t timeout,
-                          bool immediateBAck);
+                          bool immediateBAck,
+                          Time availableTime);
 
     /**
      * Create a BlockAck frame with header equal to <i>blockAck</i> and start its transmission.
@@ -388,14 +349,8 @@ class HtFrameExchangeManager : public QosFrameExchangeManager
     /// agreement key typedef (MAC address and TID)
     typedef std::pair<Mac48Address, uint8_t> AgreementKey;
 
-    /// typedef for map of recipient Block Ack agreements
-    using RecipientBlockAckAgreementMap = std::map<AgreementKey, RecipientBlockAckAgreement>;
-
-    RecipientBlockAckAgreementMap m_agreements;        //!< Block Ack agreements
-    RecipientBlockAckAgreementMap m_pendingAgreements; //!< pending Block Ack agreements (waiting
-                                                       //!< for Ack in response to ADDBA_RESPONSE)
-    Ptr<MsduAggregator> m_msduAggregator;              //!< A-MSDU aggregator
-    Ptr<MpduAggregator> m_mpduAggregator;              //!< A-MPDU aggregator
+    Ptr<MsduAggregator> m_msduAggregator; //!< A-MSDU aggregator
+    Ptr<MpduAggregator> m_mpduAggregator; //!< A-MPDU aggregator
 
     /// pending ADDBA_RESPONSE frames indexed by agreement key
     std::map<AgreementKey, Ptr<WifiMpdu>> m_pendingAddBaResp;

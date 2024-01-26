@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -130,21 +129,18 @@ class PointerChecker : public ns3::PointerChecker
 {
     bool Check(const AttributeValue& val) const override
     {
-        const PointerValue* value = dynamic_cast<const PointerValue*>(&val);
+        const auto value = dynamic_cast<const PointerValue*>(&val);
         if (value == nullptr)
         {
             return false;
         }
         if (!value->GetObject())
         {
+            // a null pointer is a valid value
             return true;
         }
         T* ptr = dynamic_cast<T*>(PeekPointer(value->GetObject()));
-        if (ptr == nullptr)
-        {
-            return false;
-        }
-        return true;
+        return ptr;
     }
 
     std::string GetValueTypeName() const override
@@ -170,8 +166,8 @@ class PointerChecker : public ns3::PointerChecker
 
     bool Copy(const AttributeValue& source, AttributeValue& destination) const override
     {
-        const PointerValue* src = dynamic_cast<const PointerValue*>(&source);
-        PointerValue* dst = dynamic_cast<PointerValue*>(&destination);
+        const auto src = dynamic_cast<const PointerValue*>(&source);
+        auto dst = dynamic_cast<PointerValue*>(&destination);
         if (src == nullptr || dst == nullptr)
         {
             return false;

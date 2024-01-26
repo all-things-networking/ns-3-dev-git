@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -159,7 +158,7 @@ main(int argc, char* argv[])
 
     // Now, let's use the ListErrorModel and explicitly force a loss
     // of the packets with pkt-uids = 11 and 17 on node 2, device 0
-    std::list<uint32_t> sampleList;
+    std::list<uint64_t> sampleList;
     sampleList.push_back(11);
     sampleList.push_back(17);
     // This time, we'll explicitly create the error model we want

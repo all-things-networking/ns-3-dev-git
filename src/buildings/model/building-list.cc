@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -56,13 +55,13 @@ class BuildingListPriv : public Object
      */
     uint32_t Add(Ptr<Building> building);
     /**
-     * Returns an interator to the start of the list.
+     * Returns an iterator to the start of the list.
      *
      * \returns iterator to the begin of the container.
      */
     BuildingList::Iterator Begin() const;
     /**
-     * Returns an interator to the end of the list.
+     * Returns an iterator to the end of the list.
      *
      * \returns iterator to the end of the container.
      */
@@ -159,7 +158,7 @@ void
 BuildingListPriv::DoDispose()
 {
     NS_LOG_FUNCTION_NOARGS();
-    for (std::vector<Ptr<Building>>::iterator i = m_buildings.begin(); i != m_buildings.end(); i++)
+    for (auto i = m_buildings.begin(); i != m_buildings.end(); i++)
     {
         Ptr<Building> building = *i;
         building->Dispose();

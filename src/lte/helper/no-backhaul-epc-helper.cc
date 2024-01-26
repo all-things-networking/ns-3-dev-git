@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -19,7 +18,7 @@
  *         (based on the original point-to-point-epc-helper.cc)
  */
 
-#include "ns3/no-backhaul-epc-helper.h"
+#include "no-backhaul-epc-helper.h"
 
 #include "ns3/boolean.h"
 #include "ns3/epc-enb-application.h"
@@ -541,7 +540,7 @@ NoBackhaulEpcHelper::AssignUeIpv4Address(NetDeviceContainer ueDevices)
 Ipv6InterfaceContainer
 NoBackhaulEpcHelper::AssignUeIpv6Address(NetDeviceContainer ueDevices)
 {
-    for (NetDeviceContainer::Iterator iter = ueDevices.Begin(); iter != ueDevices.End(); iter++)
+    for (auto iter = ueDevices.Begin(); iter != ueDevices.End(); iter++)
     {
         Ptr<Icmpv6L4Protocol> icmpv6 = (*iter)->GetNode()->GetObject<Icmpv6L4Protocol>();
         icmpv6->SetAttribute("DAD", BooleanValue(false));

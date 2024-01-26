@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -167,7 +166,7 @@ class OfdmDownlinkFramePrefix : public Header
     void SetConfigurationChangeCount(uint8_t configurationChangeCount);
     /**
      * Add DL frame prefix element field
-     * \param dlFramePrefixElement the DL frane prefix element
+     * \param dlFramePrefixElement the DL frame prefix element
      */
     void AddDlFramePrefixElement(DlFramePrefixIe dlFramePrefixElement);
     /**

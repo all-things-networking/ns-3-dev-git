@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -24,12 +23,13 @@
 #include "lte-ffr-simple.h"
 #include "lte-simple-spectrum-phy.h"
 
-#include "ns3/applications-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/lte-helper.h"
 #include "ns3/mobility-helper.h"
+#include "ns3/packet-sink-helper.h"
 #include "ns3/point-to-point-epc-helper.h"
 #include "ns3/point-to-point-module.h"
+#include "ns3/udp-client-server-helper.h"
 #include <ns3/boolean.h>
 #include <ns3/callback.h>
 #include <ns3/config.h>
@@ -434,19 +434,23 @@ LteFrequencyReuseTestSuite::LteFrequencyReuseTestSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteFrequencyReuseTestSuite lteFrequencyReuseTestSuite;
 
 /**
  * TestCase Data
  */
 void
-DlDataRxStartNofitication(LteFrTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
+DlDataRxStartNotification(LteFrTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
 {
     testcase->DlDataRxStart(spectrumValue);
 }
 
 void
-UlDataRxStartNofitication(LteFrTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
+UlDataRxStartNotification(LteFrTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
 {
     testcase->UlDataRxStart(spectrumValue);
 }
@@ -476,15 +480,14 @@ void
 LteFrTestCase::DlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
 {
     NS_LOG_DEBUG("DL DATA Power allocation :");
-    Values::const_iterator it;
     uint32_t i = 0;
-    for (it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
+    for (auto it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
     {
         double power = (*it) * (m_dlBandwidth * 180000);
         NS_LOG_DEBUG("RB " << i << " POWER: "
                            << " " << power << " isAvailable: " << m_availableDlRb[i]);
 
-        if (m_availableDlRb[i] == false && power > 0)
+        if (!m_availableDlRb[i] && power > 0)
         {
             m_usedMutedDlRbg = true;
         }
@@ -496,15 +499,14 @@ void
 LteFrTestCase::UlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
 {
     NS_LOG_DEBUG("UL DATA Power allocation :");
-    Values::const_iterator it;
     uint32_t i = 0;
-    for (it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
+    for (auto it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
     {
         double power = (*it) * (m_ulBandwidth * 180000);
         NS_LOG_DEBUG("RB " << i << " POWER: "
                            << " " << power << " isAvailable: " << m_availableUlRb[i]);
 
-        if (m_availableUlRb[i] == false && power > 0)
+        if (!m_availableUlRb[i] && power > 0)
         {
             m_usedMutedUlRbg = true;
         }
@@ -595,7 +597,7 @@ LteHardFrTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -615,7 +617,7 @@ LteHardFrTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofitication, this));
+        MakeBoundCallback(&DlDataRxStartNotification, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs.Get(0)
@@ -632,7 +634,7 @@ LteHardFrTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofitication, this));
+        MakeBoundCallback(&UlDataRxStartNotification, this));
 
     Simulator::Stop(Seconds(0.500));
     Simulator::Run();
@@ -733,7 +735,7 @@ LteStrictFrTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -753,7 +755,7 @@ LteStrictFrTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofitication, this));
+        MakeBoundCallback(&DlDataRxStartNotification, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs.Get(0)
@@ -770,7 +772,7 @@ LteStrictFrTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofitication, this));
+        MakeBoundCallback(&UlDataRxStartNotification, this));
 
     Simulator::Stop(Seconds(0.500));
     Simulator::Run();
@@ -783,13 +785,13 @@ LteStrictFrTestCase::DoRun()
 }
 
 void
-DlDataRxStartNofiticationArea(LteFrAreaTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
+DlDataRxStartNotificationArea(LteFrAreaTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
 {
     testcase->DlDataRxStart(spectrumValue);
 }
 
 void
-UlDataRxStartNofiticationArea(LteFrAreaTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
+UlDataRxStartNotificationArea(LteFrAreaTestCase* testcase, Ptr<const SpectrumValue> spectrumValue)
 {
     testcase->UlDataRxStart(spectrumValue);
 }
@@ -818,9 +820,8 @@ LteFrAreaTestCase::DlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
     }
 
     NS_LOG_DEBUG("DL DATA Power allocation :");
-    Values::const_iterator it;
     uint32_t i = 0;
-    for (it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
+    for (auto it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
     {
         double power = (*it) * (m_dlBandwidth * 180000);
         NS_LOG_DEBUG("RB " << i << " POWER: "
@@ -829,11 +830,11 @@ LteFrAreaTestCase::DlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
                            << " " << power << " Available: " << m_expectedDlRb[i]
                            << " Expected Power: " << m_expectedDlPower);
 
-        if (m_expectedDlRb[i] == false && power > 0)
+        if (!m_expectedDlRb[i] && power > 0)
         {
             m_usedWrongDlRbg = true;
         }
-        else if (m_expectedDlRb[i] == true && power > 0)
+        else if (m_expectedDlRb[i] && power > 0)
         {
             NS_TEST_ASSERT_MSG_EQ_TOL(power,
                                       m_expectedDlPower,
@@ -854,7 +855,6 @@ LteFrAreaTestCase::UlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
     }
 
     NS_LOG_DEBUG("UL DATA Power allocation :");
-    Values::const_iterator it;
     uint32_t i = 0;
     uint32_t numActiveRbs = 0;
 
@@ -862,11 +862,11 @@ LteFrAreaTestCase::UlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
     // of active RBs. This method is independent of the bandwidth
     // configuration done in a test scenario, thus, it requires
     // minimum change to the script.
-    for (it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
+    for (auto it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
     {
         // Count the RB as active if it is part of
         // the expected UL RBs and has Power Spectral Density (PSD) > 0
-        if (m_expectedUlRb[numActiveRbs] == true && (*it) > 0)
+        if (m_expectedUlRb[numActiveRbs] && (*it) > 0)
         {
             numActiveRbs++;
         }
@@ -875,16 +875,16 @@ LteFrAreaTestCase::UlDataRxStart(Ptr<const SpectrumValue> spectrumValue)
 
     // The uplink power control and the uplink PSD
     // calculation only consider active resource blocks.
-    for (it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
+    for (auto it = spectrumValue->ConstValuesBegin(); it != spectrumValue->ConstValuesEnd(); it++)
     {
         double power = (*it) * (numActiveRbs * 180000);
         NS_LOG_DEBUG("RB " << i << " POWER: " << power
                            << " expectedUlPower: " << m_expectedUlPower);
-        if (m_expectedUlRb[i] == false && power > 0)
+        if (!m_expectedUlRb[i] && power > 0)
         {
             m_usedWrongUlRbg = true;
         }
-        else if (m_expectedUlRb[i] == true && power > 0)
+        else if (m_expectedUlRb[i] && power > 0)
         {
             NS_TEST_ASSERT_MSG_EQ_TOL(power,
                                       m_expectedUlPower,
@@ -1063,7 +1063,7 @@ LteStrictFrAreaTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
 
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
@@ -1087,7 +1087,7 @@ LteStrictFrAreaTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&DlDataRxStartNotificationArea, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs1.Get(0)
@@ -1106,7 +1106,7 @@ LteStrictFrAreaTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&UlDataRxStartNotificationArea, this));
 
     std::vector<bool> expectedDlRbCenterArea;
     expectedDlRbCenterArea.resize(m_dlBandwidth, false);
@@ -1280,7 +1280,7 @@ LteSoftFrAreaTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);
@@ -1303,7 +1303,7 @@ LteSoftFrAreaTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&DlDataRxStartNotificationArea, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs1.Get(0)
@@ -1322,7 +1322,7 @@ LteSoftFrAreaTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&UlDataRxStartNotificationArea, this));
 
     std::vector<bool> expectedDlRbCenterArea;
     expectedDlRbCenterArea.resize(m_dlBandwidth, false);
@@ -1509,7 +1509,7 @@ LteSoftFfrAreaTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);
@@ -1532,7 +1532,7 @@ LteSoftFfrAreaTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&DlDataRxStartNotificationArea, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs1.Get(0)
@@ -1551,7 +1551,7 @@ LteSoftFfrAreaTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&UlDataRxStartNotificationArea, this));
 
     double expectedDlPowerCenterArea = 0.5;
     std::vector<bool> expectedDlRbCenterArea;
@@ -1780,7 +1780,7 @@ LteEnhancedFfrAreaTestCase::DoRun()
     qos.gbrUl = 1e4;
     qos.gbrDl = 1e4;
 
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q, qos);
     lteHelper->ActivateDataRadioBearer(ueDevs1, bearer);
     lteHelper->ActivateDataRadioBearer(ueDevs2, bearer);
@@ -1803,7 +1803,7 @@ LteEnhancedFfrAreaTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&DlDataRxStartNotificationArea, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs1.Get(0)
@@ -1822,7 +1822,7 @@ LteEnhancedFfrAreaTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&UlDataRxStartNotificationArea, this));
 
     double expectedDlPowerCenterArea = 0.251189;
     std::vector<bool> expectedDlRbCenterArea;
@@ -2156,7 +2156,7 @@ LteDistributedFfrAreaTestCase::DoRun()
             qos.gbrUl = 1e4;
             qos.gbrDl = 1e4;
 
-            enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+            EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
             EpsBearer bearer(q, qos);
             lteHelper->ActivateDedicatedEpsBearer(ueLteDevs.Get(u), bearer, tft);
 
@@ -2184,7 +2184,7 @@ LteDistributedFfrAreaTestCase::DoRun()
 
     testDlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&DlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&DlDataRxStartNotificationArea, this));
 
     // Test SpectrumPhy to get signals form UL channel
     Ptr<LteSpectrumPhy> ueUlSpectrumPhy = ueDevs1.Get(0)
@@ -2203,7 +2203,7 @@ LteDistributedFfrAreaTestCase::DoRun()
 
     testUlSpectrumPhy->TraceConnectWithoutContext(
         "RxStart",
-        MakeBoundCallback(&UlDataRxStartNofiticationArea, this));
+        MakeBoundCallback(&UlDataRxStartNotificationArea, this));
 
     double expectedDlPowerCenterArea = 1.0;
     std::vector<bool> expectedDlRbCenterArea;

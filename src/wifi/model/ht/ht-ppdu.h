@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -49,23 +48,10 @@ class HtPpdu : public OfdmPpdu
      * HT PHY header (HT-SIG1/2).
      * See section 19.3.9 in IEEE 802.11-2016.
      */
-    class HtSigHeader : public Header
+    class HtSigHeader
     {
       public:
         HtSigHeader();
-        ~HtSigHeader() override;
-
-        /**
-         * \brief Get the type ID.
-         * \return the object TypeId
-         */
-        static TypeId GetTypeId();
-
-        TypeId GetInstanceTypeId() const override;
-        void Print(std::ostream& os) const override;
-        uint32_t GetSerializedSize() const override;
-        void Serialize(Buffer::Iterator start) const override;
-        uint32_t Deserialize(Buffer::Iterator start) override;
 
         /**
          * Fill the MCS field of HT-SIG.
@@ -141,27 +127,60 @@ class HtPpdu : public OfdmPpdu
      *
      * \param psdu the PHY payload (PSDU)
      * \param txVector the TXVECTOR that was used for this PPDU
-     * \param txCenterFreq the center frequency (MHz) that was used for this PPDU
+     * \param channel the operating channel of the PHY used to transmit this PPDU
      * \param ppduDuration the transmission duration of this PPDU
-     * \param band the WifiPhyBand used for the transmission of this PPDU
      * \param uid the unique ID of this PPDU
      */
     HtPpdu(Ptr<const WifiPsdu> psdu,
            const WifiTxVector& txVector,
-           uint16_t txCenterFreq,
+           const WifiPhyOperatingChannel& channel,
            Time ppduDuration,
-           WifiPhyBand band,
            uint64_t uid);
-    /**
-     * Destructor for HtPpdu.
-     */
-    ~HtPpdu() override;
 
     Time GetTxDuration() const override;
     Ptr<WifiPpdu> Copy() const override;
 
   private:
     WifiTxVector DoGetTxVector() const override;
+
+    /**
+     * Fill in the PHY headers.
+     *
+     * \param txVector the TXVECTOR that was used for this PPDU
+     * \param ppduDuration the transmission duration of this PPDU
+     * \param psduSize the size duration of the PHY payload (PSDU)
+     */
+    void SetPhyHeaders(const WifiTxVector& txVector, Time ppduDuration, std::size_t psduSize);
+
+    /**
+     * Fill in the L-SIG header.
+     *
+     * \param lSig the L-SIG header to fill in
+     * \param ppduDuration the transmission duration of this PPDU
+     */
+    virtual void SetLSigHeader(LSigHeader& lSig, Time ppduDuration) const;
+
+    /**
+     * Fill in the HT-SIG header.
+     *
+     * \param htSig the HT-SIG header to fill in
+     * \param txVector the TXVECTOR that was used for this PPDU
+     * \param psduSize the size duration of the PHY payload (PSDU)
+     */
+    void SetHtSigHeader(HtSigHeader& htSig,
+                        const WifiTxVector& txVector,
+                        std::size_t psduSize) const;
+
+    /**
+     * Fill in the TXVECTOR from PHY headers.
+     *
+     * \param txVector the TXVECTOR to fill in
+     * \param lSig the L-SIG header
+     * \param htSig the HT-SIG header
+     */
+    void SetTxVectorFromPhyHeaders(WifiTxVector& txVector,
+                                   const LSigHeader& lSig,
+                                   const HtSigHeader& htSig) const;
 
     HtSigHeader m_htSig; //!< the HT-SIG PHY header
 };                       // class HtPpdu

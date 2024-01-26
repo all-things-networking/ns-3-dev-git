@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA, UDcast
  *
@@ -109,7 +108,7 @@ class BsServiceFlowManager : public ServiceFlowManager
      * \param sf the service flow
      * \param modulation the wimax phy modulation type
      */
-    void AddMulticastServiceFlow(ServiceFlow sf, enum WimaxPhy::ModulationType modulation);
+    void AddMulticastServiceFlow(ServiceFlow sf, WimaxPhy::ModulationType modulation);
     /**
      * \brief process a DSA-ACK message
      * \param dsaAck the message to process

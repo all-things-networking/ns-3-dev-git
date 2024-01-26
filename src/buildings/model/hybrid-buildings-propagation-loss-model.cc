@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,9 +21,11 @@
 
 #include "hybrid-buildings-propagation-loss-model.h"
 
+#include "itu-r-1238-propagation-loss-model.h"
+#include "mobility-building-info.h"
+
 #include "ns3/double.h"
 #include "ns3/enum.h"
-#include "ns3/itu-r-1238-propagation-loss-model.h"
 #include "ns3/itu-r-1411-los-propagation-loss-model.h"
 #include "ns3/itu-r-1411-nlos-over-rooftop-propagation-loss-model.h"
 #include "ns3/kun-2600-mhz-propagation-loss-model.h"
@@ -32,7 +33,6 @@
 #include "ns3/mobility-model.h"
 #include "ns3/okumura-hata-propagation-loss-model.h"
 #include "ns3/pointer.h"
-#include <ns3/mobility-building-info.h>
 
 #include <cmath>
 
@@ -175,7 +175,7 @@ HybridBuildingsPropagationLossModel::GetLoss(Ptr<MobilityModel> a, Ptr<MobilityM
                 }
                 else
                 {
-                    // Over the rooftop tranmission -> Okumura Hata
+                    // Over the rooftop transmission -> Okumura Hata
                     loss = OkumuraHata(a, b);
                     NS_LOG_INFO(this << " O-O (>1000): above rooftop -> OH : " << loss);
                 }
@@ -278,11 +278,11 @@ HybridBuildingsPropagationLossModel::ItuR1411(Ptr<MobilityModel> a, Ptr<Mobility
 {
     if (a->GetDistanceFrom(b) < m_itu1411NlosThreshold)
     {
-        return (m_ituR1411Los->GetLoss(a, b));
+        return m_ituR1411Los->GetLoss(a, b);
     }
     else
     {
-        return (m_ituR1411NlosOverRooftop->GetLoss(a, b));
+        return m_ituR1411NlosOverRooftop->GetLoss(a, b);
     }
 }
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington
  *
@@ -19,6 +18,7 @@
 #ifndef RANDOM_VARIABLE_STREAM_HELPER_H
 #define RANDOM_VARIABLE_STREAM_HELPER_H
 
+#include <cstdint>
 #include <string>
 
 /**

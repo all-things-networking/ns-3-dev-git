@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -78,6 +77,13 @@ class WifiDefaultAckManager : public WifiAckManager
      * \return true if the given PSDU requires an immediate response
      */
     bool IsResponseNeeded(Ptr<const WifiMpdu> mpdu, const WifiTxParameters& txParams) const;
+
+    /**
+     * \param mpdu the given MPDU
+     * \return whether there exist MPDUs with lower sequence number than the given MPDU that are
+     * inflight on the same link as the given MPDU
+     */
+    bool ExistInflightOnSameLink(Ptr<const WifiMpdu> mpdu) const;
 
   private:
     /**

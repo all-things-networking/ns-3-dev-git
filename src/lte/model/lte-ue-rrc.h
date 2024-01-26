@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  * Copyright (c) 2018 Fraunhofer ESK : RLF extensions
@@ -27,13 +26,13 @@
 #ifndef LTE_UE_RRC_H
 #define LTE_UE_RRC_H
 
-#include "ns3/component-carrier-ue.h"
-#include <ns3/lte-as-sap.h>
-#include <ns3/lte-pdcp-sap.h>
-#include <ns3/lte-rrc-sap.h>
-#include <ns3/lte-ue-ccm-rrc-sap.h>
-#include <ns3/lte-ue-cmac-sap.h>
-#include <ns3/lte-ue-cphy-sap.h>
+#include "lte-as-sap.h"
+#include "lte-pdcp-sap.h"
+#include "lte-rrc-sap.h"
+#include "lte-ue-ccm-rrc-sap.h"
+#include "lte-ue-cmac-sap.h"
+#include "lte-ue-cphy-sap.h"
+
 #include <ns3/object.h>
 #include <ns3/packet.h>
 #include <ns3/traced-callback.h>
@@ -41,9 +40,6 @@
 #include <map>
 #include <set>
 #include <vector>
-
-#define MIN_NO_CC 1
-#define MAX_NO_CC 5 // this is the maximum number of carrier components allowed by 3GPP up to R13
 
 namespace ns3
 {
@@ -140,7 +136,7 @@ class LteUeRrc : public Object
      */
     static TypeId GetTypeId();
 
-    /// Initiaize SAP
+    /// Initialize SAP
     void InitializeSap();
 
     /**
@@ -348,7 +344,7 @@ class LteUeRrc : public Object
     typedef void (*ImsiCidRntiTracedCallback)(uint64_t imsi, uint16_t cellId, uint16_t rnti);
 
     /**
-     * TracedCallback signature for MIBRecieved, Sib1Received and
+     * TracedCallback signature for MIBReceived, Sib1Received and
      * HandoverStart events.
      *
      * \param [in] imsi
@@ -505,34 +501,39 @@ class LteUeRrc : public Object
     void DoRecvSystemInformation(LteRrcSap::SystemInformation msg);
     /**
      * Part of the RRC protocol. Implement the LteUeRrcSapProvider::RecvRrcConnectionSetup
-     * interface. \param msg the LteRrcSap::RrcConnectionSetup
+     * interface.
+     * \param msg the LteRrcSap::RrcConnectionSetup
      */
     void DoRecvRrcConnectionSetup(LteRrcSap::RrcConnectionSetup msg);
     /**
      * Part of the RRC protocol. Implement the LteUeRrcSapProvider::RecvRrcConnectionReconfiguration
-     * interface. \param msg the LteRrcSap::RrcConnectionReconfiguration
+     * interface.
+     * \param msg the LteRrcSap::RrcConnectionReconfiguration
      */
     void DoRecvRrcConnectionReconfiguration(LteRrcSap::RrcConnectionReconfiguration msg);
     /**
      * Part of the RRC protocol. Implement the LteUeRrcSapProvider::RecvRrcConnectionReestablishment
-     * interface. \param msg LteRrcSap::RrcConnectionReestablishment
+     * interface.
+     * \param msg LteRrcSap::RrcConnectionReestablishment
      */
     void DoRecvRrcConnectionReestablishment(LteRrcSap::RrcConnectionReestablishment msg);
     /**
      * Part of the RRC protocol. Implement the
-     * LteUeRrcSapProvider::RecvRrcConnectionReestablishmentReject interface. \param msg
-     * LteRrcSap::RrcConnectionReestablishmentReject
+     * LteUeRrcSapProvider::RecvRrcConnectionReestablishmentReject interface.
+     * \param msg LteRrcSap::RrcConnectionReestablishmentReject
      */
     void DoRecvRrcConnectionReestablishmentReject(
         LteRrcSap::RrcConnectionReestablishmentReject msg);
     /**
      * Part of the RRC protocol. Implement the LteUeRrcSapProvider::RecvRrcConnectionRelease
-     * interface. \param msg LteRrcSap::RrcConnectionRelease
+     * interface.
+     * \param msg LteRrcSap::RrcConnectionRelease
      */
     void DoRecvRrcConnectionRelease(LteRrcSap::RrcConnectionRelease msg);
     /**
      * Part of the RRC protocol. Implement the LteUeRrcSapProvider::RecvRrcConnectionReject
-     * interface. \param msg the LteRrcSap::RrcConnectionReject
+     * interface.
+     * \param msg the LteRrcSap::RrcConnectionReject
      */
     void DoRecvRrcConnectionReject(LteRrcSap::RrcConnectionReject msg);
 
@@ -730,7 +731,7 @@ class LteUeRrc : public Object
     void StartConnection();
     /**
      * \brief Leave connected mode method
-     * Resets the UE back to an appropiate state depending
+     * Resets the UE back to an appropriate state depending
      * on the nature of cause. For example, the UE is move
      * to the IDLE_START state upon radio link failure. At
      * RRC, all radio bearers except SRB 0 are removed,
@@ -817,7 +818,7 @@ class LteUeRrc : public Object
 
     uint8_t m_lastRrcTransactionIdentifier; ///< last RRC transaction identifier
 
-    LteRrcSap::PdschConfigDedicated m_pdschConfigDedicated; ///< the PDSCH condig dedicated
+    LteRrcSap::PdschConfigDedicated m_pdschConfigDedicated; ///< the PDSCH config dedicated
 
     uint16_t m_dlBandwidth; /**< Downlink bandwidth in RBs. */
     uint16_t m_ulBandwidth; /**< Uplink bandwidth in RBs. */

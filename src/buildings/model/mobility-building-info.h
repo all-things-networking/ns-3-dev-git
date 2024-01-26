@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,8 +20,9 @@
 #ifndef MOBILITY_BUILDING_INFO_H
 #define MOBILITY_BUILDING_INFO_H
 
+#include "building.h"
+
 #include <ns3/box.h>
-#include <ns3/building.h>
 #include <ns3/constant-velocity-helper.h>
 #include <ns3/mobility-model.h>
 #include <ns3/object.h>
@@ -71,20 +71,24 @@ class MobilityBuildingInfo : public Object
      * \brief Mark this MobilityBuildingInfo instance as indoor
      *
      * \param building the building into which the MobilityBuildingInfo instance is located
-     * \param nfloor the floor number 1...nFloors at which the  MobilityBuildingInfo instance is
-     * located \param nroomx the X room number 1...nRoomsX at which the  MobilityBuildingInfo
-     * instance is located \param nroomy the Y room number 1...nRoomsY at which the
-     * MobilityBuildingInfo instance is located
+     * \param nfloor the floor number 1...nFloors at which the MobilityBuildingInfo instance
+     * is located
+     * \param nroomx the X room number 1...nRoomsX at which the MobilityBuildingInfo instance
+     * is located
+     * \param nroomy the Y room number 1...nRoomsY at which the MobilityBuildingInfo instance
+     * is located
      */
     void SetIndoor(Ptr<Building> building, uint8_t nfloor, uint8_t nroomx, uint8_t nroomy);
 
     /**
      * \brief Mark this MobilityBuildingInfo instance as indoor
      *
-     * \param nfloor the floor number 1...nFloors at which the MobilityBuildingInfo instance is
-     * located \param nroomx the X room number 1...nRoomsX at which the MobilityBuildingInfo
-     * instance is located \param nroomy the Y room number 1...nRoomsY at which the
-     * MobilityBuildingInfo instance is located
+     * \param nfloor the floor number 1...nFloors at which the MobilityBuildingInfo instance
+     * is located
+     * \param nroomx the X room number 1...nRoomsX at which the MobilityBuildingInfo instance
+     * is located
+     * \param nroomy the Y room number 1...nRoomsY at which the MobilityBuildingInfo instance
+     * is located
      */
 
     void SetIndoor(uint8_t nfloor, uint8_t nroomx, uint8_t nroomy);

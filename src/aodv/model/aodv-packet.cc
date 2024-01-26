@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -555,8 +554,7 @@ RerrHeader::Serialize(Buffer::Iterator i) const
     i.WriteU8(m_flag);
     i.WriteU8(m_reserved);
     i.WriteU8(GetDestCount());
-    std::map<Ipv4Address, uint32_t>::const_iterator j;
-    for (j = m_unreachableDstSeqNo.begin(); j != m_unreachableDstSeqNo.end(); ++j)
+    for (auto j = m_unreachableDstSeqNo.begin(); j != m_unreachableDstSeqNo.end(); ++j)
     {
         WriteTo(i, (*j).first);
         i.WriteHtonU32((*j).second);
@@ -589,8 +587,7 @@ void
 RerrHeader::Print(std::ostream& os) const
 {
     os << "Unreachable destination (ipv4 address, seq. number):";
-    std::map<Ipv4Address, uint32_t>::const_iterator j;
-    for (j = m_unreachableDstSeqNo.begin(); j != m_unreachableDstSeqNo.end(); ++j)
+    for (auto j = m_unreachableDstSeqNo.begin(); j != m_unreachableDstSeqNo.end(); ++j)
     {
         os << (*j).first << ", " << (*j).second;
     }
@@ -636,7 +633,7 @@ RerrHeader::RemoveUnDestination(std::pair<Ipv4Address, uint32_t>& un)
     {
         return false;
     }
-    std::map<Ipv4Address, uint32_t>::iterator i = m_unreachableDstSeqNo.begin();
+    auto i = m_unreachableDstSeqNo.begin();
     un = *i;
     m_unreachableDstSeqNo.erase(i);
     return true;
@@ -658,8 +655,8 @@ RerrHeader::operator==(const RerrHeader& o) const
         return false;
     }
 
-    std::map<Ipv4Address, uint32_t>::const_iterator j = m_unreachableDstSeqNo.begin();
-    std::map<Ipv4Address, uint32_t>::const_iterator k = o.m_unreachableDstSeqNo.begin();
+    auto j = m_unreachableDstSeqNo.begin();
+    auto k = o.m_unreachableDstSeqNo.begin();
     for (uint8_t i = 0; i < GetDestCount(); ++i)
     {
         if ((j->first != k->first) || (j->second != k->second))

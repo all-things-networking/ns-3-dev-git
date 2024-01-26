@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -22,8 +21,9 @@
 #ifndef SNR_TO_BLOCK_ERROR_RATE_MANAGER_H
 #define SNR_TO_BLOCK_ERROR_RATE_MANAGER_H
 
+#include "snr-to-block-error-rate-record.h"
+
 #include "ns3/ptr.h"
-#include "ns3/snr-to-block-error-rate-record.h"
 
 #include <vector>
 
@@ -77,8 +77,10 @@ class SNRToBlockErrorRateManager
     SNRToBlockErrorRateRecord*
     /**
      * \brief returns a record of type SNRToBlockErrorRateRecord corresponding to a given modulation
-     * and SNR value \param SNR the SNR value \param modulation one of the seven MCS \return the
-     * Block Error Rate
+     * and SNR value
+     * \param SNR the SNR value
+     * \param modulation one of the seven MCS
+     * \return the Block Error Rate
      */
     GetSNRToBlockErrorRateRecord(double SNR, uint8_t modulation);
     /**
@@ -105,7 +107,7 @@ class SNRToBlockErrorRateManager
   private:
     /// Clear records function
     void ClearRecords();
-    uint8_t m_activateLoss;      ///< activate loss
+    bool m_activateLoss;         ///< activate loss
     std::string m_traceFilePath; ///< trace file path
 
     std::vector<SNRToBlockErrorRateRecord*>* m_recordModulation[7]; ///< record modulation

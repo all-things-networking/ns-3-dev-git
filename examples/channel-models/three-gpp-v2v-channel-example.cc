@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020, University of Padova, Dep. of Information Engineering, SIGNET lab
  *
@@ -115,11 +114,12 @@ ComputeSnr(const ComputeSnrParams& params)
     *(params.txParams->psd) *= propagationGainLinear;
 
     // apply the fast fading and the beamforming gain
-    Ptr<SpectrumValue> rxPsd = m_spectrumLossModel->CalcRxPowerSpectralDensity(params.txParams,
-                                                                               params.txMob,
-                                                                               params.rxMob,
-                                                                               params.txAntenna,
-                                                                               params.rxAntenna);
+    auto rxParams = m_spectrumLossModel->CalcRxPowerSpectralDensity(params.txParams,
+                                                                    params.txMob,
+                                                                    params.rxMob,
+                                                                    params.txAntenna,
+                                                                    params.rxAntenna);
+    Ptr<SpectrumValue> rxPsd = rxParams->psd;
     NS_LOG_DEBUG("Average rx power " << 10 * log10(Sum(*rxPsd) * 180e3) << " dB");
 
     // create the noise psd
@@ -147,7 +147,7 @@ ComputeSnr(const ComputeSnrParams& params)
 }
 
 /**
- * Generates a GNU-plottable file representig the buildings deployed in the
+ * Generates a GNU-plottable file representing the buildings deployed in the
  * scenario
  * \param filename the name of the output file
  */
@@ -155,14 +155,14 @@ void
 PrintGnuplottableBuildingListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
     uint32_t index = 0;
-    for (BuildingList::Iterator it = BuildingList::Begin(); it != BuildingList::End(); ++it)
+    for (auto it = BuildingList::Begin(); it != BuildingList::End(); ++it)
     {
         ++index;
         Box box = (*it)->GetBoundaries();

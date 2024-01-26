@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -22,7 +21,8 @@
 #ifndef IPV6_FLOW_CLASSIFIER_H
 #define IPV6_FLOW_CLASSIFIER_H
 
-#include "ns3/flow-classifier.h"
+#include "flow-classifier.h"
+
 #include "ns3/ipv6-header.h"
 
 #include <map>

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -29,7 +28,6 @@ NS_LOG_COMPONENT_DEFINE("TcpDatSentCbTest");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Socket that the 50% of the times saves the entire packet in the buffer,
  * while in the other 50% saves only half the packet.
@@ -91,7 +89,6 @@ TcpSocketHalfAck::ReceivedData(Ptr<Packet> packet, const TcpHeader& tcpHeader)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Data Sent callback test
  *
@@ -165,7 +162,6 @@ TcpDataSentCbTestCase::CreateReceiverSocket(Ptr<Node> node)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite: Data Sent callback
  */

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -30,7 +29,6 @@ NS_LOG_COMPONENT_DEFINE("TcpBytesInFlightTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Check the value of BytesInFlight against a home-made guess
  *
@@ -143,7 +141,7 @@ Ptr<ErrorModel>
 TcpBytesInFlightTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> m_errorModel = CreateObject<TcpSeqErrorModel>();
-    for (std::vector<uint32_t>::iterator it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
         m_errorModel->AddSeqToKill(SequenceNumber32(*it));
     }
@@ -238,7 +236,7 @@ TcpBytesInFlightTest::Tx(const Ptr<const Packet> p, const TcpHeader& h, SocketWh
 {
     if (who == SENDER)
     {
-        static SequenceNumber32 retr = SequenceNumber32(0);
+        static SequenceNumber32 retr(0);
         static uint32_t times = 0;
 
         if (m_greatestSeqSent <= h.GetSequenceNumber())
@@ -284,7 +282,6 @@ TcpBytesInFlightTest::FinalChecks()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite: Check the value of BytesInFlight against a home-made guess
  */

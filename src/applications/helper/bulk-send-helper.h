@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -50,7 +49,7 @@ class BulkSendHelper
      * \param protocol the name of the protocol to use to send traffic
      *        by the applications. This string identifies the socket
      *        factory type used to create sockets for the applications.
-     *        A typical value would be ns3::UdpSocketFactory.
+     *        A typical value would be ns3::TcpSocketFactory.
      * \param address the address of the remote node to send traffic
      *        to.
      */

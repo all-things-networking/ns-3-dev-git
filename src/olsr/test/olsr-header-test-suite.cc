@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INESC Porto
  *
@@ -19,6 +18,7 @@
  */
 
 #include "ns3/olsr-header.h"
+#include "ns3/olsr-repositories.h"
 #include "ns3/packet.h"
 #include "ns3/test.h"
 
@@ -192,7 +192,7 @@ OlsrHelloTestCase::DoRun()
     olsr::MessageHeader::Hello& helloIn = msgIn.GetHello();
 
     helloIn.SetHTime(Seconds(7));
-    helloIn.willingness = 66;
+    helloIn.willingness = olsr::Willingness::HIGH;
 
     {
         olsr::MessageHeader::Hello::LinkMessage lm1;
@@ -215,7 +215,7 @@ OlsrHelloTestCase::DoRun()
     olsr::MessageHeader::Hello& helloOut = msgOut.GetHello();
 
     NS_TEST_ASSERT_MSG_EQ(helloOut.GetHTime(), Seconds(7), "300");
-    NS_TEST_ASSERT_MSG_EQ(helloOut.willingness, 66, "301");
+    NS_TEST_ASSERT_MSG_EQ(helloOut.willingness, olsr::Willingness::HIGH, "301");
     NS_TEST_ASSERT_MSG_EQ(helloOut.linkMessages.size(), 2, "302");
 
     NS_TEST_ASSERT_MSG_EQ(helloOut.linkMessages[0].linkCode, 2, "303");

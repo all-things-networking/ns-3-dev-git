@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Lawrence Livermore National Laboratory
  *
@@ -22,9 +21,11 @@
 
 #include "ascii-test.h"
 #include "assert.h"
+#include "environment-variable.h"
+#include "fatal-error.h"
 #include "log.h"
 
-#include <cstdlib> // itoa(), system (), getenv ()
+#include <cstdlib> // itoa(), system ()
 #include <cstring>
 #include <sstream>
 #include <string>
@@ -40,18 +41,19 @@ namespace ns3
 
 NS_LOG_COMPONENT_DEFINE("ExampleAsTestCase");
 
-// Running tests as examples currently requires bash shell; uses Unix
-// piping that does not work on Windows.
-#if defined(NS3_ENABLE_EXAMPLES) && !defined(__win32__)
+// Running tests as examples currently requires Python.
+#if defined(NS3_ENABLE_EXAMPLES)
 
 ExampleAsTestCase::ExampleAsTestCase(const std::string name,
                                      const std::string program,
                                      const std::string dataDir,
-                                     const std::string args /* = "" */)
+                                     const std::string args /* = "" */,
+                                     const bool shouldNotErr /* = true */)
     : TestCase(name),
       m_program(program),
       m_dataDir(dataDir),
-      m_args(args)
+      m_args(args),
+      m_shouldNotErr(shouldNotErr)
 {
     NS_LOG_FUNCTION(this << name << program << dataDir << args);
 }
@@ -86,48 +88,59 @@ ExampleAsTestCase::DoRun()
     SetDataDir(m_dataDir);
     std::string refFile = CreateDataDirFilename(GetName() + ".reflog");
     std::string testFile = CreateTempDirFilename(GetName() + ".reflog");
+    std::string post = GetPostProcessingCommand();
+
+    if (!m_shouldNotErr)
+    {
+        // Strip any system- or compiler-dependent messages
+        // resulting from invoking NS_FATAL..., which in turn
+        // calls std::terminate
+        post += " | sed '1,/" + std::string(NS_FATAL_MSG) + "/!d' ";
+    }
 
     std::stringstream ss;
 
-    // Use bash as shell to allow use of PIPESTATUS
-    ss << "bash -c './ns3 run " << m_program << " --no-build --command-template=\""
-       << GetCommandTemplate()
-       << "\""
+    ss << "python3 ./ns3 run " << m_program << " --no-build --command-template=\""
+       << GetCommandTemplate() << "\"";
 
-       // redirect std::clog, std::cerr to std::cout
-       << " 2>&1 "
-
-       // Suppress the waf lines from output; waf output contains directory paths which will
-       // obviously differ during a test run
-       << " | grep -v 'Waf:' " << GetPostProcessingCommand() << " > "
-       << testFile
-
-       // Get the status of ns3
-       << "; exit ${PIPESTATUS[0]}'";
+    if (post.empty())
+    {
+        // redirect to testfile, then std::clog, std::cerr to std::cout
+        ss << " > " << testFile << " 2>&1";
+    }
+    else
+    {
+        ss << " 2>&1 " << post << " > " << testFile;
+    }
 
     int status = std::system(ss.str().c_str());
 
-    std::cout << "command:  " << ss.str() << "\n"
-              << "status:   " << status << "\n"
-              << "refFile:  " << refFile << "\n"
-              << "testFile: " << testFile << "\n"
-              << std::endl;
-    std::cout << "testFile contents:" << std::endl;
+    std::cout << "\n"
+              << GetName() << ":\n"
+              << "    command:  " << ss.str() << "\n"
+              << "    status:   " << status << "\n"
+              << "    refFile:  " << refFile << "\n"
+              << "    testFile: " << testFile << "\n"
+              << "    testFile contents:" << std::endl;
 
     std::ifstream logF(testFile);
     std::string line;
     while (getline(logF, line))
     {
-        std::cout << line << "\n";
+        std::cout << "--- " << line << "\n";
     }
     logF.close();
 
-    // Make sure the example didn't outright crash
-    NS_TEST_ASSERT_MSG_EQ(status, 0, "example " + m_program + " failed");
+    if (m_shouldNotErr)
+    {
+        // Make sure the example didn't outright crash
+        NS_TEST_ASSERT_MSG_EQ(status, 0, "example " + m_program + " failed");
+    }
 
-    // Check that we're not just introspecting the command-line
-    const char* envVar = std::getenv("NS_COMMANDLINE_INTROSPECTION");
-    if (envVar != nullptr && std::strlen(envVar) != 0)
+    // If we're just introspecting the command-line
+    // we've run the example and we're done
+    auto [found, intro] = EnvironmentVariable::Get("NS_COMMANDLINE_INTROSPECTION");
+    if (found)
     {
         return;
     }
@@ -140,13 +153,14 @@ ExampleAsTestSuite::ExampleAsTestSuite(const std::string name,
                                        const std::string program,
                                        const std::string dataDir,
                                        const std::string args /* = "" */,
-                                       const TestDuration duration /* =QUICK */)
+                                       const TestDuration duration /* =QUICK */,
+                                       const bool shouldNotErr /* = true */)
     : TestSuite(name, EXAMPLE)
 {
-    NS_LOG_FUNCTION(this << name << program << dataDir << args << duration);
-    AddTestCase(new ExampleAsTestCase(name, program, dataDir, args), duration);
+    NS_LOG_FUNCTION(this << name << program << dataDir << args << duration << shouldNotErr);
+    AddTestCase(new ExampleAsTestCase(name, program, dataDir, args, shouldNotErr), duration);
 }
 
-#endif // NS3_ENABLE_EXAMPLES && !defined (__win32__)
+#endif // NS3_ENABLE_EXAMPLES
 
 } // namespace ns3

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 NITK Surathkal
  *
@@ -258,7 +257,7 @@
  * ---------------
  *    --n0TcpType:           First TCP type (bic, dctcp, or reno) [bic]
  *    --n1TcpType:           Second TCP type (cubic, dctcp, or reno) []
- *    --scenarioNum:         Scenario number from the scenarios avalaible in the file (1-9) [0]
+ *    --scenarioNum:         Scenario number from the scenarios available in the file (1-9) [0]
  *    --bottleneckQueueType: n2 queue type (fq or codel) [fq]
  *    --baseRtt:             base RTT [80ms]
  *    --useCeThreshold:      use CE threshold [false]
@@ -323,9 +322,10 @@ TraceN1Rtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 }
 
 void
-TracePingRtt(std::ofstream* ofStream, Time rtt)
+TracePingRtt(std::ofstream* ofStream, uint16_t seqNo, Time rtt)
 {
-    *ofStream << Simulator::Now().GetSeconds() << " " << rtt.GetSeconds() * 1000 << std::endl;
+    *ofStream << Simulator::Now().GetSeconds() << " " << seqNo << " " << rtt.GetSeconds() * 1000
+              << std::endl;
 }
 
 void
@@ -532,7 +532,7 @@ main(int argc, char* argv[])
     cmd.AddValue("n0TcpType", "n0 TCP type (bic, dctcp, or reno)", n0TcpType);
     cmd.AddValue("n1TcpType", "n1 TCP type (bic, dctcp, or reno)", n1TcpType);
     cmd.AddValue("scenarioNum",
-                 "Scenario number from the scenarios avalaible in the file (1-9)",
+                 "Scenario number from the scenarios available in the file (1-9)",
                  scenarioNum);
     cmd.AddValue("bottleneckQueueType", "n2 queue type (fq or codel)", queueType);
     cmd.AddValue("baseRtt", "base RTT", baseRtt);
@@ -613,7 +613,7 @@ main(int argc, char* argv[])
             enableN1Tcp = true;
             n1TcpTypeId = TypeId::LookupByName("ns3::TcpDctcp");
         }
-        else if (n1TcpType == "")
+        else if (n1TcpType.empty())
         {
             NS_LOG_DEBUG("No N1 TCP selected");
         }
@@ -685,35 +685,35 @@ main(int argc, char* argv[])
     }
 
     std::ofstream pingOfStream;
-    pingOfStream.open(pingTraceFile.c_str(), std::ofstream::out);
+    pingOfStream.open(pingTraceFile, std::ofstream::out);
     std::ofstream n0TcpRttOfStream;
-    n0TcpRttOfStream.open(n0TcpRttTraceFile.c_str(), std::ofstream::out);
+    n0TcpRttOfStream.open(n0TcpRttTraceFile, std::ofstream::out);
     std::ofstream n0TcpCwndOfStream;
-    n0TcpCwndOfStream.open(n0TcpCwndTraceFile.c_str(), std::ofstream::out);
+    n0TcpCwndOfStream.open(n0TcpCwndTraceFile, std::ofstream::out);
     std::ofstream n0TcpThroughputOfStream;
-    n0TcpThroughputOfStream.open(n0TcpThroughputTraceFile.c_str(), std::ofstream::out);
+    n0TcpThroughputOfStream.open(n0TcpThroughputTraceFile, std::ofstream::out);
     std::ofstream n1TcpRttOfStream;
-    n1TcpRttOfStream.open(n1TcpRttTraceFile.c_str(), std::ofstream::out);
+    n1TcpRttOfStream.open(n1TcpRttTraceFile, std::ofstream::out);
     std::ofstream n1TcpCwndOfStream;
-    n1TcpCwndOfStream.open(n1TcpCwndTraceFile.c_str(), std::ofstream::out);
+    n1TcpCwndOfStream.open(n1TcpCwndTraceFile, std::ofstream::out);
     std::ofstream n1TcpThroughputOfStream;
-    n1TcpThroughputOfStream.open(n1TcpThroughputTraceFile.c_str(), std::ofstream::out);
+    n1TcpThroughputOfStream.open(n1TcpThroughputTraceFile, std::ofstream::out);
 
     // Queue disc files
     std::ofstream dropOfStream;
-    dropOfStream.open(dropTraceFile.c_str(), std::ofstream::out);
+    dropOfStream.open(dropTraceFile, std::ofstream::out);
     std::ofstream markOfStream;
-    markOfStream.open(markTraceFile.c_str(), std::ofstream::out);
+    markOfStream.open(markTraceFile, std::ofstream::out);
     std::ofstream dropsFrequencyOfStream;
-    dropsFrequencyOfStream.open(dropsFrequencyTraceFile.c_str(), std::ofstream::out);
+    dropsFrequencyOfStream.open(dropsFrequencyTraceFile, std::ofstream::out);
     std::ofstream marksFrequencyOfStream;
-    marksFrequencyOfStream.open(marksFrequencyTraceFile.c_str(), std::ofstream::out);
+    marksFrequencyOfStream.open(marksFrequencyTraceFile, std::ofstream::out);
     std::ofstream lengthOfStream;
-    lengthOfStream.open(lengthTraceFile.c_str(), std::ofstream::out);
+    lengthOfStream.open(lengthTraceFile, std::ofstream::out);
     std::ofstream queueDelayN0OfStream;
-    queueDelayN0OfStream.open(queueDelayN0TraceFile.c_str(), std::ofstream::out);
+    queueDelayN0OfStream.open(queueDelayN0TraceFile, std::ofstream::out);
     std::ofstream queueDelayN1OfStream;
-    queueDelayN1OfStream.open(queueDelayN1TraceFile.c_str(), std::ofstream::out);
+    queueDelayN1OfStream.open(queueDelayN1TraceFile, std::ofstream::out);
 
     ////////////////////////////////////////////////////////////
     // scenario setup                                         //
@@ -775,7 +775,7 @@ main(int argc, char* argv[])
         proto->SetAttribute("SocketType", TypeIdValue(n1TcpTypeId));
     }
 
-    // InternetStackHelper will install a base TrafficControLayer on the node,
+    // InternetStackHelper will install a base TrafficControlLayer on the node,
     // but the Ipv4AddressHelper below will install the default FqCoDelQueueDisc
     // on all single device nodes.  The below code overrides the configuration
     // that is normally done by the Ipv4AddressHelper::Install() method by
@@ -817,12 +817,12 @@ main(int argc, char* argv[])
     // application setup                                      //
     ////////////////////////////////////////////////////////////
 
-    V4PingHelper pingHelper("192.168.1.2");
+    PingHelper pingHelper(Ipv4Address("192.168.1.2"));
     pingHelper.SetAttribute("Interval", TimeValue(pingInterval));
     pingHelper.SetAttribute("Size", UintegerValue(pingSize));
     ApplicationContainer pingContainer = pingHelper.Install(pingServer);
-    Ptr<V4Ping> v4Ping = pingContainer.Get(0)->GetObject<V4Ping>();
-    v4Ping->TraceConnectWithoutContext("Rtt", MakeBoundCallback(&TracePingRtt, &pingOfStream));
+    Ptr<Ping> ping = pingContainer.Get(0)->GetObject<Ping>();
+    ping->TraceConnectWithoutContext("Rtt", MakeBoundCallback(&TracePingRtt, &pingOfStream));
     pingContainer.Start(Seconds(1));
     pingContainer.Stop(stopTime - Seconds(1));
 
@@ -936,4 +936,6 @@ main(int argc, char* argv[])
     lengthOfStream.close();
     queueDelayN0OfStream.close();
     queueDelayN1OfStream.close();
+
+    return 0;
 }

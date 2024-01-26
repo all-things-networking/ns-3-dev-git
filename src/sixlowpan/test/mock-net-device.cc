@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
@@ -246,11 +245,7 @@ bool
 MockNetDevice::IsPointToPoint() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_pointToPointMode)
-    {
-        return true;
-    }
-    return false;
+    return m_pointToPointMode;
 }
 
 bool
@@ -306,11 +301,7 @@ bool
 MockNetDevice::NeedsArp() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_pointToPointMode)
-    {
-        return false;
-    }
-    return true;
+    return !m_pointToPointMode;
 }
 
 void

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,9 +17,10 @@
  * Author: Marco Miozzo  <marco.miozzo@cttc.es>
  */
 
+#include "lte-harq-phy.h"
+
 #include <ns3/assert.h>
 #include <ns3/log.h>
-#include <ns3/lte-harq-phy.h>
 
 namespace ns3
 {
@@ -53,8 +53,7 @@ LteHarqPhy::SubframeIndication(uint32_t frameNo, uint32_t subframeNo)
     NS_LOG_FUNCTION(this);
 
     // left shift UL HARQ buffers
-    std::map<uint16_t, std::vector<HarqProcessInfoList_t>>::iterator it;
-    for (it = m_miUlHarqProcessesInfoMap.begin(); it != m_miUlHarqProcessesInfoMap.end(); it++)
+    for (auto it = m_miUlHarqProcessesInfoMap.begin(); it != m_miUlHarqProcessesInfoMap.end(); it++)
     {
         (*it).second.erase((*it).second.begin());
         HarqProcessInfoList_t h;
@@ -72,14 +71,14 @@ LteHarqPhy::GetAccumulatedMiDl(uint8_t harqProcId, uint8_t layer)
     {
         mi += list.at(i).m_mi;
     }
-    return (mi);
+    return mi;
 }
 
 HarqProcessInfoList_t
 LteHarqPhy::GetHarqProcessInfoDl(uint8_t harqProcId, uint8_t layer)
 {
     NS_LOG_FUNCTION(this << (uint32_t)harqProcId << (uint16_t)layer);
-    return (m_miDlHarqProcessesInfoMap.at(layer).at(harqProcId));
+    return m_miDlHarqProcessesInfoMap.at(layer).at(harqProcId);
 }
 
 double
@@ -87,8 +86,7 @@ LteHarqPhy::GetAccumulatedMiUl(uint16_t rnti)
 {
     NS_LOG_FUNCTION(this << rnti);
 
-    std::map<uint16_t, std::vector<HarqProcessInfoList_t>>::iterator it;
-    it = m_miUlHarqProcessesInfoMap.find(rnti);
+    auto it = m_miUlHarqProcessesInfoMap.find(rnti);
     NS_ASSERT_MSG(it != m_miUlHarqProcessesInfoMap.end(), " Does not find MI for RNTI");
     HarqProcessInfoList_t list = (*it).second.at(0);
     double mi = 0.0;
@@ -96,15 +94,14 @@ LteHarqPhy::GetAccumulatedMiUl(uint16_t rnti)
     {
         mi += list.at(i).m_mi;
     }
-    return (mi);
+    return mi;
 }
 
 HarqProcessInfoList_t
 LteHarqPhy::GetHarqProcessInfoUl(uint16_t rnti, uint8_t harqProcId)
 {
     NS_LOG_FUNCTION(this << rnti << (uint16_t)harqProcId);
-    std::map<uint16_t, std::vector<HarqProcessInfoList_t>>::iterator it;
-    it = m_miUlHarqProcessesInfoMap.find(rnti);
+    auto it = m_miUlHarqProcessesInfoMap.find(rnti);
     if (it == m_miUlHarqProcessesInfoMap.end())
     {
         // new entry
@@ -112,11 +109,11 @@ LteHarqPhy::GetHarqProcessInfoUl(uint16_t rnti, uint8_t harqProcId)
         harqList.resize(8);
         m_miUlHarqProcessesInfoMap.insert(
             std::pair<uint16_t, std::vector<HarqProcessInfoList_t>>(rnti, harqList));
-        return (harqList.at(harqProcId));
+        return harqList.at(harqProcId);
     }
     else
     {
-        return ((*it).second.at(harqProcId));
+        return (*it).second.at(harqProcId);
     }
 }
 
@@ -157,8 +154,7 @@ LteHarqPhy::UpdateUlHarqProcessStatus(uint16_t rnti,
                                       uint16_t codeBytes)
 {
     NS_LOG_FUNCTION(this << rnti << mi);
-    std::map<uint16_t, std::vector<HarqProcessInfoList_t>>::iterator it;
-    it = m_miUlHarqProcessesInfoMap.find(rnti);
+    auto it = m_miUlHarqProcessesInfoMap.find(rnti);
     if (it == m_miUlHarqProcessesInfoMap.end())
     {
         // new entry
@@ -199,8 +195,7 @@ void
 LteHarqPhy::ResetUlHarqProcessStatus(uint16_t rnti, uint8_t id)
 {
     NS_LOG_FUNCTION(this << rnti << (uint16_t)id);
-    std::map<uint16_t, std::vector<HarqProcessInfoList_t>>::iterator it;
-    it = m_miUlHarqProcessesInfoMap.find(rnti);
+    auto it = m_miUlHarqProcessesInfoMap.find(rnti);
     if (it == m_miUlHarqProcessesInfoMap.end())
     {
         // new entry

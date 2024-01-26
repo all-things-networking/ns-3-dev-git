@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,7 +21,7 @@
 #ifndef OH_BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 #define OH_BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 
-#include <ns3/buildings-propagation-loss-model.h>
+#include "buildings-propagation-loss-model.h"
 
 namespace ns3
 {

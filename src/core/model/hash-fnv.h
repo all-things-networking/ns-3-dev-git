@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
@@ -99,10 +98,7 @@ class Fnv1a : public Implementation
     /**
      * Seed value
      */
-    enum seed
-    {
-        SEED = 0x8BADF00D /**< Ate bad food */
-    };
+    static constexpr auto SEED{0x8BADF00D}; // Ate bad food
 
     /** Cache last hash value, for incremental hashing. */
     /**@{*/

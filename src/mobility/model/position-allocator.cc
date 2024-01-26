@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -233,7 +232,7 @@ GridPositionAllocator::SetN(uint32_t n)
 }
 
 void
-GridPositionAllocator::SetLayoutType(enum LayoutType layoutType)
+GridPositionAllocator::SetLayoutType(LayoutType layoutType)
 {
     m_layoutType = layoutType;
 }
@@ -268,7 +267,7 @@ GridPositionAllocator::GetN() const
     return m_n;
 }
 
-enum GridPositionAllocator::LayoutType
+GridPositionAllocator::LayoutType
 GridPositionAllocator::GetLayoutType() const
 {
     return m_layoutType;

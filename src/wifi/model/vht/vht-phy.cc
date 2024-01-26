@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -251,10 +250,8 @@ VhtPhy::BuildPpdu(const WifiConstPsduMap& psdus, const WifiTxVector& txVector, T
     NS_LOG_FUNCTION(this << psdus << txVector << ppduDuration);
     return Create<VhtPpdu>(psdus.begin()->second,
                            txVector,
-                           m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-                               txVector.GetChannelWidth()),
+                           m_wifiPhy->GetOperatingChannel(),
                            ppduDuration,
-                           m_wifiPhy->GetPhyBand(),
                            ObtainNextUid(txVector));
 }
 
@@ -317,7 +314,7 @@ PhyEntity::PhyFieldRxStatus
 VhtPhy::ProcessSig(Ptr<Event> event, PhyFieldRxStatus status, WifiPpduField field)
 {
     NS_LOG_FUNCTION(this << *event << status << field);
-    NS_ASSERT(event->GetTxVector().GetPreambleType() >= WIFI_PREAMBLE_VHT_SU);
+    NS_ASSERT(event->GetPpdu()->GetTxVector().GetPreambleType() >= WIFI_PREAMBLE_VHT_SU);
     // TODO see if something should be done here once MU-MIMO is supported
     return status; // nothing special for VHT
 }
@@ -368,11 +365,11 @@ VhtPhy::GetVhtMcs(uint8_t index)
 }
 
 #define GET_VHT_MCS(x)                                                                             \
-    WifiMode VhtPhy::GetVhtMcs##x(void)                                                            \
+    WifiMode VhtPhy::GetVhtMcs##x()                                                                \
     {                                                                                              \
         static WifiMode mcs = CreateVhtMcs(x);                                                     \
         return mcs;                                                                                \
-    };
+    }
 
 GET_VHT_MCS(0)
 GET_VHT_MCS(1)
@@ -553,7 +550,7 @@ VhtPhy::GetCcaThreshold(const Ptr<const WifiPpdu> ppdu, WifiChannelListType chan
         {
         case WIFI_CHANLIST_PRIMARY: {
             // Start of a PPDU for which its power measured within the primary 20 MHz channel is at
-            // or above the CCA sensitivy threshold.
+            // or above the CCA sensitivity threshold.
             return m_wifiPhy->GetCcaSensitivityThreshold();
         }
         case WIFI_CHANLIST_SECONDARY:

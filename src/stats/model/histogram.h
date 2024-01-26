@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -65,13 +64,13 @@ class Histogram
      * \param index the bin index
      * \return the bin start
      */
-    double GetBinStart(uint32_t index);
+    double GetBinStart(uint32_t index) const;
     /**
      * \brief Returns the bin end, i.e., (index+1)*binWidth
      * \param index the bin index
      * \return the bin start
      */
-    double GetBinEnd(uint32_t index);
+    double GetBinEnd(uint32_t index) const;
     /**
      * \brief Returns the bin width.
      *
@@ -94,7 +93,7 @@ class Histogram
      * \param index the bin index
      * \return the number of data added to the bin
      */
-    uint32_t GetBinCount(uint32_t index);
+    uint32_t GetBinCount(uint32_t index) const;
 
     // Method for adding values
     /**
@@ -102,6 +101,11 @@ class Histogram
      * \param value the value to add
      */
     void AddValue(double value);
+
+    /**
+     * Clear the histogram content.
+     */
+    void Clear();
 
     /**
      * \brief Serializes the results to an std::ostream in XML format.

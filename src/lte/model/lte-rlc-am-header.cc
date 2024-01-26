@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,7 +17,7 @@
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/lte-rlc-am-header.h"
+#include "lte-rlc-am-header.h"
 
 #include "ns3/log.h"
 
@@ -249,8 +248,7 @@ LteRlcAmHeader::IsNackPresent(SequenceNumber10 nack)
     NS_LOG_FUNCTION(this);
     NS_ASSERT_MSG(m_dataControlBit == CONTROL_PDU && m_controlPduType == LteRlcAmHeader::STATUS_PDU,
                   "method allowed only for STATUS PDUs");
-    for (std::list<int>::iterator nackIt = m_nackSnList.begin(); nackIt != m_nackSnList.end();
-         ++nackIt)
+    for (auto nackIt = m_nackSnList.begin(); nackIt != m_nackSnList.end(); ++nackIt)
     {
         if ((*nackIt) == nack.GetValue())
         {
@@ -302,9 +300,9 @@ LteRlcAmHeader::GetInstanceTypeId() const
 void
 LteRlcAmHeader::Print(std::ostream& os) const
 {
-    std::list<uint8_t>::const_iterator it1 = m_extensionBits.begin();
-    std::list<uint16_t>::const_iterator it2 = m_lengthIndicators.begin();
-    std::list<int>::const_iterator it3 = m_nackSnList.begin();
+    auto it1 = m_extensionBits.begin();
+    auto it2 = m_lengthIndicators.begin();
+    auto it3 = m_nackSnList.begin();
 
     os << "Len=" << m_headerLength;
     os << " D/C=" << (uint16_t)m_dataControlBit;
@@ -363,9 +361,9 @@ LteRlcAmHeader::Serialize(Buffer::Iterator start) const
 {
     Buffer::Iterator i = start;
 
-    std::list<uint8_t>::const_iterator it1 = m_extensionBits.begin();
-    std::list<uint16_t>::const_iterator it2 = m_lengthIndicators.begin();
-    std::list<int>::const_iterator it3 = m_nackSnList.begin();
+    auto it1 = m_extensionBits.begin();
+    auto it2 = m_lengthIndicators.begin();
+    auto it3 = m_nackSnList.begin();
 
     if (m_dataControlBit == DATA_PDU)
     {
@@ -406,7 +404,7 @@ LteRlcAmHeader::Serialize(Buffer::Iterator start) const
             else
             {
                 i.WriteU8(((oddE << 7) & 0x80) | ((oddLi >> 4) & 0x007F));
-                i.WriteU8(((oddLi << 4) & 0x00F0)); // Padding is implicit
+                i.WriteU8((oddLi << 4) & 0x00F0); // Padding is implicit
             }
         }
     }
@@ -422,7 +420,7 @@ LteRlcAmHeader::Serialize(Buffer::Iterator start) const
             NS_LOG_LOGIC(this << " no NACKs");
             // If there are no NACKs then this line adds the rest of the ACK
             // along with 0x00, indicating an E1 value of 0 or no NACKs follow.
-            i.WriteU8(((m_ackSn.GetValue() << 2) & 0xFC));
+            i.WriteU8((m_ackSn.GetValue() << 2) & 0xFC);
         }
         else
         {
@@ -442,7 +440,7 @@ LteRlcAmHeader::Serialize(Buffer::Iterator start) const
                 // either the setup to enter this loop or the previous loop would
                 // have written the highest order bit to the previous octet.
                 // Write the next set of bits (2 - 9) into the next octet
-                i.WriteU8(((oddNack >> 1) & 0xFF));
+                i.WriteU8((oddNack >> 1) & 0xFF);
 
                 // Next check to see if there is going to be another NACK after
                 // this
@@ -468,13 +466,13 @@ LteRlcAmHeader::Serialize(Buffer::Iterator start) const
                     else
                     {
                         // No, there are no more NACKs
-                        i.WriteU8(((evenNack << 3) & 0xF8));
+                        i.WriteU8((evenNack << 3) & 0xF8);
                     }
                 }
                 else
                 {
                     // No, this is the last NACK so E1 will be 0
-                    i.WriteU8(((oddNack << 7) & 0x80));
+                    i.WriteU8((oddNack << 7) & 0x80);
                 }
             }
         }

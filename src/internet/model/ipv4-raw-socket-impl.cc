@@ -1,19 +1,23 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 #include "ipv4-raw-socket-impl.h"
 
 #include "icmpv4.h"
-#include "ipv4-l3-protocol.h"
+#include "ipv4-packet-info-tag.h"
+#include "ipv4-routing-protocol.h"
 
 #include "ns3/boolean.h"
 #include "ns3/inet-socket-address.h"
-#include "ns3/ipv4-packet-info-tag.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
 #include "ns3/uinteger.h"
 
+#ifdef __WIN32__
+#include "win32-internet.h"
+#else
 #include <netinet/in.h>
 #include <sys/socket.h>
+#endif
+
 #include <sys/types.h>
 
 namespace ns3
@@ -84,14 +88,14 @@ Ipv4RawSocketImpl::DoDispose()
     Socket::DoDispose();
 }
 
-enum Socket::SocketErrno
+Socket::SocketErrno
 Ipv4RawSocketImpl::GetErrno() const
 {
     NS_LOG_FUNCTION(this);
     return m_err;
 }
 
-enum Socket::SocketType
+Socket::SocketType
 Ipv4RawSocketImpl::GetSocketType() const
 {
     NS_LOG_FUNCTION(this);
@@ -131,7 +135,7 @@ int
 Ipv4RawSocketImpl::Bind6()
 {
     NS_LOG_FUNCTION(this);
-    return (-1);
+    return -1;
 }
 
 int
@@ -271,10 +275,19 @@ Ipv4RawSocketImpl::SendTo(Ptr<Packet> p, uint32_t flags, const Address& toAddres
         p->AddPacketTag(tag);
     }
 
-    bool subnetDirectedBroadcast = false;
-    if (m_boundnetdevice)
+    Ptr<NetDevice> boundNetDevice = m_boundnetdevice;
+
+    if (!m_src.IsAny())
     {
-        uint32_t iif = ipv4->GetInterfaceForDevice(m_boundnetdevice);
+        int32_t index = ipv4->GetInterfaceForAddress(m_src);
+        NS_ASSERT(index >= 0);
+        boundNetDevice = ipv4->GetNetDevice(index);
+    }
+
+    bool subnetDirectedBroadcast = false;
+    if (boundNetDevice)
+    {
+        uint32_t iif = ipv4->GetInterfaceForDevice(boundNetDevice);
         for (uint32_t j = 0; j < ipv4->GetNAddresses(iif); j++)
         {
             Ipv4InterfaceAddress ifAddr = ipv4->GetAddress(iif, j);
@@ -287,7 +300,6 @@ Ipv4RawSocketImpl::SendTo(Ptr<Packet> p, uint32_t flags, const Address& toAddres
 
     if (dst.IsBroadcast() || subnetDirectedBroadcast)
     {
-        Ptr<NetDevice> boundNetDevice = m_boundnetdevice;
         if (ipv4->GetNInterfaces() == 1)
         {
             boundNetDevice = ipv4->GetNetDevice(0);
@@ -308,6 +320,7 @@ Ipv4RawSocketImpl::SendTo(Ptr<Packet> p, uint32_t flags, const Address& toAddres
             route->SetSource(src);
             route->SetDestination(dst);
             route->SetOutputDevice(boundNetDevice);
+            route->SetGateway("0.0.0.0");
             ipv4->Send(p, route->GetSource(), dst, m_protocol, route);
         }
         else
@@ -320,6 +333,7 @@ Ipv4RawSocketImpl::SendTo(Ptr<Packet> p, uint32_t flags, const Address& toAddres
             route->SetSource(src);
             route->SetDestination(dst);
             route->SetOutputDevice(boundNetDevice);
+            route->SetGateway("0.0.0.0");
             ipv4->SendWithHeader(p, header, route);
         }
         NotifyDataSent(pktSize);
@@ -386,7 +400,7 @@ Ipv4RawSocketImpl::GetRxAvailable() const
 {
     NS_LOG_FUNCTION(this);
     uint32_t rx = 0;
-    for (std::list<Data>::const_iterator i = m_recv.begin(); i != m_recv.end(); ++i)
+    for (auto i = m_recv.begin(); i != m_recv.end(); ++i)
     {
         rx += (i->packet)->GetSize();
     }
@@ -409,7 +423,7 @@ Ipv4RawSocketImpl::RecvFrom(uint32_t maxSize, uint32_t flags, Address& fromAddre
     {
         return nullptr;
     }
-    struct Data data = m_recv.front();
+    Data data = m_recv.front();
     m_recv.pop_front();
     InetSocketAddress inet = InetSocketAddress(data.fromIp, data.fromProtocol);
     fromAddress = inet;
@@ -497,7 +511,7 @@ Ipv4RawSocketImpl::ForwardUp(Ptr<const Packet> p,
             }
         }
         copy->AddHeader(ipHeader);
-        struct Data data;
+        Data data;
         data.packet = copy;
         data.fromIp = ipHeader.GetSource();
         data.fromProtocol = ipHeader.GetProtocol();
@@ -512,11 +526,7 @@ bool
 Ipv4RawSocketImpl::SetAllowBroadcast(bool allowBroadcast)
 {
     NS_LOG_FUNCTION(this << allowBroadcast);
-    if (!allowBroadcast)
-    {
-        return false;
-    }
-    return true;
+    return allowBroadcast;
 }
 
 bool

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation
  * Copyright (c) 2011 Mathieu Lacage
@@ -101,6 +100,13 @@ RandomVariableStream::IsAntithetic() const
 {
     NS_LOG_FUNCTION(this);
     return m_isAntithetic;
+}
+
+uint32_t
+RandomVariableStream::GetInteger()
+{
+    NS_LOG_FUNCTION(this);
+    return static_cast<uint32_t>(GetValue());
 }
 
 void
@@ -217,7 +223,7 @@ uint32_t
 UniformRandomVariable::GetInteger()
 {
     NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_min, m_max + 1);
+    return static_cast<uint32_t>(GetValue(m_min, m_max + 1));
 }
 
 NS_OBJECT_ENSURE_REGISTERED(ConstantRandomVariable);
@@ -269,13 +275,6 @@ ConstantRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_constant);
-}
-
-uint32_t
-ConstantRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_constant);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(SequentialRandomVariable);
@@ -356,7 +355,7 @@ SequentialRandomVariable::GetValue()
     NS_LOG_FUNCTION(this);
     if (!m_isCurrentSet)
     {
-        // Start the sequence at its minimium value.
+        // Start the sequence at its minimum value.
         m_current = m_min;
         m_isCurrentSet = true;
     }
@@ -373,13 +372,6 @@ SequentialRandomVariable::GetValue()
         }
     }
     return r;
-}
-
-uint32_t
-SequentialRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue();
 }
 
 NS_OBJECT_ENSURE_REGISTERED(ExponentialRandomVariable);
@@ -429,7 +421,7 @@ double
 ExponentialRandomVariable::GetValue(double mean, double bound)
 {
     NS_LOG_FUNCTION(this << mean << bound);
-    while (1)
+    while (true)
     {
         // Get a uniform random variable in [0,1].
         double v = Peek()->RandU01();
@@ -461,13 +453,6 @@ ExponentialRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_mean, m_bound);
-}
-
-uint32_t
-ExponentialRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_mean, m_bound);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(ParetoRandomVariable);
@@ -535,7 +520,7 @@ ParetoRandomVariable::GetValue(double scale, double shape, double bound)
     // Calculate the scale parameter.
     NS_LOG_FUNCTION(this << scale << shape << bound);
 
-    while (1)
+    while (true)
     {
         // Get a uniform random variable in [0,1].
         double v = Peek()->RandU01();
@@ -567,13 +552,6 @@ ParetoRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_scale, m_shape, m_bound);
-}
-
-uint32_t
-ParetoRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_scale, m_shape, m_bound);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(WeibullRandomVariable);
@@ -639,7 +617,7 @@ WeibullRandomVariable::GetValue(double scale, double shape, double bound)
 {
     NS_LOG_FUNCTION(this << scale << shape << bound);
     double exponent = 1.0 / shape;
-    while (1)
+    while (true)
     {
         // Get a uniform random variable in [0,1].
         double v = Peek()->RandU01();
@@ -671,13 +649,6 @@ WeibullRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_scale, m_shape, m_bound);
-}
-
-uint32_t
-WeibullRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_scale, m_shape, m_bound);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(NormalRandomVariable);
@@ -753,7 +724,7 @@ NormalRandomVariable::GetValue(double mean, double variance, double bound)
             return x2;
         }
     }
-    while (1)
+    while (true)
     { // See Simulation Modeling and Analysis p. 466 (Averill Law)
         // for algorithm; basically a Box-Muller transform:
         // http://en.wikipedia.org/wiki/Box-Muller_transform
@@ -805,13 +776,6 @@ NormalRandomVariable::GetValue()
     return GetValue(m_mean, m_variance, m_bound);
 }
 
-uint32_t
-NormalRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_mean, m_variance, m_bound);
-}
-
 NS_OBJECT_ENSURE_REGISTERED(LogNormalRandomVariable);
 
 TypeId
@@ -838,6 +802,7 @@ LogNormalRandomVariable::GetTypeId()
 }
 
 LogNormalRandomVariable::LogNormalRandomVariable()
+    : m_nextValid(false)
 {
     // m_mu and m_sigma are initialized after constructor by
     // attributes
@@ -887,6 +852,14 @@ LogNormalRandomVariable::GetSigma() const
 double
 LogNormalRandomVariable::GetValue(double mu, double sigma)
 {
+    if (m_nextValid)
+    { // use previously generated
+        m_nextValid = false;
+        double normal = m_v2 * m_normal;
+
+        return std::exp(sigma * normal + mu);
+    }
+
     double v1;
     double v2;
     double r2;
@@ -914,7 +887,10 @@ LogNormalRandomVariable::GetValue(double mu, double sigma)
         r2 = v1 * v1 + v2 * v2;
     } while (r2 > 1.0 || r2 == 0);
 
-    normal = v1 * std::sqrt(-2.0 * std::log(r2) / r2);
+    m_normal = std::sqrt(-2.0 * std::log(r2) / r2);
+    normal = v1 * m_normal;
+    m_nextValid = true;
+    m_v2 = v2;
 
     x = std::exp(sigma * normal + mu);
 
@@ -933,13 +909,6 @@ LogNormalRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_mu, m_sigma);
-}
-
-uint32_t
-LogNormalRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_mu, m_sigma);
 }
 
 NS_OBJECT_ENSURE_REGISTERED(GammaRandomVariable);
@@ -1023,7 +992,7 @@ GammaRandomVariable::GetValue(double alpha, double beta)
     double d = alpha - 1.0 / 3.0;
     double c = (1.0 / 3.0) / std::sqrt(d);
 
-    while (1)
+    while (true)
     {
         do
         {
@@ -1056,25 +1025,11 @@ GammaRandomVariable::GetValue(double alpha, double beta)
     return beta * d * v;
 }
 
-uint32_t
-GammaRandomVariable::GetInteger(uint32_t alpha, uint32_t beta)
-{
-    NS_LOG_FUNCTION(this << alpha << beta);
-    return static_cast<uint32_t>(GetValue(alpha, beta));
-}
-
 double
 GammaRandomVariable::GetValue()
 {
     NS_LOG_FUNCTION(this);
     return GetValue(m_alpha, m_beta);
-}
-
-uint32_t
-GammaRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_alpha, m_beta);
 }
 
 double
@@ -1090,7 +1045,7 @@ GammaRandomVariable::GetNormalValue(double mean, double variance, double bound)
             return x2;
         }
     }
-    while (1)
+    while (true)
     { // See Simulation Modeling and Analysis p. 466 (Averill Law)
         // for algorithm; basically a Box-Muller transform:
         // http://en.wikipedia.org/wiki/Box-Muller_transform
@@ -1214,18 +1169,11 @@ ErlangRandomVariable::GetValue()
     return GetValue(m_k, m_lambda);
 }
 
-uint32_t
-ErlangRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_k, m_lambda);
-}
-
 double
 ErlangRandomVariable::GetExponentialValue(double mean, double bound)
 {
     NS_LOG_FUNCTION(this << mean << bound);
-    while (1)
+    while (true)
     {
         // Get a uniform random variable in [0,1].
         double v = Peek()->RandU01();
@@ -1341,13 +1289,6 @@ TriangularRandomVariable::GetValue()
     return GetValue(m_mean, m_min, m_max);
 }
 
-uint32_t
-TriangularRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_mean, m_min, m_max);
-}
-
 NS_OBJECT_ENSURE_REGISTERED(ZipfRandomVariable);
 
 TypeId
@@ -1438,13 +1379,6 @@ ZipfRandomVariable::GetValue()
     return GetValue(m_n, m_alpha);
 }
 
-uint32_t
-ZipfRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_n, m_alpha);
-}
-
 NS_OBJECT_ENSURE_REGISTERED(ZetaRandomVariable);
 
 TypeId
@@ -1526,13 +1460,6 @@ ZetaRandomVariable::GetValue()
     return GetValue(m_alpha);
 }
 
-uint32_t
-ZetaRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue(m_alpha);
-}
-
 NS_OBJECT_ENSURE_REGISTERED(DeterministicRandomVariable);
 
 TypeId
@@ -1564,7 +1491,13 @@ DeterministicRandomVariable::~DeterministicRandomVariable()
 }
 
 void
-DeterministicRandomVariable::SetValueArray(double* values, std::size_t length)
+DeterministicRandomVariable::SetValueArray(const std::vector<double>& values)
+{
+    SetValueArray(values.data(), values.size());
+}
+
+void
+DeterministicRandomVariable::SetValueArray(const double* values, std::size_t length)
 {
     NS_LOG_FUNCTION(this << values << length);
     // Delete any values currently set.
@@ -1599,36 +1532,7 @@ DeterministicRandomVariable::GetValue()
     return m_data[m_next++];
 }
 
-uint32_t
-DeterministicRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return (uint32_t)GetValue();
-}
-
 NS_OBJECT_ENSURE_REGISTERED(EmpiricalRandomVariable);
-
-// ValueCDF methods
-EmpiricalRandomVariable::ValueCDF::ValueCDF()
-    : value(0.0),
-      cdf(0.0)
-{
-    NS_LOG_FUNCTION(this);
-}
-
-EmpiricalRandomVariable::ValueCDF::ValueCDF(double v, double c)
-    : value(v),
-      cdf(c)
-{
-    NS_LOG_FUNCTION(this << v << c);
-    NS_ASSERT(c >= 0.0 && c <= 1.0);
-}
-
-bool
-operator<(EmpiricalRandomVariable::ValueCDF a, EmpiricalRandomVariable::ValueCDF b)
-{
-    return a.cdf < b.cdf;
-}
 
 TypeId
 EmpiricalRandomVariable::GetTypeId()
@@ -1662,13 +1566,6 @@ EmpiricalRandomVariable::SetInterpolate(bool interpolate)
     return prev;
 }
 
-uint32_t
-EmpiricalRandomVariable::GetInteger()
-{
-    NS_LOG_FUNCTION(this);
-    return static_cast<uint32_t>(GetValue());
-}
-
 bool
 EmpiricalRandomVariable::PreSample(double& value)
 {
@@ -1689,14 +1586,14 @@ EmpiricalRandomVariable::PreSample(double& value)
     value = r;
     bool valid = false;
     // check extrema
-    if (r <= m_emp.front().cdf)
+    if (r <= m_empCdf.begin()->first)
     {
-        value = m_emp.front().value; // Less than first
+        value = m_empCdf.begin()->second; // Less than first
         valid = true;
     }
-    else if (r >= m_emp.back().cdf)
+    else if (r >= m_empCdf.rbegin()->first)
     {
-        value = m_emp.back().value; // Greater than last
+        value = m_empCdf.rbegin()->second; // Greater than last
         valid = true;
     }
     return valid;
@@ -1730,10 +1627,10 @@ EmpiricalRandomVariable::DoSampleCDF(double r)
 {
     NS_LOG_FUNCTION(this << r);
 
-    ValueCDF selector(0, r);
-    auto bound = std::upper_bound(m_emp.begin(), m_emp.end(), selector);
+    // Find first CDF that is greater than r
+    auto bound = m_empCdf.upper_bound(r);
 
-    return bound->value;
+    return bound->second;
 }
 
 double
@@ -1761,19 +1658,19 @@ EmpiricalRandomVariable::DoInterpolate(double r)
     // This code based (loosely) on code by Bruce Mah (Thanks Bruce!)
 
     // search
-    ValueCDF selector(0, r);
-    auto upper = std::upper_bound(m_emp.begin(), m_emp.end(), selector);
+    auto upper = m_empCdf.upper_bound(r);
     auto lower = std::prev(upper, 1);
-    if (upper == m_emp.begin())
+
+    if (upper == m_empCdf.begin())
     {
         lower = upper;
     }
 
     // Interpolate random value in range [v1..v2) based on [c1 .. r .. c2)
-    double c1 = lower->cdf;
-    double c2 = upper->cdf;
-    double v1 = lower->value;
-    double v2 = upper->value;
+    double c1 = lower->first;
+    double c2 = upper->first;
+    double v1 = lower->second;
+    double v2 = upper->second;
 
     double value = (v1 + ((v2 - v1) / (c2 - c1)) * (r - c1));
     return value;
@@ -1782,37 +1679,182 @@ EmpiricalRandomVariable::DoInterpolate(double r)
 void
 EmpiricalRandomVariable::CDF(double v, double c)
 {
-    // Add a new empirical datapoint to the empirical cdf
-    // NOTE.   These MUST be inserted in non-decreasing order
     NS_LOG_FUNCTION(this << v << c);
-    m_emp.emplace_back(v, c);
+
+    auto vPrevious = m_empCdf.find(c);
+
+    if (vPrevious != m_empCdf.end())
+    {
+        NS_LOG_WARN("Empirical CDF already has a value " << vPrevious->second << " for CDF " << c
+                                                         << ". Overwriting it with value " << v
+                                                         << ".");
+    }
+
+    m_empCdf[c] = v;
 }
 
 void
 EmpiricalRandomVariable::Validate()
 {
     NS_LOG_FUNCTION(this);
-    if (m_emp.empty())
+
+    if (m_empCdf.empty())
     {
         NS_FATAL_ERROR("CDF is not initialized");
     }
-    ValueCDF prior = m_emp[0];
-    for (auto current : m_emp)
+
+    double vPrev = m_empCdf.begin()->second;
+
+    // Check if values are non-decreasing
+    for (const auto& cdfPair : m_empCdf)
     {
-        if (current.value < prior.value || current.cdf < prior.cdf)
-        { // Error
-            std::cerr << "Empirical Dist error,"
-                      << " current value " << current.value << " prior value " << prior.value
-                      << " current cdf " << current.cdf << " prior cdf " << prior.cdf << std::endl;
-            NS_FATAL_ERROR("Empirical Dist error");
+        const auto& vCurr = cdfPair.second;
+
+        if (vCurr < vPrev)
+        {
+            NS_FATAL_ERROR("Empirical distribution has decreasing CDF values. Current CDF: "
+                           << vCurr << ", prior CDF: " << vPrev);
         }
-        prior = current;
+
+        vPrev = vCurr;
     }
-    if (prior.cdf != 1.0)
+
+    // Bounds check on CDF endpoints
+    auto firstCdfPair = m_empCdf.begin();
+    auto lastCdfPair = m_empCdf.rbegin();
+
+    if (firstCdfPair->first < 0.0)
     {
-        NS_FATAL_ERROR("CDF does not cover the whole distribution");
+        NS_FATAL_ERROR("Empirical distribution has invalid first CDF value. CDF: "
+                       << firstCdfPair->first << ", Value: " << firstCdfPair->second);
     }
+
+    if (lastCdfPair->first > 1.0)
+    {
+        NS_FATAL_ERROR("Empirical distribution has invalid last CDF value. CDF: "
+                       << lastCdfPair->first << ", Value: " << lastCdfPair->second);
+    }
+
     m_validated = true;
+}
+
+NS_OBJECT_ENSURE_REGISTERED(BinomialRandomVariable);
+
+TypeId
+BinomialRandomVariable::GetTypeId()
+{
+    static TypeId tid =
+        TypeId("ns3::BinomialRandomVariable")
+            .SetParent<RandomVariableStream>()
+            .SetGroupName("Core")
+            .AddConstructor<BinomialRandomVariable>()
+            .AddAttribute("Trials",
+                          "The number of trials.",
+                          IntegerValue(10),
+                          MakeIntegerAccessor(&BinomialRandomVariable::m_trials),
+                          MakeIntegerChecker<uint32_t>(0))
+            .AddAttribute("Probability",
+                          "The probability of success in each trial.",
+                          DoubleValue(0.5),
+                          MakeDoubleAccessor(&BinomialRandomVariable::m_probability),
+                          MakeDoubleChecker<double>(0));
+    return tid;
+}
+
+BinomialRandomVariable::BinomialRandomVariable()
+{
+    // m_trials and m_probability are initialized after constructor by attributes
+    NS_LOG_FUNCTION(this);
+}
+
+double
+BinomialRandomVariable::GetValue(uint32_t trials, double probability)
+{
+    NS_LOG_FUNCTION(this << trials << probability);
+
+    double successes = 0;
+
+    for (uint32_t i = 0; i < trials; ++i)
+    {
+        double v = Peek()->RandU01();
+        if (IsAntithetic())
+        {
+            v = (1 - v);
+        }
+
+        if (v <= probability)
+        {
+            successes += 1;
+        }
+    }
+
+    return successes;
+}
+
+uint32_t
+BinomialRandomVariable::GetInteger(uint32_t trials, uint32_t probability)
+{
+    NS_LOG_FUNCTION(this << trials << probability);
+    return static_cast<uint32_t>(GetValue(trials, probability));
+}
+
+double
+BinomialRandomVariable::GetValue()
+{
+    NS_LOG_FUNCTION(this);
+    return GetValue(m_trials, m_probability);
+}
+
+NS_OBJECT_ENSURE_REGISTERED(BernoulliRandomVariable);
+
+TypeId
+BernoulliRandomVariable::GetTypeId()
+{
+    static TypeId tid =
+        TypeId("ns3::BernoulliRandomVariable")
+            .SetParent<RandomVariableStream>()
+            .SetGroupName("Core")
+            .AddConstructor<BernoulliRandomVariable>()
+            .AddAttribute("Probability",
+                          "The probability of the random variable returning a value of 1.",
+                          DoubleValue(0.5),
+                          MakeDoubleAccessor(&BernoulliRandomVariable::m_probability),
+                          MakeDoubleChecker<double>(0));
+    return tid;
+}
+
+BernoulliRandomVariable::BernoulliRandomVariable()
+{
+    // m_probability is initialized after constructor by attributes
+    NS_LOG_FUNCTION(this);
+}
+
+double
+BernoulliRandomVariable::GetValue(double probability)
+{
+    NS_LOG_FUNCTION(this << probability);
+
+    double v = Peek()->RandU01();
+    if (IsAntithetic())
+    {
+        v = (1 - v);
+    }
+
+    return (v <= probability) ? 1.0 : 0.0;
+}
+
+uint32_t
+BernoulliRandomVariable::GetInteger(uint32_t probability)
+{
+    NS_LOG_FUNCTION(this << probability);
+    return static_cast<uint32_t>(GetValue(probability));
+}
+
+double
+BernoulliRandomVariable::GetValue()
+{
+    NS_LOG_FUNCTION(this);
+    return GetValue(m_probability);
 }
 
 } // namespace ns3

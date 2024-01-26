@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 The Boeing Company
  *
@@ -65,7 +64,7 @@ class Experiment
   private:
     /**
      * Receive a packet.
-     * \param socket The recieving socket.
+     * \param socket The receiving socket.
      */
     void ReceivePacket(Ptr<Socket> socket);
     /**
@@ -184,8 +183,7 @@ Experiment::Run(const WifiHelper& wifi,
     YansWifiPhyHelper phy = wifiPhy;
     phy.SetChannel(wifiChannel.Create());
 
-    WifiMacHelper mac = wifiMac;
-    NetDeviceContainer devices = wifi.Install(phy, mac, c);
+    NetDeviceContainer devices = wifi.Install(phy, wifiMac, c);
 
     MobilityHelper mobility;
     Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();

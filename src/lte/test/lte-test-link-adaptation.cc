@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -106,6 +105,10 @@ LteLinkAdaptationTestSuite::LteLinkAdaptationTestSuite()
     }
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteLinkAdaptationTestSuite lteLinkAdaptationTestSuite;
 
 /**
@@ -186,7 +189,7 @@ LteLinkAdaptationTestCase::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate the default EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+    EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 

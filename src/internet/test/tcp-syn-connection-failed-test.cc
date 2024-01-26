@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Alexander Krotov <krotov@iitp.ru>
  *
@@ -28,7 +27,6 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Test that connection failed callback is called when
  * SYN retransmission number is exceeded.
@@ -97,7 +95,6 @@ TcpSynConnectionFailedTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TestSuite
  */

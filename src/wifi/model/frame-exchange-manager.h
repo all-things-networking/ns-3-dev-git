@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -31,12 +30,12 @@
 #include "wifi-tx-timer.h"
 #include "wifi-tx-vector.h"
 
-#include "ns3/object.h"
 // Needed to compile wave bindings
 #include "channel-access-manager.h"
+#include "wifi-ack-manager.h"
+#include "wifi-protection-manager.h"
 
-#include "ns3/wifi-ack-manager.h"
-#include "ns3/wifi-protection-manager.h"
+#include "ns3/object.h"
 
 namespace ns3
 {
@@ -102,7 +101,7 @@ class FrameExchangeManager : public Object
      *
      * \param linkId the ID of the link this Frame Exchange Manager is associated with
      */
-    void SetLinkId(uint8_t linkId);
+    virtual void SetLinkId(uint8_t linkId);
     /**
      * Set the MAC layer to use.
      *
@@ -237,6 +236,16 @@ class FrameExchangeManager : public Object
     virtual void CalculateAcknowledgmentTime(WifiAcknowledgment* acknowledgment) const;
 
     /**
+     * \return true if the virtual CS indication is that the medium is idle
+     */
+    virtual bool VirtualCsMediumIdle() const;
+
+    /**
+     * \return the set of stations that have successfully received an RTS in this TXOP.
+     */
+    const std::set<Mac48Address>& GetProtectedStas() const;
+
+    /**
      * Notify that an internal collision has occurred for the given Txop
      *
      * \param txop the Txop for which an internal collision has occurred
@@ -294,6 +303,18 @@ class FrameExchangeManager : public Object
      * \param txParams the TX parameters to use to transmit the MPDU
      */
     void SendMpduWithProtection(Ptr<WifiMpdu> mpdu, WifiTxParameters& txParams);
+
+    /**
+     * Start the protection mechanism indicated by the given TX parameters
+     *
+     * \param txParams the TX parameters
+     */
+    virtual void StartProtection(const WifiTxParameters& txParams);
+
+    /**
+     * Transmit prepared frame upon successful protection mechanism.
+     */
+    virtual void ProtectionCompleted();
 
     /**
      * Update the NAV, if needed, based on the Duration/ID of the given <i>psdu</i>.
@@ -365,12 +386,12 @@ class FrameExchangeManager : public Object
     virtual void RetransmitMpduAfterMissedAck(Ptr<WifiMpdu> mpdu) const;
 
     /**
-     * Make the sequence number of the given MPDU available again if the MPDU has
-     * never been transmitted.
+     * Make the sequence numbers of MPDUs included in the given PSDU available again
+     * if the MPDUs have never been transmitted.
      *
-     * \param mpdu the given MPDU
+     * \param psdu the given PSDU
      */
-    virtual void ReleaseSequenceNumber(Ptr<WifiMpdu> mpdu) const;
+    virtual void ReleaseSequenceNumbers(Ptr<const WifiPsdu> psdu) const;
 
     /**
      * Pass the given MPDU, discarded because of the max retry limit was reached,
@@ -383,12 +404,22 @@ class FrameExchangeManager : public Object
     /**
      * Perform actions that are possibly needed when receiving any frame,
      * independently of whether the frame is addressed to this station
-     * (e.g., setting the NAV or the TXOP holder).
+     * (e.g., storing buffer status reports).
      *
      * \param psdu the received PSDU
      * \param txVector TX vector of the received PSDU
      */
     virtual void PreProcessFrame(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector);
+
+    /**
+     * Perform actions that are possibly needed after receiving any frame,
+     * independently of whether the frame is addressed to this station
+     * (e.g., setting the NAV or the TXOP holder).
+     *
+     * \param psdu the received PSDU
+     * \param txVector TX vector of the received PSDU
+     */
+    virtual void PostProcessFrame(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector);
 
     /**
      * Get the updated TX duration of the frame associated with the given TX
@@ -424,6 +455,13 @@ class FrameExchangeManager : public Object
      */
     virtual uint32_t GetPsduSize(Ptr<const WifiMpdu> mpdu, const WifiTxVector& txVector) const;
 
+    /**
+     * Notify the given Txop that channel has been released.
+     *
+     * \param txop the given Txop
+     */
+    virtual void NotifyChannelReleased(Ptr<Txop> txop);
+
     Ptr<Txop> m_dcf;                                  //!< the DCF/EDCAF that gained channel access
     WifiTxTimer m_txTimer;                            //!< the timer set upon frame transmission
     EventId m_navResetEvent;                          //!< the event to reset the NAV after an RTS
@@ -435,11 +473,21 @@ class FrameExchangeManager : public Object
     Mac48Address m_self;                              //!< the MAC address of this device
     Mac48Address m_bssid;                             //!< BSSID address (Mac48Address)
     Time m_navEnd;                                    //!< NAV expiration time
-    uint8_t m_linkId;                  //!< the ID of the link this object is associated with
+    std::set<Mac48Address> m_sentRtsTo; //!< the STA(s) which we sent an RTS to (waiting for CTS)
+    std::set<Mac48Address> m_protectedStas; //!< STAs that have replied to an RTS in this TXOP
+    uint8_t m_linkId;                       //!< the ID of the link this object is associated with
     uint16_t m_allowedWidth;           //!< the allowed width in MHz for the current transmission
     bool m_promisc;                    //!< Flag if the device is operating in promiscuous mode
     DroppedMpdu m_droppedMpduCallback; //!< the dropped MPDU callback
     AckedMpdu m_ackedMpduCallback;     //!< the acknowledged MPDU callback
+
+    /**
+     * Finalize the MAC header of the MPDUs in the given PSDU before transmission. Tasks
+     * performed by this method include setting the Power Management flag in the MAC header.
+     *
+     * \param psdu the given PSDU
+     */
+    virtual void FinalizeMacHeader(Ptr<const WifiPsdu> psdu);
 
     /**
      * Forward an MPDU down to the PHY layer.
@@ -582,7 +630,11 @@ class FrameExchangeManager : public Object
      */
     void DoCtsTimeout(Ptr<WifiPsdu> psdu);
 
-  private:
+    /**
+     * Reset this frame exchange manager.
+     */
+    virtual void Reset();
+
     /**
      * \param txVector the TXVECTOR decoded from PHY header.
      * \param psduDuration the duration of the PSDU that is about to be received.
@@ -593,17 +645,13 @@ class FrameExchangeManager : public Object
      * If the reception is correct for at least one MPDU of the PSDU
      * the Receive method will be called after \p psduDuration.
      */
-    void RxStartIndication(WifiTxVector txVector, Time psduDuration);
+    virtual void RxStartIndication(WifiTxVector txVector, Time psduDuration);
 
+  private:
     /**
      * Send the current MPDU, which can be acknowledged by a Normal Ack.
      */
     void SendMpdu();
-
-    /**
-     * Reset this frame exchange manager.
-     */
-    virtual void Reset();
 
     Ptr<WifiMpdu> m_mpdu;           //!< the MPDU being transmitted
     WifiTxParameters m_txParams;    //!< the TX parameters for the current frame

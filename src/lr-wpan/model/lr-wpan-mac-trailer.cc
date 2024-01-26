@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -29,7 +28,8 @@ namespace ns3
 
 NS_OBJECT_ENSURE_REGISTERED(LrWpanMacTrailer);
 
-const uint16_t LrWpanMacTrailer::LR_WPAN_MAC_FCS_LENGTH = 2;
+/// The length in octets of the IEEE 802.15.4 MAC FCS field
+constexpr uint16_t LR_WPAN_MAC_FCS_LENGTH = 2;
 
 LrWpanMacTrailer::LrWpanMacTrailer()
     : m_fcs(0),
@@ -93,7 +93,7 @@ LrWpanMacTrailer::SetFcs(Ptr<const Packet> p)
     if (m_calcFcs)
     {
         uint16_t size = p->GetSize();
-        uint8_t* serial_packet = new uint8_t[size];
+        auto serial_packet = new uint8_t[size];
 
         p->CopyData(serial_packet, size);
 
@@ -115,7 +115,7 @@ LrWpanMacTrailer::CheckFcs(Ptr<const Packet> p)
     {
         uint16_t checkFcs;
         uint16_t size = p->GetSize();
-        uint8_t* serial_packet = new uint8_t[size];
+        auto serial_packet = new uint8_t[size];
 
         p->CopyData(serial_packet, size);
 
@@ -136,7 +136,7 @@ LrWpanMacTrailer::EnableFcs(bool enable)
 }
 
 bool
-LrWpanMacTrailer::IsFcsEnabled()
+LrWpanMacTrailer::IsFcsEnabled() const
 {
     return m_calcFcs;
 }

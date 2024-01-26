@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -30,7 +29,6 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/dsr-module.h"
 #include "ns3/internet-module.h"
@@ -215,4 +213,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(TotalTime));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

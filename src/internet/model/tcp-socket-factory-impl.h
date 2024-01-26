@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  *
@@ -20,8 +19,9 @@
 #ifndef TCP_SOCKET_FACTORY_IMPL_H
 #define TCP_SOCKET_FACTORY_IMPL_H
 
+#include "tcp-socket-factory.h"
+
 #include "ns3/ptr.h"
-#include "ns3/tcp-socket-factory.h"
 
 namespace ns3
 {

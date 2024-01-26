@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 The Boeing Company
  *
@@ -23,6 +22,13 @@
 #include "ns3/log.h"
 
 #include <cmath>
+
+#ifdef HAVE_GSL
+#include <gsl/gsl_cdf.h>
+#include <gsl/gsl_integration.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_sf_bessel.h>
+#endif
 
 namespace ns3
 {

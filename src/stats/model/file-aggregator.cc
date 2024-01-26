@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 University of Washington
  *
@@ -43,7 +42,7 @@ FileAggregator::GetTypeId()
     return tid;
 }
 
-FileAggregator::FileAggregator(const std::string& outputFileName, enum FileType fileType)
+FileAggregator::FileAggregator(const std::string& outputFileName, FileType fileType)
     : m_outputFileName(outputFileName),
       m_fileType(fileType),
       m_hasHeadingBeenSet(false),
@@ -75,7 +74,7 @@ FileAggregator::FileAggregator(const std::string& outputFileName, enum FileType 
         break;
     }
 
-    m_file.open(m_outputFileName.c_str());
+    m_file.open(m_outputFileName);
 }
 
 FileAggregator::~FileAggregator()
@@ -85,7 +84,7 @@ FileAggregator::~FileAggregator()
 }
 
 void
-FileAggregator::SetFileType(enum FileType fileType)
+FileAggregator::SetFileType(FileType fileType)
 {
     NS_LOG_FUNCTION(this << fileType);
     m_fileType = fileType;

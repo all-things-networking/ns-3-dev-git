@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Tom Henderson
  *
@@ -29,7 +28,6 @@ NS_LOG_COMPONENT_DEFINE("TcpLossTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Check rollover of sequence number and how that affects loss recovery
  *
@@ -177,7 +175,6 @@ TcpLargeTransferLossTest::FinalChecks()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * Test various packet losses
  */

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,15 +21,16 @@
 
 #include "lte-test-pss-ff-mac-scheduler.h"
 
-#include "ns3/applications-module.h"
 #include "ns3/double.h"
 #include "ns3/internet-module.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/network-module.h"
+#include "ns3/packet-sink-helper.h"
 #include "ns3/point-to-point-epc-helper.h"
 #include "ns3/point-to-point-helper.h"
 #include "ns3/radio-bearer-stats-calculator.h"
 #include "ns3/string.h"
+#include "ns3/udp-client-server-helper.h"
 #include <ns3/boolean.h>
 #include <ns3/constant-position-mobility-model.h>
 #include <ns3/enum.h>
@@ -82,7 +82,7 @@ LenaTestPssFfMacSchedulerSuite::LenaTestPssFfMacSchedulerSuite()
     //    UDP traffic: payload size = 200 bytes, interval = 1 ms
     //    UDP rate in scheduler: (payload + RLC header + PDCP header + IP header + UDP header) *
     //    1000 byte/sec -> 232000 byte/rate
-    //  Totol bandwidth: 24 PRB at Itbs 26 -> 2196 -> 2196000 byte/sec
+    //  Total bandwidth: 24 PRB at Itbs 26 -> 2196 -> 2196000 byte/sec
     //  1 user -> 232000 * 1 = 232000 < 2196000 -> throughput = 232000 byte/sec
     //  3 user -> 232000 * 3 = 696000 < 2196000 -> througphut = 232000 byte/sec
     //  6 user -> 232000 * 6 = 139200 < 2196000 -> throughput = 232000 byte/sec
@@ -107,7 +107,7 @@ LenaTestPssFfMacSchedulerSuite::LenaTestPssFfMacSchedulerSuite()
     //   UDP traffic: payload size = 200 bytes, interval = 1 ms
     //   UDP rate in scheduler: (payload + RLC header + PDCP header + IP header + UDP header) * 1000
     //   byte/sec -> 232000 byte/rate
-    // Totol bandwidth: 24 PRB at Itbs 20 -> 1383 -> 1383000 byte/sec
+    // Total bandwidth: 24 PRB at Itbs 20 -> 1383 -> 1383000 byte/sec
     // 1 user -> 903000 * 1 = 232000 < 1383000 -> throughput = 232000 byte/sec
     // 3 user -> 232000 * 3 = 696000 < 1383000 -> througphut = 232000 byte/sec
     // 6 user -> 232000 * 6 = 139200 > 1383000 -> throughput = 1383000 / 6 = 230500 byte/sec
@@ -133,7 +133,7 @@ LenaTestPssFfMacSchedulerSuite::LenaTestPssFfMacSchedulerSuite()
     //   UDP traffic: payload size = 200 bytes, interval = 1 ms
     //   UDP rate in scheduler: (payload + RLC header + PDCP header + IP header + UDP header) * 1000
     //   byte/sec -> 232000 byte/rate
-    // Totol bandwidth: 24 PRB at Itbs 18 -> 1191 -> 1191000 byte/sec
+    // Total bandwidth: 24 PRB at Itbs 18 -> 1191 -> 1191000 byte/sec
     // 1 user -> 903000 * 1 = 232000 < 1191000 -> throughput = 232000 byte/sec
     // 3 user -> 232000 * 3 = 696000 < 1191000 -> througphut = 232000 byte/sec
     // 6 user -> 232000 * 6 = 1392000 > 1191000 -> throughput = 1191000 / 6 = 198500 byte/sec
@@ -160,7 +160,7 @@ LenaTestPssFfMacSchedulerSuite::LenaTestPssFfMacSchedulerSuite()
     //   UDP traffic: payload size = 200 bytes, interval = 1 ms
     //   UDP rate in scheduler: (payload + RLC header + PDCP header + IP header + UDP header) * 1000
     //   byte/sec -> 232000 byte/rate
-    // Totol bandwidth: 24 PRB at Itbs 13 -> 775 -> 775000 byte/sec
+    // Total bandwidth: 24 PRB at Itbs 13 -> 775 -> 775000 byte/sec
     // 1 user -> 903000 * 1 = 232000 < 775000 -> throughput = 232000 byte/sec
     // 3 user -> 232000 * 3 = 696000 > 775000 -> througphut = 232000 byte/sec
     // 6 user -> 232000 * 6 = 139200 > 775000 -> throughput = 775000 / 6 = 129166 byte/sec
@@ -259,6 +259,10 @@ LenaTestPssFfMacSchedulerSuite::LenaTestPssFfMacSchedulerSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestPssFfMacSchedulerSuite lenaTestPssFfMacSchedulerSuite;
 
 // --------------- T E S T - C A S E   # 1 ------------------------------
@@ -426,7 +430,7 @@ LenaPssFfMacSchedulerTestCase1::DoRun()
         qos.mbrDl = 0;
         qos.mbrUl = 0;
 
-        enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+        EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
         EpsBearer bearer(q, qos);
         lteHelper->ActivateDedicatedEpsBearer(ueDevice, bearer, EpcTft::Default());
     }
@@ -540,7 +544,7 @@ LenaPssFfMacSchedulerTestCase2::BuildNameString(uint16_t nUser, std::vector<doub
 {
     std::ostringstream oss;
     oss << "distances (m) = [ ";
-    for (std::vector<double>::iterator it = dist.begin(); it != dist.end(); ++it)
+    for (auto it = dist.begin(); it != dist.end(); ++it)
     {
         oss << *it << " ";
     }
@@ -689,7 +693,7 @@ LenaPssFfMacSchedulerTestCase2::DoRun()
         qos.mbrDl = qos.gbrDl;
         qos.mbrUl = qos.gbrUl;
 
-        enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+        EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
         EpsBearer bearer(q, qos);
         lteHelper->ActivateDedicatedEpsBearer(ueDevice, bearer, EpcTft::Default());
     }

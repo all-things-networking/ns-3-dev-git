@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021
  *
@@ -24,6 +23,8 @@
 
 #include "wifi-phy-band.h"
 #include "wifi-standards.h"
+
+#include "ns3/he-ru.h"
 
 #include <set>
 #include <tuple>
@@ -62,6 +63,27 @@ class WifiPhyOperatingChannel
     WifiPhyOperatingChannel(ConstIterator it);
 
     virtual ~WifiPhyOperatingChannel();
+
+    /**
+     * Check if the given WifiPhyOperatingChannel is equivalent.
+     * Note that the primary20 channels are not compared.
+     *
+     * \param other another WifiPhyOperatingChannel
+     *
+     * \return true if the given WifiPhyOperatingChannel is equivalent,
+     *         false otherwise
+     */
+    bool operator==(const WifiPhyOperatingChannel& other) const;
+
+    /**
+     * Check if the given WifiPhyOperatingChannel is different.
+     *
+     * \param other another WifiPhyOperatingChannel
+     *
+     * \return true if the given WifiPhyOperatingChannel is different,
+     *         false otherwise
+     */
+    bool operator!=(const WifiPhyOperatingChannel& other) const;
 
     static const std::set<FrequencyChannelInfo>
         m_frequencyChannels; //!< Available frequency channels
@@ -264,11 +286,30 @@ class WifiPhyOperatingChannel
      */
     uint8_t GetPrimaryChannelNumber(uint16_t primaryChannelWidth, WifiStandard standard) const;
 
+    /**
+     * Get the channel indices of the minimum subset of 20 MHz channels containing the given RU.
+     *
+     * \param ru the given RU
+     * \param width the width in MHz of the channel to which the given RU refers to; normally,
+     *              it is the width in MHz of the PPDU for which the RU is allocated
+     * \return the channel indices of the minimum subset of 20 MHz channels containing the given RU
+     */
+    std::set<uint8_t> Get20MHzIndicesCoveringRu(HeRu::RuSpec ru, uint16_t width) const;
+
   private:
     ConstIterator m_channelIt; //!< const iterator pointing to the configured frequency channel
     uint8_t m_primary20Index;  /**< index of the primary20 channel (0 indicates the 20 MHz
                                     subchannel with the lowest center frequency) */
 };
+
+/**
+ * \brief Stream insertion operator.
+ *
+ * \param os the stream
+ * \param channel the operating channel
+ * \returns a reference to the stream
+ */
+std::ostream& operator<<(std::ostream& os, const WifiPhyOperatingChannel& channel);
 
 } // namespace ns3
 

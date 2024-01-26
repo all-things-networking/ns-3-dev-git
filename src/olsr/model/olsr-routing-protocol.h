@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2004 Francisco J. Ros
  * Copyright (c) 2007 INESC Porto
@@ -57,7 +56,7 @@ namespace olsr
 /// functional description, please refer to the ns-3 manual.
 
 /// \ingroup olsr
-/// An %OLSR's routing table entry.
+/// An OLSR's routing table entry.
 struct RoutingTableEntry
 {
     Ipv4Address destAddr; //!< Address of the destination node.
@@ -226,13 +225,13 @@ class RoutingProtocol : public Ipv4RoutingProtocol
 
     /**
      * \brief Associates the specified Ipv4StaticRouting routing table
-     *         to the OLSR routing protocol. Entries from this associated
-     *         routing table that use non-olsr outgoing interfaces are added
-     *         to the list of local HNA associations so that they are included
-     *         in HNA messages sent by the node.
-     *         If this method is called more than once, entries from the old
-     *         association are deleted before entries from the new one are added.
-     *  \param routingTable the Ipv4StaticRouting routing table to be associated.
+     *        to the OLSR routing protocol. Entries from this associated
+     *        routing table that use non-olsr outgoing interfaces are added
+     *        to the list of local HNA associations so that they are included
+     *        in HNA messages sent by the node.
+     *        If this method is called more than once, entries from the old
+     *        association are deleted before entries from the new one are added.
+     * \param routingTable the Ipv4StaticRouting routing table to be associated.
      */
     void SetRoutingTableAssociation(Ptr<Ipv4StaticRouting> routingTable);
 
@@ -257,11 +256,11 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     uint16_t m_messageSequenceNumber; //!< Messages sequence number counter.
     uint16_t m_ansn;                  //!< Advertised Neighbor Set sequence number.
 
-    Time m_helloInterval;  //!< HELLO messages' emission interval.
-    Time m_tcInterval;     //!< TC messages' emission interval.
-    Time m_midInterval;    //!< MID messages' emission interval.
-    Time m_hnaInterval;    //!< HNA messages' emission interval.
-    uint8_t m_willingness; //!<  Willingness for forwarding packets on behalf of other nodes.
+    Time m_helloInterval;      //!< HELLO messages' emission interval.
+    Time m_tcInterval;         //!< TC messages' emission interval.
+    Time m_midInterval;        //!< MID messages' emission interval.
+    Time m_hnaInterval;        //!< HNA messages' emission interval.
+    Willingness m_willingness; //!< Willingness for forwarding packets on behalf of other nodes.
 
     OlsrState m_state; //!< Internal state with all needed data structs.
     Ptr<Ipv4> m_ipv4;  //!< IPv4 object the routing is linked to.
@@ -351,17 +350,12 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void SetIpv4(Ptr<Ipv4> ipv4) override;
 
-    /**
-     * \returns the ipv4 object this routing protocol is associated with
-     */
-    NS_DEPRECATED_3_34
-    virtual Ptr<Ipv4> GetIpv4() const;
     void PrintRoutingTable(Ptr<OutputStreamWrapper> stream,
                            Time::Unit unit = Time::S) const override;
 
@@ -397,7 +391,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     void RecvOlsr(Ptr<Socket> socket);
 
     /**
-     * \brief Computates MPR set of a node following \RFC{3626} hints.
+     * \brief Computes MPR set of a node following \RFC{3626} hints.
      */
     void MprComputation();
 
@@ -416,9 +410,9 @@ class RoutingProtocol : public Ipv4RoutingProtocol
 
   private:
     /**
-     *  \brief Tests whether or not the specified route uses a non-OLSR outgoing interface.
-     *  \param route The route to be tested.
-     *  \returns True if the outgoing interface of the specified route is a non-OLSR interface,
+     * \brief Tests whether or not the specified route uses a non-OLSR outgoing interface.
+     * \param route The route to be tested.
+     * \returns True if the outgoing interface of the specified route is a non-OLSR interface,
      * false otherwise.
      */
     bool UsesNonOlsrOutgoingInterface(const Ipv4RoutingTableEntry& route);
@@ -543,8 +537,9 @@ class RoutingProtocol : public Ipv4RoutingProtocol
      *
      * \param olsrMessage The %OLSR message which must be forwarded.
      * \param duplicated NULL if the message has never been considered for forwarding, or a
-     * duplicate tuple in other case. \param localIface The address of the interface where the
-     * message was received from. \param senderAddress The sender IPv4 address.
+     * duplicate tuple in other case.
+     * \param localIface The address of the interface where the message was received from.
+     * \param senderAddress The sender IPv4 address.
      */
     void ForwardDefault(olsr::MessageHeader olsrMessage,
                         DuplicateTuple* duplicated,
@@ -552,7 +547,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
                         const Ipv4Address& senderAddress);
 
     /**
-     * \brief Enques an %OLSR message which will be sent with a delay of (0, delay].
+     * \brief Enqueues an %OLSR message which will be sent with a delay of (0, delay].
      *
      * This buffering system is used in order to piggyback several %OLSR messages in
      * a same %OLSR packet.
@@ -616,10 +611,10 @@ class RoutingProtocol : public Ipv4RoutingProtocol
 
     /**
      * Adds a link tuple.
-     * \param tuple Thetuple to be added.
+     * \param tuple The tuple to be added.
      * \param willingness The tuple willingness.
      */
-    void LinkTupleAdded(const LinkTuple& tuple, uint8_t willingness);
+    void LinkTupleAdded(const LinkTuple& tuple, Willingness willingness);
 
     /**
      * \brief Removes a link tuple from the Link Set.
@@ -635,7 +630,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
      * \param tuple The link tuple which has been updated.
      * \param willingness The tuple willingness.
      */
-    void LinkTupleUpdated(const LinkTuple& tuple, uint8_t willingness);
+    void LinkTupleUpdated(const LinkTuple& tuple, Willingness willingness);
 
     /**
      * \brief Adds a neighbor tuple to the Neighbor Set.
@@ -816,9 +811,9 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     int Degree(const NeighborTuple& tuple);
 
     /**
-     *  Check that address is one of my interfaces.
-     *  \param a the address to check.
-     *  \return true if the address is own by the node.
+     * Check that address is one of my interfaces.
+     * \param a the address to check.
+     * \return true if the address is own by the node.
      */
     bool IsMyOwnAddress(const Ipv4Address& a) const;
 
@@ -837,7 +832,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     /// Tx packet trace.
     TracedCallback<const PacketHeader&, const MessageList&> m_txPacketTrace;
 
-    /// Routing table chanes challback
+    /// Routing table changes callback
     TracedCallback<uint32_t> m_routingTableChanged;
 
     /// Provides uniform random variables.

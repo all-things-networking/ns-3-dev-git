@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 // Include a header file from your module to test.
 #include "ns3/double-probe.h"
@@ -52,13 +51,13 @@ class SampleEmitter : public Object
     }
 
     /// \return the time delta of the next report.
-    double GetTime()
+    double GetTime() const
     {
         return m_time;
     }
 
     /// \return a random variable, different for each reschedule.
-    double GetValue()
+    double GetValue() const
     {
         return aux;
     }

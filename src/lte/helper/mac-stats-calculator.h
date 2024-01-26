@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -23,8 +22,9 @@
 #ifndef MAC_STATS_CALCULATOR_H_
 #define MAC_STATS_CALCULATOR_H_
 
+#include "lte-stats-calculator.h"
+
 #include "ns3/lte-enb-mac.h"
-#include "ns3/lte-stats-calculator.h"
 #include "ns3/nstime.h"
 #include "ns3/uinteger.h"
 
@@ -62,8 +62,8 @@ class MacStatsCalculator : public LteStatsCalculator
 
     // Inherited from ns3::Object
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
 

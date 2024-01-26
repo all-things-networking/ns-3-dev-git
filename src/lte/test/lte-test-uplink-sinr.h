@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -30,7 +29,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test 1.2 SINR calculation in uplink
  */
@@ -42,7 +40,6 @@ class LteUplinkSinrTestSuite : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test generation of SINR in the uplink. Test schedules the signal and the interference
  * signals and it evaluates if the obtained value for SINR corresponds to the theoretical value
@@ -76,7 +73,6 @@ class LteUplinkDataSinrTestCase : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief  In this test one signal will be of interest, i.e., the
  *  SRS of the first signal will have the same CellId of the

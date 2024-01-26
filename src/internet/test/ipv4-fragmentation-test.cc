@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Universita' di Firenze, Italy
  *
@@ -45,8 +44,13 @@
 #include "ns3/udp-socket.h"
 #include "ns3/uinteger.h"
 
-#include <limits>
+#ifdef __WIN32__
+#include "ns3/win32-internet.h"
+#else
 #include <netinet/in.h>
+#endif
+
+#include <limits>
 #include <string>
 
 using namespace ns3;
@@ -55,7 +59,6 @@ class UdpSocketImpl;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Tag used in IPv4 Fragmentation Test
  */
@@ -113,7 +116,7 @@ class IPv4TestTag : public Tag
      * \brief Get the token.
      * \returns The token.
      */
-    uint64_t GetToken()
+    uint64_t GetToken() const
     {
         return token;
     }
@@ -121,7 +124,6 @@ class IPv4TestTag : public Tag
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Fragmentation Test
  */
@@ -575,7 +577,6 @@ Ipv4FragmentationTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Fragmentation TestSuite
  */

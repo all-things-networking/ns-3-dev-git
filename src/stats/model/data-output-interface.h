@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 Drexel University
  *
@@ -21,7 +20,8 @@
 #ifndef DATA_OUTPUT_INTERFACE_H
 #define DATA_OUTPUT_INTERFACE_H
 
-#include "ns3/data-calculator.h"
+#include "data-calculator.h"
+
 #include "ns3/nstime.h"
 #include "ns3/object.h"
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -33,7 +32,6 @@ NS_LOG_COMPONENT_DEFINE("WScalingTestSuite");
 // TODO: Check the buffer size and scaling option value
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Window Scaling enabling Test.
  */
@@ -227,7 +225,6 @@ WScalingTestCase::Tx(const Ptr<const Packet> p, const TcpHeader& h, SocketWho wh
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Window Scaling TestSuite.
  */

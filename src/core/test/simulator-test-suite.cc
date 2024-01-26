@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -74,7 +73,7 @@ class SimulatorEventsTestCase : public TestCase
      */
     uint64_t NowUs();
     /**
-     * Checks that the events has been detroyed.
+     * Checks that the events has been destroyed.
      */
     void Destroy();
     /**
@@ -108,7 +107,7 @@ SimulatorEventsTestCase::NowUs()
 }
 
 void
-SimulatorEventsTestCase::EventA([[maybe_unused]] int a)
+SimulatorEventsTestCase::EventA(int /* a */)
 {
     m_a = false;
 }
@@ -116,20 +115,13 @@ SimulatorEventsTestCase::EventA([[maybe_unused]] int a)
 void
 SimulatorEventsTestCase::EventB(int b)
 {
-    if (b != 2 || NowUs() != 11)
-    {
-        m_b = false;
-    }
-    else
-    {
-        m_b = true;
-    }
+    m_b = !(b != 2 || NowUs() != 11);
     Simulator::Remove(m_idC);
     Simulator::Schedule(MicroSeconds(10), &SimulatorEventsTestCase::EventD, this, 4);
 }
 
 void
-SimulatorEventsTestCase::EventC([[maybe_unused]] int c)
+SimulatorEventsTestCase::EventC(int /* c */)
 {
     m_c = false;
 }
@@ -137,14 +129,7 @@ SimulatorEventsTestCase::EventC([[maybe_unused]] int c)
 void
 SimulatorEventsTestCase::EventD(int d)
 {
-    if (d != 4 || NowUs() != (11 + 10))
-    {
-        m_d = false;
-    }
-    else
-    {
-        m_d = true;
-    }
+    m_d = !(d != 4 || NowUs() != (11 + 10));
 }
 
 void
@@ -186,7 +171,11 @@ SimulatorEventsTestCase::DoRun()
     NS_TEST_EXPECT_MSG_EQ(m_d, true, "Event D did not run ?");
 
     EventId anId = Simulator::ScheduleNow(&SimulatorEventsTestCase::Eventfoo0, this);
+
+    // Test copy assignment operator
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     EventId anotherId = anId;
+
     NS_TEST_EXPECT_MSG_EQ(!(anId.IsExpired() || anotherId.IsExpired()),
                           true,
                           "Event should not have expired yet.");

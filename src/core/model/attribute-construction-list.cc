@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Mathieu Lacage
  *
@@ -46,7 +45,7 @@ AttributeConstructionList::Add(std::string name,
     // vector of values.
     NS_LOG_FUNCTION(this << name << checker << value);
 
-    for (std::list<struct Item>::iterator k = m_list.begin(); k != m_list.end(); k++)
+    for (auto k = m_list.begin(); k != m_list.end(); k++)
     {
         if (k->checker == checker)
         {
@@ -55,7 +54,7 @@ AttributeConstructionList::Add(std::string name,
         }
     }
     // store the new value.
-    struct Item attr;
+    Item attr;
     attr.checker = checker;
     attr.value = value;
     attr.name = name;
@@ -66,7 +65,7 @@ Ptr<AttributeValue>
 AttributeConstructionList::Find(Ptr<const AttributeChecker> checker) const
 {
     NS_LOG_FUNCTION(this << checker);
-    for (CIterator k = m_list.begin(); k != m_list.end(); k++)
+    for (auto k = m_list.begin(); k != m_list.end(); k++)
     {
         NS_LOG_DEBUG("Found " << k->name << " " << k->checker << " " << k->value);
         if (k->checker == checker)

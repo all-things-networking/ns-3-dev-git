@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -66,7 +65,7 @@ MakeUintegerChecker(uint64_t min, uint64_t max, std::string name)
         bool Check(const AttributeValue& value) const override
         {
             NS_LOG_FUNCTION(&value);
-            const UintegerValue* v = dynamic_cast<const UintegerValue*>(&value);
+            const auto v = dynamic_cast<const UintegerValue*>(&value);
             if (v == nullptr)
             {
                 return false;
@@ -103,8 +102,8 @@ MakeUintegerChecker(uint64_t min, uint64_t max, std::string name)
         bool Copy(const AttributeValue& source, AttributeValue& destination) const override
         {
             NS_LOG_FUNCTION(&source << &destination);
-            const UintegerValue* src = dynamic_cast<const UintegerValue*>(&source);
-            UintegerValue* dst = dynamic_cast<UintegerValue*>(&destination);
+            const auto src = dynamic_cast<const UintegerValue*>(&source);
+            auto dst = dynamic_cast<UintegerValue*>(&destination);
             if (src == nullptr || dst == nullptr)
             {
                 return false;

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Fraunhofer ESK
  *
@@ -22,6 +21,7 @@
 #define LTE_TEST_RADIO_LINK_FAILURE_H
 
 #include <ns3/lte-ue-rrc.h>
+#include <ns3/mobility-model.h>
 #include <ns3/net-device-container.h>
 #include <ns3/node-container.h>
 #include <ns3/nstime.h>
@@ -173,9 +173,13 @@ class LteRadioLinkFailureTestCase : public TestCase
 
     /**
      * \brief This callback function is executed when UE RRC receives an in-sync or out-of-sync
-     * indication \param context the context string \param imsi the IMSI \param rnti the RNTI \param
-     * cellId the cell ID \param type in-sync or out-of-sync indication \param count the number of
-     * in-sync or out-of-sync indications
+     * indication
+     * \param context the context string
+     * \param imsi the IMSI
+     * \param rnti the RNTI
+     * \param cellId the cell ID
+     * \param type in-sync or out-of-sync indication
+     * \param count the number of in-sync or out-of-sync indications
      */
     void PhySyncDetectionCallback(std::string context,
                                   uint64_t imsi,

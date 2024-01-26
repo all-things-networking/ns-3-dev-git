@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -21,7 +20,8 @@
 #ifndef ANTENNA_MODEL_H
 #define ANTENNA_MODEL_H
 
-#include <ns3/angles.h>
+#include "angles.h"
+
 #include <ns3/object.h>
 
 namespace ns3

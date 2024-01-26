@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 University of Washington
  *
@@ -21,7 +20,8 @@
 #ifndef TIME_SERIES_ADAPTOR_H
 #define TIME_SERIES_ADAPTOR_H
 
-#include "ns3/data-collection-object.h"
+#include "data-collection-object.h"
+
 #include "ns3/object.h"
 #include "ns3/traced-value.h"
 #include "ns3/type-id.h"

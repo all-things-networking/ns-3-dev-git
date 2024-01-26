@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  * Copyright (c) 2018 NITK Surathkal (modified for FQ-PIE)
@@ -27,8 +26,9 @@
 #ifndef FQ_PIE_QUEUE_DISC
 #define FQ_PIE_QUEUE_DISC
 
+#include "queue-disc.h"
+
 #include "ns3/object-factory.h"
-#include "ns3/queue-disc.h"
 
 #include <list>
 #include <map>

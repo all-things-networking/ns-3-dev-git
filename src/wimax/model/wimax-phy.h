@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -285,9 +284,10 @@ class WimaxPhy : public Object
     PhyState GetState() const;
     /**
      * \brief scan a frequency for maximum timeout seconds and call the callback if the frequency
-     * can be used \param frequency the frequency to scan \param timeout the timeout before
-     * considering the channel as unusable \param callback the function to call if the channel could
-     * be used
+     * can be used
+     * \param frequency the frequency to scan
+     * \param timeout the timeout before considering the channel as unusable
+     * \param callback the function to call if the channel could be used
      */
     void StartScanning(uint64_t frequency, Time timeout, Callback<void, bool, uint64_t> callback);
 
@@ -326,8 +326,10 @@ class WimaxPhy : public Object
     uint64_t GetNrSymbols(uint32_t size, ModulationType modulationType) const;
     /**
      * Get the maximum number of bytes that could be carried by symbols symbols using the modulation
-     * modulationType \return the maximum number of bytes \param symbols the number of symbols to
-     * use \param modulationType the modulation that will be used
+     * modulationType
+     * \param symbols the number of symbols to use
+     * \param modulationType the modulation that will be used
+     * \return the maximum number of bytes
      */
     uint64_t GetNrBytes(uint32_t symbols, ModulationType modulationType) const;
     /**
@@ -356,16 +358,6 @@ class WimaxPhy : public Object
      */
     void SetPhyParameters();
     void DoDispose() override;
-    /**
-     * Get the mobility model of the device
-     * \return the mobility model of the device
-     */
-    virtual Ptr<Object> GetMobility();
-    /**
-     * \brief set the mobility model of the device
-     * \param mobility the mobility model to set
-     */
-    virtual void SetMobility(Ptr<Object> mobility);
 
     /**
      * Assign a fixed random variable stream number to the random variables
@@ -492,7 +484,6 @@ class WimaxPhy : public Object
     uint16_t m_psPerSymbol;      ///< ps per sumbol
     uint16_t m_psPerFrame;       ///< ps per framce
     uint32_t m_symbolsPerFrame;  ///< symbols per frame
-    Ptr<Object> m_mobility;      ///< modility model
 };
 
 } // namespace ns3

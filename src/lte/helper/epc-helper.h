@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011-2013 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -15,9 +14,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Author: Jaume Nin <jnin@cttc.es>
- *         Nicola Baldo <nbaldo@cttc.es>
- *         Manuel Requena <manuel.requena@cttc.es>
+ * Authors:
+ *   Jaume Nin <jnin@cttc.es>
+ *   Nicola Baldo <nbaldo@cttc.es>
+ *   Manuel Requena <manuel.requena@cttc.es>
  */
 
 #ifndef EPC_HELPER_H
@@ -62,8 +62,8 @@ class EpcHelper : public Object
 
     // inherited from Object
     /**
-     *  Register this type.
-     *  \return The object TypeId.
+     * Register this type.
+     * \return The object TypeId.
      */
     static TypeId GetTypeId();
     void DoDispose() override;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright © 2011 Marcos Talau
  *
@@ -61,10 +60,11 @@
 #ifndef RED_QUEUE_DISC_H
 #define RED_QUEUE_DISC_H
 
+#include "queue-disc.h"
+
 #include "ns3/boolean.h"
 #include "ns3/data-rate.h"
 #include "ns3/nstime.h"
-#include "ns3/queue-disc.h"
 #include "ns3/random-variable-stream.h"
 
 namespace ns3
@@ -244,9 +244,9 @@ class RedQueueDisc : public QueueDisc
      * \brief Check if a packet needs to be dropped due to probability mark
      * \param item queue item
      * \param qSize queue size
-     * \returns 0 for no drop/mark, 1 for drop
+     * \returns false for no drop/mark, true for drop
      */
-    uint32_t DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize);
+    bool DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize);
     /**
      * \brief Returns a probability using these function parameters for the DropEarly function
      * \returns Prob. of packet drop before "count"

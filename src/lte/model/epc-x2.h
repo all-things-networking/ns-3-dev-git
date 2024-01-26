@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,8 +20,9 @@
 #ifndef EPC_X2_H
 #define EPC_X2_H
 
+#include "epc-x2-sap.h"
+
 #include "ns3/callback.h"
-#include "ns3/epc-x2-sap.h"
 #include "ns3/object.h"
 #include "ns3/ptr.h"
 #include "ns3/socket.h"

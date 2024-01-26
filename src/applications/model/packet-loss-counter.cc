@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2009 INRIA, UDCAST
  *
@@ -114,14 +113,14 @@ PacketLossCounter::NotifyReceived(uint32_t seqNum)
     NS_LOG_FUNCTION(this << seqNum);
     for (uint32_t i = m_lastMaxSeqNum + 1; i <= seqNum; i++)
     {
-        if (GetBit(i) != 1)
+        if (!GetBit(i))
         {
             NS_LOG_INFO("Packet lost: " << i - (m_bitMapSize * 8));
             m_lost++;
         }
-        SetBit(i, 0);
+        SetBit(i, false);
     }
-    SetBit(seqNum, 1);
+    SetBit(seqNum, true);
     if (seqNum > m_lastMaxSeqNum)
     {
         m_lastMaxSeqNum = seqNum;

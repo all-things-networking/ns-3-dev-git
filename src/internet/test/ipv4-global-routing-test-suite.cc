@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -119,7 +118,6 @@ NS_LOG_COMPONENT_DEFINE("Ipv4GlobalRoutingTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting Link test
  */
@@ -204,7 +202,6 @@ LinkTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting LAN test
  */
@@ -286,7 +283,6 @@ LanTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting Two Link test
  */
@@ -406,7 +402,6 @@ TwoLinkTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting Two LAN test
  */
@@ -507,7 +502,6 @@ TwoLanTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting Bridge test
  */
@@ -691,7 +685,6 @@ BridgeTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting Two bridges test
  */
@@ -849,7 +842,6 @@ TwoBridgeTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Dynamic GlobalRouting test
  */
@@ -902,9 +894,7 @@ Ipv4DynamicGlobalRoutingTestCase::Ipv4DynamicGlobalRoutingTestCase()
 
 Ipv4DynamicGlobalRoutingTestCase::~Ipv4DynamicGlobalRoutingTestCase()
 {
-    std::vector<std::pair<Ptr<Socket>, bool>>::iterator iter;
-
-    for (iter = m_sendSocks.begin(); iter != m_sendSocks.end(); iter++)
+    for (auto iter = m_sendSocks.begin(); iter != m_sendSocks.end(); iter++)
     {
         if (iter->second)
         {
@@ -948,7 +938,7 @@ Ipv4DynamicGlobalRoutingTestCase::HandleRead(Ptr<Socket> socket)
 void
 Ipv4DynamicGlobalRoutingTestCase::SendData(uint8_t index)
 {
-    if (m_sendSocks[index].second == false)
+    if (!m_sendSocks[index].second)
     {
         return;
     }
@@ -1160,7 +1150,6 @@ Ipv4DynamicGlobalRoutingTestCase::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Dynamic GlobalRouting /32 test
  */
@@ -1207,15 +1196,11 @@ Ipv4GlobalRoutingSlash32TestCase::~Ipv4GlobalRoutingSlash32TestCase()
 void
 Ipv4GlobalRoutingSlash32TestCase::ReceivePkt(Ptr<Socket> socket)
 {
-    uint32_t availableData;
-    availableData = socket->GetRxAvailable();
+    uint32_t availableData [[maybe_unused]] = socket->GetRxAvailable();
     m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
     NS_TEST_ASSERT_MSG_EQ(availableData,
                           m_receivedPacket->GetSize(),
                           "Received packet size is not equal to Rx buffer size");
-    // cast availableData to void, to suppress 'availableData' set but not used
-    // compiler warning
-    (void)availableData;
 }
 
 void
@@ -1328,7 +1313,6 @@ Ipv4GlobalRoutingSlash32TestCase::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 GlobalRouting TestSuite
  */

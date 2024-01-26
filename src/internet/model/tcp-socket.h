@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation
  *               2007 INRIA
@@ -63,7 +62,7 @@ class TcpSocket : public Socket
      * \brief Names of the 11 TCP states
      *
      */
-    typedef enum
+    enum TcpStates_t
     {
         CLOSED = 0,  /**< Socket is finished                                     */
         LISTEN,      /**< Listening for a connection                             */
@@ -88,7 +87,7 @@ class TcpSocket : public Socket
                       *  may not have gotten our last ACK causing it
                       *  to retransmit the data packet (which we ignore)        */
         LAST_STATE   /**< Last state, used only in debug messages                */
-    } TcpStates_t;
+    };
 
     /**
      * \brief Literal names of TCP states for use in log messages

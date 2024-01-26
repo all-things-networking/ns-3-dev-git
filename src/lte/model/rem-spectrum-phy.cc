@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -22,10 +21,11 @@
 
 #include "rem-spectrum-phy.h"
 
+#include "lte-spectrum-signal-parameters.h"
+
 #include <ns3/antenna-model.h>
 #include <ns3/double.h>
 #include <ns3/log.h>
-#include <ns3/lte-spectrum-signal-parameters.h>
 #include <ns3/object-factory.h>
 #include <ns3/simulator.h>
 #include <ns3/trace-source-accessor.h>
@@ -183,7 +183,7 @@ RemSpectrumPhy::SetRxSpectrumModel(Ptr<const SpectrumModel> m)
 }
 
 double
-RemSpectrumPhy::GetSinr(double noisePower)
+RemSpectrumPhy::GetSinr(double noisePower) const
 {
     return m_referenceSignalPower / (m_sumPower - m_referenceSignalPower + noisePower);
 }
@@ -195,7 +195,7 @@ RemSpectrumPhy::Deactivate()
 }
 
 bool
-RemSpectrumPhy::IsActive()
+RemSpectrumPhy::IsActive() const
 {
     return m_active;
 }

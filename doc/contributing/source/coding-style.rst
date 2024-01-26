@@ -38,15 +38,16 @@ previous versions.
 The following list contains the set of clang-format versions that are verified
 to produce consistent output among themselves.
 
-* clang-format-14
-* clang-format-15
+* clang-format-17
 * clang-format-16
+* clang-format-15
+* clang-format-14
 
 Integration with IDEs
 =====================
 
-Clang-format automatically integrates with modern IDEs (e.g., VS Code) that read the
-``.clang-format`` file and automatically formats the code on save or on typing.
+Clang-format can be integrated with modern IDEs (e.g., VS Code) that are able to
+read the ``.clang-format`` file and automatically format the code on save or on typing.
 
 Please refer to the documentation of your IDE for more information.
 Some examples of IDE integration are provided in
@@ -63,22 +64,24 @@ and on type by enabling the following settings:
     "editor.formatOnType": true,
   }
 
-Manual usage in the terminal
-============================
+Clang-format usage in the terminal
+==================================
 
-Clang-format can be manually run on the terminal by applying the following commands:
+In addition to IDE support, clang-format can be manually run on the terminal.
+
+To format a file in-place, run the following command:
 
 .. sourcecode:: console
 
   clang-format -i $FILE
 
-To check that a file is properly formatted, run the following command on the terminal.
-If the code is well formatted, the process will exit with code 0; if is not, it will
-exit with code of 1 and indicate the lines that should be formatted.
+To check that a file is well formatted, run the following command on the terminal.
+If the file is not well formatted, clang-format indicates the lines that need to be
+formatted.
 
 .. sourcecode:: console
 
-  clang-format --dry-run --Werror $FILE
+  clang-format --dry-run $FILE
 
 Clang-format Git integration
 ============================
@@ -95,8 +98,7 @@ Disable formatting in specific files or lines
 =============================================
 
 To disable formatting in specific lines, surround them with the following
-C++ comments [example adopted from
-`official clang-format documentation <https://clang.llvm.org/docs/ClangFormat.html>`_]:
+C++ comments:
 
 .. sourcecode:: cpp
 
@@ -104,7 +106,7 @@ C++ comments [example adopted from
   ...
   // clang-format on
 
-To exclude the whole file from being formatted, surround the whole file with the
+To exclude an entire file from being formatted, surround the whole file with the
 special comments.
 
 check-style-clang-format.py
@@ -113,23 +115,31 @@ check-style-clang-format.py
 To facilitate checking and fixing source code files according to the |ns3| coding style,
 |ns3| maintains the ``check-style-clang-format.py`` Python script (located in ``utils/``).
 This script is a wrapper to clang-format and provides useful options to check and fix
-source code files. Additionally, it checks and fixes trailing whitespace and tabs in text
-files.
+source code files. Additionally, it performs other manual checks and fixes in text files
+(described below).
 
 We recommend running this script over your newly introduced C++ files prior to submission
 as a Merge Request.
 
 The script has multiple modes of operation. By default, the script checks if
-source code files are well formatted and text files do not have trailing whitespace
+source code files are well formatted, if there are no #include headers from the same
+module with the "ns3/" prefix, and text files do not have trailing whitespace
 nor tabs. The process returns a zero exit code if all files adhere to these rules.
 If there are files that do not comply with the rules, the process returns a non-zero
 exit code and lists the respective files. This mode is useful for developers editing
 their code and for the GitLab CI/CD pipeline to check if the codebase is well formatted.
 All checks are enabled by default. Users can disable specific checks using the corresponding
-flags: ``--no-formatting``, ``--no-whitespace`` and ``--no-tabs``.
+flags: ``--no-include-prefixes``, ``--no-formatting``, ``--no-whitespace`` and ``--no-tabs``.
+
+Additional information about the formatting issues detected by the script can be enabled
+by adding the ``-v, --verbose`` flag.
 
 In addition to checking the files, the script can automatically fix detected issues in-place.
 This mode is enabled by adding the ``--fix`` flag.
+
+The formatting and tabs checks respect clang-format guards, which mark code blocks
+that should not be checked. Trailing whitespace is always checked regardless of
+clang-format guards.
 
 The complete API of the ``check-style-clang-format.py`` script can be obtained with the
 following command:
@@ -142,18 +152,17 @@ For quick-reference, the most used commands are listed below:
 
 .. sourcecode:: console
 
-  # Entire codebase (using paths relative to the ns-3 root)
-  ./utils/check-style-clang-format.py [--fix] [--no-formatting] [--no-whitespace] [--no-tabs] .
+  # Entire codebase (using paths relative to the ns-3 main directory)
+  ./utils/check-style-clang-format.py --fix .
 
   # Entire codebase (using absolute paths)
-  /path/to/utils/check-style-clang-format.py [--fix] [--no-formatting] [--no-whitespace] [--no-tabs] /path/to/ns3/root
+  /path/to/utils/check-style-clang-format.py --fix /path/to/ns3
 
-  # Specific directory
-  /path/to/utils/check-style-clang-format.py [--fix] [--no-formatting] [--no-whitespace] [--no-tabs] absolute_or_relative/path/to/directory
+  # Specific directory or file
+  /path/to/utils/check-style-clang-format.py --fix absolute_or_relative/path/to/directory_or_file
 
-  # Individual file
-  /path/to/utils/check-style-clang-format.py [--fix] [--no-formatting] [--no-whitespace] [--no-tabs] absolute_or_relative/path/to/file
-
+  # Modified files
+  git diff --name-only | xargs ./utils/check-style-clang-format.py --fix
 
 Clang-tidy
 **********
@@ -161,6 +170,10 @@ Clang-tidy
 The |ns3| project uses `clang-tidy <https://clang.llvm.org/extra/clang-tidy/>`_
 to statically analyze (lint) C++ code and help developers write better code.
 Clang-tidy can be easily integrated with modern IDEs or run manually on the command-line.
+
+The list of clang-tidy checks currently enabled in the |ns3| project is saved on the
+``.clang-tidy`` file. The full list of clang-tidy checks and their detailed explanations
+can be seen in `Clang-tidy checks <https://clang.llvm.org/extra/clang-tidy/checks/list.html>`_.
 
 Clang-tidy installation
 =======================
@@ -193,22 +206,31 @@ Please refer to the documentation of your IDE for more information.
 Some examples of IDE integration are provided in
 `clang-tidy documentation <https://clang.llvm.org/extra/clang-tidy/Integrations.html>`_
 
-Manual usage in the terminal
-============================
+Clang-tidy usage
+================
 
-In order to use clang-tidy on the terminal, |ns3| must first be configured by running
-the following command on the terminal:
-
-.. sourcecode:: console
-
-  ./ns3 configure --enable-clang-tidy
-
-Then, clang-tidy can be manually run on the terminal by applying the following commands
-in the |ns3| root directory:
+In order to use clang-tidy, |ns3| must first be configured with the flag
+``--enable-clang-tidy``. To configure |ns3| with tests, examples and clang-tidy enabled,
+run the following command:
 
 .. sourcecode:: console
 
-  # Analyze (and fix) single file with clang-tidy
+  ./ns3 configure --enable-examples --enable-tests --enable-clang-tidy
+
+Due to the integration of clang-tidy with CMake, clang-tidy can be run while building
+|ns3|. In this way, clang-tidy errors will be shown alongside build errors on the terminal.
+To build |ns3| and run clang-tidy, run the the following command:
+
+.. sourcecode:: console
+
+  ./ns3 build
+
+To run clang-tidy without building |ns3|, use the following commands on the ns-3
+main directory:
+
+.. sourcecode:: console
+
+  # Analyze (and fix) a single file with clang-tidy
   clang-tidy -p cmake-cache/ [--fix] [--format-style=file] [--quiet] $FILE
 
   # Analyze (and fix) multiple files in parallel
@@ -217,27 +239,19 @@ in the |ns3| root directory:
   # Analyze (and fix) the entire ns-3 codebase in parallel
   run-clang-tidy -p cmake-cache/ [-fix] [-format] [-quiet]
 
-Please note that clang-tidy only analyzes implementation files (i.e., ``*.cc`` files).
-Header files are analyzed when they are included by implementation files, using the
-``#include "..."`` directive.
+When running clang-tidy, please note that:
 
-Integration with CMake
-======================
+- Clang-tidy only analyzes implementation files (i.e., ``*.cc`` files).
+  Header files are analyzed when they are included by implementation files, with the
+  ``#include "..."`` directive.
 
-CMake provides native integration for clang-tidy. This allows CMake to simultaneously
-build |ns3| and scan the codebase with clang-tidy. To enable this process, please
-use the following commands on the |ns3| root directory:
+- Not all clang-tidy checks provide automatic fixes. For those cases, a manual fix
+  must be made by the developer.
 
-.. sourcecode:: console
+- Enabling clang-tidy will add time to the build process (in the order of minutes).
 
-  ./ns3 configure --enable-clang-tidy
-  ./ns3 build
-
-Please note that enabling clang-tidy scanning will add time to the build process
-(in the order of minutes).
-
-Disable analysis in specific lines
-==================================
+Disable clang-tidy analysis in specific lines
+=============================================
 
 To disable clang-tidy analysis of a particular rule in a specific function,
 specific clang-tidy comments have to be added to the corresponding function.
@@ -262,8 +276,9 @@ following two "special comment" syntaxes:
 
   void func(); // NOLINT(modernize-use-override)
 
-To disable ``modernize-use-override`` checking on a block of code, use the
-following "special comment" syntax:
+To disable a specific clang-tidy check on a block of code, for instance the
+``modernize-use-override`` check, surround the code block with the following
+"special comments":
 
 .. sourcecode:: cpp
 
@@ -273,8 +288,8 @@ following "special comment" syntax:
   // NOLINTEND(modernize-use-override)
 
 
-To disable all clang-tidy checks on a block of code, use the following
-"special comment" syntax:
+To disable all clang-tidy checks on a block of code, surround it with the
+following "special comments":
 
 .. sourcecode:: cpp
 
@@ -283,8 +298,8 @@ To disable all clang-tidy checks on a block of code, use the following
   void func2();
   // NOLINTEND
 
-To exclude the whole file from being formatted, surround the whole file with the
-special comments.
+To exclude an entire file from being checked, surround the whole file with the
+"special comments".
 
 Source code formatting
 **********************
@@ -314,8 +329,8 @@ Indent constructor's initialization list with 4 spaces.
 .. sourcecode:: cpp
 
   MyClass::MyClass(int x, int y)
-      : m_x (x),
-        m_y (y)
+      : m_x(x),
+        m_y(y)
   {
   }
 
@@ -428,7 +443,7 @@ Separate each block with a new line.
   class MyClass
   {
   public:
-      static counter = 0;
+      static int m_counter = 0;
 
       MyClass(int x, int y);
 
@@ -459,8 +474,8 @@ The constructor initializers are always declared one per line, with a trailing c
 
   void
   MyClass::MyClass(int x, int y)
-      : m_x (x),
-        m_y (y)
+      : m_x(x),
+        m_y(y)
   {
   }
 
@@ -492,7 +507,7 @@ declaration:
 .. sourcecode:: cpp
 
   template <class T>
-  void func(T t);
+  void Func(T t);
 
 Naming
 ======
@@ -592,10 +607,8 @@ and implemented in a source file named ``my-class.cc``. The goal of this
 naming pattern is to allow a reader to quickly navigate through the |ns3|
 codebase to locate the source file relevant to a specific type.
 
-Each ``my-class.h`` header should start with the following comments: the
-first line ensures that developers who use the emacs editor will be able to
-indent your code correctly. The following lines ensure that your code
-is licensed under the GPL, that the copyright holders are properly
+Each ``my-class.h`` header should start with the following comment to ensure
+that your code is licensed under the GPL, that the copyright holders are properly
 identified (typically, you or your employer), and that the actual author
 of the code is identified. The latter is purely informational and we use it
 to try to track the most appropriate person to review a patch or fix a bug.
@@ -604,7 +617,6 @@ statement.
 
 .. sourcecode:: cpp
 
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
   /*
    * Copyright (c) YEAR COPYRIGHTHOLDER
    *
@@ -675,7 +687,6 @@ The ``my-class.cc`` file is structured similarly:
 
 .. sourcecode:: cpp
 
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
   /*
    * Copyright (c) YEAR COPYRIGHTHOLDER
    *
@@ -745,8 +756,8 @@ For standard headers, use the C++ style of inclusion:
 
     #include <ns3/header.h>
 
-Variables
-=========
+Variables and constants
+=======================
 
 Each variable declaration is on a separate line.
 Variables should be declared at the point in the code where they are needed,
@@ -760,6 +771,57 @@ and should be assigned an initial value at the time of declaration.
   // Declare one variable per line and assign an initial value
   int x = 0;
   int y = 0;
+
+Named constants defined in classes should be declared as ``static constexpr`` instead of
+macros, const, or enums. Use of ``static constexpr`` allows a single instance to be
+evaluated at compile-time. Declaring the constant in the class enables it to share the scope
+of the class.
+
+If the constant is only used in one file, consider declaring the constant in the implementation
+file (``*.cc``).
+
+.. sourcecode:: cpp
+
+  // Avoid declaring constants as enum
+  class LteRlcAmHeader : public Header
+  {
+      enum ControlPduType_t
+      {
+          STATUS_PDU = 000,
+      };
+  };
+
+  // Prefer to declare them as static constexpr (in class)
+  class LteRlcAmHeader : public Header
+  {
+      static constexpr uint8_t STATUS_PDU{0};
+  };
+
+  // Or as constexpr (in implementation files)
+  constexpr uint8_t STATUS_PDU{0};
+
+When declaring variables that are easily deducible from context, prefer to declare them
+with ``auto`` instead of repeating the type name. Not only does this improve code readability,
+by making lines shorter, but it also facilitates future code refactoring.
+When declaring variables, prefer to use direct-initialization, to avoid repeating the type name.
+
+.. sourcecode:: cpp
+
+  // Avoid repeating the type name when declaring iterators or pointers, and casting variables
+  std::map<uint32_t, std::string>::const_iterator it = myMap.find(key);
+  int* ptr = new int[10];
+  uint8_t m = static_cast<uint8_t>(97 + (i % 26));
+
+  // Prefer to declare them with auto
+  auto it = myMap.find(key);
+  auto* ptr = new int[10];
+  auto m = static_cast<uint8_t>(97 + (i % 26));
+
+  // Avoid splitting the declaration and initialization of variables
+  Ipv4Address ipv4Address = Ipv4Address("192.168.0.1")
+
+  // Prefer to use direct-initialization
+  Ipv4Address ipv4Address("192.168.0.1")
 
 Comments
 ========
@@ -790,6 +852,70 @@ that usage is consistent within a file.
       MyClass(int n);
   };
 
+All the functions and variables must be documented, with the exception of
+member functions inherited from parent classes (the documentation is copied
+automatically from the parent class), and default constructor/destructor.
+
+It is strongly suggested to use grouping to bind together logically related
+classes (e.g., all the classes in a module). E.g.;
+
+.. sourcecode:: cpp
+
+  /**
+   * \defgroup mynewmodule This is a new module
+   */
+
+  /**
+   * \ingroup mynewmodule
+   *
+   * MyClassOne description.
+   */
+  class MyClassOne
+  {
+  };
+
+  /**
+   * \ingroup mynewmodule
+   *
+   * MyClassTwo description.
+   */
+  class MyClassTwo
+  {
+  };
+
+In the tests for the module, it is suggested to add an ancillary group:
+
+.. sourcecode:: cpp
+
+  /**
+   * \defgroup mynewmodule-test Tests for new module
+   * \ingroup mynewmodule
+   * \ingroup tests
+   */
+
+  /**
+   * \ingroup mynewmodule-tests
+   * \brief MyNewModule Test
+   */
+  class MyNewModuleTest : public TestCase
+  {
+  };
+
+  /**
+   * \ingroup mynewmodule-tests
+   * \brief MyNewModule TestSuite
+   */
+  class MyNewModuleTestSuite : public TestSuite
+  {
+    public:
+      MyNewModuleTestSuite();
+  };
+
+  /**
+   * \ingroup mynewmodule-tests
+   * Static variable for test initialization
+   */
+  static MyNewModuleTestSuite g_myNewModuleTestSuite;
 
 As for comments within the code, comments should be used to describe intention
 or algorithmic overview where is it not immediately obvious from reading the
@@ -829,7 +955,7 @@ Casts
 =====
 
 Where casts are necessary, use the Google C++ guidance:  "Use C++-style casts
-like ``static_cast<float> (double_value)``, or brace initialization for
+like ``static_cast<float>(double_value)``, or brace initialization for
 conversion of arithmetic types like ``int64 y = int64{1} << 42``."
 Do not use C-style casts, since they can be unsafe.
 
@@ -845,17 +971,21 @@ to print the numeric value of any variable, such as:
 
 Avoid unnecessary casts if minor changes to variable declarations can solve
 the issue. In the following example, ``x`` can be declared as ``float`` instead of
-``int`` to avoid the cast:
+``int`` to avoid the cast, or write numbers in decimal format:
 
 .. sourcecode:: cpp
 
   // Do not declare x as int, to avoid casting it to float
   int x = 3;
-  return 1 / static_cast<float>(x);
+  float y = 1 / static_cast<float>(x);
 
   // Prefer to declare x as float
   float x = 3.0;
-  return 1 / x;
+  float y = 1 / x;
+
+  // Or use 1.0 instead of just 1
+  int x = 3;
+  float y = 1.0 / x;
 
 Namespaces
 ==========
@@ -885,57 +1015,108 @@ Compilers will typically issue warnings on unused entities (e.g., variables,
 function parameters). Use the ``[[maybe_unused]]`` attribute to suppress
 such warnings when the entity may be unused depending on how the code
 is compiled (e.g., if the entity is only used in a logging statement or
-an assert statement). Example (parameter ``p`` is only used for logging):
+an assert statement).
 
-.. sourcecode:: cpp
+The general guidelines are as follows:
 
-  void
-  TcpSocketBase::CompleteFork(Ptr<Packet> p [[maybe_unused]],
-                              const TcpHeader& h,
-                              const Address& fromAddress,
-                              const Address& toAddress)
-  {
-      NS_LOG_FUNCTION(this << p << h << fromAddress << toAddress);
-      ...
-  }
+- If a function's or a method's parameter is definitely unused,
+  prefer to leave it unnamed. In the following example, the second
+  parameter is unnamed.
 
-In function or method parameters, if the parameter is definitely unused,
-it should be left unnamed. Example (second parameter is not used):
+  .. sourcecode:: cpp
 
-.. sourcecode:: cpp
+    void
+    UanMacAloha::RxPacketGood(Ptr<Packet> pkt, double, UanTxMode txMode)
+    {
+        UanHeaderCommon header;
+        pkt->RemoveHeader(header);
+        ...
+    }
 
-  void
-  UanMacAloha::RxPacketGood(Ptr<Packet> pkt, double, UanTxMode txMode)
-  {
-      UanHeaderCommon header;
-      pkt->RemoveHeader(header);
-      ...
-  }
+  In this case, the parameter is also not referenced by Doxygen; e.g.,:
 
-In this case, the parameter is also not referenced by Doxygen; e.g.,:
+  .. sourcecode:: cpp
 
-.. sourcecode:: cpp
+    /**
+     * Receive packet from lower layer (passed to PHY as callback).
+     *
+     * \param pkt Packet being received.
+     * \param txMode Mode of received packet.
+     */
+    void RxPacketGood(Ptr<Packet> pkt, double, UanTxMode txMode);
 
-  /**
-   * Receive packet from lower layer (passed to PHY as callback).
-   *
-   * \param pkt Packet being received.
-   * \param txMode Mode of received packet.
-   */
-  void RxPacketGood(Ptr<Packet> pkt, double, UanTxMode txMode);
+  The omission is preferred to commenting out unused parameters, such as:
 
-The omission is preferred to commenting out unused parameters, such as:
+  .. sourcecode:: cpp
 
-.. sourcecode:: cpp
+    void
+    UanMacAloha::RxPacketGood(Ptr<Packet> pkt, double /*sinr*/, UanTxMode txMode)
+    {
+        UanHeaderCommon header;
+        pkt->RemoveHeader(header);
+        ...
+    }
 
-  void
-  UanMacAloha::RxPacketGood(Ptr<Packet> pkt, double /*sinr*/, UanTxMode txMode)
-  {
-      UanHeaderCommon header;
-      pkt->RemoveHeader(header);
-      ...
-  }
+- If a function's parameter is only used in certain cases (e.g., logging),
+  or it is part of the function's Doxygen, mark it as ``[[maybe_unused]]``.
 
+  .. sourcecode:: cpp
+
+    void
+    TcpSocketBase::CompleteFork(Ptr<Packet> p [[maybe_unused]],
+                                const TcpHeader& h,
+                                const Address& fromAddress,
+                                const Address& toAddress)
+    {
+        NS_LOG_FUNCTION(this << p << h << fromAddress << toAddress);
+
+        // Remaining code that definitely uses 'h', 'fromAddress' and 'toAddress'
+        ...
+    }
+
+- If a local variable saves the result of a function that must always run,
+  but whose value may not be used, declare it ``[[maybe_unused]]``.
+
+  .. sourcecode:: cpp
+
+    void
+    MyFunction()
+    {
+        int result [[maybe_unused]] = MandatoryFunction();
+        NS_LOG_DEBUG("result = " << result);
+    }
+
+- If a local variable saves the result of a function that is only run in
+  certain cases, prefer to not declare the variable and use the function's
+  return value directly where needed. This avoids unnecessarily calling the
+  function if its result is not used.
+
+  .. sourcecode:: cpp
+
+    void
+    MyFunction()
+    {
+        // Prefer to call GetDebugInfo() directly on the log statement
+        NS_LOG_DEBUG("Debug information: " << GetDebugInfo());
+
+        // Avoid declaring a local variable with the result of GetDebugInfo()
+        int debugInfo [[maybe_unused]] = GetDebugInfo();
+        NS_LOG_DEBUG("Debug information: " << debugInfo);
+    }
+
+  If the calculation of the maybe unused variable is complex, consider wrapping
+  the calculation of its value in a conditional block that is only run if the
+  variable is used.
+
+  .. sourcecode:: cpp
+
+    if (g_log.IsEnabled(ns3::LOG_DEBUG))
+    {
+        auto debugInfo = GetDebugInfo();
+        auto value = DoComplexCalculation(debugInfo);
+
+        NS_LOG_DEBUG("The value is " << value);
+    }
 
 Unnecessary else after return
 =============================
@@ -964,11 +1145,58 @@ can be rewritten as:
 
   if (n < 0)
   {
-      return n;
+      return false;
   }
 
   n += 3;
   return n;
+
+Boolean Simplifications
+=======================
+
+In order to increase readability and performance, avoid unnecessarily complex boolean
+expressions in if statements and variable declarations.
+
+For instance, the following code:
+
+.. sourcecode:: cpp
+
+  bool IsPositive(int n)
+  {
+      if (n > 0)
+      {
+          return true;
+      }
+      else
+      {
+          return false;
+      }
+  }
+
+  void ProcessNumber(int n)
+  {
+      if (IsPositive(n) == true)
+      {
+          ...
+      }
+  }
+
+can be rewritten as:
+
+.. sourcecode:: cpp
+
+  bool IsPositive(int n)
+  {
+      return n > 0;
+  }
+
+  void ProcessNumber(int n)
+  {
+      if (IsPositive(n))
+      {
+          ...
+      }
+  }
 
 Smart pointer boolean comparisons
 =================================
@@ -978,23 +1206,142 @@ the |ns3| smart pointer class ``Ptr`` should be used in boolean comparisons as f
 
 .. sourcecode:: cpp
 
-  for Ptr<> p, do not use:      use instead:
-  ========================      =================================
-  if (p != 0)      {...}        if (p)      {...}
-  if (p != NULL)   {...}
-  if (p != nullptr {...}
+  for Ptr<> p, do not use:            use instead:
+  ========================            =================================
+  if (p != nullptr) {...}             if (p)      {...}
+  if (p != NULL)    {...}
+  if (p != 0)       {...}             if (p)      {...}
 
-  if (p == 0)      {...}        if (!p)     {...}
-  if (p == NULL)   {...}
-  if (p == nullptr {...}
+  if (p == nullptr) {...}             if (!p)     {...}
+  if (p == NULL)    {...}
+  if (p == 0)       {...}
 
-  NS_ASSERT... (p != 0, ...)     NS_ASSERT... (p, ...)
-  NS_ABORT...  (p != 0, ...)     NS_ABORT...  (p, ...)
+  NS_ASSERT...(p != nullptr, ...)    NS_ASSERT...(p, ...)
+  NS_ABORT... (p != nullptr, ...)    NS_ABORT... (p, ...)
 
-  NS_ASSERT... (p == 0, ...)     NS_ASSERT... (!p, ...)
-  NS_ABORT...  (p == 0, ...)     NS_ABORT...  (!p, ...)
+  NS_ASSERT...(p == nullptr, ...)    NS_ASSERT...(!p, ...)
+  NS_ABORT... (p == nullptr, ...)    NS_ABORT... (!p, ...)
 
-  NS_TEST...   (p, 0, ...)       NS_TEST...   (p, nullptr, ...)
+  NS_TEST...  (p, nullptr, ...)      NS_TEST...  (p, nullptr, ...)
+
+Code performance tips
+=====================
+
+While developing code, consider the following tips to improve the code's performance.
+Some tips are general recommendations, but are not strictly enforced.
+Other tips are enforced by clang-tidy. Please refer to the clang-tidy section below
+for more details.
+
+- Prefer to use ``.emplace_back()`` over ``.push_back()`` to optimize performance.
+
+- When initializing STL containers (e.g., ``std::vector``) with known size,
+  reserve memory to store all items, before pushing them in a loop.
+
+  .. sourcecode:: cpp
+
+    constexpr int N_ITEMS = 5;
+
+    std::vector<int> myVector;
+    myVector.reserve(N_ITEMS); // Reserve memory to store all items
+
+    for (int i = 0; i < N_ITEMS; i++)
+    {
+        myVector.emplace_back(i);
+    }
+
+- Prefer to initialize STL containers (e.g., ``std::vector``, ``std::map``, etc.)
+  directly through the constructor or with a braced-init-list, instead of pushing
+  elements one-by-one.
+
+  .. sourcecode:: cpp
+
+    // Prefer to initialize containers directly
+    std::vector<int> myVector1{1, 2, 3};
+    std::vector<int> myVector2(myVector1.begin(), myVector1.end());
+    std::vector<bool> myVector3(myVector2.size(), true);
+
+    // Avoid pushing elements one-by-one
+    std::vector<int> myVector1;
+    myVector1.reserve(3);
+    myVector1.emplace_back(1);
+    myVector1.emplace_back(2);
+    myVector1.emplace_back(3);
+
+    std::vector<int> myVector2;
+    myVector2.reserve(myVector1.size());
+    for (const auto& v : myVector1)
+    {
+        myVector2.emplace_back(v);
+    }
+
+    std::vector<bool> myVector3;
+    myVector3.reserve(myVector1.size());
+    for (std::size_t i = 0; i < myVector1.size(); i++)
+    {
+        myVector3.emplace_back(true);
+    }
+
+- When looping through containers, prefer to use const-ref syntax over copying
+  elements.
+
+  .. sourcecode:: cpp
+
+    std::vector<int> myVector{1, 2, 3};
+
+    for (const auto& v : myVector) { ... }  // OK
+    for (auto v : myVector) { ... }         // Avoid
+
+- Prefer to use the ``empty()`` function of STL containers (e.g., ``std::vector``),
+  instead of the condition ``size() > 0``, to avoid unnecessarily calculating the
+  size of the container.
+
+- Avoid unnecessary calls to the functions ``.c_str()`` and ``.data()`` of
+  ``std::string``.
+
+- Avoid unnecessarily dereferencing std smart pointers (``std::shared_ptr``,
+  ``std::unique_ptr``) with calls to their member function ``.get()``.
+  Prefer to use the std smart pointer directly where needed.
+
+  .. sourcecode:: cpp
+
+    auto ptr = std::make_shared<Node>();
+
+    // OK
+    if (ptr) { ... }
+
+    // Avoid
+    if (ptr.get()) { ... }
+
+- Consider caching frequently-used results (especially expensive calculations,
+  such as mathematical functions) in a temporary variable, instead of calculating
+  them in every loop.
+
+  .. sourcecode:: cpp
+
+    // Prefer to cache intermediate results
+    const double sinTheta = std::sin(theta);
+    const double cosTheta = std::cos(theta);
+
+    for (uint8_t i = 0; i < NUM_VALUES; i++)
+    {
+        double power = std::pow(2, i);
+
+        array1[i] = (power * sinTheta) + cosTheta;
+        array2[i] = (power * cosTheta) + sinTheta;
+    }
+
+    // Avoid repeating calculations
+    for (uint8_t i = 0; i < NUM_VALUES; i++)
+    {
+        array1[i] = (std::pow(2, i) * std::sin(theta)) + std::cos(theta);
+        array2[i] = (std::pow(2, i) * std::cos(theta)) + std::sin(theta);
+    }
+
+- Do not include inline implementations in header files; put all
+  implementation in a ``.cc`` file (unless implementation in the header file
+  brings demonstrable and significant performance improvement).
+
+- Avoid declaring trivial destructors, to optimize performance.
 
 C++ standard
 ============
@@ -1006,19 +1353,39 @@ If a developer would like to propose to raise this bar to include more
 features than this, please email the developers list. We will move this
 language support forward as our minimally supported compiler moves forward.
 
+Guidelines for using maps
+=========================
+
+Maps (associative containers) are used heavily in ns-3 models to store
+key/value pairs.  The C++ standard, over time, has added various methods to
+insert elements to maps, and the ns-3 codebase has made use of most or all
+of these constructs.  For the sake of uniformity and readability, the
+following guidelines are recommended for any new code.
+
+Prefer the use of ``std::map`` to ``std::unordered_map`` unless there is
+a measurable performance advantage.  Use ``std::unordered_map`` only for
+use cases in which the map does not need to be iterated or the iteration
+order does not affect the results of the operation (because different
+implementations of the hash function may lead to different iteration orders
+on different systems).
+
+Keep in mind that C++ now allows several methods to insert values into
+maps, and the behavior can be different when a value already exists for
+a key.  If the intended behavior is that the insertion should not overwrite
+an existing value for the key, ``try_emplace()`` can be a good choice.  If
+the intention is to allow the overwriting of a key/value pair,
+``insert_or_assign()`` can be a good choice.  Both of the above methods
+provide return values that can be checked-- in the case of ``try_emplace()``,
+whether the insertion succeeded or did not occur, and in the case of
+``insert_or_assign()``, whether an insertion or assignment occurred.
+
 Miscellaneous items
 ===================
 
-- The following emacs mode line should be the first line in a file:
-
-  .. sourcecode:: cpp
-
-    /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-
 - ``NS_LOG_COMPONENT_DEFINE("log-component-name");`` statements should be
-  placed within namespace ns3 (for module code) and after the
-  ``using namespace ns3;``.  In examples.
-  ``NS_OBJECT_ENSURE_REGISTERED()`` should also be placed within namespace ns3.
+  placed within ``namespace ns3`` (for module code) and after the
+  ``using namespace ns3;``.  In examples,
+  ``NS_OBJECT_ENSURE_REGISTERED()`` should also be placed within ``namespace ns3``.
 
 - Pointers and references are left-aligned:
 
@@ -1028,6 +1395,23 @@ Miscellaneous items
     int* ptr = &x;
     int& ref = x;
 
+- Use a trailing comma in braced-init-lists, so that each item is positioned in a new line.
+
+  .. sourcecode:: cpp
+
+    const std::vector<std::string> myVector{
+      "string-1",
+      "string-2",
+      "string-3",
+    };
+
+    const std::map<int, std::string> myMap{
+      {1, "string-1"},
+      {2, "string-2"},
+      {3, "string-3"},
+    };
+
+
 - Const reference syntax:
 
   .. sourcecode:: cpp
@@ -1035,11 +1419,7 @@ Miscellaneous items
     void MySub(const T& t);  // OK
     void MySub(T const& t);  // Not OK
 
-- Do not include inline implementations in header files; put all
-  implementation in a .cc file (unless implementation in the header file
-  brings demonstrable and significant performance improvement).
-
-- Do not use ``nil``, ``NULL`` or ``0`` constants; use ``nullptr`` (improves portability)
+- Do not use ``NULL``, ``nil`` or ``0`` constants; use ``nullptr`` (improves portability)
 
 - Consider whether you want the default constructor, copy constructor, or assignment
   operator in your class. If not, explicitly mark them as deleted and make the
@@ -1047,43 +1427,69 @@ Miscellaneous items
 
   .. sourcecode:: cpp
 
-    public:
-      // Explain why these are not supported
-      ClassName() = delete;
-      ClassName(const ClassName&) = delete;
-      ClassName& operator=(const ClassName&) = delete;
+    class MyClass
+    {
+      public:
+        // Allowed constructors
+        MyClass(int i);
+
+        // Deleted constructors.
+        // Explain why they are not supported.
+        MyClass() = delete;
+        MyClass(const MyClass&) = delete;
+        MyClass& operator=(const MyClass&) = delete;
+    };
 
 - Avoid returning a reference to an internal or local member of an object:
 
   .. sourcecode:: cpp
 
-    a_type& foo();        // should be avoided, return a pointer or an object.
-    const a_type& foo();  // same as above
+    MyType& foo();        // Avoid. Prefer to return a pointer or an object.
+    const MyType& foo();  // Same as above.
 
   This guidance does not apply to the use of references to implement operators.
 
 - Expose class members through access functions, rather than direct access
   to a public object. The access functions are typically named ``Get`` and
-  ``Set``. For example, a member ``m_delayTime`` might have accessor functions
-  ``GetDelayTime()`` and ``SetDelayTime()``.
+  ``Set`` followed by the member's name. For example, a member ``m_delayTime``
+  might have accessor functions ``GetDelayTime()`` and ``SetDelayTime()``.
 
 - Do not bring the C++ standard library namespace into |ns3| source files by
-  using the ``using`` directive; i.e., avoid ``using namespace std;``.
+  using the ``using namespace std;`` directive.
 
 - Do not use the C++ ``goto`` statement.
+
+- Do not add the ``enum`` or ``struct`` specifiers when declaring the variable's type.
+
+- Do not unnecessarily add ``typedef`` to ``struct`` or ``enum``.
+
+  .. sourcecode:: cpp
+
+    // Avoid
+    typedef struct
+    {
+        ...
+    } MyStruct;
+
+    // Prefer
+    struct MyStruct
+    {
+        ...
+    };
 
 Clang-tidy rules
 ================
 
-Please refer to the ``.clang-tidy`` file in the |ns3| root directory for the full list
+Please refer to the ``.clang-tidy`` file in the |ns3| main directory for the full list
 of rules that should be observed while developing code.
+
+Some rules are explained in the corresponding sections above. The remaining rules are
+explained here.
 
 - Explicitly mark inherited functions with the ``override`` specifier.
 
-- Prefer to use ``.emplace_back()`` over ``.push_back()`` to optimize performance.
-
 - When creating STL smart pointers, prefer to use ``std::make_shared`` or
-  ``std::make_unique``, instead of creating the pointer with ``new``.
+  ``std::make_unique``, instead of creating the smart pointer with ``new``.
 
   .. sourcecode:: cpp
 
@@ -1095,53 +1501,156 @@ of rules that should be observed while developing code.
 
   .. sourcecode:: cpp
 
-    std::vector<int> myVector {1, 2, 3};
+    std::vector<int> myVector{1, 2, 3};
 
     for (const auto& v : myVector) { ... }             // Prefer
     for (int i = 0; i < myVector.size(); i++) { ... }  // Avoid
 
-- When looping through containers, prefer to use const-ref syntax over copying
-  elements.
-
-  .. sourcecode:: cpp
-
-    std::vector<int> myVector {1, 2, 3};
-
-    for (const auto& v : myVector) { ... }  // OK
-    for (auto v : myVector) { ... }         // Avoid
-
-- When initializing ``std::vector`` containers with known size, reserve memory to
-  store all items, before pushing them in a loop.
-
-  .. sourcecode:: cpp
-
-    int N_ITEMS = 5;
-    std::vector<int> myVector;
-    myVector.reserve(N_ITEMS); // Reserve memory required to store all items
-    for (int i = 0; i < N_ITEMS; i++)
-    {
-        myVector.emplace_back(i);
-    }
-
-- Prefer to initialize STL containers (e.g., ``std::vector``, ``std::map``, etc.)
-  directly with lists, instead of pushing elements one-by-one.
+- Avoid accessing class static functions and members through objects.
+  Instead, prefer to access them through the class.
 
   .. sourcecode:: cpp
 
     // OK
-    std::vector<int> myVector = {1, 2, 3};
+    MyClass::StaticFunction();
 
     // Avoid
-    std::vector<int> myVector;
-    myVector.reserve(3);
-    myVector.emplace_back(1);
-    myVector.emplace_back(2);
-    myVector.emplace_back(3);
+    MyClass myClass;
+    MyClass.StaticFunction();
 
-- Avoid unnecessary calls to the functions ``.c_str()`` and ``.data()`` of
-  ``std::string``.
+- Prefer using type traits in short form ``traits_t<...>`` and ``traits_v<...>``,
+  instead of the long form ``traits<...>::type`` and ``traits<...>::value``, respectively.
 
-- Avoid declaring trivial destructors, to optimize performance.
+  .. sourcecode:: cpp
+
+    // Prefer using the shorter version of type traits
+    std::is_same_v<int, float>
+    std::is_integral_v<T>
+    std::enable_if_t<std::is_integral_v<T>, Time>
+
+    // Avoid the longer form of type traits
+    std::is_same<int, float>::value
+    std::is_integral<T>::value
+    std::enable_if<std::is_integral<T>::value, Time>::type
+
+- Avoid using integer values (``1`` or ``0``) to represent boolean variables
+  (``true`` or ``false``), to improve code readability and avoid implicit conversions.
 
 - Prefer to use ``static_assert()`` over ``NS_ASSERT()`` when conditions can be
   evaluated at compile-time.
+
+- Prefer using transparent functors to non-transparent ones, to avoid repeating
+  the type name. This improves readability and avoids errors when refactoring code.
+
+  .. sourcecode:: cpp
+
+    // Prefer using transparent functors
+    std::map<MyClass, int, std::less<>> myMap;
+
+    // Avoid repeating the type name "MyClass" in std::less<>
+    std::map<MyClass, int, std::less<MyClass>> myMap;
+
+
+CMake file formatting
+*********************
+
+The ``CMakeLists.txt`` and other ``*.cmake`` files follow the formatting rules defined in
+``build-support/cmake-format.yaml`` and ``build-support/cmake-format-modules.yaml``.
+
+The first set of rules applies to CMake files in all directories that are not modules,
+while the second one applies to files within modules.
+
+.. _cmake-format: https://cmake-format.readthedocs.io/en/latest/cmake-format.html
+
+Those rules are enforced via the `cmake-format`_ tool, that can be installed via Pip.
+
+.. sourcecode:: console
+
+    pip install cmake-format pyyaml
+
+After installing cmake-format, it can be called to fix the formatting of a CMake file
+with the following command:
+
+.. sourcecode:: console
+
+    cmake-format -c ./build-support/cmake-format.yaml CMakeLists.txt
+
+To check the formatting, add the `--check` option to the command, before specifying
+the list of CMake files.
+
+Instead of calling this command for every single CMake file, it is recommended to use
+the ``ns3`` script to run the custom targets that do that automatically.
+
+.. sourcecode:: console
+
+    # Check CMake formatting
+    ./ns3 build cmake-format-check
+
+    # Check and fix CMake formatting
+    ./ns3 build cmake-format
+
+Custom functions and macros need to be explicitly configured in the ``cmake-format.yaml`` files,
+otherwise their formatting will be broken.
+
+Python file formatting
+**********************
+
+.. _Black: https://black.readthedocs.io/en/stable/index.html
+.. _Isort: https://pycqa.github.io/isort/index.html
+.. _Black current style: https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html
+
+Python format style and rule enforcement is based on the default settings for the `Black`_
+formatter tool and `Isort`_ import sorter tool. Black default format is detailed in `Black current style`_.
+
+The custom settings for both tools are set in the ``pyproject.toml`` file.
+
+These tools that can be installed via Pip, using the following command:
+
+.. sourcecode:: console
+
+    pip install black isort
+
+To check the formatting, add the `--check` option to the command:
+
+.. sourcecode:: console
+
+    black --check .
+    isort --check .
+
+To check and fix the formatting, run the commands as follows:
+
+.. sourcecode:: console
+
+    black .
+    isort .
+
+.. _MS Black formatter: https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter
+.. _MS Isort: https://marketplace.visualstudio.com/items?itemName=ms-python.isort
+
+For VS Code users, `MS Black formatter`_ and `MS Isort`_ extensions, which repackage
+Black and Isort for VS Code, can be installed to apply fixes regularly.
+To configure VS Code to automatically format code when saving, editing or pasting code,
+add the following configuration to ``.vscode/settings.json``:
+
+.. sourcecode:: json
+
+  {
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit",
+      },
+    },
+    "black-formatter.args": [
+      "--config",
+      "pyproject.toml",
+    ],
+    "isort.check": true,
+    "isort.args": [
+      "--sp",
+      "pyproject.toml",
+    ],
+  }

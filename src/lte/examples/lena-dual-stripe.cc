@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -82,7 +81,9 @@ class FemtocellBlockAllocator
   private:
     /**
      * Function that checks if the box area is overlapping with some of previously created building
-     * blocks. \param box the area to check \returns true if there is an overlap
+     * blocks.
+     * \param box the area to check
+     * \returns true if there is an overlap
      */
     bool OverlapsWithAnyPrevious(Box box);
     Box m_area;                           ///< Area
@@ -157,7 +158,7 @@ FemtocellBlockAllocator::Create()
 bool
 FemtocellBlockAllocator::OverlapsWithAnyPrevious(Box box)
 {
-    for (std::list<Box>::iterator it = m_previousBlocks.begin(); it != m_previousBlocks.end(); ++it)
+    for (auto it = m_previousBlocks.begin(); it != m_previousBlocks.end(); ++it)
     {
         if (AreOverlapping(*it, box))
         {
@@ -176,14 +177,14 @@ void
 PrintGnuplottableBuildingListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
     uint32_t index = 0;
-    for (BuildingList::Iterator it = BuildingList::Begin(); it != BuildingList::End(); ++it)
+    for (auto it = BuildingList::Begin(); it != BuildingList::End(); ++it)
     {
         ++index;
         Box box = (*it)->GetBoundaries();
@@ -201,13 +202,13 @@ void
 PrintGnuplottableUeListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         int nDevs = node->GetNDevices();
@@ -235,13 +236,13 @@ void
 PrintGnuplottableEnbListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         int nDevs = node->GetNDevices();
@@ -713,7 +714,7 @@ main(int argc, char* argv[])
         // forcing initialization so we don't have to wait for Nodes to
         // start before positions are assigned (which is needed to
         // output node positions to file and to make AttachToClosestEnb work)
-        for (NodeContainer::Iterator it = macroUes.Begin(); it != macroUes.End(); ++it)
+        for (auto it = macroUes.Begin(); it != macroUes.End(); ++it)
         {
             (*it)->Initialize();
         }
@@ -947,7 +948,7 @@ main(int argc, char* argv[])
             Ptr<NetDevice> ueDev = ueDevs.Get(u);
             for (uint32_t b = 0; b < numBearersPerUe; ++b)
             {
-                enum EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
+                EpsBearer::Qci q = EpsBearer::NGBR_VIDEO_TCP_DEFAULT;
                 EpsBearer bearer(q);
                 lteHelper->ActivateDataRadioBearer(ueDev, bearer);
             }

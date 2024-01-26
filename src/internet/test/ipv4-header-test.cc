@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
@@ -38,18 +37,22 @@
 #include "ns3/test.h"
 #include "ns3/traffic-control-layer.h"
 
-#include <limits>
+#ifdef __WIN32__
+#include "ns3/win32-internet.h"
+#else
 #include <netinet/in.h>
+#include <sys/socket.h>
+#endif
+
+#include <limits>
 #include <sstream>
 #include <string>
-#include <sys/socket.h>
 #include <sys/types.h>
 
 using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Header Test
  */
@@ -59,7 +62,7 @@ class Ipv4HeaderTest : public TestCase
     Ipv4Header m_receivedHeader;  //!< Received header.
 
     /**
-     * \brief Send a packet with speciic DSCP and ECN fields.
+     * \brief Send a packet with specific DSCP and ECN fields.
      * \param socket The source socket.
      * \param to The destination address.
      * \param dscp The DSCP field.
@@ -71,7 +74,7 @@ class Ipv4HeaderTest : public TestCase
                                Ipv4Header::EcnType ecn);
 
     /**
-     * \brief Send a packet with speciic DSCP and ECN fields.
+     * \brief Send a packet with specific DSCP and ECN fields.
      * \param socket The source socket.
      * \param to The destination address.
      * \param dscp The DSCP field.
@@ -289,7 +292,6 @@ Ipv4HeaderTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Header TestSuite
  */

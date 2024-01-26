@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 University of Washington
  *
@@ -21,13 +20,14 @@
 #ifndef TV_SPECTRUM_TRANSMITTER_H
 #define TV_SPECTRUM_TRANSMITTER_H
 
+#include "spectrum-channel.h"
+#include "spectrum-phy.h"
+#include "spectrum-signal-parameters.h"
+#include "spectrum-value.h"
+
 #include <ns3/antenna-model.h>
 #include <ns3/mobility-model.h>
 #include <ns3/net-device.h>
-#include <ns3/spectrum-channel.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-signal-parameters.h>
-#include <ns3/spectrum-value.h>
 
 namespace ns3
 {
@@ -130,7 +130,7 @@ class TvSpectrumTransmitter : public SpectrumPhy
     /** Sets up signal to be transmitted */
     virtual void SetupTx();
 
-    enum TvType m_tvType;      //!< Type of TV transmitter
+    TvType m_tvType;           //!< Type of TV transmitter
     double m_startFrequency;   //!< Start frequency (in Hz) of TV transmitter's signal
     double m_channelBandwidth; //!< Bandwidth (in Hz) of TV transmitter's signal
     double m_basePsd; //!< Base power spectral density value (in dBm/Hz) of TV transmitter's signal

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -74,6 +73,10 @@ LenaTestHarqSuite::LenaTestHarqSuite()
     AddTestCase(new LenaHarqTestCase(1, 770, 472, 0.06, 209964), TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestHarqSuite lenaTestHarqSuite;
 
 std::string
@@ -206,7 +209,7 @@ LenaHarqTestCase::DoRun()
     lena->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lena->ActivateDataRadioBearer(ueDevs, bearer);
 

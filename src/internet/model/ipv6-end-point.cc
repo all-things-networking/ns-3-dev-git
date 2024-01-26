@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -50,7 +49,7 @@ Ipv6EndPoint::~Ipv6EndPoint()
 }
 
 Ipv6Address
-Ipv6EndPoint::GetLocalAddress()
+Ipv6EndPoint::GetLocalAddress() const
 {
     return m_localAddr;
 }
@@ -62,7 +61,7 @@ Ipv6EndPoint::SetLocalAddress(Ipv6Address addr)
 }
 
 uint16_t
-Ipv6EndPoint::GetLocalPort()
+Ipv6EndPoint::GetLocalPort() const
 {
     return m_localPort;
 }
@@ -74,13 +73,13 @@ Ipv6EndPoint::SetLocalPort(uint16_t port)
 }
 
 Ipv6Address
-Ipv6EndPoint::GetPeerAddress()
+Ipv6EndPoint::GetPeerAddress() const
 {
     return m_peerAddr;
 }
 
 uint16_t
-Ipv6EndPoint::GetPeerPort()
+Ipv6EndPoint::GetPeerPort() const
 {
     return m_peerPort;
 }
@@ -92,7 +91,7 @@ Ipv6EndPoint::BindToNetDevice(Ptr<NetDevice> netdevice)
 }
 
 Ptr<NetDevice>
-Ipv6EndPoint::GetBoundNetDevice()
+Ipv6EndPoint::GetBoundNetDevice() const
 {
     return m_boundnetdevice;
 }
@@ -152,7 +151,7 @@ Ipv6EndPoint::SetRxEnabled(bool enabled)
 }
 
 bool
-Ipv6EndPoint::IsRxEnabled()
+Ipv6EndPoint::IsRxEnabled() const
 {
     return m_rxEnabled;
 }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -258,7 +257,7 @@ BSLinkManager::VerifyInvitedRanging(Cid cid, uint8_t uiuc)
 
             if (ssRecord->GetInvitedRangRetries() == m_bs->GetMaxInvitedRangRetries())
             {
-                RngRsp* rngrsp = new RngRsp();
+                auto rngrsp = new RngRsp();
                 AbortRanging(ssRecord->GetBasicCid(), rngrsp, ssRecord, true);
             } // else keep polling
         }

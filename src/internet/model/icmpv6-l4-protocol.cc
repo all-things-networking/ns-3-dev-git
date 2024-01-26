@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -25,13 +24,13 @@
 
 #include "ipv6-interface.h"
 #include "ipv6-l3-protocol.h"
+#include "ipv6-route.h"
+#include "ipv6-routing-protocol.h"
 
 #include "ns3/assert.h"
 #include "ns3/boolean.h"
 #include "ns3/double.h"
 #include "ns3/integer.h"
-#include "ns3/ipv6-route.h"
-#include "ns3/ipv6-routing-protocol.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
@@ -169,7 +168,7 @@ void
 Icmpv6L4Protocol::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (CacheList::const_iterator it = m_cacheList.begin(); it != m_cacheList.end(); it++)
+    for (auto it = m_cacheList.begin(); it != m_cacheList.end(); it++)
     {
         Ptr<NdiscCache> cache = *it;
         cache->Dispose();
@@ -285,7 +284,7 @@ Icmpv6L4Protocol::DoDAD(Ipv6Address target, Ptr<Ipv6Interface> interface)
                         Ipv6Address::MakeSolicitedAddress(target));
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv6L4Protocol::Receive(Ptr<Packet> packet,
                           const Ipv4Header& header,
                           Ptr<Ipv4Interface> interface)
@@ -294,7 +293,7 @@ Icmpv6L4Protocol::Receive(Ptr<Packet> packet,
     return IpL4Protocol::RX_ENDPOINT_UNREACH;
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv6L4Protocol::Receive(Ptr<Packet> packet,
                           const Ipv6Header& header,
                           Ptr<Ipv6Interface> interface)
@@ -398,7 +397,7 @@ Icmpv6L4Protocol::HandleEchoRequest(Ptr<Packet> packet,
 {
     NS_LOG_FUNCTION(this << packet << src << dst << interface);
     Icmpv6Echo request;
-    uint8_t* buf = new uint8_t[packet->GetSize()];
+    auto buf = new uint8_t[packet->GetSize()];
 
     packet->RemoveHeader(request);
     /* XXX IPv6 extension: obtain a fresh copy of data otherwise it crash... */
@@ -447,7 +446,7 @@ Icmpv6L4Protocol::HandleRA(Ptr<Packet> packet,
         defaultRouter = src;
     }
 
-    while (next == true)
+    while (next)
     {
         uint8_t type = 0;
         p->CopyData(&type, sizeof(type));
@@ -523,9 +522,7 @@ Icmpv6L4Protocol::ReceiveLLA(Icmpv6OptionLinkLayerAddress lla,
             waiting = entry->MarkReachable(lla.GetAddress());
             entry->StartReachableTimer();
             // send out waiting packet
-            for (std::list<NdiscCache::Ipv6PayloadHeaderPair>::const_iterator it = waiting.begin();
-                 it != waiting.end();
-                 it++)
+            for (auto it = waiting.begin(); it != waiting.end(); it++)
             {
                 cache->GetInterface()->Send(it->first, it->second, src);
             }
@@ -559,10 +556,7 @@ Icmpv6L4Protocol::ReceiveLLA(Icmpv6OptionLinkLayerAddress lla,
             {
                 entry->StopNudTimer();
                 waiting = entry->MarkReachable(lla.GetAddress());
-                for (std::list<NdiscCache::Ipv6PayloadHeaderPair>::const_iterator it =
-                         waiting.begin();
-                     it != waiting.end();
-                     it++)
+                for (auto it = waiting.begin(); it != waiting.end(); it++)
                 {
                     cache->GetInterface()->Send(it->first, it->second, src);
                 }
@@ -606,7 +600,7 @@ Icmpv6L4Protocol::HandleRS(Ptr<Packet> packet,
     Icmpv6RS rsHeader;
     packet->RemoveHeader(rsHeader);
     Address hardwareAddress;
-    Icmpv6OptionLinkLayerAddress lla(1);
+    Icmpv6OptionLinkLayerAddress lla(true);
     NdiscCache::Entry* entry = nullptr;
     Ptr<NdiscCache> cache = FindCache(interface->GetDevice());
 
@@ -689,7 +683,7 @@ Icmpv6L4Protocol::HandleNS(Ptr<Packet> packet,
     bool next = true;
     bool hasSllao = false;
 
-    while (next == true)
+    while (next)
     {
         uint8_t type;
         packet->CopyData(&type, sizeof(type));
@@ -704,7 +698,7 @@ Icmpv6L4Protocol::HandleNS(Ptr<Packet> packet,
             }
             break;
         default:
-            /* unknow option, quit */
+            /* unknown option, quit */
             next = false;
         }
         if (packet->GetSize() == 0)
@@ -787,7 +781,7 @@ Icmpv6L4Protocol::ForgeRS(Ipv6Address src, Ipv6Address dst, Address hardwareAddr
     if (!src.IsAny())
     {
         Icmpv6OptionLinkLayerAddress llOption(
-            1,
+            true,
             hardwareAddress); /* we give our mac address in response */
         p->AddHeader(llOption);
     }
@@ -814,7 +808,7 @@ Icmpv6L4Protocol::ForgeEchoRequest(Ipv6Address src,
     NS_LOG_FUNCTION(this << src << dst << id << seq << data);
     Ptr<Packet> p = data->Copy();
     Ipv6Header ipHeader;
-    Icmpv6Echo req(1);
+    Icmpv6Echo req(true);
 
     req.SetId(id);
     req.SetSeq(seq);
@@ -842,7 +836,7 @@ Icmpv6L4Protocol::HandleNA(Ptr<Packet> packet,
 {
     NS_LOG_FUNCTION(this << packet << src << dst << interface);
     Icmpv6NA naHeader;
-    Icmpv6OptionLinkLayerAddress lla(1);
+    Icmpv6OptionLinkLayerAddress lla(true);
 
     packet->RemoveHeader(naHeader);
     Ipv6Address target = naHeader.GetIpv6Target();
@@ -912,9 +906,7 @@ Icmpv6L4Protocol::HandleNA(Ptr<Packet> packet,
             waiting = entry->MarkReachable(lla.GetAddress());
             entry->StartReachableTimer();
             /* send out waiting packet */
-            for (std::list<NdiscCache::Ipv6PayloadHeaderPair>::const_iterator it = waiting.begin();
-                 it != waiting.end();
-                 it++)
+            for (auto it = waiting.begin(); it != waiting.end(); it++)
             {
                 cache->GetInterface()->Send(it->first, it->second, src);
             }
@@ -979,10 +971,7 @@ Icmpv6L4Protocol::HandleNA(Ptr<Packet> packet,
             if (naHeader.GetFlagS())
             {
                 waiting = entry->MarkReachable(lla.GetAddress());
-                for (std::list<NdiscCache::Ipv6PayloadHeaderPair>::const_iterator it =
-                         waiting.begin();
-                     it != waiting.end();
-                     it++)
+                for (auto it = waiting.begin(); it != waiting.end(); it++)
                 {
                     cache->GetInterface()->Send(it->first, it->second, src);
                 }
@@ -1023,7 +1012,7 @@ Icmpv6L4Protocol::HandleRedirection(Ptr<Packet> packet,
     NS_LOG_FUNCTION(this << packet << src << dst << interface);
     bool hasLla = false;
     Ptr<Packet> p = packet->Copy();
-    Icmpv6OptionLinkLayerAddress llOptionHeader(0);
+    Icmpv6OptionLinkLayerAddress llOptionHeader(false);
 
     Icmpv6Redirection redirectionHeader;
     p->RemoveHeader(redirectionHeader);
@@ -1256,12 +1245,12 @@ Icmpv6L4Protocol::SendNA(Ipv6Address src, Ipv6Address dst, Address* hardwareAddr
     NS_LOG_FUNCTION(this << src << dst << hardwareAddress << static_cast<uint32_t>(flags));
     Ptr<Packet> p = Create<Packet>();
     Icmpv6NA na;
-    Icmpv6OptionLinkLayerAddress llOption(0, *hardwareAddress); /* not a source link layer */
+    Icmpv6OptionLinkLayerAddress llOption(false, *hardwareAddress); /* not a source link layer */
 
     NS_LOG_LOGIC("Send NA ( from " << src << " to " << dst << " target " << src << ")");
     na.SetIpv6Target(src);
 
-    if ((flags & 1))
+    if (flags & 1)
     {
         na.SetFlagO(true);
     }
@@ -1269,7 +1258,7 @@ Icmpv6L4Protocol::SendNA(Ipv6Address src, Ipv6Address dst, Address* hardwareAddr
     {
         na.SetFlagS(true);
     }
-    if ((flags & 4))
+    if (flags & 4)
     {
         na.SetFlagR(true);
     }
@@ -1290,7 +1279,7 @@ Icmpv6L4Protocol::SendEchoReply(Ipv6Address src,
 {
     NS_LOG_FUNCTION(this << src << dst << id << seq << data);
     Ptr<Packet> p = data->Copy();
-    Icmpv6Echo reply(0); /* echo reply */
+    Icmpv6Echo reply(false); /* echo reply */
 
     reply.SetId(id);
     reply.SetSeq(seq);
@@ -1314,7 +1303,7 @@ Icmpv6L4Protocol::SendNS(Ipv6Address src,
     /* Ipv6Header ipHeader; */
     Icmpv6NS ns(target);
     Icmpv6OptionLinkLayerAddress llOption(
-        1,
+        true,
         hardwareAddress); /* we give our mac address in response */
 
     /* if the source is unspec, multicast the NA to all-nodes multicast */
@@ -1357,8 +1346,19 @@ Icmpv6L4Protocol::SendRS(Ipv6Address src, Ipv6Address dst, Address hardwareAddre
     // unspecified address. Otherwise, it SHOULD be included on link layers that have addresses.
     if (!src.IsAny())
     {
-        Icmpv6OptionLinkLayerAddress llOption(1, hardwareAddress);
+        Icmpv6OptionLinkLayerAddress llOption(true, hardwareAddress);
         p->AddHeader(llOption);
+    }
+
+    if (!src.IsAny())
+    {
+        Ptr<Ipv6L3Protocol> ipv6 = m_node->GetObject<Ipv6L3Protocol>();
+        if (ipv6->GetInterfaceForAddress(src) == -1)
+        {
+            NS_LOG_INFO("Preventing RS from being sent or rescheduled because the source address "
+                        << src << " has been removed");
+            return;
+        }
     }
 
     NS_LOG_LOGIC("Send RS (from " << src << " to " << dst << ")");
@@ -1384,7 +1384,7 @@ Icmpv6L4Protocol::SendRS(Ipv6Address src, Ipv6Address dst, Address hardwareAddre
         }
         else
         {
-            // Following RS transmission - adding further jitter is unnecesary.
+            // Following RS transmission - adding further jitter is unnecessary.
             rsTimeout = m_rsPrevRetransmissionTimeout * (2 + m_rsRetransmissionJitter->GetValue());
             if (rsTimeout > m_rsMaxRetransmissionTime)
             {
@@ -1549,7 +1549,7 @@ Icmpv6L4Protocol::SendRedirection(Ptr<Packet> redirectedPacket,
     uint32_t llaSize = 0;
     Ptr<Packet> p = Create<Packet>();
     uint32_t redirectedPacketSize = redirectedPacket->GetSize();
-    Icmpv6OptionLinkLayerAddress llOption(0);
+    Icmpv6OptionLinkLayerAddress llOption(false);
 
     NS_LOG_LOGIC("Send Redirection ( to " << dst << " target " << redirTarget << " destination "
                                           << redirDestination << " )");
@@ -1607,7 +1607,7 @@ Icmpv6L4Protocol::ForgeNA(Ipv6Address src, Ipv6Address dst, Address* hardwareAdd
     Ipv6Header ipHeader;
     Icmpv6NA na;
     Icmpv6OptionLinkLayerAddress llOption(
-        0,
+        false,
         *hardwareAddress); /* we give our mac address in response */
 
     NS_LOG_LOGIC("Send NA ( from " << src << " to " << dst << ")");
@@ -1618,7 +1618,7 @@ Icmpv6L4Protocol::ForgeNA(Ipv6Address src, Ipv6Address dst, Address* hardwareAdd
     p->AddHeader(llOption);
     na.SetIpv6Target(src);
 
-    if ((flags & 1))
+    if (flags & 1)
     {
         na.SetFlagO(true);
     }
@@ -1626,7 +1626,7 @@ Icmpv6L4Protocol::ForgeNA(Ipv6Address src, Ipv6Address dst, Address* hardwareAdd
     {
         na.SetFlagS(true);
     }
-    if ((flags & 4))
+    if (flags & 4)
     {
         na.SetFlagR(true);
     }
@@ -1654,7 +1654,7 @@ Icmpv6L4Protocol::ForgeNS(Ipv6Address src,
     Ipv6Header ipHeader;
     Icmpv6NS ns(target);
     Icmpv6OptionLinkLayerAddress llOption(
-        1,
+        true,
         hardwareAddress); /* we give our mac address in response */
 
     NS_LOG_LOGIC("Send NS ( from " << src << " to " << dst << " target " << target << ")");
@@ -1677,7 +1677,7 @@ Icmpv6L4Protocol::FindCache(Ptr<NetDevice> device)
 {
     NS_LOG_FUNCTION(this << device);
 
-    for (CacheList::const_iterator i = m_cacheList.begin(); i != m_cacheList.end(); i++)
+    for (auto i = m_cacheList.begin(); i != m_cacheList.end(); i++)
     {
         if ((*i)->GetDevice() == device)
         {

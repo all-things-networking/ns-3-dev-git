@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -66,7 +65,7 @@ NS_LOG_COMPONENT_DEFINE("SixthScriptExample");
 /**
  * Congestion window change callback
  *
- * \param stream The ouput stream file.
+ * \param stream The output stream file.
  * \param oldCwnd Old congestion window.
  * \param newCwnd New congestion window.
  */
@@ -81,7 +80,7 @@ CwndChange(Ptr<OutputStreamWrapper> stream, uint32_t oldCwnd, uint32_t newCwnd)
 /**
  * Rx drop callback
  *
- * \param file The ouput PCAP file.
+ * \param file The output PCAP file.
  * \param p The dropped packet.
  */
 static void

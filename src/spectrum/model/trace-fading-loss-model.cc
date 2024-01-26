@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -19,16 +18,17 @@
  *         Marco Miozzo <mmiozzo@cttc.es>
  */
 
+#include "trace-fading-loss-model.h"
+
 #include "spectrum-signal-parameters.h"
+#include "spectrum-value.h"
 
 #include "ns3/uinteger.h"
 #include <ns3/double.h>
 #include <ns3/log.h>
 #include <ns3/mobility-model.h>
 #include <ns3/simulator.h>
-#include <ns3/spectrum-value.h>
 #include <ns3/string.h>
-#include <ns3/trace-fading-loss-model.h>
 
 #include <fstream>
 
@@ -85,7 +85,7 @@ TraceFadingLossModel::GetTypeId()
                           "The number of RB the trace is made of (default 100)",
                           UintegerValue(100),
                           MakeUintegerAccessor(&TraceFadingLossModel::m_rbNum),
-                          MakeUintegerChecker<uint8_t>())
+                          MakeUintegerChecker<uint32_t>())
             .AddAttribute(
                 "RngStreamSetSize",
                 "The number of RNG streams reserved for the fading model. The maximum number of "
@@ -121,7 +121,7 @@ TraceFadingLossModel::LoadTrace()
 {
     NS_LOG_FUNCTION(this << "Loading Fading Trace " << m_traceFile);
     std::ifstream ifTraceFile;
-    ifTraceFile.open(m_traceFile.c_str(), std::ifstream::in);
+    ifTraceFile.open(m_traceFile, std::ifstream::in);
     m_fadingTrace.clear();
     if (!ifTraceFile.good())
     {
@@ -153,9 +153,8 @@ TraceFadingLossModel::DoCalcRxPowerSpectralDensity(Ptr<const SpectrumSignalParam
 {
     NS_LOG_FUNCTION(this << *params->psd << a << b);
 
-    std::map<ChannelRealizationId_t, int>::iterator itOff;
     ChannelRealizationId_t mobilityPair = std::make_pair(a, b);
-    itOff = m_windowOffsetsMap.find(mobilityPair);
+    auto itOff = m_windowOffsetsMap.find(mobilityPair);
     if (itOff != m_windowOffsetsMap.end())
     {
         if (Simulator::Now().GetSeconds() >=
@@ -163,11 +162,10 @@ TraceFadingLossModel::DoCalcRxPowerSpectralDensity(Ptr<const SpectrumSignalParam
         {
             // update all the offsets
             NS_LOG_INFO("Fading Windows Updated");
-            std::map<ChannelRealizationId_t, int>::iterator itOff2;
-            for (itOff2 = m_windowOffsetsMap.begin(); itOff2 != m_windowOffsetsMap.end(); itOff2++)
+            for (auto itOff2 = m_windowOffsetsMap.begin(); itOff2 != m_windowOffsetsMap.end();
+                 itOff2++)
             {
-                std::map<ChannelRealizationId_t, Ptr<UniformRandomVariable>>::iterator itVar;
-                itVar = m_startVariableMap.find((*itOff2).first);
+                auto itVar = m_startVariableMap.find((*itOff2).first);
                 (*itOff2).second = (*itVar).second->GetValue();
             }
             m_lastWindowUpdate = Simulator::Now();
@@ -199,7 +197,7 @@ TraceFadingLossModel::DoCalcRxPowerSpectralDensity(Ptr<const SpectrumSignalParam
     }
 
     Ptr<SpectrumValue> rxPsd = Copy<SpectrumValue>(params->psd);
-    Values::iterator vit = rxPsd->ValuesBegin();
+    auto vit = rxPsd->ValuesBegin();
 
     // Vector aSpeedVector = a->GetVelocity ();
     // Vector bSpeedVector = b->GetVelocity ();
@@ -247,8 +245,7 @@ TraceFadingLossModel::AssignStreams(int64_t stream)
     m_streamsAssigned = true;
     m_currentStream = stream;
     m_lastStream = stream + m_streamSetSize - 1;
-    std::map<ChannelRealizationId_t, Ptr<UniformRandomVariable>>::iterator itVar;
-    itVar = m_startVariableMap.begin();
+    auto itVar = m_startVariableMap.begin();
     // the following loop is for eventually pre-existing ChannelRealization instances
     // note that more instances are expected to be created at run time
     while (itVar != m_startVariableMap.end())

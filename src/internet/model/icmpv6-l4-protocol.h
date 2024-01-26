@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -329,9 +328,9 @@ class Icmpv6L4Protocol : public IpL4Protocol
      * \param interface the interface from which the packet is coming
      * \returns the receive status
      */
-    enum IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
-                                        const Ipv4Header& header,
-                                        Ptr<Ipv4Interface> interface) override;
+    IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
+                                   const Ipv4Header& header,
+                                   Ptr<Ipv4Interface> interface) override;
 
     /**
      * \brief Receive method.
@@ -340,9 +339,9 @@ class Icmpv6L4Protocol : public IpL4Protocol
      * \param interface the interface from which the packet is coming
      * \returns the receive status
      */
-    enum IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
-                                        const Ipv6Header& header,
-                                        Ptr<Ipv6Interface> interface) override;
+    IpL4Protocol::RxStatus Receive(Ptr<Packet> p,
+                                   const Ipv6Header& header,
+                                   Ptr<Ipv6Interface> interface) override;
 
     /**
      * \brief Function called when DAD timeout.

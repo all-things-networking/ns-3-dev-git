@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -90,6 +89,7 @@ class OfdmPhy : public PhyEntity
                             Time ppduDuration) override;
     double GetCcaThreshold(const Ptr<const WifiPpdu> ppdu,
                            WifiChannelListType channelType) const override;
+    Ptr<const WifiPpdu> GetRxPpduFromTxPpdu(Ptr<const WifiPpdu> ppdu) override;
 
     /**
      * Initialize all OFDM modes (for all variants).
@@ -325,8 +325,7 @@ class OfdmPhy : public PhyEntity
   protected:
     PhyFieldRxStatus DoEndReceiveField(WifiPpduField field, Ptr<Event> event) override;
     Ptr<SpectrumValue> GetTxPowerSpectralDensity(double txPowerW,
-                                                 Ptr<const WifiPpdu> ppdu,
-                                                 const WifiTxVector& txVector) const override;
+                                                 Ptr<const WifiPpdu> ppdu) const override;
     uint32_t GetMaxPsduSize() const override;
     uint16_t GetMeasurementChannelWidth(const Ptr<const WifiPpdu> ppdu) const override;
 

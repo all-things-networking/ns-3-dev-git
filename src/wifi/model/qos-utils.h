@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
@@ -34,8 +33,6 @@ class QueueItem;
 class Mac48Address;
 
 typedef std::pair<Mac48Address, uint8_t> WifiAddressTidPair; //!< (MAC address, TID) pair
-
-#define WIFI_TID_UNDEFINED 0xff
 
 /**
  * Function object to compute the hash of a (MAC address, TID) pair
@@ -137,7 +134,7 @@ class WifiAc
  * \param right the AC on the right of operator>
  * \return true if the AC on the left has higher priority than the AC on the right
  */
-bool operator>(enum AcIndex left, enum AcIndex right);
+bool operator>(AcIndex left, AcIndex right);
 
 /**
  * \ingroup wifi
@@ -148,7 +145,7 @@ bool operator>(enum AcIndex left, enum AcIndex right);
  * \param right the AC on the right of operator>=
  * \return true if the AC on the left has higher or the same priority than the AC on the right
  */
-bool operator>=(enum AcIndex left, enum AcIndex right);
+bool operator>=(AcIndex left, AcIndex right);
 
 /**
  * \ingroup wifi
@@ -159,7 +156,7 @@ bool operator>=(enum AcIndex left, enum AcIndex right);
  * \param right the AC on the right of operator<
  * \return true if the AC on the left has lower priority than the AC on the right
  */
-bool operator<(enum AcIndex left, enum AcIndex right);
+bool operator<(AcIndex left, AcIndex right);
 
 /**
  * \ingroup wifi
@@ -170,7 +167,7 @@ bool operator<(enum AcIndex left, enum AcIndex right);
  * \param right the AC on the right of operator<=
  * \return true if the AC on the left has lower or the same priority than the AC on the right
  */
-bool operator<=(enum AcIndex left, enum AcIndex right);
+bool operator<=(AcIndex left, AcIndex right);
 
 /**
  * Map containing the four ACs in increasing order of priority (according to

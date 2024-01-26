@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
@@ -199,7 +198,7 @@ DataRate::DataRate(uint64_t bps)
 }
 
 DataRate
-DataRate::operator+(DataRate rhs)
+DataRate::operator+(DataRate rhs) const
 {
     return DataRate(m_bps + rhs.m_bps);
 }
@@ -212,7 +211,7 @@ DataRate::operator+=(DataRate rhs)
 }
 
 DataRate
-DataRate::operator-(DataRate rhs)
+DataRate::operator-(DataRate rhs) const
 {
     NS_ASSERT_MSG(m_bps >= rhs.m_bps, "Data Rate cannot be negative.");
     return DataRate(m_bps - rhs.m_bps);
@@ -227,9 +226,9 @@ DataRate::operator-=(DataRate rhs)
 }
 
 DataRate
-DataRate::operator*(double rhs)
+DataRate::operator*(double rhs) const
 {
-    return DataRate(((uint64_t)(m_bps * rhs)));
+    return DataRate((uint64_t)(m_bps * rhs));
 }
 
 DataRate&
@@ -240,7 +239,7 @@ DataRate::operator*=(double rhs)
 }
 
 DataRate
-DataRate::operator*(uint64_t rhs)
+DataRate::operator*(uint64_t rhs) const
 {
     return DataRate(m_bps * rhs);
 }

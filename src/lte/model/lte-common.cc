@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -76,7 +75,7 @@ ImsiLcidPair_t::ImsiLcidPair_t(const uint64_t a, const uint8_t b)
 }
 
 /**
- * Equaity operator
+ * Equality operator
  *
  * \param a lhs
  * \param b rhs
@@ -144,8 +143,8 @@ LteFfConverter::double2fpS11dot3(double val)
     {
         val = -4096;
     }
-    int16_t valFp = (int16_t)(val * 8);
-    return (valFp);
+    auto valFp = (int16_t)(val * 8);
+    return valFp;
 }
 
 double
@@ -153,26 +152,24 @@ LteFfConverter::fpS11dot3toDouble(uint16_t val)
 {
     // convert from fixed point notation Sxxxxxxxxxxx.xxx to double
     double valD = ((int16_t)val) / 8.0;
-    return (valD);
+    return valD;
 }
 
 double
 LteFfConverter::getMinFpS11dot3Value()
 {
-    return (-4096); // -4096 = 0x8000 = 1000 0000 0000 0000 b
+    return -4096; // -4096 = 0x8000 = 1000 0000 0000 0000 b
 }
 
 // static double g_lowestFpS11dot3Value = -4096; // 0x8001 (1000 0000 0000 0000)
 
 /// Buffer size level BSR table
 static const uint32_t BufferSizeLevelBsrTable[64] = {
-
-    0,     10,    12,    14,    17,    19,    22,    26,    31,     36,     42,     49,    57,
-    67,    78,    91,    107,   125,   146,   171,   200,   234,    274,    321,    376,   440,
-    515,   603,   706,   826,   967,   1132,  1326,  1552,  1817,   2127,   2490,   2915,  3413,
-    3995,  4677,  5476,  6411,  7505,  8787,  10287, 12043, 14099,  16507,  19325,  22624, 26487,
-    31009, 36304, 42502, 49759, 58255, 68201, 79846, 93749, 109439, 128125, 150000, 150000
-
+    0,     10,    12,    14,    17,    19,    22,    26,    31,     36,     42,     49,     57,
+    67,    78,    91,    107,   125,   146,   171,   200,   234,    274,    321,    376,    440,
+    515,   603,   706,   826,   967,   1132,  1326,  1552,  1817,   2127,   2490,   2915,   3413,
+    3995,  4677,  5476,  6411,  7505,  8787,  10287, 12043, 14099,  16507,  19325,  22624,  26487,
+    31009, 36304, 42502, 49759, 58255, 68201, 79846, 93749, 109439, 128125, 150000, 150000,
 };
 
 uint32_t
@@ -199,7 +196,7 @@ BufferSizeLevelBsr::BufferSize2BsrId(uint32_t val)
         }
     }
 
-    return (index);
+    return index;
 }
 
 uint8_t
@@ -230,7 +227,7 @@ TransmissionModesLayers::TxMode2LayerNum(uint8_t txMode)
         nLayer = 1;
         break;
     }
-    return (nLayer);
+    return nLayer;
 }
 
 double
@@ -364,7 +361,7 @@ EutranMeasurementMapping::IeValue2ActualQQualMin(int8_t qQualMinIeValue)
                                     << " for Q-QualMin IE value");
     }
 
-    double actual = static_cast<double>(qQualMinIeValue);
+    auto actual = static_cast<double>(qQualMinIeValue);
     NS_ASSERT(actual >= -34.0);
     NS_ASSERT(actual <= -3.0);
     return actual;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 ResiliNets, ITTC, University of Kansas
  *
@@ -79,7 +78,7 @@ static void
 TraceCwnd(std::string cwndTrFileName)
 {
     AsciiTraceHelper ascii;
-    if (cwndTrFileName == "")
+    if (cwndTrFileName.empty())
     {
         NS_LOG_DEBUG("No trace file for cwnd provided");
         return;

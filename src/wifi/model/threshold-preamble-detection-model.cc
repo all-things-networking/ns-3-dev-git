@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 University of Washington
  *
@@ -41,7 +40,7 @@ ThresholdPreambleDetectionModel::GetTypeId()
             .SetGroupName("Wifi")
             .AddConstructor<ThresholdPreambleDetectionModel>()
             .AddAttribute("Threshold",
-                          "Preamble is successfully detection if the SNR is at or above this value "
+                          "Preamble is successfully detected if the SNR is at or above this value "
                           "(expressed in dB).",
                           DoubleValue(4),
                           MakeDoubleAccessor(&ThresholdPreambleDetectionModel::m_threshold),

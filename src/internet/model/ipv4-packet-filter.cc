@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *               2016 University of Washington
@@ -27,8 +26,6 @@
 
 #include "ns3/enum.h"
 #include "ns3/log.h"
-#include "ns3/tcp-header.h"
-#include "ns3/udp-header.h"
 #include "ns3/uinteger.h"
 
 namespace ns3

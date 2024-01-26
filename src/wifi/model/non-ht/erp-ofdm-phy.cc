@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -70,7 +69,7 @@ const std::array<uint64_t, 8>&
 GetErpOfdmRatesBpsList()
 {
     return s_erpOfdmRatesBpsList;
-};
+}
 
 ErpOfdmPhy::ErpOfdmPhy()
     : OfdmPhy(OFDM_PHY_DEFAULT, false) // don't add OFDM modes to list
@@ -114,12 +113,12 @@ ErpOfdmPhy::BuildPpdu(const WifiConstPsduMap& psdus,
                       Time /* ppduDuration */)
 {
     NS_LOG_FUNCTION(this << psdus << txVector);
-    return Create<ErpOfdmPpdu>(psdus.begin()->second,
-                               txVector,
-                               m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-                                   txVector.GetChannelWidth()),
-                               m_wifiPhy->GetPhyBand(),
-                               ObtainNextUid(txVector));
+    return Create<ErpOfdmPpdu>(
+        psdus.begin()->second,
+        txVector,
+        m_wifiPhy->GetOperatingChannel(),
+        m_wifiPhy->GetLatestPhyEntity()->ObtainNextUid(
+            txVector)); // use latest PHY entity to handle MU-RTS sent with non-HT rate
 }
 
 void
@@ -159,11 +158,11 @@ ErpOfdmPhy::GetErpOfdmRate(uint64_t rate)
 }
 
 #define GET_ERP_OFDM_MODE(x, f)                                                                    \
-    WifiMode ErpOfdmPhy::Get##x(void)                                                              \
+    WifiMode ErpOfdmPhy::Get##x()                                                                  \
     {                                                                                              \
         static WifiMode mode = CreateErpOfdmMode(#x, f);                                           \
         return mode;                                                                               \
-    };
+    }
 
 GET_ERP_OFDM_MODE(ErpOfdmRate6Mbps, true)
 GET_ERP_OFDM_MODE(ErpOfdmRate9Mbps, false)

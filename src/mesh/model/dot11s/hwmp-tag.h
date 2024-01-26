@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -72,7 +71,7 @@ class HwmpTag : public Tag
      * Get the TTL value
      * \returns the TTL
      */
-    uint8_t GetTtl();
+    uint8_t GetTtl() const;
     /**
      * Set the metric value
      * \param metric the metric
@@ -82,7 +81,7 @@ class HwmpTag : public Tag
      * Get the metric value
      * \returns the metric
      */
-    uint32_t GetMetric();
+    uint32_t GetMetric() const;
     /**
      * Set sequence number
      * \param seqno the sequence number
@@ -92,7 +91,7 @@ class HwmpTag : public Tag
      * Get the sequence number
      * \returns the sequence number
      */
-    uint32_t GetSeqno();
+    uint32_t GetSeqno() const;
     /// Decrement TTL
     void DecrementTtl();
 

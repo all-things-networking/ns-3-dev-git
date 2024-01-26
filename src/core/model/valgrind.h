@@ -55,6 +55,9 @@
    ----------------------------------------------------------------
 */
 
+// NOLINTBEGIN
+// clang-format off
+
 /* This file is for inclusion into client (your!) code.
 
    You can use these macros to manipulate and query Valgrind's
@@ -68,8 +71,6 @@
    millions of times per second.  Nevertheless, if that is still a
    problem, you can compile with the NVALGRIND symbol defined (gcc
    -DNVALGRIND) so that client requests are not even compiled in.  */
-
-// clang-format off
 
 #ifndef __VALGRIND_H
 #define __VALGRIND_H
@@ -973,7 +974,7 @@ typedef
 
 /* Use these to write the name of your wrapper.  NOTE: duplicates
    VG_WRAP_FUNCTION_Z{U,Z} in pub_tool_redir.h.  NOTE also: inserts
-   the default behaviour equivalance class tag "0000" into the name.
+   the default behaviour equivalence class tag "0000" into the name.
    See pub_tool_redir.h for details -- normally you don't need to
    think about this, though. */
 
@@ -5625,3 +5626,4 @@ VALGRIND_PRINTF_BACKTRACE(const char *format, ...)
 #endif   /* __VALGRIND_H */
 
 // clang-format on
+// NOLINTEND

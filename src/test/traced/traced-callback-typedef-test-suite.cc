@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Lawrence Livermore National Laboratory
  *
@@ -144,7 +143,7 @@ TypeName(int N)
 /**
  * \ingroup system-tests-traced
  *
- * Returns a sting representing the type of a class.
+ * Returns a string representing the type of a class.
  */
 #define TYPENAME(T)                                                                                \
     template <>                                                                                    \
@@ -250,7 +249,7 @@ class TracedCbSink
   public:
     /**
      * \brief Sink function, called by a TracedCallback.
-     * \tparam Ts prameters of the TracedCallback.
+     * \tparam Ts parameters of the TracedCallback.
      */
     static void Sink(Ts...)
     {
@@ -326,7 +325,7 @@ TracedCallbackTypedefTestCase::TracedCallbackTypedefTestCase()
 /**
  * \ingroup system-tests-traced
  *
- * Check the TracedCallback duplicate by checking if it maches the TracedCallback
+ * Check the TracedCallback duplicate by checking if it matches the TracedCallback
  * it is supposed to be equal to.
  */
 #define DUPE(U, T1)                                                                                \
@@ -339,11 +338,13 @@ TracedCallbackTypedefTestCase::TracedCallbackTypedefTestCase()
         std::cout << #U << " matches " << #T1 << std::endl;                                        \
     }                                                                                              \
     else                                                                                           \
+    {                                                                                              \
         NS_TEST_ASSERT_MSG_EQ(TypeName<U>(0),                                                      \
                               TypeName<T1>(0),                                                     \
                               "the typedef "                                                       \
                                   << #U << " used to match the typedef " << #T1                    \
-                                  << " but no longer does.  Please add a new CHECK call.")
+                                  << " but no longer does.  Please add a new CHECK call.");        \
+    }
 
 /**
  * \ingroup system-tests-traced

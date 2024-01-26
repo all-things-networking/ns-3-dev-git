@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
@@ -22,7 +21,7 @@
 #include "qos-utils.h"
 
 #include "ctrl-headers.h"
-#include "mgt-headers.h"
+#include "mgt-action-headers.h"
 #include "wifi-mac-header.h"
 
 #include "ns3/queue-item.h"
@@ -85,7 +84,7 @@ WifiAc::GetOtherTid(uint8_t tid) const
 }
 
 bool
-operator>(enum AcIndex left, enum AcIndex right)
+operator>(AcIndex left, AcIndex right)
 {
     NS_ABORT_MSG_IF(left > 3 || right > 3, "Cannot compare non-QoS ACs");
 
@@ -105,7 +104,7 @@ operator>(enum AcIndex left, enum AcIndex right)
 }
 
 bool
-operator>=(enum AcIndex left, enum AcIndex right)
+operator>=(AcIndex left, AcIndex right)
 {
     NS_ABORT_MSG_IF(left > 3 || right > 3, "Cannot compare non-QoS ACs");
 
@@ -113,21 +112,23 @@ operator>=(enum AcIndex left, enum AcIndex right)
 }
 
 bool
-operator<(enum AcIndex left, enum AcIndex right)
+operator<(AcIndex left, AcIndex right)
 {
     return !(left >= right);
 }
 
 bool
-operator<=(enum AcIndex left, enum AcIndex right)
+operator<=(AcIndex left, AcIndex right)
 {
     return !(left > right);
 }
 
-const std::map<AcIndex, WifiAc> wifiAcList = {{AC_BE, {0, 3}},
-                                              {AC_BK, {1, 2}},
-                                              {AC_VI, {4, 5}},
-                                              {AC_VO, {6, 7}}};
+const std::map<AcIndex, WifiAc> wifiAcList = {
+    {AC_BE, {0, 3}},
+    {AC_BK, {1, 2}},
+    {AC_VI, {4, 5}},
+    {AC_VO, {6, 7}},
+};
 
 AcIndex
 QosUtilsMapTidToAc(uint8_t tid)
@@ -138,19 +139,15 @@ QosUtilsMapTidToAc(uint8_t tid)
     case 0:
     case 3:
         return AC_BE;
-        break;
     case 1:
     case 2:
         return AC_BK;
-        break;
     case 4:
     case 5:
         return AC_VI;
-        break;
     case 6:
     case 7:
         return AC_VO;
-        break;
     }
     return AC_UNDEF;
 }

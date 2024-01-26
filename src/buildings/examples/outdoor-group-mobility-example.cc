@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Institute for the Wireless Internet of Things, Northeastern University,
  * Boston, MA Copyright (c) 2021, University of Washington: refactor for hierarchical model
@@ -99,20 +98,20 @@ PrintPosition(Ptr<Node> node)
 /**
  * Print the buildings list in a format that can be used by Gnuplot to draw them.
  *
- * \param filename The ouput filename.
+ * \param filename The output filename.
  */
 void
 PrintGnuplottableBuildingListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
     uint32_t index = 1;
-    for (BuildingList::Iterator it = BuildingList::Begin(); it != BuildingList::End(); ++it)
+    for (auto it = BuildingList::Begin(); it != BuildingList::End(); ++it)
     {
         ++index;
         Box box = (*it)->GetBoundaries();
@@ -177,7 +176,7 @@ main(int argc, char* argv[])
     // configuration.
 
     int64_t streamIndex = 1;
-    if (useHelper == false)
+    if (!useHelper)
     {
         // The reference (parent) mobility model starts at coordinate (10, 10, 0)
         // and performs a buildings-aware random walk.
@@ -197,7 +196,7 @@ main(int argc, char* argv[])
         outdoorMm->SetPosition(Vector(10, 10, 0));
         streamIndex += outdoorMm->AssignStreams(streamIndex);
 
-        // Each HierachicalMobilityModel contains the above model as the Parent,
+        // Each HierarchicalMobilityModel contains the above model as the Parent,
         // and a user defined model as the Child.  Two MobilityModel objects are
         // instantiated per node, and each node also shares the same parent model.
 
@@ -280,4 +279,6 @@ main(int argc, char* argv[])
     Simulator::Run();
     g_timeSeries.close();
     Simulator::Destroy();
+
+    return 0;
 }

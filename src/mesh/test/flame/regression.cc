@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -26,7 +25,6 @@ using namespace ns3;
 
 /**
  * \ingroup flame-test
- * \ingroup tests
  *
  * \brief Flame Regression Suite
  */

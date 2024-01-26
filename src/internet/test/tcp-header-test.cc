@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -42,7 +41,6 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP header Get/Set test.
  */
@@ -160,7 +158,6 @@ TcpHeaderGetSetTestCase::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP header with RFC793 Options test.
  */
@@ -383,16 +380,12 @@ TcpHeaderWithRFC793OptionTestCase::OneOptionAtTime()
 void
 TcpHeaderWithRFC793OptionTestCase::DoTeardown()
 {
-    uint32_t foo;
-    foo = UINT32_MAX;
-    foo--;
 }
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
- * \brief TCP header Flags to Striing test.
+ * \brief TCP header Flags to String test.
  */
 class TcpHeaderFlagsToString : public TestCase
 {
@@ -460,7 +453,6 @@ TcpHeaderFlagsToString::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP header TestSuite
  */

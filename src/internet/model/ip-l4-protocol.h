@@ -1,4 +1,3 @@
-// -*- Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*-
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
@@ -84,9 +83,9 @@ class IpL4Protocol : public Object
      * \param incomingInterface the Ipv4Interface on which the packet arrived
      * \returns Rx status code
      */
-    virtual enum RxStatus Receive(Ptr<Packet> p,
-                                  const Ipv4Header& header,
-                                  Ptr<Ipv4Interface> incomingInterface) = 0;
+    virtual RxStatus Receive(Ptr<Packet> p,
+                             const Ipv4Header& header,
+                             Ptr<Ipv4Interface> incomingInterface) = 0;
 
     /**
      * \brief Called from lower-level layers to send the packet up in the stack.
@@ -95,9 +94,9 @@ class IpL4Protocol : public Object
      * \param incomingInterface the Ipv6Interface on which the packet arrived
      * \returns Rx status code
      */
-    virtual enum RxStatus Receive(Ptr<Packet> p,
-                                  const Ipv6Header& header,
-                                  Ptr<Ipv6Interface> incomingInterface) = 0;
+    virtual RxStatus Receive(Ptr<Packet> p,
+                             const Ipv6Header& header,
+                             Ptr<Ipv6Interface> incomingInterface) = 0;
 
     /**
      * \brief Called from lower-level layers to send the ICMP packet up in the stack.

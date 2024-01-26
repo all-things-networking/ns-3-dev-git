@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007, Emmanuelle Laprise
  *
@@ -76,7 +75,7 @@ Backoff::GetBackoffTime()
         maxSlot = m_maxSlots;
     }
 
-    uint32_t backoffSlots = (uint32_t)m_rng->GetValue(minSlot, maxSlot);
+    auto backoffSlots = (uint32_t)m_rng->GetValue(minSlot, maxSlot);
 
     Time backoff = Time(backoffSlots * m_slotTime);
     return backoff;
@@ -89,7 +88,7 @@ Backoff::ResetBackoffTime()
 }
 
 bool
-Backoff::MaxRetriesReached()
+Backoff::MaxRetriesReached() const
 {
     return (m_numBackoffRetries >= m_maxRetries);
 }

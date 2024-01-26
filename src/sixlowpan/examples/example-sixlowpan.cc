@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
@@ -61,7 +60,7 @@ main(int argc, char** argv)
     if (verbose)
     {
         LogComponentEnable("SixLowPanNetDevice", LOG_LEVEL_ALL);
-        LogComponentEnable("Ping6Application", LOG_LEVEL_ALL);
+        LogComponentEnable("Ping", LOG_LEVEL_ALL);
     }
 
     Packet::EnablePrinting();
@@ -89,7 +88,6 @@ main(int argc, char** argv)
     NetDeviceContainer d1 = csma.Install(net1);
 
     SixLowPanHelper sixlowpan;
-    sixlowpan.SetDeviceAttribute("ForceEtherType", BooleanValue(true));
     NetDeviceContainer six1 = sixlowpan.Install(d1);
 
     NS_LOG_INFO("Create networks and assign IPv6 Addresses.");
@@ -108,15 +106,12 @@ main(int argc, char** argv)
     uint32_t packetSize = 200;
     uint32_t maxPacketCount = 50;
     Time interPacketInterval = Seconds(1.);
-    Ping6Helper ping6;
+    PingHelper ping(i2.GetAddress(1, 1));
 
-    ping6.SetLocal(i1.GetAddress(0, 1));
-    ping6.SetRemote(i2.GetAddress(1, 1));
-
-    ping6.SetAttribute("MaxPackets", UintegerValue(maxPacketCount));
-    ping6.SetAttribute("Interval", TimeValue(interPacketInterval));
-    ping6.SetAttribute("PacketSize", UintegerValue(packetSize));
-    ApplicationContainer apps = ping6.Install(net1.Get(0));
+    ping.SetAttribute("Count", UintegerValue(maxPacketCount));
+    ping.SetAttribute("Interval", TimeValue(interPacketInterval));
+    ping.SetAttribute("Size", UintegerValue(packetSize));
+    ApplicationContainer apps = ping.Install(net1.Get(0));
 
     apps.Start(Seconds(5.0));
     apps.Stop(Seconds(15.0));
@@ -130,4 +125,6 @@ main(int argc, char** argv)
     Simulator::Run();
     Simulator::Destroy();
     NS_LOG_INFO("Done.");
+
+    return 0;
 }

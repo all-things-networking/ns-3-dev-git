@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -23,6 +22,7 @@
 
 #include <ns3/simple-ref-count.h>
 
+#include <cstddef>
 #include <vector>
 
 namespace ns3
@@ -73,7 +73,7 @@ class SpectrumModel : public SimpleRefCount<SpectrumModel>
 {
   public:
     /**
-     * Comparison operator. Returns true if the two SpectumModels are identical
+     * Comparison operator. Returns true if the two SpectrumModels are identical
      * \param lhs left operand
      * \param rhs right operand
      * \returns true if the two operands are identical

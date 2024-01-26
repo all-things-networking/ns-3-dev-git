@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
@@ -29,10 +28,11 @@
 #ifndef COBALT_H
 #define COBALT_H
 
+#include "queue-disc.h"
+
 #include "ns3/boolean.h"
 #include "ns3/data-rate.h"
 #include "ns3/nstime.h"
-#include "ns3/queue-disc.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
 #include "ns3/string.h"
@@ -217,7 +217,7 @@ class CobaltQueueDisc : public QueueDisc
 
     /**
      * Called to decide whether the current packet should be dropped based on decisions taken by
-     * Blue and Codel working parallely
+     * Blue and Codel working parallelly
      *
      * \return true if the packet should be dropped, false otherwise
      * \param item current packet

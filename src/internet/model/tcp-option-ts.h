@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
@@ -21,7 +20,8 @@
 #ifndef TCP_OPTION_TS_H
 #define TCP_OPTION_TS_H
 
-#include "ns3/tcp-option.h"
+#include "tcp-option.h"
+
 #include "ns3/timer.h"
 
 namespace ns3

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -46,7 +45,6 @@ NS_LOG_COMPONENT_DEFINE("EpcTestS1uDownlink");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Custom structure for testing UE downlink data
  */
@@ -75,7 +73,6 @@ UeDlTestData::UeDlTestData(uint32_t n, uint32_t s)
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Custom structure for testing eNodeB downlink data, contains
  * the list of data structures for UEs
@@ -87,7 +84,6 @@ struct EnbDlTestData
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief EpcS1uDlTestCase class
  */
@@ -158,9 +154,7 @@ EpcS1uDlTestCase::DoRun()
     uint16_t cellIdCounter = 0;
     uint64_t imsiCounter = 0;
 
-    for (std::vector<EnbDlTestData>::iterator enbit = m_enbDlTestData.begin();
-         enbit < m_enbDlTestData.end();
-         ++enbit)
+    for (auto enbit = m_enbDlTestData.begin(); enbit < m_enbDlTestData.end(); ++enbit)
     {
         Ptr<Node> enb = CreateObject<Node>();
         enbs.Add(enb);
@@ -249,12 +243,9 @@ EpcS1uDlTestCase::DoRun()
 
     Simulator::Run();
 
-    for (std::vector<EnbDlTestData>::iterator enbit = m_enbDlTestData.begin();
-         enbit < m_enbDlTestData.end();
-         ++enbit)
+    for (auto enbit = m_enbDlTestData.begin(); enbit < m_enbDlTestData.end(); ++enbit)
     {
-        for (std::vector<UeDlTestData>::iterator ueit = enbit->ues.begin(); ueit < enbit->ues.end();
-             ++ueit)
+        for (auto ueit = enbit->ues.begin(); ueit < enbit->ues.end(); ++ueit)
         {
             NS_TEST_ASSERT_MSG_EQ(ueit->serverApp->GetTotalRx(),
                                   (ueit->numPkts) * (ueit->pktSize),

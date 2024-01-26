@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universidad de la República - Uruguay
  *
@@ -254,7 +253,7 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
         txVector.SetMode(mode);
         txVector.SetPreambleType(WIFI_PREAMBLE_LONG);
         txVector.SetChannelWidth(phy->GetChannelWidth());
-        DataRate dataRate = DataRate(mode.GetDataRate(phy->GetChannelWidth()));
+        DataRate dataRate(mode.GetDataRate(phy->GetChannelWidth()));
         Time time = phy->CalculateTxDuration(packetSize, txVector, phy->GetPhyBand());
         NS_LOG_DEBUG(mode.GetUniqueName() << " " << time.GetSeconds() << " " << dataRate);
         m_timeTable.emplace_back(time, dataRate);
@@ -264,7 +263,7 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
 Time
 NodeStatistics::GetCalcTxTime(DataRate rate)
 {
-    for (TxTime::const_iterator i = m_timeTable.begin(); i != m_timeTable.end(); i++)
+    for (auto i = m_timeTable.begin(); i != m_timeTable.end(); i++)
     {
         if (rate == i->second)
         {
@@ -559,7 +558,7 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(simuTime));
     Simulator::Run();
 
-    std::ofstream outfile(("throughput-" + outputFileName + ".plt").c_str());
+    std::ofstream outfile("throughput-" + outputFileName + ".plt");
     Gnuplot gnuplot = Gnuplot("throughput-" + outputFileName + ".eps", "Throughput");
     gnuplot.SetTerminal("post eps color enhanced");
     gnuplot.SetLegend("Time (seconds)", "Throughput (Mb/s)");
@@ -570,7 +569,7 @@ main(int argc, char* argv[])
     if (manager == "ns3::ParfWifiManager" || manager == "ns3::AparfWifiManager" ||
         manager == "ns3::RrpaaWifiManager")
     {
-        std::ofstream outfile2(("power-" + outputFileName + ".plt").c_str());
+        std::ofstream outfile2("power-" + outputFileName + ".plt");
         gnuplot = Gnuplot("power-" + outputFileName + ".eps", "Average Transmit Power");
         gnuplot.SetTerminal("post eps color enhanced");
         gnuplot.SetLegend("Time (seconds)", "Power (mW)");

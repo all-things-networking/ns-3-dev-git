@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Lawrence Livermore National Laboratory
  *
@@ -632,17 +631,19 @@ LengthTestCase::TestBuilderFreeFunctions()
 
     double inputValue = 10;
 
-    std::map<Unit, Builder> TESTDATA{{Unit::Nanometer, NanoMeters},
-                                     {Unit::Micrometer, MicroMeters},
-                                     {Unit::Millimeter, MilliMeters},
-                                     {Unit::Centimeter, CentiMeters},
-                                     {Unit::Meter, Meters},
-                                     {Unit::Kilometer, KiloMeters},
-                                     {Unit::NauticalMile, NauticalMiles},
-                                     {Unit::Inch, Inches},
-                                     {Unit::Foot, Feet},
-                                     {Unit::Yard, Yards},
-                                     {Unit::Mile, Miles}};
+    std::map<Unit, Builder> TESTDATA{
+        {Unit::Nanometer, NanoMeters},
+        {Unit::Micrometer, MicroMeters},
+        {Unit::Millimeter, MilliMeters},
+        {Unit::Centimeter, CentiMeters},
+        {Unit::Meter, Meters},
+        {Unit::Kilometer, KiloMeters},
+        {Unit::NauticalMile, NauticalMiles},
+        {Unit::Inch, Inches},
+        {Unit::Foot, Feet},
+        {Unit::Yard, Yards},
+        {Unit::Mile, Miles},
+    };
 
     for (auto& entry : TESTDATA)
     {
@@ -671,10 +672,12 @@ LengthTestCase::TestTryParseReturnsTrue()
 {
     using TestInput = std::pair<double, std::string>;
     using TestArgs = std::pair<double, double>;
-    std::map<TestInput, TestArgs> tests{{{5, "m"}, {5, 0}},
-                                        {{5, " m"}, {5, 0}},
-                                        {{5, "kilometer"}, {5e3, 0}},
-                                        {{5, " kilometer"}, {5e3, 0}}};
+    std::map<TestInput, TestArgs> tests{
+        {{5, "m"}, {5, 0}},
+        {{5, " m"}, {5, 0}},
+        {{5, "kilometer"}, {5e3, 0}},
+        {{5, " kilometer"}, {5e3, 0}},
+    };
 
     for (auto& entry : tests)
     {

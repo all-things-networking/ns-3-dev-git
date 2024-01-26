@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *
@@ -18,9 +17,10 @@
 
 #include "ipv6-queue-disc-item.h"
 
+#include "tcp-header.h"
+#include "udp-header.h"
+
 #include "ns3/log.h"
-#include "ns3/tcp-header.h"
-#include "ns3/udp-header.h"
 
 namespace ns3
 {

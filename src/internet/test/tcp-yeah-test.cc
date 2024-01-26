@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
@@ -36,7 +35,6 @@ NS_LOG_COMPONENT_DEFINE("TcpYeahTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Testing TcpYeah additive increase algorithm.
  */
@@ -217,7 +215,6 @@ TcpYeahIncrementTest::IncreaseWindow(Ptr<TcpYeah> cong)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Testing TcpYeah multiplicative decrease algorithm
  */
@@ -360,7 +357,6 @@ TcpYeahDecrementTest::CalculateSsThresh(Ptr<TcpYeah> cong)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief TCP Yeah TestSuite
  */

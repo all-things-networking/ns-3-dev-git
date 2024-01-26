@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -31,7 +30,6 @@
 
 #include "ns3/assert.h"
 #include "ns3/callback.h"
-#include "ns3/deprecated.h"
 #include "ns3/mac48-address.h"
 #include "ns3/ptr.h"
 
@@ -164,8 +162,8 @@ class PacketTagIterator
          * Constructor
          * \param data the data to copy.
          */
-        Item(const struct PacketTagList::TagData* data);
-        const struct PacketTagList::TagData* m_data; //!< the tag data
+        Item(const PacketTagList::TagData* data);
+        const PacketTagList::TagData* m_data; //!< the tag data
     };
 
     /**
@@ -184,9 +182,8 @@ class PacketTagIterator
      * Constructor
      * \param head head of the items
      */
-    PacketTagIterator(const struct PacketTagList::TagData* head);
-    const struct PacketTagList::TagData*
-        m_current; //!< actual position over the set of tags in a packet
+    PacketTagIterator(const PacketTagList::TagData* head);
+    const PacketTagList::TagData* m_current; //!< actual position over the set of tags in a packet
 };
 
 /**

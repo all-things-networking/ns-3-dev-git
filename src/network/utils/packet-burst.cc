@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -51,8 +50,7 @@ PacketBurst::PacketBurst()
 PacketBurst::~PacketBurst()
 {
     NS_LOG_FUNCTION(this);
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         (*iter)->Unref();
     }
@@ -71,8 +69,7 @@ PacketBurst::Copy() const
     NS_LOG_FUNCTION(this);
     Ptr<PacketBurst> burst = Create<PacketBurst>();
 
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         Ptr<Packet> packet = (*iter)->Copy();
         burst->AddPacket(packet);
@@ -109,8 +106,7 @@ PacketBurst::GetSize() const
 {
     NS_LOG_FUNCTION(this);
     uint32_t size = 0;
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         Ptr<Packet> packet = *iter;
         size += packet->GetSize();

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -57,7 +56,7 @@ struct ByteTagListData
  *
  * Internal use only.
  */
-static class ByteTagListDataFreeList : public std::vector<struct ByteTagListData*>
+static class ByteTagListDataFreeList : public std::vector<ByteTagListData*>
 {
   public:
     ~ByteTagListDataFreeList();
@@ -68,9 +67,9 @@ static uint32_t g_maxSize = 0; //!< maximum data size (used for allocation)
 ByteTagListDataFreeList::~ByteTagListDataFreeList()
 {
     NS_LOG_FUNCTION(this);
-    for (ByteTagListDataFreeList::iterator i = begin(); i != end(); i++)
+    for (auto i = begin(); i != end(); i++)
     {
-        uint8_t* buffer = (uint8_t*)(*i);
+        auto buffer = (uint8_t*)(*i);
         delete[] buffer;
     }
 }
@@ -89,11 +88,11 @@ ByteTagList::Iterator::HasNext() const
     return m_current < m_end;
 }
 
-struct ByteTagList::Iterator::Item
+ByteTagList::Iterator::Item
 ByteTagList::Iterator::Next()
 {
     NS_ASSERT(HasNext());
-    struct Item item = Item(TagBuffer(m_current + 16, m_end));
+    Item item = Item(TagBuffer(m_current + 16, m_end));
     item.tid.SetUid(m_nextTid);
     item.size = m_nextSize;
     item.start = std::max(m_nextStart, m_offsetStart);
@@ -214,7 +213,7 @@ ByteTagList::Add(TypeId tid, uint32_t bufferSize, int32_t start, int32_t end)
     }
     else if (m_data->size < spaceNeeded || (m_data->count != 1 && m_data->dirty != m_used))
     {
-        struct ByteTagListData* newData = Allocate(spaceNeeded);
+        ByteTagListData* newData = Allocate(spaceNeeded);
         std::memcpy(&newData->data, &m_data->data, m_used);
         Deallocate(m_data);
         m_data = newData;
@@ -352,13 +351,13 @@ ByteTagList::AddAtStart(int32_t prependOffset)
 
 #ifdef USE_FREE_LIST
 
-struct ByteTagListData*
+ByteTagListData*
 ByteTagList::Allocate(uint32_t size)
 {
     NS_LOG_FUNCTION(this << size);
     while (!g_freeList.empty())
     {
-        struct ByteTagListData* data = g_freeList.back();
+        ByteTagListData* data = g_freeList.back();
         g_freeList.pop_back();
         NS_ASSERT(data != nullptr);
         if (data->size >= size)
@@ -367,11 +366,11 @@ ByteTagList::Allocate(uint32_t size)
             data->dirty = 0;
             return data;
         }
-        uint8_t* buffer = (uint8_t*)data;
+        auto buffer = (uint8_t*)data;
         delete[] buffer;
     }
-    uint8_t* buffer = new uint8_t[std::max(size, g_maxSize) + sizeof(struct ByteTagListData) - 4];
-    struct ByteTagListData* data = (struct ByteTagListData*)buffer;
+    auto buffer = new uint8_t[std::max(size, g_maxSize) + sizeof(ByteTagListData) - 4];
+    auto data = (ByteTagListData*)buffer;
     data->count = 1;
     data->size = size;
     data->dirty = 0;
@@ -379,7 +378,7 @@ ByteTagList::Allocate(uint32_t size)
 }
 
 void
-ByteTagList::Deallocate(struct ByteTagListData* data)
+ByteTagList::Deallocate(ByteTagListData* data)
 {
     NS_LOG_FUNCTION(this << data);
     if (data == nullptr)
@@ -392,7 +391,7 @@ ByteTagList::Deallocate(struct ByteTagListData* data)
     {
         if (g_freeList.size() > FREE_LIST_SIZE || data->size < g_maxSize)
         {
-            uint8_t* buffer = (uint8_t*)data;
+            auto buffer = (uint8_t*)data;
             delete[] buffer;
         }
         else
@@ -404,12 +403,12 @@ ByteTagList::Deallocate(struct ByteTagListData* data)
 
 #else /* USE_FREE_LIST */
 
-struct ByteTagListData*
+ByteTagListData*
 ByteTagList::Allocate(uint32_t size)
 {
     NS_LOG_FUNCTION(this << size);
-    uint8_t* buffer = new uint8_t[size + sizeof(struct ByteTagListData) - 4];
-    struct ByteTagListData* data = (struct ByteTagListData*)buffer;
+    uint8_t* buffer = new uint8_t[size + sizeof(ByteTagListData) - 4];
+    ByteTagListData* data = (ByteTagListData*)buffer;
     data->count = 1;
     data->size = size;
     data->dirty = 0;
@@ -417,7 +416,7 @@ ByteTagList::Allocate(uint32_t size)
 }
 
 void
-ByteTagList::Deallocate(struct ByteTagListData* data)
+ByteTagList::Deallocate(ByteTagListData* data)
 {
     NS_LOG_FUNCTION(this << data);
     if (data == 0)
@@ -471,18 +470,15 @@ ByteTagList::Serialize(uint32_t* buffer, uint32_t maxSize) const
     uint32_t* p = buffer;
     uint32_t size = 0;
 
-    uint32_t* numberOfTags = nullptr;
+    size += 4;
 
-    if (size + 4 <= maxSize)
-    {
-        numberOfTags = p;
-        *p++ = 0;
-        size += 4;
-    }
-    else
+    if (size > maxSize)
     {
         return 0;
     }
+
+    uint32_t* numberOfTags = p;
+    *p++ = 0;
 
     ByteTagList::Iterator i = BeginAll();
     while (i.HasNext())
@@ -493,61 +489,55 @@ ByteTagList::Serialize(uint32_t* buffer, uint32_t maxSize) const
 
         // ensure size is multiple of 4 bytes for 4 byte boundaries
         uint32_t hashSize = (sizeof(TypeId::hash_t) + 3) & (~3);
-        if (size + hashSize <= maxSize)
-        {
-            TypeId::hash_t tid = item.tid.GetHash();
-            memcpy(p, &tid, sizeof(TypeId::hash_t));
-            p += hashSize / 4;
-            size += hashSize;
-        }
-        else
+        size += hashSize;
+
+        if (size > maxSize)
         {
             return 0;
         }
 
-        if (size + 4 <= maxSize)
-        {
-            *p++ = item.size;
-            size += 4;
-        }
-        else
+        TypeId::hash_t tid = item.tid.GetHash();
+        memcpy(p, &tid, sizeof(TypeId::hash_t));
+        p += hashSize / 4;
+
+        size += 4;
+
+        if (size > maxSize)
         {
             return 0;
         }
 
-        if (size + 4 <= maxSize)
-        {
-            *p++ = item.start;
-            size += 4;
-        }
-        else
+        *p++ = item.size;
+
+        size += 4;
+
+        if (size > maxSize)
         {
             return 0;
         }
 
-        if (size + 4 <= maxSize)
-        {
-            *p++ = item.end;
-            size += 4;
-        }
-        else
+        *p++ = item.start;
+
+        size += 4;
+
+        if (size > maxSize)
         {
             return 0;
         }
+
+        *p++ = item.end;
 
         // ensure size is multiple of 4 bytes for 4 byte boundaries
         uint32_t tagWordSize = (item.size + 3) & (~3);
+        size += tagWordSize;
 
-        if (size + tagWordSize <= maxSize)
-        {
-            item.buf.Read(reinterpret_cast<uint8_t*>(p), item.size);
-            size += tagWordSize;
-            p += tagWordSize / 4;
-        }
-        else
+        if (size > maxSize)
         {
             return 0;
         }
+
+        item.buf.Read(reinterpret_cast<uint8_t*>(p), item.size);
+        p += tagWordSize / 4;
 
         (*numberOfTags)++;
     }

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -74,7 +73,6 @@ NS_LOG_COMPONENT_DEFINE("TestCarrierAggregationConfig");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Carrier aggregation configuration test case.
  */
@@ -138,7 +136,7 @@ class CarrierAggregationConfigTestCase : public TestCase
      */
     std::vector<std::map<uint16_t, ConfigToCheck>> EquallySpacedCcs();
 
-    uint32_t m_numberOfNodes;             ///< Numer of nodes
+    uint32_t m_numberOfNodes;             ///< Number of nodes
     uint16_t m_numberOfComponentCarriers; ///< Number of component carriers
     std::vector<ConfigToCheck>
         m_configToCheck;          ///< Vector containing all the configurations to check
@@ -372,7 +370,7 @@ CarrierAggregationConfigTestCase::DoRun()
     }
 
     // Activate a data radio bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -389,7 +387,6 @@ CarrierAggregationConfigTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Carrier aggregation configuration test suite.
  */
@@ -452,4 +449,8 @@ CarrierAggregationConfigTestSuite::CarrierAggregationConfigTestSuite()
                 TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static CarrierAggregationConfigTestSuite g_carrierAggregationConfigTestSuite;

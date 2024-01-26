@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Fraunhofer FKIE
  *
@@ -96,9 +95,8 @@ LrWpanInterferenceHelper::GetSignalPsd() const
     if (m_dirty)
     {
         // Sum up the current interference PSD.
-        std::set<Ptr<const SpectrumValue>>::const_iterator it;
         m_signal = Create<SpectrumValue>(m_spectrumModel);
-        for (it = m_signals.begin(); it != m_signals.end(); ++it)
+        for (auto it = m_signals.begin(); it != m_signals.end(); ++it)
         {
             *m_signal += *(*it);
         }

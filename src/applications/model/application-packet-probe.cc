@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Bucknell University
  *
@@ -21,7 +20,7 @@
  * Modified by: Mitch Watrous (watrous@u.washington.edu)
  */
 
-#include "ns3/application-packet-probe.h"
+#include "application-packet-probe.h"
 
 #include "ns3/config.h"
 #include "ns3/log.h"

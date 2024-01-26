@@ -5,6 +5,7 @@ set(base_examples
     lr-wpan-phy-test
     lr-wpan-ed-scan
     lr-wpan-active-scan
+    lr-wpan-orphan-scan
 )
 
 foreach(
@@ -37,4 +38,11 @@ build_lib_example(
   SOURCE_FILES lr-wpan-bootstrap.cc
   LIBRARIES_TO_LINK ${liblr-wpan}
                     ${libnetanim}
+)
+
+build_lib_example(
+  NAME lr-wpan-per-plot
+  SOURCE_FILES lr-wpan-per-plot.cc
+  LIBRARIES_TO_LINK ${liblr-wpan}
+                    ${libstats}
 )

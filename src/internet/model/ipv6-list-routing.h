@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -19,7 +18,7 @@
 #ifndef IPV6_LIST_ROUTING_H
 #define IPV6_LIST_ROUTING_H
 
-#include "ns3/ipv6-routing-protocol.h"
+#include "ipv6-routing-protocol.h"
 
 #include <list>
 
@@ -96,10 +95,10 @@ class Ipv6ListRouting : public Ipv6RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv6Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;
     void NotifyAddAddress(uint32_t interface, Ipv6InterfaceAddress address) override;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
@@ -34,7 +33,6 @@ using namespace ns3;
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Pie Queue Disc Test Item
  */
@@ -95,16 +93,11 @@ PieQueueDiscTestItem::AddHeader()
 bool
 PieQueueDiscTestItem::Mark()
 {
-    if (m_ecnCapablePacket)
-    {
-        return true;
-    }
-    return false;
+    return m_ecnCapablePacket;
 }
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Pie Queue Disc Test Case
  */
@@ -850,7 +843,6 @@ PieQueueDiscTestCase::DoRun()
 
 /**
  * \ingroup traffic-control-test
- * \ingroup tests
  *
  * \brief Pie Queue Disc Test Suite
  */

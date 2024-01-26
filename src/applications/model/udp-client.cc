@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDCAST
  *
@@ -51,11 +50,12 @@ UdpClient::GetTypeId()
             .SetParent<Application>()
             .SetGroupName("Applications")
             .AddConstructor<UdpClient>()
-            .AddAttribute("MaxPackets",
-                          "The maximum number of packets the application will send",
-                          UintegerValue(100),
-                          MakeUintegerAccessor(&UdpClient::m_count),
-                          MakeUintegerChecker<uint32_t>())
+            .AddAttribute(
+                "MaxPackets",
+                "The maximum number of packets the application will send (zero means infinite)",
+                UintegerValue(100),
+                MakeUintegerAccessor(&UdpClient::m_count),
+                MakeUintegerChecker<uint32_t>())
             .AddAttribute("Interval",
                           "The time to wait between packets",
                           TimeValue(Seconds(1.0)),
@@ -76,7 +76,15 @@ UdpClient::GetTypeId()
                           "the size of the header carrying the sequence number and the time stamp.",
                           UintegerValue(1024),
                           MakeUintegerAccessor(&UdpClient::m_size),
-                          MakeUintegerChecker<uint32_t>(12, 65507));
+                          MakeUintegerChecker<uint32_t>(12, 65507))
+            .AddTraceSource("Tx",
+                            "A new packet is created and sent",
+                            MakeTraceSourceAccessor(&UdpClient::m_txTrace),
+                            "ns3::Packet::TracedCallback")
+            .AddTraceSource("TxWithAddresses",
+                            "A new packet is created and sent",
+                            MakeTraceSourceAccessor(&UdpClient::m_txTraceWithAddresses),
+                            "ns3::Packet::TwoAddressTracedCallback");
     return tid;
 }
 
@@ -125,7 +133,7 @@ UdpClient::StartApplication()
     {
         TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
         m_socket = Socket::CreateSocket(GetNode(), tid);
-        if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+        if (Ipv4Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -134,7 +142,7 @@ UdpClient::StartApplication()
             m_socket->Connect(
                 InetSocketAddress(Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
+        else if (Ipv6Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -143,7 +151,7 @@ UdpClient::StartApplication()
             m_socket->Connect(
                 Inet6SocketAddress(Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (InetSocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (InetSocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -151,7 +159,7 @@ UdpClient::StartApplication()
             }
             m_socket->Connect(m_peerAddress);
         }
-        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -203,9 +211,20 @@ UdpClient::Send()
 {
     NS_LOG_FUNCTION(this);
     NS_ASSERT(m_sendEvent.IsExpired());
+
+    Address from;
+    Address to;
+    m_socket->GetSockName(from);
+    m_socket->GetPeerName(to);
     SeqTsHeader seqTs;
     seqTs.SetSeq(m_sent);
-    Ptr<Packet> p = Create<Packet>(m_size - (8 + 4)); // 8+4 : the size of the seqTs header
+    NS_ABORT_IF(m_size < seqTs.GetSerializedSize());
+    Ptr<Packet> p = Create<Packet>(m_size - seqTs.GetSerializedSize());
+
+    // Trace before adding header, for consistency with PacketSink
+    m_txTrace(p);
+    m_txTraceWithAddresses(p, from, to);
+
     p->AddHeader(seqTs);
 
     if ((m_socket->Send(p)) >= 0)
@@ -224,7 +243,7 @@ UdpClient::Send()
     }
 #endif // NS3_LOG_ENABLE
 
-    if (m_sent < m_count)
+    if (m_sent < m_count || m_count == 0)
     {
         m_sendEvent = Simulator::Schedule(m_interval, &UdpClient::Send, this);
     }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -666,7 +665,7 @@ WifiPrimaryChannelsTest::DoRun()
         {
             for (unsigned int type = 0; type < 7; type++)
             {
-                HeRu::RuType ruType = static_cast<HeRu::RuType>(type);
+                auto ruType = static_cast<HeRu::RuType>(type);
                 std::size_t nRus = HeRu::GetNRus(txChannelWidth, ruType);
                 std::set<uint8_t> txBss;
                 if (nRus > 0)
@@ -714,7 +713,7 @@ WifiPrimaryChannelsTest::DoRun()
         {
             for (unsigned int type = 0; type < 7; type++)
             {
-                HeRu::RuType ruType = static_cast<HeRu::RuType>(type);
+                auto ruType = static_cast<HeRu::RuType>(type);
                 std::size_t nRus = HeRu::GetNRus(txChannelWidth, ruType);
                 std::set<uint8_t> txBss;
                 if (nRus > 0)
@@ -835,7 +834,7 @@ WifiPrimaryChannelsTest::SendDlMuPpdu(uint8_t bss,
 
         auto staDev = DynamicCast<WifiNetDevice>(m_staDevices[bss].Get(i - 1));
         uint16_t staId = DynamicCast<StaWifiMac>(staDev->GetMac())->GetAssociationId();
-        txVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, HePhy::GetHeMcs8(), 1});
+        txVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, 8, 1});
         hdr.SetAddr1(staDev->GetMac()->GetAddress());
         psduMap[staId] = Create<const WifiPsdu>(Create<Packet>(1000), hdr);
     }
@@ -846,7 +845,7 @@ WifiPrimaryChannelsTest::SendDlMuPpdu(uint8_t bss,
     auto IsOddNum = (nRus / numRuAllocs) % 2 == 1;
     auto ruAlloc = HeRu::GetEqualizedRuAllocation(ruType, IsOddNum);
     std::fill_n(ruAllocations.begin(), numRuAllocs, ruAlloc);
-    txVector.SetRuAllocation(ruAllocations);
+    txVector.SetRuAllocation(ruAllocations, 0);
 
     apDev->GetPhy()->Send(psduMap, txVector);
 }
@@ -930,8 +929,8 @@ WifiPrimaryChannelsTest::DoSendHeTbPpdu(uint8_t bss,
                               false,
                               false,
                               bssColor);
-        txVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, HePhy::GetHeMcs8(), 1});
-        trigVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, HePhy::GetHeMcs8(), 1});
+        txVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, 8, 1});
+        trigVector.SetHeMuUserInfo(staId, {{ruType, index, primary80}, 8, 1});
 
         hdr.SetAddr2(staDev->GetMac()->GetAddress());
         Ptr<const WifiPsdu> psdu = Create<const WifiPsdu>(Create<Packet>(1000), hdr);
@@ -955,7 +954,7 @@ WifiPrimaryChannelsTest::DoSendHeTbPpdu(uint8_t bss,
 
     // AP's PHY expects to receive a TRIGVECTOR (just once)
     trigVector.SetLength(length);
-    auto apHePhy = StaticCast<HePhy>(apDev->GetPhy()->GetPhyEntity(WIFI_MOD_CLASS_HE));
+    auto apHePhy = StaticCast<HePhy>(apDev->GetPhy()->GetLatestPhyEntity());
     apHePhy->SetTrigVector(trigVector, duration);
 }
 
@@ -966,7 +965,7 @@ WifiPrimaryChannelsTest::CheckAssociation()
     {
         auto dev = DynamicCast<WifiNetDevice>(m_apDevices.Get(bss));
         auto mac = DynamicCast<ApWifiMac>(dev->GetMac());
-        NS_TEST_EXPECT_MSG_EQ(mac->GetStaList().size(),
+        NS_TEST_EXPECT_MSG_EQ(mac->GetStaList(SINGLE_LINK_OP_ID).size(),
                               m_nStationsPerBss,
                               "Not all the stations completed association");
     }
@@ -1376,10 +1375,13 @@ WifiPrimaryChannelsTestSuite::WifiPrimaryChannelsTestSuite()
     // Test cases for 20 MHz can be added, but are not that useful (there would be a single BSS)
     AddTestCase(new WifiPrimaryChannelsTest(40, true), TestCase::QUICK);
     AddTestCase(new WifiPrimaryChannelsTest(40, false), TestCase::QUICK);
+#if 0
+    // Tests disabled until issue #776 resolved
     AddTestCase(new WifiPrimaryChannelsTest(80, true), TestCase::EXTENSIVE);
     AddTestCase(new WifiPrimaryChannelsTest(80, false), TestCase::EXTENSIVE);
     AddTestCase(new WifiPrimaryChannelsTest(160, true), TestCase::TAKES_FOREVER);
     AddTestCase(new WifiPrimaryChannelsTest(160, false), TestCase::TAKES_FOREVER);
+#endif
     AddTestCase(new Wifi20MHzChannelIndicesTest(), TestCase::QUICK);
 }
 

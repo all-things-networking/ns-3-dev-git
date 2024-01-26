@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -55,7 +54,7 @@ TestDoubleIsEqual(const double x1, const double x2, const double epsilon)
     //
     {
         double max = (std::fabs(x1) > std::fabs(x2)) ? x1 : x2;
-        (void)std::frexp(max, &exponent);
+        std::frexp(max, &exponent);
     }
 
     //
@@ -64,11 +63,7 @@ TestDoubleIsEqual(const double x1, const double x2, const double epsilon)
     delta = std::ldexp(epsilon, exponent);
     difference = x1 - x2;
 
-    if (difference > delta || difference < -delta)
-    {
-        return false;
-    }
-    return true;
+    return difference <= delta && difference >= -delta;
 }
 
 /**
@@ -218,7 +213,7 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
      *
      * \param [in] begin Iterator to the first TestCase to print.
      * \param [in] end Iterator to the end of the list.
-     * \param [in] printTestType Preprend the test type label if \c true.
+     * \param [in] printTestType Prepend the test type label if \c true.
      */
     void PrintTestNameList(std::list<TestCase*>::const_iterator begin,
                            std::list<TestCase*>::const_iterator end,
@@ -242,8 +237,8 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
      * \returns The list of tests matching the filter constraints.
      */
     std::list<TestCase*> FilterTests(std::string testName,
-                                     enum TestSuite::Type testType,
-                                     enum TestCase::TestDuration maximumTestDuration);
+                                     TestSuite::Type testType,
+                                     TestCase::TestDuration maximumTestDuration);
 
     /** Container type for the test. */
     typedef std::vector<TestSuite*> TestSuiteVector;
@@ -295,7 +290,7 @@ TestCase::~TestCase()
     NS_ASSERT(m_runner == nullptr);
     m_parent = nullptr;
     delete m_result;
-    for (std::vector<TestCase*>::const_iterator i = m_children.begin(); i != m_children.end(); ++i)
+    for (auto i = m_children.begin(); i != m_children.end(); ++i)
     {
         delete *i;
     }
@@ -303,7 +298,7 @@ TestCase::~TestCase()
 }
 
 void
-TestCase::AddTestCase(TestCase* testCase, enum TestCase::TestDuration duration)
+TestCase::AddTestCase(TestCase* testCase, TestCase::TestDuration duration)
 {
     NS_LOG_FUNCTION(&testCase << duration);
 
@@ -358,7 +353,7 @@ TestCase::Run(TestRunnerImpl* runner)
     m_runner = runner;
     DoSetup();
     m_result->clock.Start();
-    for (std::vector<TestCase*>::const_iterator i = m_children.begin(); i != m_children.end(); ++i)
+    for (auto i = m_children.begin(); i != m_children.end(); ++i)
     {
         TestCase* test = *i;
         test->Run(runner);
@@ -425,7 +420,7 @@ TestCase::CreateDataDirFilename(std::string filename)
 {
     NS_LOG_FUNCTION(this << filename);
     const TestCase* current = this;
-    while (current != nullptr && current->m_dataDir == "")
+    while (current != nullptr && current->m_dataDir.empty())
     {
         current = current->m_parent;
     }
@@ -576,7 +571,7 @@ TestRunnerImpl::IsTopLevelSourceDir(std::string path) const
     //
 
     std::list<std::string> files = SystemPath::ReadFiles(path);
-    for (std::list<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
+    for (auto i = files.begin(); i != files.end(); ++i)
     {
         if (*i == "VERSION")
         {
@@ -634,7 +629,7 @@ TestRunnerImpl::ReplaceXmlSpecialCharacters(std::string xml) const
     {
         char character = xml[i];
 
-        specials_map::const_iterator it = specials.find(character);
+        auto it = specials.find(character);
 
         if (it == specials.end())
         {
@@ -807,9 +802,9 @@ TestRunnerImpl::PrintTestNameList(std::list<TestCase*>::const_iterator begin,
     label[TestSuite::EXAMPLE] = "example      ";
     label[TestSuite::PERFORMANCE] = "performance  ";
 
-    for (std::list<TestCase*>::const_iterator i = begin; i != end; ++i)
+    for (auto i = begin; i != end; ++i)
     {
-        TestSuite* test = dynamic_cast<TestSuite*>(*i);
+        auto test = dynamic_cast<TestSuite*>(*i);
         NS_ASSERT(test != nullptr);
         if (printTestType)
         {
@@ -837,8 +832,8 @@ TestRunnerImpl::PrintTestTypeList() const
 
 std::list<TestCase*>
 TestRunnerImpl::FilterTests(std::string testName,
-                            enum TestSuite::Type testType,
-                            enum TestCase::TestDuration maximumTestDuration)
+                            TestSuite::Type testType,
+                            TestCase::TestDuration maximumTestDuration)
 {
     NS_LOG_FUNCTION(this << testName << testType);
     std::list<TestCase*> tests;
@@ -850,15 +845,14 @@ TestRunnerImpl::FilterTests(std::string testName,
             // skip test
             continue;
         }
-        if (testName != "" && test->GetName() != testName)
+        if (!testName.empty() && test->GetName() != testName)
         {
             // skip test
             continue;
         }
 
         // Remove any test cases that should be skipped.
-        std::vector<TestCase*>::iterator j;
-        for (j = test->m_children.begin(); j != test->m_children.end();)
+        for (auto j = test->m_children.begin(); j != test->m_children.end();)
         {
             TestCase* testCase = *j;
 
@@ -900,7 +894,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
     bool printTestTypeList = false;
     bool printTestNameList = false;
     bool printTestTypeAndName = false;
-    enum TestCase::TestDuration maximumTestDuration = TestCase::QUICK;
+    TestCase::TestDuration maximumTestDuration = TestCase::QUICK;
     char* progname = argv[0];
 
     char** argi = argv;
@@ -908,76 +902,76 @@ TestRunnerImpl::Run(int argc, char* argv[])
 
     while (*argi != nullptr)
     {
-        char* arg = *argi;
+        std::string arg = *argi;
 
-        if (strcmp(arg, "--assert-on-failure") == 0)
+        if (arg == "--assert-on-failure")
         {
             m_assertOnFailure = true;
         }
-        else if (strcmp(arg, "--stop-on-failure") == 0)
+        else if (arg == "--stop-on-failure")
         {
             m_continueOnFailure = false;
         }
-        else if (strcmp(arg, "--verbose") == 0)
+        else if (arg == "--verbose")
         {
             m_verbose = true;
         }
-        else if (strcmp(arg, "--print-temp-dir") == 0)
+        else if (arg == "--print-temp-dir")
         {
             printTempDir = true;
         }
-        else if (strcmp(arg, "--update-data") == 0)
+        else if (arg == "--update-data")
         {
             m_updateData = true;
         }
-        else if (strcmp(arg, "--help") == 0)
+        else if (arg == "--help")
         {
             PrintHelp(progname);
             return 0;
         }
-        else if (strcmp(arg, "--print-test-name-list") == 0 || strcmp(arg, "--list") == 0)
+        else if (arg == "--print-test-name-list" || arg == "--list")
         {
             printTestNameList = true;
         }
-        else if (strcmp(arg, "--print-test-types") == 0)
+        else if (arg == "--print-test-types")
         {
             printTestTypeAndName = true;
         }
-        else if (strcmp(arg, "--print-test-type-list") == 0)
+        else if (arg == "--print-test-type-list")
         {
             printTestTypeList = true;
         }
-        else if (strcmp(arg, "--append") == 0)
+        else if (arg == "--append")
         {
             append = true;
         }
-        else if (strcmp(arg, "--xml") == 0)
+        else if (arg == "--xml")
         {
             xml = true;
         }
-        else if (strncmp(arg, "--test-type=", strlen("--test-type=")) == 0)
+        else if (arg.find("--test-type=") != std::string::npos)
         {
-            testTypeString = arg + strlen("--test-type=");
+            testTypeString = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (strncmp(arg, "--test-name=", strlen("--test-name=")) == 0)
+        else if (arg.find("--test-name=") != std::string::npos)
         {
-            testName = arg + strlen("--test-name=");
+            testName = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (strncmp(arg, "--suite=", strlen("--suite=")) == 0)
+        else if (arg.find("--suite=") != std::string::npos)
         {
-            testName = arg + strlen("--suite=");
+            testName = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (strncmp(arg, "--tempdir=", strlen("--tempdir=")) == 0)
+        else if (arg.find("--tempdir=") != std::string::npos)
         {
-            m_tempDir = arg + strlen("--tempdir=");
+            m_tempDir = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (strncmp(arg, "--out=", strlen("--out=")) == 0)
+        else if (arg.find("--out=") != std::string::npos)
         {
-            out = arg + strlen("--out=");
+            out = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (strncmp(arg, "--fullness=", strlen("--fullness=")) == 0)
+        else if (arg.find("--fullness=") != std::string::npos)
         {
-            fullness = arg + strlen("--fullness=");
+            fullness = arg.substr(arg.find_first_of('=') + 1);
 
             // Set the maximum test length allowed.
             if (fullness == "QUICK")
@@ -1007,8 +1001,8 @@ TestRunnerImpl::Run(int argc, char* argv[])
         }
         argi++;
     }
-    enum TestSuite::Type testType;
-    if (testTypeString == "")
+    TestSuite::Type testType;
+    if (testTypeString.empty())
     {
         testType = TestSuite::ALL;
     }
@@ -1041,7 +1035,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
 
     std::list<TestCase*> tests = FilterTests(testName, testType, maximumTestDuration);
 
-    if (m_tempDir == "")
+    if (m_tempDir.empty())
     {
         m_tempDir = SystemPath::MakeTemporaryDirectoryName();
     }
@@ -1061,7 +1055,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
     }
 
     std::ostream* os;
-    if (out != "")
+    if (!out.empty())
     {
         std::ofstream* ofs;
         ofs = new std::ofstream();
@@ -1074,7 +1068,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
         {
             mode |= std::ios_base::trunc;
         }
-        ofs->open(out.c_str(), mode);
+        ofs->open(out, mode);
         os = ofs;
     }
     else
@@ -1084,12 +1078,18 @@ TestRunnerImpl::Run(int argc, char* argv[])
 
     // let's run our tests now.
     bool failed = false;
-    if (tests.size() == 0)
+    if (tests.empty())
     {
         std::cerr << "Error:  no tests match the requested string" << std::endl;
         return 1;
     }
-    for (std::list<TestCase*>::const_iterator i = tests.begin(); i != tests.end(); ++i)
+    else if (tests.size() > 1)
+    {
+        std::cerr << "Error:  tests should be launched separately (one at a time)" << std::endl;
+        return 1;
+    }
+
+    for (auto i = tests.begin(); i != tests.end(); ++i)
     {
         TestCase* test = *i;
 
@@ -1129,7 +1129,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
         }
     }
 
-    if (out != "")
+    if (!out.empty())
     {
         delete os;
     }

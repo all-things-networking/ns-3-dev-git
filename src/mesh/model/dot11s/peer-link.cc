@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -20,7 +19,7 @@
  *          Pavel Boyko <boyko@iitp.ru>
  */
 
-#include "ns3/peer-link.h"
+#include "peer-link.h"
 
 #include "peer-management-protocol-mac.h"
 

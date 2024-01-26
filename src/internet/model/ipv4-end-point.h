@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -21,10 +20,11 @@
 #ifndef IPV4_END_POINT_H
 #define IPV4_END_POINT_H
 
+#include "ipv4-header.h"
+#include "ipv4-interface.h"
+
 #include "ns3/callback.h"
 #include "ns3/ipv4-address.h"
-#include "ns3/ipv4-header.h"
-#include "ns3/ipv4-interface.h"
 #include "ns3/net-device.h"
 
 #include <stdint.h>
@@ -63,7 +63,7 @@ class Ipv4EndPoint
      * \brief Get the local address.
      * \return the local address
      */
-    Ipv4Address GetLocalAddress();
+    Ipv4Address GetLocalAddress() const;
 
     /**
      * \brief Set the local address.
@@ -75,19 +75,19 @@ class Ipv4EndPoint
      * \brief Get the local port.
      * \return the local port
      */
-    uint16_t GetLocalPort();
+    uint16_t GetLocalPort() const;
 
     /**
      * \brief Get the peer address.
      * \return the peer address
      */
-    Ipv4Address GetPeerAddress();
+    Ipv4Address GetPeerAddress() const;
 
     /**
      * \brief Get the peer port.
      * \return the peer port
      */
-    uint16_t GetPeerPort();
+    uint16_t GetPeerPort() const;
 
     /**
      * \brief Set the peer information (address and port).
@@ -125,7 +125,7 @@ class Ipv4EndPoint
      *
      * \returns Pointer to interface.
      */
-    Ptr<NetDevice> GetBoundNetDevice();
+    Ptr<NetDevice> GetBoundNetDevice() const;
 
     // Called from socket implementations to get notified about important events.
     /**
@@ -188,7 +188,7 @@ class Ipv4EndPoint
      * \brief Checks if the endpoint can receive packets.
      * \returns true if the endpoint can receive packets.
      */
-    bool IsRxEnabled();
+    bool IsRxEnabled() const;
 
   private:
     /**

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -30,7 +29,7 @@ void
 ModelTypeidCreator::Build(GtkTreeStore* treestore)
 {
     m_treestore = treestore;
-    m_iters.push_back(0);
+    m_iters.push_back(nullptr);
     Iterate();
     NS_ASSERT(m_iters.size() == 1);
 }
@@ -39,14 +38,14 @@ void
 ModelTypeidCreator::Add(ModelTypeid* node)
 {
     GtkTreeIter* parent = m_iters.back();
-    GtkTreeIter* current = g_new(GtkTreeIter, 1);
+    auto current = g_new(GtkTreeIter, 1);
     gtk_tree_store_append(m_treestore, current, parent);
     gtk_tree_store_set(m_treestore, current, COL_TYPEID, node, -1);
     m_iters.push_back(current);
 }
 
 void
-ModelTypeidCreator::Remove(void)
+ModelTypeidCreator::Remove()
 {
     GtkTreeIter* iter = m_iters.back();
     g_free(iter);
@@ -59,7 +58,7 @@ ModelTypeidCreator::VisitAttribute(TypeId tid,
                                    std::string defaultValue,
                                    uint32_t index)
 {
-    ModelTypeid* node = new ModelTypeid();
+    auto node = new ModelTypeid();
     node->type = ModelTypeid::NODE_ATTRIBUTE;
     node->tid = tid;
     node->name = name;
@@ -72,14 +71,14 @@ ModelTypeidCreator::VisitAttribute(TypeId tid,
 void
 ModelTypeidCreator::StartVisitTypeId(std::string name)
 {
-    ModelTypeid* node = new ModelTypeid();
+    auto node = new ModelTypeid();
     node->type = ModelTypeid::NODE_TYPEID;
     node->tid = TypeId::LookupByName(name);
     Add(node);
 }
 
 void
-ModelTypeidCreator::EndVisitTypeId(void)
+ModelTypeidCreator::EndVisitTypeId()
 {
     Remove();
 }

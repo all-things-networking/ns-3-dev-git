@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -549,7 +548,7 @@ PacketTest::PacketTest()
 void
 PacketTest::DoCheck(Ptr<const Packet> p, uint32_t n, ...)
 {
-    std::vector<struct Expected> expected;
+    std::vector<Expected> expected;
     va_list ap;
     va_start(ap, n);
     for (uint32_t k = 0; k < n; ++k)
@@ -566,7 +565,7 @@ PacketTest::DoCheck(Ptr<const Packet> p, uint32_t n, ...)
     while (i.HasNext() && j < expected.size())
     {
         ByteTagIterator::Item item = i.Next();
-        struct Expected e = expected[j];
+        Expected e = expected[j];
         std::ostringstream oss;
         oss << "anon::ATestTag<" << e.n << ">";
         NS_TEST_EXPECT_MSG_EQ(item.GetTypeId().GetName(), oss.str(), "trivial");
@@ -586,7 +585,7 @@ PacketTest::DoCheck(Ptr<const Packet> p, uint32_t n, ...)
 void
 PacketTest::DoCheckData(Ptr<const Packet> p, uint32_t n, ...)
 {
-    std::vector<struct Expected> expected;
+    std::vector<Expected> expected;
     va_list ap;
     va_start(ap, n);
     for (uint32_t k = 0; k < n; ++k)
@@ -604,7 +603,7 @@ PacketTest::DoCheckData(Ptr<const Packet> p, uint32_t n, ...)
     while (i.HasNext() && j < expected.size())
     {
         ByteTagIterator::Item item = i.Next();
-        struct Expected e = expected[j];
+        Expected e = expected[j];
         std::ostringstream oss;
         oss << "anon::ATestTag<" << e.n << ">";
         NS_TEST_EXPECT_MSG_EQ(item.GetTypeId().GetName(), oss.str(), "trivial");
@@ -633,7 +632,7 @@ PacketTest::DoRun()
 
     NS_TEST_EXPECT_MSG_EQ(packet->GetSize(), 11, "trivial");
 
-    uint8_t* buf = new uint8_t[packet->GetSize()];
+    auto buf = new uint8_t[packet->GetSize()];
     packet->CopyData(buf, packet->GetSize());
 
     std::string msg = std::string(reinterpret_cast<const char*>(buf), packet->GetSize());
@@ -812,7 +811,7 @@ PacketTest::DoRun()
         p1->AddPacketTag(c1);
 
         uint32_t serializedSize = p1->GetSerializedSize();
-        uint8_t* buffer = new uint8_t[serializedSize + 16];
+        auto buffer = new uint8_t[serializedSize + 16];
         p1->Serialize(buffer, serializedSize);
 
         Ptr<Packet> p2 = Create<Packet>(buffer, serializedSize, true);
@@ -847,7 +846,7 @@ PacketTest::DoRun()
         CHECK(p1, 3, E(10, 0, 1000), E(11, 0, 1000), E(12, 0, 1000));
 
         uint32_t serializedSize = p1->GetSerializedSize();
-        uint8_t* buffer = new uint8_t[serializedSize];
+        auto buffer = new uint8_t[serializedSize];
         p1->Serialize(buffer, serializedSize);
 
         Ptr<Packet> p2 = Create<Packet>(buffer, serializedSize, true);
@@ -1038,7 +1037,7 @@ PacketTagListTest::CheckRef(const PacketTagList& ref, ATestTagBase& t, const cha
     ATestTag<5> t5(1);                                                                             \
     ATestTag<6> t6(1);                                                                             \
     ATestTag<7> t7(1);                                                                             \
-    [[maybe_unused]] const int tagLast = 7; /* length of ref PacketTagList */
+    constexpr int TAG_LAST [[maybe_unused]] = 7; /* length of ref PacketTagList */
 
 void
 PacketTagListTest::CheckRefList(const PacketTagList& ptl, const char* msg, int miss /* = 0 */)
@@ -1111,75 +1110,82 @@ PacketTagListTest::DoRun()
     ref.Add(t6);       // pre-merge
     ref.Add(t7);       // first
 
-    { // Peek
+    // Peek
+    {
         std::cout << GetName() << "check Peek (missing tag) returns false" << std::endl;
         ATestTag<10> t10;
         NS_TEST_EXPECT_MSG_EQ(ref.Peek(t10), false, "missing tag");
     }
 
-    { // Copy ctor, assignment
+    // Copy ctor, assignment
+    {
         std::cout << GetName() << "check copy and assignment" << std::endl;
         {
+            // Test copy constructor
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             PacketTagList ptl(ref);
             CheckRefList(ref, "copy ctor orig");
             CheckRefList(ptl, "copy ctor copy");
         }
         {
+            // Test copy constructor
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             PacketTagList ptl = ref;
             CheckRefList(ref, "assignment orig");
             CheckRefList(ptl, "assignment copy");
         }
     }
 
-    {// Removal
+    // Removal
+    {
 #define RemoveCheck(n)                                                                             \
-    {                                                                                              \
-        PacketTagList p##n = ref;                                                                  \
-        p##n.Remove(t##n);                                                                         \
-        CheckRefList(ref, "remove " #n " orig");                                                   \
-        CheckRefList(p##n, "remove " #n " copy", n);                                               \
-    }
+    PacketTagList p##n = ref;                                                                      \
+    p##n.Remove(t##n);                                                                             \
+    CheckRefList(ref, "remove " #n " orig");                                                       \
+    CheckRefList(p##n, "remove " #n " copy", n);
 
-     {// Remove single tags from list
-      std::cout << GetName() << "check removal of each tag" << std::endl;
-    RemoveCheck(1);
-    RemoveCheck(2);
-    RemoveCheck(3);
-    RemoveCheck(4);
-    RemoveCheck(5);
-    RemoveCheck(6);
-    RemoveCheck(7);
-}
+        // Remove single tags from list
+        {
+            std::cout << GetName() << "check removal of each tag" << std::endl;
+            RemoveCheck(1);
+            RemoveCheck(2);
+            RemoveCheck(3);
+            RemoveCheck(4);
+            RemoveCheck(5);
+            RemoveCheck(6);
+            RemoveCheck(7);
+        }
 
-{ // Remove in the presence of a merge
-    std::cout << GetName() << "check removal doesn't disturb merge " << std::endl;
-    PacketTagList ptl = ref;
-    ptl.Remove(t7);
-    ptl.Remove(t6);
-    ptl.Remove(t5);
+        // Remove in the presence of a merge
+        {
+            std::cout << GetName() << "check removal doesn't disturb merge " << std::endl;
+            PacketTagList ptl = ref;
+            ptl.Remove(t7);
+            ptl.Remove(t6);
+            ptl.Remove(t5);
 
-    PacketTagList mrg = ptl; // merged list
-    ATestTag<8> m5(1);
-    mrg.Add(m5); // ptl and mrg differ
-    ptl.Add(t5);
-    ptl.Add(t6);
-    ptl.Add(t7);
+            PacketTagList mrg = ptl; // merged list
+            ATestTag<8> m5(1);
+            mrg.Add(m5); // ptl and mrg differ
+            ptl.Add(t5);
+            ptl.Add(t6);
+            ptl.Add(t7);
 
-    CheckRefList(ref, "post merge, orig");
-    CheckRefList(ptl, "post merge, long chain");
-    const char* msg = "post merge, short chain";
-    CheckRef(mrg, t1, msg, false);
-    CheckRef(mrg, t2, msg, false);
-    CheckRef(mrg, t3, msg, false);
-    CheckRef(mrg, t4, msg, false);
-    CheckRef(mrg, m5, msg, false);
-}
+            CheckRefList(ref, "post merge, orig");
+            CheckRefList(ptl, "post merge, long chain");
+            const char* msg = "post merge, short chain";
+            CheckRef(mrg, t1, msg, false);
+            CheckRef(mrg, t2, msg, false);
+            CheckRef(mrg, t3, msg, false);
+            CheckRef(mrg, t4, msg, false);
+            CheckRef(mrg, m5, msg, false);
+        }
 #undef RemoveCheck
-} // Removal
+    } // Removal
 
-{ // Replace
-
-    std::cout << GetName() << "check replacing each tag" << std::endl;
+    // Replace
+    {
+        std::cout << GetName() << "check replacing each tag" << std::endl;
 
 #define ReplaceCheck(n)                                                                            \
     t##n.m_data = 2;                                                                               \
@@ -1190,75 +1196,76 @@ PacketTagListTest::DoRun()
         CheckRef(p##n, t##n, "replace " #n " copy");                                               \
     }
 
-    ReplaceCheck(1);
-    ReplaceCheck(2);
-    ReplaceCheck(3);
-    ReplaceCheck(4);
-    ReplaceCheck(5);
-    ReplaceCheck(6);
-    ReplaceCheck(7);
-}
-
-{ // Timing
-    std::cout << GetName() << "add+remove timing" << std::endl;
-    int flm = std::numeric_limits<int>::max();
-    const int nIterations = 100;
-    for (int i = 0; i < nIterations; ++i)
-    {
-        int now = AddRemoveTime();
-        if (now < flm)
-        {
-            flm = now;
-        }
+        ReplaceCheck(1);
+        ReplaceCheck(2);
+        ReplaceCheck(3);
+        ReplaceCheck(4);
+        ReplaceCheck(5);
+        ReplaceCheck(6);
+        ReplaceCheck(7);
     }
-    std::cout << GetName() << "min add+remove time: " << std::setw(8) << flm << " ticks"
-              << std::endl;
 
-    std::cout << GetName() << "remove timing" << std::endl;
-    // tags numbered from 1, so add one for (unused) entry at 0
-    std::vector<int> rmn(tagLast + 1, std::numeric_limits<int>::max());
-    for (int i = 0; i < nIterations; ++i)
+    // Timing
     {
-        for (int j = 1; j <= tagLast; ++j)
+        std::cout << GetName() << "add+remove timing" << std::endl;
+        int flm = std::numeric_limits<int>::max();
+        const int nIterations = 100;
+        for (int i = 0; i < nIterations; ++i)
         {
-            int now = 0;
-            switch (j)
+            int now = AddRemoveTime();
+            if (now < flm)
             {
-            case 7:
-                now = RemoveTime(ref, t7);
-                break;
-            case 6:
-                now = RemoveTime(ref, t6);
-                break;
-            case 5:
-                now = RemoveTime(ref, t5);
-                break;
-            case 4:
-                now = RemoveTime(ref, t4);
-                break;
-            case 3:
-                now = RemoveTime(ref, t3);
-                break;
-            case 2:
-                now = RemoveTime(ref, t2);
-                break;
-            case 1:
-                now = RemoveTime(ref, t1);
-                break;
-            } // switch
-
-            if (now < rmn[j])
-            {
-                rmn[j] = now;
+                flm = now;
             }
-        } // for tag j
-    }     // for iteration i
-    for (int j = tagLast; j > 0; --j)
-    {
-        std::cout << GetName() << "min remove time: t" << j << ": " << std::setw(8) << rmn[j]
-                  << " ticks" << std::endl;
-    }
-} // Timing
+        }
+        std::cout << GetName() << "min add+remove time: " << std::setw(8) << flm << " ticks"
+                  << std::endl;
+
+        std::cout << GetName() << "remove timing" << std::endl;
+        // tags numbered from 1, so add one for (unused) entry at 0
+        std::vector<int> rmn(TAG_LAST + 1, std::numeric_limits<int>::max());
+        for (int i = 0; i < nIterations; ++i)
+        {
+            for (int j = 1; j <= TAG_LAST; ++j)
+            {
+                int now = 0;
+                switch (j)
+                {
+                case 7:
+                    now = RemoveTime(ref, t7);
+                    break;
+                case 6:
+                    now = RemoveTime(ref, t6);
+                    break;
+                case 5:
+                    now = RemoveTime(ref, t5);
+                    break;
+                case 4:
+                    now = RemoveTime(ref, t4);
+                    break;
+                case 3:
+                    now = RemoveTime(ref, t3);
+                    break;
+                case 2:
+                    now = RemoveTime(ref, t2);
+                    break;
+                case 1:
+                    now = RemoveTime(ref, t1);
+                    break;
+                } // switch
+
+                if (now < rmn[j])
+                {
+                    rmn[j] = now;
+                }
+            } // for tag j
+        }     // for iteration i
+        for (int j = TAG_LAST; j > 0; --j)
+        {
+            std::cout << GetName() << "min remove time: t" << j << ": " << std::setw(8) << rmn[j]
+                      << " ticks" << std::endl;
+        }
+    } // Timing
 }
 
 /**

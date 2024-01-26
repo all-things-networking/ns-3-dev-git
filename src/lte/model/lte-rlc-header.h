@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,8 +20,9 @@
 #ifndef LTE_RLC_HEADER_H
 #define LTE_RLC_HEADER_H
 
+#include "lte-rlc-sequence-number.h"
+
 #include "ns3/header.h"
-#include "ns3/lte-rlc-sequence-number.h"
 
 #include <list>
 
@@ -101,25 +101,20 @@ class LteRlcHeader : public Header
     uint16_t PopLengthIndicator();
 
     /// ExtensionBit_t typedef
-    typedef enum
+    enum ExtensionBit_t
     {
         DATA_FIELD_FOLLOWS = 0,
         E_LI_FIELDS_FOLLOWS = 1
-    } ExtensionBit_t; ///< ExtensionBit_t enumeration
+    };
 
-    /// FramingInfoFirstByte_t typedef
-    typedef enum
+    /// FramingInfoByte_t typedef
+    enum FramingInfoByte_t
     {
         FIRST_BYTE = 0x00,
-        NO_FIRST_BYTE = 0x02
-    } FramingInfoFirstByte_t; ///< FramingInfoFirstByte_t enumeration
-
-    /// FramingInfoLastByte_t tyedef
-    typedef enum
-    {
+        NO_FIRST_BYTE = 0x02,
         LAST_BYTE = 0x00,
         NO_LAST_BYTE = 0x01
-    } FramingInfoLastByte_t; ///< FramingInfoLastByte_t enumeration
+    };
 
     /**
      * \brief Get the type ID.

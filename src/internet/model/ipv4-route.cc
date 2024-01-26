@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -152,8 +151,7 @@ Ipv4MulticastRoute::SetOutputTtl(uint32_t oif, uint32_t ttl)
     if (ttl >= MAX_TTL)
     {
         // This TTL value effectively disables the interface
-        std::map<uint32_t, uint32_t>::iterator iter;
-        iter = m_ttls.find(oif);
+        auto iter = m_ttls.find(oif);
         if (iter != m_ttls.end())
         {
             m_ttls.erase(iter);
@@ -169,7 +167,7 @@ std::map<uint32_t, uint32_t>
 Ipv4MulticastRoute::GetOutputTtlMap() const
 {
     NS_LOG_FUNCTION(this);
-    return (m_ttls);
+    return m_ttls;
 }
 
 } // namespace ns3

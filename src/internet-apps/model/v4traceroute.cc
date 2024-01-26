@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan
  *
@@ -238,13 +237,13 @@ V4TraceRoute::Receive(Ptr<Socket> socket)
             uint8_t data[8];
             timeoutResp.GetData(data);
 
-            // Get the 7th and 8th Octect to obtain the Sequence number from
+            // Get the 7th and 8th Octet to obtain the Sequence number from
             // the original packet.
             uint16_t recvSeq;
             recvSeq = (uint16_t)data[7] << 0;
             recvSeq |= (uint16_t)data[6] << 8;
 
-            std::map<uint16_t, Time>::iterator i = m_sent.find(recvSeq);
+            auto i = m_sent.find(recvSeq);
             if (i != m_sent.end())
             {
                 Time sendTime = i->second;
@@ -297,7 +296,7 @@ V4TraceRoute::Receive(Ptr<Socket> socket)
 
             Icmpv4Echo echo;
             p->RemoveHeader(echo);
-            std::map<uint16_t, Time>::iterator i = m_sent.find(echo.GetSequenceNumber());
+            auto i = m_sent.find(echo.GetSequenceNumber());
 
             if (i != m_sent.end() && echo.GetIdentifier() == 0)
             {

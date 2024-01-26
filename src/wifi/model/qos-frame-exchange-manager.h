@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -22,6 +21,8 @@
 #define QOS_FRAME_EXCHANGE_MANAGER_H
 
 #include "frame-exchange-manager.h"
+
+#include <optional>
 
 namespace ns3
 {
@@ -93,6 +94,16 @@ class QosFrameExchangeManager : public FrameExchangeManager
                                            const WifiTxParameters& txParams,
                                            Time ppduDurationLimit) const;
 
+    /**
+     * Create an alias of the given MPDU for transmission by this Frame Exchange Manager.
+     * This is required by 11be MLDs to support translation of MAC addresses. For single
+     * link devices, the given MPDU is simply returned.
+     *
+     * \param mpdu the given MPDU
+     * \return the alias of the given MPDU for transmission on this link
+     */
+    virtual Ptr<WifiMpdu> CreateAliasIfNeeded(Ptr<WifiMpdu> mpdu) const;
+
   protected:
     void DoDispose() override;
 
@@ -101,6 +112,9 @@ class QosFrameExchangeManager : public FrameExchangeManager
                      const WifiTxVector& txVector,
                      bool inAmpdu) override;
     void PreProcessFrame(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector) override;
+    void PostProcessFrame(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector) override;
+    void NavResetTimeout() override;
+    void UpdateNav(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector) override;
     Time GetFrameDurationId(const WifiMacHeader& header,
                             uint32_t size,
                             const WifiTxParameters& txParams,
@@ -164,10 +178,15 @@ class QosFrameExchangeManager : public FrameExchangeManager
      */
     virtual void SetTxopHolder(Ptr<const WifiPsdu> psdu, const WifiTxVector& txVector);
 
-    Ptr<QosTxop> m_edca;       //!< the EDCAF that gained channel access
-    Mac48Address m_txopHolder; //!< MAC address of the TXOP holder
-    bool m_setQosQueueSize;    /**< whether to set the Queue Size subfield of the
-                                    QoS Control field of QoS data frames */
+    /**
+     * Clear the TXOP holder if the NAV counted down to zero (includes the case of NAV reset).
+     */
+    virtual void ClearTxopHolderIfNeeded();
+
+    Ptr<QosTxop> m_edca;                      //!< the EDCAF that gained channel access
+    std::optional<Mac48Address> m_txopHolder; //!< MAC address of the TXOP holder
+    bool m_setQosQueueSize;                   /**< whether to set the Queue Size subfield of the
+                                                   QoS Control field of QoS data frames */
 
   private:
     /**

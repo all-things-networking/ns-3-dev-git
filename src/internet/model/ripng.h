@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
@@ -21,13 +20,14 @@
 #ifndef RIPNG_H
 #define RIPNG_H
 
+#include "ipv6-interface.h"
+#include "ipv6-l3-protocol.h"
+#include "ipv6-routing-protocol.h"
+#include "ipv6-routing-table-entry.h"
+#include "ripng-header.h"
+
 #include "ns3/inet6-socket-address.h"
-#include "ns3/ipv6-interface.h"
-#include "ns3/ipv6-l3-protocol.h"
-#include "ns3/ipv6-routing-protocol.h"
-#include "ns3/ipv6-routing-table-entry.h"
 #include "ns3/random-variable-stream.h"
-#include "ns3/ripng-header.h"
 
 #include <list>
 
@@ -195,10 +195,10 @@ class RipNg : public Ipv6RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv6Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;
     void NotifyAddAddress(uint32_t interface, Ipv6InterfaceAddress address) override;

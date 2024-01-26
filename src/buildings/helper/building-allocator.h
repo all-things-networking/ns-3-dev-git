@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  * Copyright (C) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
@@ -23,7 +22,8 @@
 #ifndef BUILDING_ALLOCATOR_H
 #define BUILDING_ALLOCATOR_H
 
-#include "ns3/building-container.h"
+#include "building-container.h"
+
 #include "ns3/object-factory.h"
 #include "ns3/object.h"
 #include "ns3/position-allocator.h"
@@ -77,11 +77,11 @@ class GridBuildingAllocator : public Object
      */
     void PushAttributes() const;
 
-    mutable uint32_t m_current;                          //!< current building number
-    enum GridPositionAllocator::LayoutType m_layoutType; //!< Layout type
-    double m_xMin;                                       //!< The x coordinate where the grid starts
-    double m_yMin;                                       //!< The y coordinate where the grid starts
-    uint32_t m_n;     //!< The number of objects laid out on a line
+    mutable uint32_t m_current;                     //!< Current building number
+    GridPositionAllocator::LayoutType m_layoutType; //!< Layout type
+    double m_xMin;                                  //!< The x coordinate where the grid starts
+    double m_yMin;                                  //!< The y coordinate where the grid starts
+    uint32_t m_n;                                   //!< The number of objects laid out on a line
     double m_lengthX; //!< The length of the wall of each building along the X axis.
     double m_lengthY; //!< The length of the wall of each building along the Y axis.
     double m_deltaX;  //!< The x space between buildings

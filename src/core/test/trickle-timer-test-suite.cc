@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
@@ -97,7 +96,7 @@ TrickleTimerTestCase::TrickleTimerTestCase()
 void
 TrickleTimerTestCase::ExpireTimer()
 {
-    if (m_enableDataCollection == false)
+    if (!m_enableDataCollection)
     {
         return;
     }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -70,7 +69,7 @@ NetmapNetDeviceHelper::NetmapNetDeviceHelper()
 }
 
 std::string
-NetmapNetDeviceHelper::GetDeviceName(void)
+NetmapNetDeviceHelper::GetDeviceName()
 {
     return m_deviceName;
 }
@@ -155,7 +154,7 @@ NetmapNetDeviceHelper::SetDeviceAttributes(Ptr<FdNetDevice> device) const
     if ((ifr.ifr_flags & IFF_PROMISC) == 0)
     {
         NS_FATAL_ERROR("NetmapNetDeviceHelper::SetFileDescriptor (): "
-                       << m_deviceName.c_str()
+                       << m_deviceName
                        << " is not in promiscuous mode. Please config the interface in promiscuous "
                           "mode before to run the simulation.");
     }
@@ -196,7 +195,7 @@ NetmapNetDeviceHelper::SetDeviceAttributes(Ptr<FdNetDevice> device) const
 }
 
 int
-NetmapNetDeviceHelper::CreateFileDescriptor(void) const
+NetmapNetDeviceHelper::CreateFileDescriptor() const
 {
     NS_LOG_FUNCTION(this);
 
@@ -259,7 +258,7 @@ NetmapNetDeviceHelper::CreateFileDescriptor(void) const
     // we wait for the child (the socket creator) to complete and read the
     // socket it created using the ancillary data mechanism.
     //
-    // Tom Goff reports the possiblility of a deadlock when trying to acquire the
+    // Tom Goff reports the possibility of a deadlock when trying to acquire the
     // python GIL here.  He says that this might be due to trying to access Python
     // objects after fork() without calling PyOS_AfterFork() to properly reset
     // Python state (including the GIL).  There is no code to cause the problem
@@ -287,7 +286,7 @@ NetmapNetDeviceHelper::CreateFileDescriptor(void) const
         status = ::execlp(NETMAP_DEV_CREATOR,
                           NETMAP_DEV_CREATOR, // argv[0] (filename)
                           oss.str().c_str(),  // argv[1] (-p<path?
-                          (char*)NULL);
+                          nullptr);
 
         //
         // If the execlp successfully completes, it never returns.  If it returns it failed or the
@@ -376,7 +375,7 @@ NetmapNetDeviceHelper::CreateFileDescriptor(void) const
         // data we expect to receive and point it to buffer.
         //
         struct msghdr msg;
-        msg.msg_name = 0;
+        msg.msg_name = nullptr;
         msg.msg_namelen = 0;
         msg.msg_iov = &iov;
         msg.msg_iovlen = 1;
@@ -401,7 +400,7 @@ NetmapNetDeviceHelper::CreateFileDescriptor(void) const
         // one we're interested in.
         //
         struct cmsghdr* cmsg;
-        for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != NULL; cmsg = CMSG_NXTHDR(&msg, cmsg))
+        for (cmsg = CMSG_FIRSTHDR(&msg); cmsg != nullptr; cmsg = CMSG_NXTHDR(&msg, cmsg))
         {
             if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_RIGHTS)
             {

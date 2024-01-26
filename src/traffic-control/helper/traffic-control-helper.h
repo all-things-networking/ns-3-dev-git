@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
  *
@@ -20,9 +19,10 @@
 #ifndef TRAFFIC_CONTROL_HELPER_H
 #define TRAFFIC_CONTROL_HELPER_H
 
+#include "queue-disc-container.h"
+
 #include "ns3/net-device-container.h"
 #include "ns3/object-factory.h"
-#include "ns3/queue-disc-container.h"
 #include "ns3/queue.h"
 
 #include <map>

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -20,6 +19,7 @@
 
 #include "spectrum-channel.h"
 
+#include <ns3/abort.h>
 #include <ns3/double.h>
 #include <ns3/log.h>
 #include <ns3/pointer.h>
@@ -148,30 +148,52 @@ SpectrumChannel::AddPhasedArraySpectrumPropagationLossModel(
 }
 
 void
+SpectrumChannel::AddSpectrumTransmitFilter(Ptr<SpectrumTransmitFilter> filter)
+{
+    NS_LOG_FUNCTION(this << filter);
+
+    if (m_filter)
+    {
+        filter->SetNext(m_filter);
+    }
+    m_filter = filter;
+}
+
+Ptr<SpectrumTransmitFilter>
+SpectrumChannel::GetSpectrumTransmitFilter() const
+{
+    return m_filter;
+}
+
+void
 SpectrumChannel::SetPropagationDelayModel(Ptr<PropagationDelayModel> delay)
 {
-    NS_ASSERT(!m_propagationDelay);
+    NS_ABORT_MSG_IF(m_propagationDelay, "Error, called SetPropagationDelayModel() twice");
     m_propagationDelay = delay;
 }
 
 Ptr<SpectrumPropagationLossModel>
-SpectrumChannel::GetSpectrumPropagationLossModel()
+SpectrumChannel::GetSpectrumPropagationLossModel() const
 {
-    NS_LOG_FUNCTION(this);
     return m_spectrumPropagationLoss;
 }
 
 Ptr<PhasedArraySpectrumPropagationLossModel>
-SpectrumChannel::GetPhasedArraySpectrumPropagationLossModel()
+SpectrumChannel::GetPhasedArraySpectrumPropagationLossModel() const
 {
-    NS_LOG_FUNCTION(this);
     return m_phasedArraySpectrumPropagationLoss;
 }
 
 Ptr<PropagationLossModel>
-SpectrumChannel::GetPropagationLossModel()
+SpectrumChannel::GetPropagationLossModel() const
 {
     return m_propagationLoss;
+}
+
+Ptr<PropagationDelayModel>
+SpectrumChannel::GetPropagationDelayModel() const
+{
+    return m_propagationDelay;
 }
 
 } // namespace ns3

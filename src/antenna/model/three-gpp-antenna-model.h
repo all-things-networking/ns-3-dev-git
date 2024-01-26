@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 University of Padova, Dep. of Information Engineering, SIGNET lab.
  *
@@ -19,18 +18,17 @@
 #ifndef THREE_GPP_ANTENNA_MODEL_H
 #define THREE_GPP_ANTENNA_MODEL_H
 
-#include <ns3/antenna-model.h>
+#include "antenna-model.h"
+
 #include <ns3/object.h>
 
 namespace ns3
 {
 
 /**
- *
  * \brief  Antenna model based on a parabolic approximation of the main lobe radiation pattern.
  *
  * This class implements the parabolic model as described in 3GPP TR 38.901 v15.0.0
- *
  */
 class ThreeGppAntennaModel : public AntennaModel
 {
@@ -66,8 +64,8 @@ class ThreeGppAntennaModel : public AntennaModel
     double GetSlaV() const;
 
     /**
-     * Get the naximum attenuation of the antenna element.
-     * \return the naximum attenuation in dB
+     * Get the maximum attenuation of the antenna element.
+     * \return the maximum attenuation in dB
      */
     double GetMaxAttenuation() const;
 

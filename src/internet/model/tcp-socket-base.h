@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  * Copyright (c) 2010 Adrian Sai-wah Tam
@@ -21,13 +20,14 @@
 #ifndef TCP_SOCKET_BASE_H
 #define TCP_SOCKET_BASE_H
 
+#include "ipv4-header.h"
+#include "ipv6-header.h"
+#include "tcp-socket-state.h"
+#include "tcp-socket.h"
+
 #include "ns3/data-rate.h"
-#include "ns3/ipv4-header.h"
-#include "ns3/ipv6-header.h"
 #include "ns3/node.h"
 #include "ns3/sequence-number.h"
-#include "ns3/tcp-socket-state.h"
-#include "ns3/tcp-socket.h"
 #include "ns3/timer.h"
 #include "ns3/traced-value.h"
 
@@ -377,28 +377,28 @@ class TcpSocketBase : public TcpSocket
      * \param oldValue old pacing rate value
      * \param newValue new pacing rate value
      */
-    void UpdatePacingRateTrace(DataRate oldValue, DataRate newValue);
+    void UpdatePacingRateTrace(DataRate oldValue, DataRate newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState congestion window
      * \param oldValue old cWnd value
      * \param newValue new cWnd value
      */
-    void UpdateCwnd(uint32_t oldValue, uint32_t newValue);
+    void UpdateCwnd(uint32_t oldValue, uint32_t newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState inflated congestion window
      * \param oldValue old cWndInfl value
      * \param newValue new cWndInfl value
      */
-    void UpdateCwndInfl(uint32_t oldValue, uint32_t newValue);
+    void UpdateCwndInfl(uint32_t oldValue, uint32_t newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState slow start threshold
      * \param oldValue old ssTh value
      * \param newValue new ssTh value
      */
-    void UpdateSsThresh(uint32_t oldValue, uint32_t newValue);
+    void UpdateSsThresh(uint32_t oldValue, uint32_t newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState congestion state
@@ -406,42 +406,43 @@ class TcpSocketBase : public TcpSocket
      * \param newValue new congestion state value
      */
     void UpdateCongState(TcpSocketState::TcpCongState_t oldValue,
-                         TcpSocketState::TcpCongState_t newValue);
+                         TcpSocketState::TcpCongState_t newValue) const;
 
     /**
      * \brief Callback function to hook to EcnState state
      * \param oldValue old ecn state value
      * \param newValue new ecn state value
      */
-    void UpdateEcnState(TcpSocketState::EcnState_t oldValue, TcpSocketState::EcnState_t newValue);
+    void UpdateEcnState(TcpSocketState::EcnState_t oldValue,
+                        TcpSocketState::EcnState_t newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState high tx mark
      * \param oldValue old high tx mark
      * \param newValue new high tx mark
      */
-    void UpdateHighTxMark(SequenceNumber32 oldValue, SequenceNumber32 newValue);
+    void UpdateHighTxMark(SequenceNumber32 oldValue, SequenceNumber32 newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState next tx sequence
      * \param oldValue old nextTxSeq value
      * \param newValue new nextTxSeq value
      */
-    void UpdateNextTxSequence(SequenceNumber32 oldValue, SequenceNumber32 newValue);
+    void UpdateNextTxSequence(SequenceNumber32 oldValue, SequenceNumber32 newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState bytes inflight
      * \param oldValue old bytesInFlight value
      * \param newValue new bytesInFlight value
      */
-    void UpdateBytesInFlight(uint32_t oldValue, uint32_t newValue);
+    void UpdateBytesInFlight(uint32_t oldValue, uint32_t newValue) const;
 
     /**
      * \brief Callback function to hook to TcpSocketState rtt
      * \param oldValue old rtt value
      * \param newValue new rtt value
      */
-    void UpdateRtt(Time oldValue, Time newValue);
+    void UpdateRtt(Time oldValue, Time newValue) const;
 
     /**
      * \brief Install a congestion control algorithm on this socket
@@ -578,9 +579,9 @@ class TcpSocketBase : public TcpSocket
     void SetPaceInitialWindow(bool paceWindow);
 
     // Necessary implementations of null functions from ns3::Socket
-    enum SocketErrno GetErrno() const override;     // returns m_errno
-    enum SocketType GetSocketType() const override; // returns socket type
-    Ptr<Node> GetNode() const override;             // returns m_node
+    SocketErrno GetErrno() const override;     // returns m_errno
+    SocketType GetSocketType() const override; // returns socket type
+    Ptr<Node> GetNode() const override;        // returns m_node
     int Bind() override;  // Bind a socket by setting up endpoint in TcpL4Protocol
     int Bind6() override; // Bind a socket by setting up endpoint in TcpL4Protocol
     int Bind(const Address& address) override; // ... endpoint of specific addr or port
@@ -1324,10 +1325,7 @@ class TcpSocketBase : public TcpSocket
     // State-related attributes
     TracedValue<TcpStates_t> m_state{CLOSED}; //!< TCP state
 
-    mutable enum SocketErrno m_errno
-    {
-        ERROR_NOTERROR
-    }; //!< Socket error code
+    mutable SocketErrno m_errno{ERROR_NOTERROR}; //!< Socket error code
 
     bool m_closeNotified{false}; //!< Told app to close socket
     bool m_closeOnEmpty{false};  //!< Close socket upon tx buffer emptied

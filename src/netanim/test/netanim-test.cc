@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,12 +14,11 @@
  *
  * Author: John Abraham <john.abraham@gatech.edu>
  * Contributions: Eugene Kalishenko <ydginster@gmail.com> (Open Source and Linux Laboratory
- * http://dev.osll.ru/)
+ * http://wiki.osll.ru/doku.php/start)
  */
 
 #include "unistd.h"
 
-#include "ns3/applications-module.h"
 #include "ns3/basic-energy-source.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
@@ -29,6 +27,7 @@
 #include "ns3/point-to-point-layout-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/simple-device-energy-model.h"
+#include "ns3/udp-echo-helper.h"
 
 #include <iostream>
 
@@ -36,12 +35,12 @@ using namespace ns3;
 
 /**
  * \ingroup netanim
+ * \ingroup tests
  * \defgroup netanim-test animation module tests
  */
 
 /**
  * \ingroup netanim-test
- * \ingroup tests
  *
  * \brief Abstract Animation Interface Test Case
  */
@@ -106,14 +105,13 @@ void
 AbstractAnimationInterfaceTestCase::CheckFileExistence()
 {
     FILE* fp = fopen(m_traceFileName, "r");
-    NS_TEST_ASSERT_MSG_NE(fp, 0, "Trace file was not created");
+    NS_TEST_ASSERT_MSG_NE(fp, nullptr, "Trace file was not created");
     fclose(fp);
     unlink(m_traceFileName);
 }
 
 /**
  * \ingroup netanim-test
- * \ingroup tests
  *
  * \brief Animation Interface Test Case
  */
@@ -182,7 +180,6 @@ AnimationInterfaceTestCase::CheckLogic()
 
 /**
  * \ingroup netanim-test
- * \ingroup tests
  *
  * \brief Animation Remaining Energy Test Case
  */
@@ -244,7 +241,6 @@ AnimationRemainingEnergyTestCase::CheckLogic()
 
 /**
  * \ingroup netanim-test
- * \ingroup tests
  *
  * \brief Animation Interface Test Suite
  */

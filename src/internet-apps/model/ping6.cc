@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -43,35 +42,37 @@ NS_OBJECT_ENSURE_REGISTERED(Ping6);
 TypeId
 Ping6::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::Ping6")
-                            .SetParent<Application>()
-                            .SetGroupName("Internet-Apps")
-                            .AddConstructor<Ping6>()
-                            .AddAttribute("MaxPackets",
-                                          "The maximum number of packets the application will send",
-                                          UintegerValue(100),
-                                          MakeUintegerAccessor(&Ping6::m_count),
-                                          MakeUintegerChecker<uint32_t>())
-                            .AddAttribute("Interval",
-                                          "The time to wait between packets",
-                                          TimeValue(Seconds(1.0)),
-                                          MakeTimeAccessor(&Ping6::m_interval),
-                                          MakeTimeChecker())
-                            .AddAttribute("RemoteIpv6",
-                                          "The Ipv6Address of the outbound packets",
-                                          Ipv6AddressValue(),
-                                          MakeIpv6AddressAccessor(&Ping6::m_peerAddress),
-                                          MakeIpv6AddressChecker())
-                            .AddAttribute("LocalIpv6",
-                                          "Local Ipv6Address of the sender",
-                                          Ipv6AddressValue(),
-                                          MakeIpv6AddressAccessor(&Ping6::m_localAddress),
-                                          MakeIpv6AddressChecker())
-                            .AddAttribute("PacketSize",
-                                          "Size of packets generated",
-                                          UintegerValue(100),
-                                          MakeUintegerAccessor(&Ping6::m_size),
-                                          MakeUintegerChecker<uint32_t>());
+    static TypeId tid =
+        TypeId("ns3::Ping6")
+            .SetParent<Application>()
+            .SetGroupName("Internet-Apps")
+            .AddConstructor<Ping6>()
+            .AddAttribute(
+                "MaxPackets",
+                "The maximum number of packets the application will send (zero means infinite)",
+                UintegerValue(100),
+                MakeUintegerAccessor(&Ping6::m_count),
+                MakeUintegerChecker<uint32_t>())
+            .AddAttribute("Interval",
+                          "The time to wait between packets",
+                          TimeValue(Seconds(1.0)),
+                          MakeTimeAccessor(&Ping6::m_interval),
+                          MakeTimeChecker())
+            .AddAttribute("RemoteIpv6",
+                          "The Ipv6Address of the outbound packets",
+                          Ipv6AddressValue(),
+                          MakeIpv6AddressAccessor(&Ping6::m_peerAddress),
+                          MakeIpv6AddressChecker())
+            .AddAttribute("LocalIpv6",
+                          "Local Ipv6Address of the sender",
+                          Ipv6AddressValue(),
+                          MakeIpv6AddressAccessor(&Ping6::m_localAddress),
+                          MakeIpv6AddressChecker())
+            .AddAttribute("PacketSize",
+                          "Size of packets generated",
+                          UintegerValue(100),
+                          MakeUintegerAccessor(&Ping6::m_size),
+                          MakeUintegerChecker<uint32_t>());
     return tid;
 }
 
@@ -209,7 +210,7 @@ Ping6::Send()
         size = 4;
     }
 
-    uint8_t* data = new uint8_t[size];
+    auto data = new uint8_t[size];
     memset(data, 0, size);
     data[0] = 0xDE;
     data[1] = 0xAD;
@@ -217,7 +218,7 @@ Ping6::Send()
     data[3] = 0xEF;
 
     Ptr<Packet> p = Create<Packet>(data, size);
-    Icmpv6Echo req(1);
+    Icmpv6Echo req(true);
 
     req.SetId(0xBEEF);
     req.SetSeq(m_seq);
@@ -231,7 +232,7 @@ Ping6::Send()
     m_socket->Bind(Inet6SocketAddress(src, 0));
 
     /* use Loose Routing (routing type 0) */
-    if (m_routers.size())
+    if (!m_routers.empty())
     {
         Ipv6ExtensionLooseRoutingHeader routingHeader;
         routingHeader.SetNextHeader(Ipv6Header::IPV6_ICMPV6);
@@ -247,7 +248,7 @@ Ping6::Send()
 
     NS_LOG_INFO("Sent " << p->GetSize() << " bytes to " << m_peerAddress);
 
-    if (m_sent < m_count)
+    if (m_sent < m_count || m_count == 0)
     {
         ScheduleTransmit(m_interval);
     }
@@ -267,7 +268,7 @@ Ping6::HandleRead(Ptr<Socket> socket)
         if (Inet6SocketAddress::IsMatchingType(from))
         {
             Ipv6Header hdr;
-            Icmpv6Echo reply(0);
+            Icmpv6Echo reply(false);
             Icmpv6DestinationUnreachable destUnreach;
             Icmpv6TimeExceeded timeExceeded;
             Inet6SocketAddress address = Inet6SocketAddress::ConvertFrom(from);

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 SIGNET LAB. Department of Information Engineering (DEI), University of Padua
  *
@@ -32,7 +31,8 @@
 #ifndef LTE_MI_ERROR_MODEL_H
 #define LTE_MI_ERROR_MODEL_H
 
-#include <ns3/lte-harq-phy.h>
+#include "lte-harq-phy.h"
+
 #include <ns3/ptr.h>
 #include <ns3/spectrum-value.h>
 
@@ -79,8 +79,11 @@ class LteMiErrorModel
   public:
     /**
      * \brief find the mmib (mean mutual information per bit) for different modulations of the
-     * specified TB \param sinr the perceived sinr values in the whole bandwidth in Watt \param map
-     * the active RBs for the TB \param mcs the MCS of the TB \return the mmib
+     * specified TB
+     * \param sinr the perceived sinr values in the whole bandwidth in Watt
+     * \param map the active RBs for the TB
+     * \param mcs the MCS of the TB
+     * \return the mmib
      */
     static double Mib(const SpectrumValue& sinr, const std::vector<int>& map, uint8_t mcs);
     /**

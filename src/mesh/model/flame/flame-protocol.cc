@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -325,8 +324,7 @@ FlameProtocol::Install(Ptr<MeshPointDevice> mp)
 {
     m_mp = mp;
     std::vector<Ptr<NetDevice>> interfaces = mp->GetInterfaces();
-    for (std::vector<Ptr<NetDevice>>::const_iterator i = interfaces.begin(); i != interfaces.end();
-         i++)
+    for (auto i = interfaces.begin(); i != interfaces.end(); i++)
     {
         // Checking for compatible net device
         Ptr<WifiNetDevice> wifiNetDev = (*i)->GetObject<WifiNetDevice>();
@@ -424,8 +422,7 @@ FlameProtocol::Report(std::ostream& os) const
        << "broadcastInterval=\"" << m_broadcastInterval.GetSeconds() << "\"" << std::endl
        << "maxCost=\"" << (uint16_t)m_maxCost << "\">" << std::endl;
     m_stats.Print(os);
-    for (FlamePluginMap::const_iterator plugin = m_interfaces.begin(); plugin != m_interfaces.end();
-         plugin++)
+    for (auto plugin = m_interfaces.begin(); plugin != m_interfaces.end(); plugin++)
     {
         plugin->second->Report(os);
     }
@@ -436,8 +433,7 @@ void
 FlameProtocol::ResetStats()
 {
     m_stats = Statistics();
-    for (FlamePluginMap::const_iterator plugin = m_interfaces.begin(); plugin != m_interfaces.end();
-         plugin++)
+    for (auto plugin = m_interfaces.begin(); plugin != m_interfaces.end(); plugin++)
     {
         plugin->second->ResetStats();
     }

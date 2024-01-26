@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,13 +17,12 @@
  * Author: Lluis Parcerisa <lparcerisa@cttc.cat>
  */
 
-#include "ns3/lte-asn1-header.h"
+#include "lte-asn1-header.h"
 
 #include "ns3/log.h"
 
 #include <cmath>
 #include <sstream>
-#include <stdio.h>
 
 namespace ns3
 {
@@ -166,7 +164,7 @@ Asn1Header::SerializeBitset(std::bitset<N> data) const
     // Clause 16.11 ITU-T X.691
     else
     {
-        printf("FRAGMENTATION NEEDED!\n");
+        NS_LOG_DEBUG("Fragmentation needed!");
     }
 }
 

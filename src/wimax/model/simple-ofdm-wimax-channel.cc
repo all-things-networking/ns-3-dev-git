@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -129,9 +128,7 @@ Ptr<NetDevice>
 SimpleOfdmWimaxChannel::DoGetDevice(std::size_t index) const
 {
     std::size_t j = 0;
-    for (std::list<Ptr<SimpleOfdmWimaxPhy>>::const_iterator iter = m_phyList.begin();
-         iter != m_phyList.end();
-         ++iter)
+    for (auto iter = m_phyList.begin(); iter != m_phyList.end(); ++iter)
     {
         if (j == index)
         {
@@ -160,10 +157,8 @@ SimpleOfdmWimaxChannel::Send(Time BlockTime,
     Ptr<MobilityModel> senderMobility = nullptr;
     Ptr<MobilityModel> receiverMobility = nullptr;
     senderMobility = phy->GetDevice()->GetNode()->GetObject<MobilityModel>();
-    simpleOfdmSendParam* param;
-    for (std::list<Ptr<SimpleOfdmWimaxPhy>>::iterator iter = m_phyList.begin();
-         iter != m_phyList.end();
-         ++iter)
+    SimpleOfdmSendParam* param;
+    for (auto iter = m_phyList.begin(); iter != m_phyList.end(); ++iter)
     {
         Time delay = Seconds(0);
         if (phy != *iter)
@@ -177,7 +172,7 @@ SimpleOfdmWimaxChannel::Send(Time BlockTime,
                 rxPowerDbm = m_loss->CalcRxPower(txPowerDbm, senderMobility, receiverMobility);
             }
 
-            param = new simpleOfdmSendParam(burstSize,
+            param = new SimpleOfdmSendParam(burstSize,
                                             isFirstBlock,
                                             frequency,
                                             modulationType,
@@ -205,7 +200,7 @@ SimpleOfdmWimaxChannel::Send(Time BlockTime,
 }
 
 void
-SimpleOfdmWimaxChannel::EndSendDummyBlock(Ptr<SimpleOfdmWimaxPhy> rxphy, simpleOfdmSendParam* param)
+SimpleOfdmWimaxChannel::EndSendDummyBlock(Ptr<SimpleOfdmWimaxPhy> rxphy, SimpleOfdmSendParam* param)
 {
     rxphy->StartReceive(param->GetBurstSize(),
                         param->GetIsFirstBlock(),
@@ -221,8 +216,7 @@ int64_t
 SimpleOfdmWimaxChannel::AssignStreams(int64_t stream)
 {
     int64_t currentStream = stream;
-    typedef std::list<Ptr<SimpleOfdmWimaxPhy>> PhyList;
-    for (PhyList::const_iterator i = m_phyList.begin(); i != m_phyList.end(); i++)
+    for (auto i = m_phyList.begin(); i != m_phyList.end(); i++)
     {
         Ptr<SimpleOfdmWimaxPhy> simpleOfdm = (*i);
         currentStream += simpleOfdm->AssignStreams(currentStream);

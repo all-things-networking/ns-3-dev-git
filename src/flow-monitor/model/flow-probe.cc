@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -18,9 +17,9 @@
 // Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt> <gjcarneiro@gmail.com>
 //
 
-#include "ns3/flow-probe.h"
+#include "flow-probe.h"
 
-#include "ns3/flow-monitor.h"
+#include "flow-monitor.h"
 
 namespace ns3
 {
@@ -89,7 +88,7 @@ FlowProbe::SerializeToXmlStream(std::ostream& os, uint16_t indent, uint32_t inde
 
     indent += 2;
 
-    for (Stats::const_iterator iter = m_stats.begin(); iter != m_stats.end(); iter++)
+    for (auto iter = m_stats.begin(); iter != m_stats.end(); iter++)
     {
         os << std::string(indent, ' ');
         os << "<FlowStats "

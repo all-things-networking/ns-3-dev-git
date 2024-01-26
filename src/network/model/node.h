@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation, INRIA
  *
@@ -21,8 +20,9 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include "net-device.h"
+
 #include "ns3/callback.h"
-#include "ns3/net-device.h"
 #include "ns3/object.h"
 #include "ns3/ptr.h"
 
@@ -294,7 +294,7 @@ class Node : public Object
     };
 
     /// Typedef for protocol handlers container
-    typedef std::vector<struct Node::ProtocolHandlerEntry> ProtocolHandlerList;
+    typedef std::vector<Node::ProtocolHandlerEntry> ProtocolHandlerList;
     /// Typedef for NetDevice addition listeners container
     typedef std::vector<DeviceAdditionListener> DeviceAdditionListenerList;
 

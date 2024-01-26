@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -30,7 +29,6 @@ NS_LOG_COMPONENT_DEFINE("SackPermittedTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Test case for checking the SACK-PERMITTED option.
  *

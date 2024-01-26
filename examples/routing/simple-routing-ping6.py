@@ -27,7 +27,14 @@
 #                router
 #
 
-from ns import ns
+try:
+    from ns import ns
+except ModuleNotFoundError:
+    raise SystemExit(
+        "Error: ns3 Python module not found;"
+        " Python bindings may not be enabled"
+        " or your PYTHONPATH might not be properly configured"
+    )
 
 
 def main(argv):
@@ -73,17 +80,18 @@ def main(argv):
     print("Application")
     packetSize = 1024
     maxPacketCount = 5
-    interPacketInterval = ns.Seconds(1.)
-    ping6 = ns.Ping6Helper()
+    interPacketInterval = ns.Seconds(1.0)
+    # ping = ns.PingHelper(i2.GetAddress(1, 1).ConvertTo())
+    ping = ns.PingHelper(i2.GetAddress(1, 1).ConvertTo())
 
-    ping6.SetLocal(i1.GetAddress(0, 1))
-    ping6.SetRemote(i2.GetAddress(1, 1))
+    # ping6.SetLocal(i1.GetAddress(0, 1))
+    # ping6.SetRemote(i2.GetAddress(1, 1))
 
-    ping6.SetAttribute("MaxPackets", ns.UintegerValue(maxPacketCount))
-    ping6.SetAttribute("Interval", ns.TimeValue(interPacketInterval))
-    ping6.SetAttribute("PacketSize", ns.UintegerValue(packetSize))
+    ping.SetAttribute("Count", ns.UintegerValue(maxPacketCount))
+    ping.SetAttribute("Interval", ns.TimeValue(interPacketInterval))
+    ping.SetAttribute("Size", ns.UintegerValue(packetSize))
 
-    apps = ping6.Install(ns.NodeContainer(net1.Get(0)))
+    apps = ping.Install(ns.NodeContainer(net1.Get(0)))
     apps.Start(ns.Seconds(2.0))
     apps.Stop(ns.Seconds(20.0))
 
@@ -97,7 +105,7 @@ def main(argv):
     ns.Simulator.Destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     main(sys.argv)

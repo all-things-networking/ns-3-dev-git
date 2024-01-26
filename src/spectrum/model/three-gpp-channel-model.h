@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015, NYU WIRELESS, Tandon School of Engineering,
  * New York University
@@ -22,13 +21,11 @@
 #ifndef THREE_GPP_CHANNEL_H
 #define THREE_GPP_CHANNEL_H
 
+#include "matrix-based-channel-model.h"
+
 #include "ns3/angles.h"
 #include <ns3/boolean.h>
 #include <ns3/channel-condition-model.h>
-#include <ns3/matrix-based-channel-model.h>
-#include <ns3/nstime.h>
-#include <ns3/object.h>
-#include <ns3/random-variable-stream.h>
 
 #include <complex.h>
 #include <unordered_map>
@@ -261,7 +258,7 @@ class ThreeGppChannelModel : public MatrixBasedChannelModel
 
     /**
      * Prepare 3gpp channel parameters among the nodes a and b.
-     * The function does the followin steps described in 3GPP 38.901:
+     * The function does the following steps described in 3GPP 38.901:
      *
      * Step 4: Generate large scale parameters. All LSPS are uncorrelated.
      * Step 5: Generate Delays.
@@ -291,10 +288,14 @@ class ThreeGppChannelModel : public MatrixBasedChannelModel
      * Compute the channel matrix between two nodes a and b, and their
      * antenna arrays aAntenna and bAntenna using the procedure
      * described in 3GPP TR 38.901
-     * \param channelParams the channel parameters previously generated for the pair of nodes a and
-     * b \param table3gpp the 3gpp parameters table \param sMob the mobility model of node s \param
-     * uMob the mobility model of node u \param sAntenna the antenna array of node s \param uAntenna
-     * the antenna array of node u \return the channel realization
+     * \param channelParams the channel parameters previously generated for the pair of
+     * nodes a and b
+     * \param table3gpp the 3gpp parameters table
+     * \param sMob the mobility model of node s
+     * \param uMob the mobility model of node u
+     * \param sAntenna the antenna array of node s
+     * \param uAntenna the antenna array of node u
+     * \return the channel realization
      */
 
     virtual Ptr<ChannelMatrix> GetNewChannel(Ptr<const ThreeGppChannelParams> channelParams,
@@ -326,9 +327,10 @@ class ThreeGppChannelModel : public MatrixBasedChannelModel
 
     /**
      * Check if the channel matrix has to be updated (it needs update when the channel params
-     * generation time is more recent than channel matrix generation time \param channelParams
-     * channel params structure \param channelMatrix channel matrix structure \return true if the
-     * channel matrix has to be updated, false otherwise
+     * generation time is more recent than channel matrix generation time
+     * \param channelParams channel params structure
+     * \param channelMatrix channel matrix structure
+     * \return true if the channel matrix has to be updated, false otherwise
      */
     bool ChannelMatrixNeedsUpdate(Ptr<const ThreeGppChannelParams> channelParams,
                                   Ptr<const ChannelMatrix> channelMatrix);
@@ -360,7 +362,7 @@ class ThreeGppChannelModel : public MatrixBasedChannelModel
     // parameters for the blockage model
     bool m_blockage;               //!< enables the blockage model A
     uint16_t m_numNonSelfBlocking; //!< number of non-self-blocking regions
-    bool m_portraitMode;           //!< true if potrait mode, false if landscape
+    bool m_portraitMode;           //!< true if portrait mode, false if landscape
     double m_blockerSpeed;         //!< the blocker speed
 
     static const uint8_t PHI_INDEX = 0; //!< index of the PHI value in the m_nonSelfBlocking array

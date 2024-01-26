@@ -26,7 +26,7 @@ SOURCES = \
 	source/hash-functions.rst \
 	source/helpers.rst \
 	source/how-to-write-tests.rst \
-	source/logging.rst \
+	source/logging-asserts.rst \
 	source/new-models.rst \
 	source/new-modules.rst \
 	source/object-model.rst \
@@ -77,7 +77,6 @@ SOURCEFIGS = \
 	figures/hotspot-setup.png \
 	figures/hotspot-top-down.png \
 	figures/perfetto-trace-cmake.png \
-	figures/uprof-collect-callstack.png \
 	figures/uprof-collect-callstack.png \
 	figures/uprof-profile-application.png \
 	figures/uprof-select-events.png \

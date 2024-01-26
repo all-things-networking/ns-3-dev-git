@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -210,11 +209,11 @@ DefaultSimulatorImpl::Stop()
     m_stop = true;
 }
 
-void
+EventId
 DefaultSimulatorImpl::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(this << delay.GetTimeStep());
-    Simulator::Schedule(delay, &Simulator::Stop);
+    return Simulator::Schedule(delay, &Simulator::Stop);
 }
 
 //
@@ -320,7 +319,7 @@ DefaultSimulatorImpl::Remove(const EventId& id)
     if (id.GetUid() == EventId::UID::DESTROY)
     {
         // destroy events.
-        for (DestroyEvents::iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -366,8 +365,7 @@ DefaultSimulatorImpl::IsExpired(const EventId& id) const
             return true;
         }
         // destroy events.
-        for (DestroyEvents::const_iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end();
-             i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -376,16 +374,9 @@ DefaultSimulatorImpl::IsExpired(const EventId& id) const
         }
         return true;
     }
-    if (id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
-        (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
-        id.PeekEventImpl()->IsCancelled())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
+           (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
+           id.PeekEventImpl()->IsCancelled();
 }
 
 Time

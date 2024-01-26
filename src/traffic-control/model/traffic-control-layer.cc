@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *               2016 Stefano Avallone <stavallo@unina.it>
@@ -19,11 +18,12 @@
 
 #include "traffic-control-layer.h"
 
+#include "queue-disc.h"
+
 #include "ns3/log.h"
 #include "ns3/net-device-queue-interface.h"
 #include "ns3/object-map.h"
 #include "ns3/packet.h"
-#include "ns3/queue-disc.h"
 #include "ns3/socket.h"
 
 #include <tuple>
@@ -112,7 +112,7 @@ TrafficControlLayer::RegisterProtocolHandler(Node::ProtocolHandler handler,
 {
     NS_LOG_FUNCTION(this << protocolType << device);
 
-    struct ProtocolHandlerEntry entry;
+    ProtocolHandlerEntry entry;
     entry.handler = handler;
     entry.protocol = protocolType;
     entry.device = device;
@@ -143,7 +143,7 @@ TrafficControlLayer::ScanDevices()
         Ptr<NetDeviceQueueInterface> ndqi = dev->GetObject<NetDeviceQueueInterface>();
         NS_LOG_DEBUG("Pointer to NetDeviceQueueInterface: " << ndqi);
 
-        std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(dev);
+        auto ndi = m_netDevices.find(dev);
 
         if (ndi != m_netDevices.end())
         {
@@ -222,7 +222,7 @@ TrafficControlLayer::SetRootQueueDiscOnDevice(Ptr<NetDevice> device, Ptr<QueueDi
 {
     NS_LOG_FUNCTION(this << device << qDisc);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi == m_netDevices.end())
     {
@@ -244,7 +244,7 @@ TrafficControlLayer::GetRootQueueDiscOnDevice(Ptr<NetDevice> device) const
 {
     NS_LOG_FUNCTION(this << device);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::const_iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi == m_netDevices.end())
     {
@@ -265,7 +265,7 @@ TrafficControlLayer::DeleteRootQueueDiscOnDevice(Ptr<NetDevice> device)
 {
     NS_LOG_FUNCTION(this << device);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     NS_ASSERT_MSG(ndi != m_netDevices.end() && ndi->second.m_rootQueueDisc,
                   "No root queue disc installed on device " << device);
@@ -337,7 +337,7 @@ TrafficControlLayer::Receive(Ptr<NetDevice> device,
 
     bool found = false;
 
-    for (ProtocolHandlerList::iterator i = m_handlers.begin(); i != m_handlers.end(); i++)
+    for (auto i = m_handlers.begin(); i != m_handlers.end(); i++)
     {
         if (!i->device || (i->device == device))
         {
@@ -365,7 +365,7 @@ TrafficControlLayer::Send(Ptr<NetDevice> device, Ptr<QueueDiscItem> item)
     NS_LOG_DEBUG("Send packet to device " << device << " protocol number " << item->GetProtocol());
 
     Ptr<NetDeviceQueueInterface> devQueueIface;
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi != m_netDevices.end())
     {

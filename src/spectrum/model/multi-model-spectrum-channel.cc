@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -20,6 +19,11 @@
 
 #include "multi-model-spectrum-channel.h"
 
+#include "spectrum-converter.h"
+#include "spectrum-phy.h"
+#include "spectrum-propagation-loss-model.h"
+#include "spectrum-transmit-filter.h"
+
 #include <ns3/angles.h>
 #include <ns3/antenna-model.h>
 #include <ns3/double.h>
@@ -33,9 +37,6 @@
 #include <ns3/propagation-delay-model.h>
 #include <ns3/propagation-loss-model.h>
 #include <ns3/simulator.h>
-#include <ns3/spectrum-converter.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-propagation-loss-model.h>
 
 #include <algorithm>
 #include <iostream>
@@ -57,10 +58,9 @@ NS_OBJECT_ENSURE_REGISTERED(MultiModelSpectrumChannel);
 std::ostream&
 operator<<(std::ostream& lhs, TxSpectrumModelInfoMap_t& rhs)
 {
-    for (TxSpectrumModelInfoMap_t::iterator it = rhs.begin(); it != rhs.end(); ++it)
+    for (auto it = rhs.begin(); it != rhs.end(); ++it)
     {
-        SpectrumConverterMap_t::iterator jt;
-        for (jt = it->second.m_spectrumConverterMap.begin();
+        for (auto jt = it->second.m_spectrumConverterMap.begin();
              jt != it->second.m_spectrumConverterMap.end();
              ++jt)
         {
@@ -116,7 +116,7 @@ MultiModelSpectrumChannel::RemoveRx(Ptr<SpectrumPhy> phy)
     // we need to scan for all rxSpectrumModel values since we don't
     // know which spectrum model the phy had when it was previously added
     // (it's probably different than the current one)
-    for (RxSpectrumModelInfoMap_t::iterator rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
+    for (auto rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
          rxInfoIterator != m_rxSpectrumModelInfoMap.end();
          ++rxInfoIterator)
     {
@@ -149,21 +149,17 @@ MultiModelSpectrumChannel::AddRx(Ptr<SpectrumPhy> phy)
 
     ++m_numDevices;
 
-    RxSpectrumModelInfoMap_t::iterator rxInfoIterator =
-        m_rxSpectrumModelInfoMap.find(rxSpectrumModelUid);
+    auto [rxInfoIterator, inserted] =
+        m_rxSpectrumModelInfoMap.emplace(rxSpectrumModelUid, RxSpectrumModelInfo(rxSpectrumModel));
 
-    if (rxInfoIterator == m_rxSpectrumModelInfoMap.end())
+    // rxInfoIterator points either to the newly inserted element or to the element that
+    // prevented insertion. In both cases, add the phy to the element pointed to by rxInfoIterator
+    rxInfoIterator->second.m_rxPhys.push_back(phy);
+
+    if (inserted)
     {
-        // spectrum model unknown, add it to the list of RxSpectrumModels
-        std::pair<RxSpectrumModelInfoMap_t::iterator, bool> ret;
-        ret = m_rxSpectrumModelInfoMap.insert(
-            std::make_pair(rxSpectrumModelUid, RxSpectrumModelInfo(rxSpectrumModel)));
-        NS_ASSERT(ret.second);
-        // also add the phy to the newly created set of SpectrumPhy for this RxSpectrumModel
-        ret.first->second.m_rxPhys.push_back(phy);
-
-        // and create the necessary converters for all the TX spectrum models that we know of
-        for (TxSpectrumModelInfoMap_t::iterator txInfoIterator = m_txSpectrumModelInfoMap.begin();
+        // create the necessary converters for all the TX spectrum models that we know of
+        for (auto txInfoIterator = m_txSpectrumModelInfoMap.begin();
              txInfoIterator != m_txSpectrumModelInfoMap.end();
              ++txInfoIterator)
         {
@@ -176,17 +172,11 @@ MultiModelSpectrumChannel::AddRx(Ptr<SpectrumPhy> phy)
                 NS_LOG_LOGIC("Creating converter between SpectrumModelUid "
                              << txSpectrumModel->GetUid() << " and " << rxSpectrumModelUid);
                 SpectrumConverter converter(txSpectrumModel, rxSpectrumModel);
-                std::pair<SpectrumConverterMap_t::iterator, bool> ret2;
-                ret2 = txInfoIterator->second.m_spectrumConverterMap.insert(
+                auto ret2 = txInfoIterator->second.m_spectrumConverterMap.insert(
                     std::make_pair(rxSpectrumModelUid, converter));
                 NS_ASSERT(ret2.second);
             }
         }
-    }
-    else
-    {
-        // spectrum model is already known, just add the device to the corresponding list
-        rxInfoIterator->second.m_rxPhys.push_back(phy);
     }
 }
 
@@ -196,22 +186,19 @@ MultiModelSpectrumChannel::FindAndEventuallyAddTxSpectrumModel(
 {
     NS_LOG_FUNCTION(this << txSpectrumModel);
     SpectrumModelUid_t txSpectrumModelUid = txSpectrumModel->GetUid();
-    TxSpectrumModelInfoMap_t::iterator txInfoIterator =
-        m_txSpectrumModelInfoMap.find(txSpectrumModelUid);
+    auto txInfoIterator = m_txSpectrumModelInfoMap.find(txSpectrumModelUid);
 
     if (txInfoIterator == m_txSpectrumModelInfoMap.end())
     {
         // first time we see this TX SpectrumModel
         // we add it to the list
-        std::pair<TxSpectrumModelInfoMap_t::iterator, bool> ret;
-        ret = m_txSpectrumModelInfoMap.insert(
+        auto ret = m_txSpectrumModelInfoMap.insert(
             std::make_pair(txSpectrumModelUid, TxSpectrumModelInfo(txSpectrumModel)));
         NS_ASSERT(ret.second);
         txInfoIterator = ret.first;
 
         // and we create the converters for all the RX SpectrumModels that we know of
-        for (RxSpectrumModelInfoMap_t::const_iterator rxInfoIterator =
-                 m_rxSpectrumModelInfoMap.begin();
+        for (auto rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
              rxInfoIterator != m_rxSpectrumModelInfoMap.end();
              ++rxInfoIterator)
         {
@@ -225,8 +212,7 @@ MultiModelSpectrumChannel::FindAndEventuallyAddTxSpectrumModel(
                              << txSpectrumModelUid << " and " << rxSpectrumModelUid);
 
                 SpectrumConverter converter(txSpectrumModel, rxSpectrumModel);
-                std::pair<SpectrumConverterMap_t::iterator, bool> ret2;
-                ret2 = txInfoIterator->second.m_spectrumConverterMap.insert(
+                auto ret2 = txInfoIterator->second.m_spectrumConverterMap.insert(
                     std::make_pair(rxSpectrumModelUid, converter));
                 NS_ASSERT(ret2.second);
             }
@@ -256,7 +242,7 @@ MultiModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
     NS_LOG_LOGIC("txSpectrumModelUid " << txSpectrumModelUid);
 
     //
-    TxSpectrumModelInfoMap_t::const_iterator txInfoIteratorerator =
+    auto txInfoIteratorerator =
         FindAndEventuallyAddTxSpectrumModel(txParams->psd->GetSpectrumModel());
     NS_ASSERT(txInfoIteratorerator != m_txSpectrumModelInfoMap.end());
 
@@ -266,7 +252,7 @@ MultiModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
     NS_LOG_LOGIC("converter map first element: "
                  << txInfoIteratorerator->second.m_spectrumConverterMap.begin()->first);
 
-    for (RxSpectrumModelInfoMap_t::const_iterator rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
+    for (auto rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
          rxInfoIterator != m_rxSpectrumModelInfoMap.end();
          ++rxInfoIterator)
     {
@@ -283,7 +269,7 @@ MultiModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
         {
             NS_LOG_LOGIC("converting txPowerSpectrum SpectrumModelUids "
                          << txSpectrumModelUid << " --> " << rxSpectrumModelUid);
-            SpectrumConverterMap_t::const_iterator rxConverterIterator =
+            auto rxConverterIterator =
                 txInfoIteratorerator->second.m_spectrumConverterMap.find(rxSpectrumModelUid);
             if (rxConverterIterator == txInfoIteratorerator->second.m_spectrumConverterMap.end())
             {
@@ -316,6 +302,11 @@ MultiModelSpectrumChannel::StartTx(Ptr<SpectrumSignalParameters> txParams)
                             "same node, not supported yet by any pathloss model in ns-3.");
                         continue;
                     }
+                }
+
+                if (m_filter && m_filter->Filter(txParams, *rxPhyIterator))
+                {
+                    continue;
                 }
 
                 NS_LOG_LOGIC("copying signal parameters " << txParams);
@@ -426,7 +417,7 @@ MultiModelSpectrumChannel::StartRx(Ptr<SpectrumSignalParameters> params, Ptr<Spe
                       "PhasedArrayModel instances should be installed at both TX and RX "
                       "SpectrumPhy in order to use PhasedArraySpectrumPropagationLoss.");
 
-        params->psd = m_phasedArraySpectrumPropagationLoss->CalcRxPowerSpectralDensity(
+        params = m_phasedArraySpectrumPropagationLoss->CalcRxPowerSpectralDensity(
             params,
             params->txPhy->GetMobility(),
             receiver->GetMobility(),
@@ -455,7 +446,7 @@ MultiModelSpectrumChannel::GetDevice(std::size_t i) const
     // On the other hand, having slow SpectrumModel conversion would be
     // less acceptable.
     std::size_t j = 0;
-    for (RxSpectrumModelInfoMap_t::const_iterator rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
+    for (auto rxInfoIterator = m_rxSpectrumModelInfoMap.begin();
          rxInfoIterator != m_rxSpectrumModelInfoMap.end();
          ++rxInfoIterator)
     {

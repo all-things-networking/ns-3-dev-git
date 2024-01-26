@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -32,6 +31,12 @@
 
 namespace ns3
 {
+
+/// Minimum number of carrier components allowed by 3GPP up to R13
+constexpr uint32_t MIN_NO_CC = 1;
+
+/// Maximum number of carrier components allowed by 3GPP up to R13
+constexpr uint32_t MAX_NO_CC = 5;
 
 /// LteFlowId structure
 struct LteFlowId_t

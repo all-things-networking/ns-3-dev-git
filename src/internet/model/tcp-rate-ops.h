@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -19,9 +18,10 @@
 #ifndef TCP_RATE_OPS_H
 #define TCP_RATE_OPS_H
 
+#include "tcp-tx-item.h"
+
 #include "ns3/data-rate.h"
 #include "ns3/object.h"
-#include "ns3/tcp-tx-item.h"
 #include "ns3/traced-callback.h"
 #include "ns3/traced-value.h"
 
@@ -248,7 +248,7 @@ class TcpRateLinux : public TcpRateOps
   private:
     // Rate sample related variables
     TcpRateConnection m_rate;   //!< Rate information
-    TcpRateSample m_rateSample; //!< Rate sample (continuosly updated)
+    TcpRateSample m_rateSample; //!< Rate sample (continuously updated)
 
     TracedCallback<const TcpRateConnection&> m_rateTrace;   //!< Rate trace
     TracedCallback<const TcpRateSample&> m_rateSampleTrace; //!< Rate Sample trace
@@ -260,7 +260,7 @@ class TcpRateLinux : public TcpRateOps
  * \param sample the TcpRateLinux::TcpRateSample to print.
  * \returns The output stream.
  */
-std::ostream& operator<<(std::ostream& os, const TcpRateLinux::TcpRateSample& sample);
+std::ostream& operator<<(std::ostream& os, const TcpRateOps::TcpRateSample& sample);
 
 /**
  * \brief Output operator.
@@ -268,7 +268,7 @@ std::ostream& operator<<(std::ostream& os, const TcpRateLinux::TcpRateSample& sa
  * \param rate the TcpRateLinux::TcpRateConnection to print.
  * \returns The output stream.
  */
-std::ostream& operator<<(std::ostream& os, const TcpRateLinux::TcpRateConnection& rate);
+std::ostream& operator<<(std::ostream& os, const TcpRateOps::TcpRateConnection& rate);
 
 /**
  * Comparison operator

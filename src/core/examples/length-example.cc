@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Lawrence Livermore National Laboratory
  *
@@ -24,17 +23,21 @@
 #include <iostream>
 
 /**
- * \file
+ * \defgroup length-examples Demonstrates usage of the ns3::Length class
  * \ingroup core-examples
  * \ingroup length
+ */
+
+/**
+ * \file
+ * \ingroup length-examples
  * Demonstrates usage of the ns3::Length class
  */
 
 using namespace ns3;
 
 /**
- * \ingroup core-examples
- * \ingroup length
+ * \ingroup length-examples
  * \brief Demonstrates the use of ns3::Length constructors.
  */
 void
@@ -56,8 +59,7 @@ Constructors()
 }
 
 /**
- * \ingroup core-examples
- * \ingroup length
+ * \ingroup length-examples
  * \brief Demonstrates the use of ns3::Length conversions.
  */
 void
@@ -76,8 +78,7 @@ Conversions()
 }
 
 /**
- * \ingroup core-examples
- * \ingroup length
+ * \ingroup length-examples
  * \brief Demonstrates the use of ns3::Length arithmetic operators.
  */
 void
@@ -104,8 +105,7 @@ ArithmeticOperators()
 }
 
 /**
- * \ingroup core-examples
- * \ingroup length
+ * \ingroup length-examples
  * \brief Demonstrates the use of ns3::Length equality operators.
  */
 void
@@ -142,8 +142,7 @@ EqualityOperators()
 }
 
 /**
- * \ingroup core-examples
- * \ingroup length
+ * \ingroup length-examples
  * \brief Demonstrates the use of ns3::Length multiplications and divisions.
  */
 void

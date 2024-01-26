@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006,2007 INRIA
  *
@@ -27,10 +26,10 @@
 #include "time-printer.h"
 
 #include <iostream>
-#include <map>
 #include <stdint.h>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 /**
@@ -101,17 +100,17 @@ enum LogLevel
     LOG_WARN = 0x00000002,       //!< Warning messages.
     LOG_LEVEL_WARN = 0x00000003, //!< LOG_WARN and above.
 
-    LOG_DEBUG = 0x00000004,       //!< Rare ad-hoc debug messages.
-    LOG_LEVEL_DEBUG = 0x00000007, //!< LOG_DEBUG and above.
+    LOG_INFO = 0x00000004,       //!< Something happened to change state.
+    LOG_LEVEL_INFO = 0x00000007, //!< LOG_INFO and above.
 
-    LOG_INFO = 0x00000008,       //!< Informational messages (e.g., banners).
-    LOG_LEVEL_INFO = 0x0000000f, //!< LOG_INFO and above.
+    LOG_FUNCTION = 0x00000008,       //!< Function tracing for non-trivial function calls.
+    LOG_LEVEL_FUNCTION = 0x0000000f, //!< LOG_FUNCTION and above.
 
-    LOG_FUNCTION = 0x00000010,       //!< Function tracing.
-    LOG_LEVEL_FUNCTION = 0x0000001f, //!< LOG_FUNCTION and above.
+    LOG_LOGIC = 0x00000010,       //!< Debugging logs for key branches and decisions in a function.
+    LOG_LEVEL_LOGIC = 0x0000001f, //!< LOG_LOGIC and above.
 
-    LOG_LOGIC = 0x00000020,       //!< Control flow tracing within functions.
-    LOG_LEVEL_LOGIC = 0x0000003f, //!< LOG_LOGIC and above.
+    LOG_DEBUG = 0x00000020,       //!< Full voluminous logging to support debugging.
+    LOG_LEVEL_DEBUG = 0x0000003f, //!< LOG_DEBUG and above.
 
     LOG_ALL = 0x0fffffff,    //!< Print everything.
     LOG_LEVEL_ALL = LOG_ALL, //!< Print everything.
@@ -135,7 +134,7 @@ enum LogLevel
  * \param [in] name The log component name.
  * \param [in] level The logging level.
  */
-void LogComponentEnable(const char* name, enum LogLevel level);
+void LogComponentEnable(const std::string& name, LogLevel level);
 
 /**
  * Enable the logging output for all registered log components.
@@ -145,7 +144,7 @@ void LogComponentEnable(const char* name, enum LogLevel level);
  *
  * \param [in] level The logging level.
  */
-void LogComponentEnableAll(enum LogLevel level);
+void LogComponentEnableAll(LogLevel level);
 
 /**
  * Disable the logging output associated with that log component.
@@ -156,14 +155,14 @@ void LogComponentEnableAll(enum LogLevel level);
  * \param [in] name The log component name.
  * \param [in] level The logging level.
  */
-void LogComponentDisable(const char* name, enum LogLevel level);
+void LogComponentDisable(const std::string& name, LogLevel level);
 
 /**
  * Disable all logging for all components.
  *
  * \param [in] level The logging level.
  */
-void LogComponentDisableAll(enum LogLevel level);
+void LogComponentDisableAll(LogLevel level);
 
 } // namespace ns3
 
@@ -245,7 +244,7 @@ void LogComponentDisableAll(enum LogLevel level);
  * \param [in] name The log component name.
  */
 #define NS_LOG_STATIC_TEMPLATE_DEFINE(name)                                                        \
-    [[maybe_unused]] static LogComponent& g_log = GetLogComponent(name)
+    static LogComponent& g_log [[maybe_unused]] = GetLogComponent(name)
 
 /**
  * Use \ref NS_LOG to output a message of level LOG_ERROR.
@@ -337,16 +336,14 @@ class LogComponent
      *                  a log level helps prevent recursion by logging in
      *                  functions which help implement the logging facility.
      */
-    LogComponent(const std::string& name,
-                 const std::string& file,
-                 const enum LogLevel mask = LOG_NONE);
+    LogComponent(const std::string& name, const std::string& file, const LogLevel mask = LOG_NONE);
     /**
      * Check if this LogComponent is enabled for \c level
      *
      * \param [in] level The level to check for.
      * \return \c true if we are enabled at \c level.
      */
-    bool IsEnabled(const enum LogLevel level) const;
+    bool IsEnabled(const LogLevel level) const;
     /**
      * Check if all levels are disabled.
      *
@@ -358,19 +355,19 @@ class LogComponent
      *
      * \param [in] level The LogLevel to enable.
      */
-    void Enable(const enum LogLevel level);
+    void Enable(const LogLevel level);
     /**
      * Disable logging at \c level for this LogComponent.
      *
      * \param [in] level The LogLevel to disable.
      */
-    void Disable(const enum LogLevel level);
+    void Disable(const LogLevel level);
     /**
      * Get the name of this LogComponent.
      *
      * \return The name of this LogComponent.
      */
-    const char* Name() const;
+    std::string Name() const;
     /**
      * Get the compilation unit defining this LogComponent.
      * \returns The file name.
@@ -382,13 +379,13 @@ class LogComponent
      * \param [in] level The LogLevel to get the label for.
      * \return The string label for \c level.
      */
-    static std::string GetLevelLabel(const enum LogLevel level);
+    static std::string GetLevelLabel(const LogLevel level);
     /**
      * Prevent the enabling of a specific LogLevel.
      *
      * \param [in] level The LogLevel to block.
      */
-    void SetMask(const enum LogLevel level);
+    void SetMask(const LogLevel level);
 
     /**
      * LogComponent name map.
@@ -398,10 +395,10 @@ class LogComponent
      * It is exposed here to allow print-introspected-doxygen.cc
      * to generate a list of all LogComponents.
      */
-    typedef std::map<std::string, LogComponent*> ComponentList;
+    using ComponentList = std::unordered_map<std::string, LogComponent*>;
 
     /**
-     * Get the list of LogComponnents.
+     * Get the list of LogComponents.
      *
      * \internal
      * This should really be considered an internal API.
@@ -450,25 +447,11 @@ class ParameterLogger
     /**
      * Write a function parameter on the output stream,
      * separating parameters after the first by `,` strings.
-     * Overload for arithmetic types (integral type or floating point type),
-     * enabling the parameter to be passed by value.
      *
      * \param [in] param The function parameter.
      * \return This ParameterLogger, so it's chainable.
      */
-    template <typename T, typename U = std::enable_if_t<std::is_arithmetic_v<T>>>
-    ParameterLogger& operator<<(T param);
-
-    /**
-     * Write a function parameter on the output stream,
-     * separating parameters after the first by `,` strings.
-     * Overload for non-arithmetic types, enabling the parameter
-     * to be passed by reference.
-     *
-     * \param [in] param The function parameter.
-     * \return This ParameterLogger, so it's chainable.
-     */
-    template <typename T, typename U = std::enable_if_t<!std::is_arithmetic_v<T>>>
+    template <typename T>
     ParameterLogger& operator<<(const T& param);
 
     /**
@@ -480,14 +463,6 @@ class ParameterLogger
     template <typename T>
     ParameterLogger& operator<<(const std::vector<T>& vector);
 
-    /**
-     * Overload for C-strings.
-     *
-     * \param [in] param The C-string
-     * \return This ParameterLogger, so it's chainable.
-     */
-    ParameterLogger& operator<<(const char* param);
-
   private:
     /** Add `, ` before every parameter after the first. */
     void CommaRest();
@@ -496,21 +471,26 @@ class ParameterLogger
     std::ostream& m_os; //!< Underlying output stream.
 };
 
-template <typename T, typename U>
-ParameterLogger&
-ParameterLogger::operator<<(T param)
-{
-    CommaRest();
-    m_os << param;
-    return *this;
-}
-
-template <typename T, typename U>
+template <typename T>
 ParameterLogger&
 ParameterLogger::operator<<(const T& param)
 {
     CommaRest();
-    m_os << param;
+
+    if constexpr (std::is_convertible_v<T, std::string>)
+    {
+        m_os << "\"" << param << "\"";
+    }
+    else if constexpr (std::is_arithmetic_v<T>)
+    {
+        // Use + unary operator to cast uint8_t / int8_t to uint32_t / int32_t, respectively
+        m_os << +param;
+    }
+    else
+    {
+        m_os << param;
+    }
+
     return *this;
 }
 
@@ -524,30 +504,6 @@ ParameterLogger::operator<<(const std::vector<T>& vector)
     }
     return *this;
 }
-
-/**
- * Specialization for strings.
- * \param [in] param The function parameter.
- * \return This ParameterLogger, so it's chainable.
- */
-template <>
-ParameterLogger& ParameterLogger::operator<< <std::string>(const std::string& param);
-
-/**
- * Specialization for int8_t.
- * \param [in] param The function parameter.
- * \return This ParameterLogger, so it's chainable.
- */
-template <>
-ParameterLogger& ParameterLogger::operator<< <int8_t>(const int8_t param);
-
-/**
- * Specialization for uint8_t.
- * \param [in] param The function parameter.
- * \return This ParameterLogger, so it's chainable.
- */
-template <>
-ParameterLogger& ParameterLogger::operator<< <uint8_t>(const uint8_t param);
 
 } // namespace ns3
 

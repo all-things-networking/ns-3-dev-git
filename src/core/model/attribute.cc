@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -70,7 +69,7 @@ AttributeChecker::CreateValidValue(const AttributeValue& value) const
         return value.Copy();
     }
     // attempt to convert to string.
-    const StringValue* str = dynamic_cast<const StringValue*>(&value);
+    const auto str = dynamic_cast<const StringValue*>(&value);
     if (str == nullptr)
     {
         return nullptr;
@@ -126,18 +125,16 @@ EmptyAttributeAccessor::~EmptyAttributeAccessor()
 }
 
 bool
-EmptyAttributeAccessor::Set(ObjectBase* object, const AttributeValue& value) const
+EmptyAttributeAccessor::Set(ObjectBase* object [[maybe_unused]],
+                            const AttributeValue& value [[maybe_unused]]) const
 {
-    (void)object;
-    (void)value;
     return true;
 }
 
 bool
-EmptyAttributeAccessor::Get(const ObjectBase* object, AttributeValue& attribute) const
+EmptyAttributeAccessor::Get(const ObjectBase* object [[maybe_unused]],
+                            AttributeValue& attribute [[maybe_unused]]) const
 {
-    (void)object;
-    (void)attribute;
     return true;
 }
 
@@ -163,9 +160,8 @@ EmptyAttributeChecker::~EmptyAttributeChecker()
 }
 
 bool
-EmptyAttributeChecker::Check(const AttributeValue& value) const
+EmptyAttributeChecker::Check(const AttributeValue& value [[maybe_unused]]) const
 {
-    (void)value;
     return true;
 }
 
@@ -195,10 +191,9 @@ EmptyAttributeChecker::Create() const
 }
 
 bool
-EmptyAttributeChecker::Copy(const AttributeValue& source, AttributeValue& destination) const
+EmptyAttributeChecker::Copy(const AttributeValue& source [[maybe_unused]],
+                            AttributeValue& destination [[maybe_unused]]) const
 {
-    (void)source;
-    (void)destination;
     return true;
 }
 

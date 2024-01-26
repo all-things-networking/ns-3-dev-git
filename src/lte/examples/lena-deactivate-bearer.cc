@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -70,7 +69,7 @@ main(int argc, char* argv[])
     Ptr<Node> pgw = epcHelper->GetPgwNode();
 
     // Enable Logging
-    LogLevel logLevel = (LogLevel)(LOG_PREFIX_FUNC | LOG_PREFIX_TIME | LOG_LEVEL_ALL);
+    auto logLevel = (LogLevel)(LOG_PREFIX_FUNC | LOG_PREFIX_TIME | LOG_LEVEL_ALL);
 
     LogComponentEnable("BearerDeactivateExample", LOG_LEVEL_ALL);
     LogComponentEnable("LteHelper", logLevel);
@@ -154,7 +153,7 @@ main(int argc, char* argv[])
         qos.mbrDl = qos.gbrDl;
         qos.mbrUl = qos.gbrUl;
 
-        enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+        EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
         EpsBearer bearer(q, qos);
         bearer.arp.priorityLevel = 15 - (u + 1);
         bearer.arp.preemptionCapability = true;

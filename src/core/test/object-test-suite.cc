@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA, Gustavo Carneiro
  *
@@ -542,7 +541,7 @@ ObjectFactoryTestCase::DoRun()
 
     //
     // Since a declared a BaseA, even if it is really a DerivedA, we should not
-    // be able to GetOBject for a DerivedA since this would break the type
+    // be able to GetObject for a DerivedA since this would break the type
     // declaration.
     //
     NS_TEST_ASSERT_MSG_EQ(!a->GetObject<DerivedA>(),

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Universita' di Firenze
  *
@@ -121,8 +120,7 @@ RadvdHelper::Install(Ptr<Node> node)
 {
     ApplicationContainer apps;
     Ptr<Radvd> radvd = m_factory.Create<Radvd>();
-    for (RadvdInterfaceMapI iter = m_radvdInterfaces.begin(); iter != m_radvdInterfaces.end();
-         iter++)
+    for (auto iter = m_radvdInterfaces.begin(); iter != m_radvdInterfaces.end(); iter++)
     {
         if (!iter->second->GetPrefixes().empty())
         {

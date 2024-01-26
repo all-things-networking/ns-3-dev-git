@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008 INRIA
  *
@@ -77,9 +76,7 @@ BurstProfileManager::GetModulationType(uint8_t iuc, WimaxNetDevice::Direction di
     {
         std::vector<OfdmDlBurstProfile> dlBurstProfiles =
             m_device->GetCurrentDcd().GetDlBurstProfiles();
-        for (std::vector<OfdmDlBurstProfile>::iterator iter = dlBurstProfiles.begin();
-             iter != dlBurstProfiles.end();
-             ++iter)
+        for (auto iter = dlBurstProfiles.begin(); iter != dlBurstProfiles.end(); ++iter)
         {
             if (iter->GetDiuc() == iuc)
             {
@@ -91,9 +88,7 @@ BurstProfileManager::GetModulationType(uint8_t iuc, WimaxNetDevice::Direction di
     {
         std::vector<OfdmUlBurstProfile> ulBurstProfiles =
             m_device->GetCurrentUcd().GetUlBurstProfiles();
-        for (std::vector<OfdmUlBurstProfile>::iterator iter = ulBurstProfiles.begin();
-             iter != ulBurstProfiles.end();
-             ++iter)
+        for (auto iter = ulBurstProfiles.begin(); iter != ulBurstProfiles.end(); ++iter)
         {
             if (iter->GetUiuc() == iuc)
             {
@@ -116,9 +111,7 @@ BurstProfileManager::GetBurstProfile(WimaxPhy::ModulationType modulationType,
     {
         std::vector<OfdmDlBurstProfile> dlBurstProfiles =
             m_device->GetCurrentDcd().GetDlBurstProfiles();
-        for (std::vector<OfdmDlBurstProfile>::iterator iter = dlBurstProfiles.begin();
-             iter != dlBurstProfiles.end();
-             ++iter)
+        for (auto iter = dlBurstProfiles.begin(); iter != dlBurstProfiles.end(); ++iter)
         {
             if (iter->GetFecCodeType() == modulationType)
             {
@@ -130,9 +123,7 @@ BurstProfileManager::GetBurstProfile(WimaxPhy::ModulationType modulationType,
     {
         std::vector<OfdmUlBurstProfile> ulBurstProfiles =
             m_device->GetCurrentUcd().GetUlBurstProfiles();
-        for (std::vector<OfdmUlBurstProfile>::iterator iter = ulBurstProfiles.begin();
-             iter != ulBurstProfiles.end();
-             ++iter)
+        for (auto iter = ulBurstProfiles.begin(); iter != ulBurstProfiles.end(); ++iter)
         {
             if (iter->GetFecCodeType() == modulationType)
             {
@@ -150,7 +141,7 @@ BurstProfileManager::GetBurstProfile(WimaxPhy::ModulationType modulationType,
 uint8_t
 BurstProfileManager::GetBurstProfileForSS(const SSRecord* ssRecord,
                                           const RngReq* rngreq,
-                                          WimaxPhy::ModulationType& modulationType)
+                                          WimaxPhy::ModulationType& modulationType) const
 {
     /*during initial ranging or periodic ranging (or when RNG-REQ is used instead of
      DBPC) calculates the least robust burst profile for SS, e.g., based on distance,
@@ -161,7 +152,7 @@ BurstProfileManager::GetBurstProfileForSS(const SSRecord* ssRecord,
 }
 
 WimaxPhy::ModulationType
-BurstProfileManager::GetModulationTypeForSS(const SSRecord* ssRecord, const RngReq* rngreq)
+BurstProfileManager::GetModulationTypeForSS(const SSRecord* ssRecord, const RngReq* rngreq) const
 {
     return GetModulationType(rngreq->GetReqDlBurstProfile(), WimaxNetDevice::DIRECTION_DOWNLINK);
 }

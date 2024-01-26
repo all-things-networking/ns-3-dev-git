@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -59,7 +58,7 @@ Ipv6ExtensionDemux::~Ipv6ExtensionDemux()
 void
 Ipv6ExtensionDemux::DoDispose()
 {
-    for (Ipv6ExtensionList_t::iterator it = m_extensions.begin(); it != m_extensions.end(); it++)
+    for (auto it = m_extensions.begin(); it != m_extensions.end(); it++)
     {
         (*it)->Dispose();
         *it = nullptr;
@@ -84,7 +83,7 @@ Ipv6ExtensionDemux::Insert(Ptr<Ipv6Extension> extension)
 Ptr<Ipv6Extension>
 Ipv6ExtensionDemux::GetExtension(uint8_t extensionNumber)
 {
-    for (Ipv6ExtensionList_t::iterator i = m_extensions.begin(); i != m_extensions.end(); ++i)
+    for (auto i = m_extensions.begin(); i != m_extensions.end(); ++i)
     {
         if ((*i)->GetExtensionNumber() == extensionNumber)
         {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 Drexel University
  *
@@ -20,9 +19,10 @@
 
 #include "packet-data-calculators.h"
 
+#include "mac48-address.h"
+
 #include "ns3/basic-data-calculators.h"
 #include "ns3/log.h"
-#include "ns3/mac48-address.h"
 #include "ns3/packet.h"
 
 using namespace ns3;

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -59,7 +58,7 @@ HwmpTag::SetTtl(uint8_t ttl)
 }
 
 uint8_t
-HwmpTag::GetTtl()
+HwmpTag::GetTtl() const
 {
     return m_ttl;
 }
@@ -71,7 +70,7 @@ HwmpTag::SetMetric(uint32_t metric)
 }
 
 uint32_t
-HwmpTag::GetMetric()
+HwmpTag::GetMetric() const
 {
     return m_metric;
 }
@@ -83,7 +82,7 @@ HwmpTag::SetSeqno(uint32_t seqno)
 }
 
 uint32_t
-HwmpTag::GetSeqno()
+HwmpTag::GetSeqno() const
 {
     return m_seqno;
 }

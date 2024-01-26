@@ -1,20 +1,7 @@
 # ##############################################################################
 # Required CMake version            #
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10..3.10)
-
-# Use ccache if available
-mark_as_advanced(CCACHE)
-find_program(CCACHE ccache)
-if(NOT ("${CCACHE}" STREQUAL "CCACHE-NOTFOUND"))
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-  message(STATUS "CCache is enabled.")
-  execute_process(
-    COMMAND
-      ${CCACHE} --set-config
-      sloppiness=pch_defines,time_macros,include_file_mtime,include_file_ctime
-  )
-endif()
+cmake_minimum_required(VERSION 3.13..3.13)
 
 # ##############################################################################
 # Project name                        #
@@ -25,8 +12,8 @@ file(STRINGS VERSION NS3_VER)
 
 # minimum compiler versions
 set(AppleClang_MinVersion 11.0.0)
-set(Clang_MinVersion 6.0.0)
-set(GNU_MinVersion 8.0.0)
+set(Clang_MinVersion 10.0.0)
+set(GNU_MinVersion 9.0.0)
 
 # common options
 option(NS3_ASSERT "Enable assert on failure" OFF)
@@ -38,6 +25,7 @@ option(NS3_TESTS "Enable tests to be built" OFF)
 # fd-net-device options
 option(NS3_EMU "Build with emulation support" ON)
 option(NS3_TAP "Build with Tap support" ON)
+option(NS3_DPDK "Enable fd-net-device DPDK features" OFF)
 
 # maintenance and documentation
 option(NS3_CLANG_FORMAT "Enforce cody style with clang-format" OFF)
@@ -66,7 +54,12 @@ option(NS3_NETANIM "Build netanim" OFF)
 
 # other options
 option(NS3_ENABLE_BUILD_VERSION "Embed version info into libraries" OFF)
-option(NS3_GNUPLOT "Build with Gnuplot support" OFF)
+option(NS3_CCACHE "Use Ccache to speed up recompilation" ON)
+option(NS3_CPM "Enable the CPM C++ library manager support" OFF)
+option(NS3_FAST_LINKERS "Use Mold or LLD to speed up linking if available" ON)
+option(NS3_FETCH_OPTIONAL_COMPONENTS
+       "Fetch Brite, Click and Openflow dependencies" OFF
+)
 option(NS3_GSL "Build with GSL support" ON)
 option(NS3_GTK3 "Build with GTK3 support" ON)
 option(NS3_LINK_TIME_OPTIMIZATION "Build with link-time optimization" OFF)
@@ -75,15 +68,22 @@ option(NS3_MONOLIB
 )
 option(NS3_MPI "Build with MPI support" OFF)
 option(NS3_NATIVE_OPTIMIZATIONS "Build with -march=native -mtune=native" OFF)
+option(
+  NS3_NINJA_TRACING
+  "Use ninjatracing to convert Ninja's build log to the about://tracing format"
+  OFF
+)
 set(NS3_OUTPUT_DIRECTORY "" CACHE STRING "Directory to store built artifacts")
 option(NS3_PRECOMPILE_HEADERS
        "Precompile module headers to speed up compilation" ON
 )
 option(NS3_PYTHON_BINDINGS "Build ns-3 python bindings" OFF)
 option(NS3_SQLITE "Build with SQLite support" ON)
+option(NS3_EIGEN "Build with Eigen support" ON)
 option(NS3_STATIC "Build a static ns-3 library and link it against executables"
        OFF
 )
+option(NS3_VCPKG "Enable the Vcpkg C++ library manager support" OFF)
 option(NS3_VERBOSE "Print additional build system messages" OFF)
 option(NS3_VISUALIZER "Build visualizer module" ON)
 option(NS3_WARNINGS "Enable compiler warnings" ON)
@@ -95,8 +95,8 @@ option(NS3_WARNINGS_AS_ERRORS
 set(NS3_ENABLED_MODULES ""
     CACHE STRING "List of modules to enable (e.g. core;network;internet)"
 )
-set(NS3_DISABLED_MODULES ""
-    CACHE STRING "List of modules to disable (e.g. lte;wimax;wave)"
+set(NS3_DISABLED_MODULES "" CACHE STRING
+                                  "List of modules to disable (e.g. lte;wimax)"
 )
 
 # Filter in the modules from which examples and tests will be built
@@ -106,6 +106,21 @@ set(NS3_FILTER_MODULE_EXAMPLES_AND_TESTS
       STRING
       "List of modules that should have their examples and tests built (e.g. lte;wifi)"
 )
+
+if(${NS3_CCACHE})
+  # Use ccache if available
+  mark_as_advanced(CCACHE)
+  find_program(CCACHE ccache)
+  if(NOT ("${CCACHE}" STREQUAL "CCACHE-NOTFOUND"))
+    message(STATUS "CCache is enabled.")
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+    execute_process(
+      COMMAND
+        ${CCACHE} --set-config
+        sloppiness=pch_defines,time_macros,include_file_mtime,include_file_ctime
+    )
+  endif()
+endif()
 
 # Include macros used below
 include(build-support/macros-and-definitions.cmake)

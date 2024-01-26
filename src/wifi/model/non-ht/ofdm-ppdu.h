@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -23,7 +22,6 @@
 #ifndef OFDM_PPDU_H
 #define OFDM_PPDU_H
 
-#include "ns3/header.h"
 #include "ns3/wifi-phy-band.h"
 #include "ns3/wifi-ppdu.h"
 
@@ -52,23 +50,10 @@ class OfdmPpdu : public WifiPpdu
      * OFDM and ERP OFDM L-SIG PHY header.
      * See section 17.3.4 in IEEE 802.11-2016.
      */
-    class LSigHeader : public Header
+    class LSigHeader
     {
       public:
         LSigHeader();
-        ~LSigHeader() override;
-
-        /**
-         * \brief Get the type ID.
-         * \return the object TypeId
-         */
-        static TypeId GetTypeId();
-
-        TypeId GetInstanceTypeId() const override;
-        void Print(std::ostream& os) const override;
-        uint32_t GetSerializedSize() const override;
-        void Serialize(Buffer::Iterator start) const override;
-        uint32_t Deserialize(Buffer::Iterator start) override;
 
         /**
          * Fill the RATE field of L-SIG (in bit/s).
@@ -107,34 +92,54 @@ class OfdmPpdu : public WifiPpdu
      *
      * \param psdu the PHY payload (PSDU)
      * \param txVector the TXVECTOR that was used for this PPDU
-     * \param txCenterFreq the center frequency (MHz) that was used for this PPDU
-     * \param band the WifiPhyBand used for the transmission of this PPDU
+     * \param channel the operating channel of the PHY used to transmit this PPDU
      * \param uid the unique ID of this PPDU
      * \param instantiateLSig flag used to instantiate LSigHeader (set LSigHeader's
      *                        rate and length), should be disabled by child classes
      */
     OfdmPpdu(Ptr<const WifiPsdu> psdu,
              const WifiTxVector& txVector,
-             uint16_t txCenterFreq,
-             WifiPhyBand band,
+             const WifiPhyOperatingChannel& channel,
              uint64_t uid,
              bool instantiateLSig = true);
-    /**
-     * Destructor for OfdmPpdu.
-     */
-    ~OfdmPpdu() override;
 
     Time GetTxDuration() const override;
     Ptr<WifiPpdu> Copy() const override;
 
   protected:
-    WifiPhyBand m_band;      //!< the WifiPhyBand used to transmit that PPDU
-    uint16_t m_channelWidth; //!< the channel width used to transmit that PPDU in MHz
-    LSigHeader m_lSig;       //!< the L-SIG PHY header
+    LSigHeader m_lSig; //!< the L-SIG PHY header
 
   private:
     WifiTxVector DoGetTxVector() const override;
-}; // class OfdmPpdu
+
+    /**
+     * Fill in the PHY headers.
+     *
+     * \param txVector the TXVECTOR that was used for this PPDU
+     * \param psduSize the size duration of the PHY payload (PSDU)
+     */
+    void SetPhyHeaders(const WifiTxVector& txVector, std::size_t psduSize);
+
+    /**
+     * Fill in the L-SIG header.
+     *
+     * \param lSig the L-SIG header to fill in
+     * \param txVector the TXVECTOR that was used for this PPDU
+     * \param psduSize the size duration of the PHY payload (PSDU)
+     */
+    void SetLSigHeader(LSigHeader& lSig, const WifiTxVector& txVector, std::size_t psduSize) const;
+
+    /**
+     * Fill in the TXVECTOR from L-SIG header.
+     *
+     * \param txVector the TXVECTOR to fill in
+     * \param lSig the L-SIG header
+     */
+    virtual void SetTxVectorFromLSigHeader(WifiTxVector& txVector, const LSigHeader& lSig) const;
+
+    uint16_t m_channelWidth; //!< the channel width used to transmit that PPDU in MHz (needed to
+                             //!< distinguish 5 MHz, 10 MHz or 20 MHz PPDUs)
+};                           // class OfdmPpdu
 
 } // namespace ns3
 

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hemanth Narra, Yufei Cheng
  *
@@ -88,10 +87,10 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void PrintRoutingTable(Ptr<OutputStreamWrapper> stream,
                            Time::Unit unit = Time::S) const override;
     void NotifyInterfaceUp(uint32_t interface) override;
@@ -180,7 +179,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     bool EnableBuffering;
     /// Flag that is used to enable or disable Weighted Settling Time
     bool EnableWST;
-    /// This is the wighted factor to determine the weighted settling time
+    /// This is the weighted factor to determine the weighted settling time
     double m_weightedFactor;
     /// This is a flag to enable route aggregation. Route aggregation will aggregate all routes for
     /// 'RouteAggregationTime' from the time an update is received by a node and sends them as a

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Alexander Krotov
  *
@@ -40,7 +39,6 @@ NS_LOG_COMPONENT_DEFINE("LteSecondaryCellHandoverTest");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test measurement-based handover to secondary cell.
  */
@@ -197,7 +195,6 @@ LteSecondaryCellHandoverTestCase::DoTeardown()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief LTE measurement-based handover to secondary cell test suite.
  */
@@ -214,4 +211,8 @@ LteSecondaryCellHandoverTestSuite::LteSecondaryCellHandoverTestSuite()
     AddTestCase(new LteSecondaryCellHandoverTestCase("Real RRC", false), TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteSecondaryCellHandoverTestSuite g_lteSecondaryCellHandoverTestSuiteInstance;

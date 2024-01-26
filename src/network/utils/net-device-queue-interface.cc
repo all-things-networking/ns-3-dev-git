@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -18,12 +17,12 @@
  * Author: Stefano Avallone <stefano.avallone@.unina.it>
  */
 
-#include "ns3/net-device-queue-interface.h"
+#include "net-device-queue-interface.h"
+
+#include "queue-item.h"
+#include "queue-limits.h"
 
 #include "ns3/abort.h"
-#include "ns3/queue-item.h"
-#include "ns3/queue-limits.h"
-#include "ns3/simulator.h"
 #include "ns3/uinteger.h"
 
 namespace ns3
@@ -90,7 +89,7 @@ NetDeviceQueue::Wake()
     // Request the queue disc to dequeue a packet
     if (wasStoppedByDevice && !m_wakeCallback.IsNull())
     {
-        Simulator::ScheduleNow(&NetDeviceQueue::m_wakeCallback, this);
+        m_wakeCallback();
     }
 }
 
@@ -143,7 +142,7 @@ NetDeviceQueue::NotifyTransmittedBytes(uint32_t bytes)
     // Request the queue disc to dequeue a packet
     if (wasStoppedByQueueLimits && !m_wakeCallback.IsNull())
     {
-        Simulator::ScheduleNow(&NetDeviceQueue::m_wakeCallback, this);
+        m_wakeCallback();
     }
 }
 

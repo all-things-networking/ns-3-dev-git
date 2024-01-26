@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -80,7 +79,7 @@ class TcpCongestionOps : public Object
      *
      * \param tcb internal congestion state
      */
-    virtual void Init([[maybe_unused]] Ptr<TcpSocketState> tcb)
+    virtual void Init(Ptr<TcpSocketState> tcb [[maybe_unused]])
     {
     }
 
@@ -89,7 +88,7 @@ class TcpCongestionOps : public Object
      *
      * Is guaranteed that the congestion control state (\p TcpAckState_t) is
      * changed BEFORE the invocation of this method.
-     * The implementator should return the slow start threshold (and not change
+     * The implementer should return the slow start threshold (and not change
      * it directly) because, in the future, the TCP implementation may require to
      * instantly recover from a loss event (e.g. when there is a network with an high
      * reordering factor).

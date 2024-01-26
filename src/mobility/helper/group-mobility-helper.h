@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2021 University of Washington: Group mobility changes
@@ -182,7 +181,7 @@ class GroupMobilityHelper
     int64_t AssignStreams(NodeContainer c, int64_t stream);
 
   private:
-    // Enable loggin from template instantiations
+    // Enable logging from template instantiations
     NS_LOG_TEMPLATE_DECLARE; //!< the log component
 
     bool m_referencePositionSet{

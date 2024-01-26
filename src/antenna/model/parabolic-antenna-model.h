@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 CTTC
  *
@@ -21,7 +20,8 @@
 #ifndef PARABOLIC_ANTENNA_MODEL_H
 #define PARABOLIC_ANTENNA_MODEL_H
 
-#include <ns3/antenna-model.h>
+#include "antenna-model.h"
+
 #include <ns3/object.h>
 
 namespace ns3

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017
  *
@@ -90,6 +89,12 @@ WifiInformationElementId
 ExtendedCapabilities::ElementId() const
 {
     return IE_EXTENDED_CAPABILITIES;
+}
+
+void
+ExtendedCapabilities::Print(std::ostream& os) const
+{
+    os << "Extended Capabilities=" << +GetExtendedCapabilitiesByte1();
 }
 
 void
@@ -372,13 +377,6 @@ ExtendedCapabilities::DeserializeInformationField(Buffer::Iterator start, uint16
         SetExtendedCapabilitiesByte8(byte8);
     }
     return length;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const ExtendedCapabilities& extendedCapabilities)
-{
-    os << +extendedCapabilities.GetExtendedCapabilitiesByte1();
-    return os;
 }
 
 } // namespace ns3

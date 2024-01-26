@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 University of Washington
  *
@@ -65,4 +64,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(5.0));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

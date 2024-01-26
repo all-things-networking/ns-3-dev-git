@@ -161,10 +161,10 @@ The skeleton test suite will contain the below constructor,
 which declares a new unit test named ``new-module``,
 with a single test case consisting of the class ``NewModuleTestCase1``::
 
-  NewModuleTestSuite::NewModuleTestSuite ()
-    : TestSuite ("new-module", UNIT)
+  NewModuleTestSuite::NewModuleTestSuite()
+    : TestSuite("new-module", UNIT)
   {
-    AddTestCase (new NewModuleTestCase1);
+    AddTestCase(new NewModuleTestCase1);
   }
 
 Step 3 - Declare Source Files
@@ -419,7 +419,7 @@ depend on ``ns3`` configuration variables.  For example,
 
 .. sourcecode:: python
 
-    ("realtime-udp-echo.py", "ENABLE_REAL_TIME == False"),
+    ("brite-generic-example", "ENABLE_BRITE == True", "False"),
 
 
 Step 8 - Configure and Build

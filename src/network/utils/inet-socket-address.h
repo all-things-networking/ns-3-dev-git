@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -117,13 +116,13 @@ class InetSocketAddress
      */
     static InetSocketAddress ConvertFrom(const Address& address);
 
-  private:
     /**
      * \brief Convert to an Address type
      * \return the Address corresponding to this object.
      */
     Address ConvertTo() const;
 
+  private:
     /**
      * \brief Get the underlying address type (automatically assigned).
      *

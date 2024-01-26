@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -83,14 +82,7 @@ LteStatsCalculator::GetDlOutputFilename()
 bool
 LteStatsCalculator::ExistsImsiPath(std::string path)
 {
-    if (m_pathImsiMap.find(path) == m_pathImsiMap.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_pathImsiMap.find(path) != m_pathImsiMap.end();
 }
 
 void
@@ -109,14 +101,7 @@ LteStatsCalculator::GetImsiPath(std::string path)
 bool
 LteStatsCalculator::ExistsCellIdPath(std::string path)
 {
-    if (m_pathCellIdMap.find(path) == m_pathCellIdMap.end())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_pathCellIdMap.find(path) != m_pathCellIdMap.end();
 }
 
 void

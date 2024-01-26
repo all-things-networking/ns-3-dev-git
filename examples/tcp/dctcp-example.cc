@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017-20 NITK Surathkal
  * Copyright (c) 2020 Tom Henderson (better alignment with experiment)
@@ -302,8 +301,6 @@ main(int argc, char* argv[])
     Time startTime = Seconds(0);
     Time stopTime = flowStartupWindow + convergenceTime + measurementWindow;
 
-    Time clientStartTime = startTime;
-
     rxS1R1Bytes.reserve(10);
     rxS2R2Bytes.reserve(20);
     rxS3R1Bytes.reserve(10);
@@ -494,7 +491,7 @@ main(int argc, char* argv[])
         AddressValue remoteAddress(InetSocketAddress(ipR2T2[i].GetAddress(0), port));
         clientHelper1.SetAttribute("Remote", remoteAddress);
         clientApps1.Add(clientHelper1.Install(S2.Get(i)));
-        clientApps1.Start(i * flowStartupWindow / 20 + clientStartTime + MilliSeconds(i * 5));
+        clientApps1.Start(i * flowStartupWindow / 20 + startTime + MilliSeconds(i * 5));
         clientApps1.Stop(stopTime);
     }
 
@@ -535,13 +532,12 @@ main(int argc, char* argv[])
         if (i < 10)
         {
             clientApps1.Add(clientHelper1.Install(S1.Get(i)));
-            clientApps1.Start(i * flowStartupWindow / 10 + clientStartTime + MilliSeconds(i * 5));
+            clientApps1.Start(i * flowStartupWindow / 10 + startTime + MilliSeconds(i * 5));
         }
         else
         {
             clientApps1.Add(clientHelper1.Install(S3.Get(i - 10)));
-            clientApps1.Start((i - 10) * flowStartupWindow / 10 + clientStartTime +
-                              MilliSeconds(i * 5));
+            clientApps1.Start((i - 10) * flowStartupWindow / 10 + startTime + MilliSeconds(i * 5));
         }
 
         clientApps1.Stop(stopTime);

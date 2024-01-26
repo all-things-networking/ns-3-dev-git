@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -19,7 +18,8 @@
 #ifndef IPV4_LIST_ROUTING_H
 #define IPV4_LIST_ROUTING_H
 
-#include "ns3/ipv4-routing-protocol.h"
+#include "ipv4-routing-protocol.h"
+
 #include "ns3/nstime.h"
 #include "ns3/simulator.h"
 
@@ -89,10 +89,10 @@ class Ipv4ListRouting : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;
     void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address) override;

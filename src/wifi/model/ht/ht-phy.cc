@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Orange Labs
  *
@@ -61,7 +60,7 @@ HtPhy::HtPhy(uint8_t maxNss /* = 1 */, bool buildModeList /* = true */)
     m_maxSupportedMcsIndexPerSs = m_maxMcsIndexPerSs;
     if (buildModeList)
     {
-        NS_ABORT_MSG_IF(maxNss == 0 || maxNss > 4,
+        NS_ABORT_MSG_IF(maxNss == 0 || maxNss > HT_MAX_NSS,
                         "Unsupported max Nss " << +maxNss << " for HT PHY");
         BuildModeList();
     }
@@ -147,7 +146,7 @@ HtPhy::GetSigMode(WifiPpduField field, const WifiTxVector& txVector) const
     case WIFI_PPDU_FIELD_HT_SIG:
         return GetHtSigMode();
     default:
-        return PhyEntity::GetSigMode(field, txVector);
+        return OfdmPhy::GetSigMode(field, txVector);
     }
 }
 
@@ -197,7 +196,7 @@ HtPhy::SetMaxSupportedNss(uint8_t maxNss)
 {
     NS_LOG_FUNCTION(this << +maxNss);
     NS_ASSERT(m_bssMembershipSelector == HT_PHY);
-    NS_ABORT_MSG_IF(maxNss == 0 || maxNss > 4, "Unsupported max Nss " << +maxNss << " for HT PHY");
+    maxNss = std::min(HT_MAX_NSS, maxNss);
     if (maxNss != m_maxSupportedNss)
     {
         NS_LOG_LOGIC("Rebuild mode list since max number of spatial streams has changed");
@@ -243,7 +242,7 @@ HtPhy::GetDuration(WifiPpduField field, const WifiTxVector& txVector) const
     case WIFI_PPDU_FIELD_HT_SIG:
         return GetHtSigDuration();
     default:
-        return PhyEntity::GetDuration(field, txVector);
+        return OfdmPhy::GetDuration(field, txVector);
     }
 }
 
@@ -301,7 +300,7 @@ HtPhy::GetPayloadDuration(uint32_t size,
     case FIRST_MPDU_IN_AGGREGATE: {
         // First packet in an A-MPDU
         numSymbols = (stbc * (service + size * 8.0 + 6 * nes) / (stbc * numDataBitsPerSymbol));
-        if (incFlag == 1)
+        if (incFlag)
         {
             totalAmpduSize += size;
             totalAmpduNumSymbols += numSymbols;
@@ -311,7 +310,7 @@ HtPhy::GetPayloadDuration(uint32_t size,
     case MIDDLE_MPDU_IN_AGGREGATE: {
         // consecutive packets in an A-MPDU
         numSymbols = (stbc * size * 8.0) / (stbc * numDataBitsPerSymbol);
-        if (incFlag == 1)
+        if (incFlag)
         {
             totalAmpduSize += size;
             totalAmpduNumSymbols += numSymbols;
@@ -325,7 +324,7 @@ HtPhy::GetPayloadDuration(uint32_t size,
             stbc * ceil((service + totalSize * 8.0 + 6 * nes) / (stbc * numDataBitsPerSymbol)));
         NS_ASSERT(totalAmpduNumSymbols <= numSymbols);
         numSymbols -= totalAmpduNumSymbols;
-        if (incFlag == 1)
+        if (incFlag)
         {
             totalAmpduSize = 0;
             totalAmpduNumSymbols = 0;
@@ -382,10 +381,8 @@ HtPhy::BuildPpdu(const WifiConstPsduMap& psdus, const WifiTxVector& txVector, Ti
     NS_LOG_FUNCTION(this << psdus << txVector << ppduDuration);
     return Create<HtPpdu>(psdus.begin()->second,
                           txVector,
-                          m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-                              txVector.GetChannelWidth()),
+                          m_wifiPhy->GetOperatingChannel(),
                           ppduDuration,
-                          m_wifiPhy->GetPhyBand(),
                           ObtainNextUid(txVector));
 }
 
@@ -410,7 +407,7 @@ PhyEntity::PhyFieldRxStatus
 HtPhy::EndReceiveHtSig(Ptr<Event> event)
 {
     NS_LOG_FUNCTION(this << *event);
-    NS_ASSERT(event->GetTxVector().GetPreambleType() == WIFI_PREAMBLE_HT_MF);
+    NS_ASSERT(event->GetPpdu()->GetTxVector().GetPreambleType() == WIFI_PREAMBLE_HT_MF);
     SnrPer snrPer = GetPhyHeaderSnrPer(WIFI_PPDU_FIELD_HT_SIG, event);
     NS_LOG_DEBUG("HT-SIG: SNR(dB)=" << RatioToDb(snrPer.snr) << ", PER=" << snrPer.per);
     PhyFieldRxStatus status(GetRandomValue() > snrPer.per);
@@ -444,7 +441,7 @@ HtPhy::IsAllConfigSupported(WifiPpduField field, Ptr<const WifiPpdu> ppdu) const
 bool
 HtPhy::IsConfigSupported(Ptr<const WifiPpdu> ppdu) const
 {
-    const WifiTxVector& txVector = ppdu->GetTxVector();
+    const auto& txVector = ppdu->GetTxVector();
     if (txVector.GetNss() > m_wifiPhy->GetMaxSupportedRxSpatialStreams())
     {
         NS_LOG_DEBUG("Packet reception could not be started because not enough RX antennas");
@@ -460,10 +457,9 @@ HtPhy::IsConfigSupported(Ptr<const WifiPpdu> ppdu) const
 }
 
 Ptr<SpectrumValue>
-HtPhy::GetTxPowerSpectralDensity(double txPowerW,
-                                 Ptr<const WifiPpdu> /* ppdu */,
-                                 const WifiTxVector& txVector) const
+HtPhy::GetTxPowerSpectralDensity(double txPowerW, Ptr<const WifiPpdu> ppdu) const
 {
+    const auto& txVector = ppdu->GetTxVector();
     uint16_t centerFrequency = GetCenterFrequencyForChannelWidth(txVector);
     uint16_t channelWidth = txVector.GetChannelWidth();
     NS_LOG_FUNCTION(this << centerFrequency << channelWidth << txPowerW);
@@ -537,11 +533,11 @@ HtPhy::GetHtMcs(uint8_t index)
 }
 
 #define GET_HT_MCS(x)                                                                              \
-    WifiMode HtPhy::GetHtMcs##x(void)                                                              \
+    WifiMode HtPhy::GetHtMcs##x()                                                                  \
     {                                                                                              \
         static WifiMode mcs = CreateHtMcs(x);                                                      \
         return mcs;                                                                                \
-    };
+    }
 
 GET_HT_MCS(0)
 GET_HT_MCS(1)
@@ -828,7 +824,7 @@ HtPhy::GetCcaIndication(const Ptr<const WifiPpdu> ppdu)
     NS_LOG_FUNCTION(this);
     if (m_wifiPhy->GetChannelWidth() < 40)
     {
-        return PhyEntity::GetCcaIndication(ppdu);
+        return OfdmPhy::GetCcaIndication(ppdu);
     }
     double ccaThresholdDbm = GetCcaThreshold(ppdu, WIFI_CHANLIST_PRIMARY);
     Time delayUntilCcaEnd = GetDelayUntilCcaEnd(ccaThresholdDbm, GetPrimaryBand(20));

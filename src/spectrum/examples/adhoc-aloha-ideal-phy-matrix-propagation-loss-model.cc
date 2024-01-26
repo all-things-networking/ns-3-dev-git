@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 CTTC
  *
@@ -22,6 +21,7 @@
 #include <ns3/applications-module.h>
 #include <ns3/core-module.h>
 #include <ns3/friis-spectrum-propagation-loss.h>
+#include <ns3/ism-spectrum-value-helper.h>
 #include <ns3/log.h>
 #include <ns3/mobility-module.h>
 #include <ns3/network-module.h>
@@ -32,7 +32,6 @@
 #include <ns3/spectrum-model-300kHz-300GHz-log.h>
 #include <ns3/spectrum-model-ism2400MHz-res1MHz.h>
 #include <ns3/waveform-generator.h>
-#include <ns3/wifi-spectrum-value-helper.h>
 
 #include <iomanip>
 #include <iostream>
@@ -111,14 +110,9 @@ GlobalPathlossDatabase::UpdatePathloss(std::string context,
 void
 GlobalPathlossDatabase::Print()
 {
-    for (std::map<uint32_t, std::map<uint32_t, double>>::const_iterator txit =
-             m_pathlossMap.begin();
-         txit != m_pathlossMap.end();
-         ++txit)
+    for (auto txit = m_pathlossMap.begin(); txit != m_pathlossMap.end(); ++txit)
     {
-        for (std::map<uint32_t, double>::const_iterator rxit = txit->second.begin();
-             rxit != txit->second.end();
-             ++rxit)
+        for (auto rxit = txit->second.begin(); rxit != txit->second.end(); ++rxit)
         {
             std::cout << txit->first << " --> " << rxit->first << " : " << rxit->second << " dB"
                       << std::endl;
@@ -164,7 +158,7 @@ main(int argc, char** argv)
     channelHelper.AddPropagationLoss(propLoss);
     Ptr<SpectrumChannel> channel = channelHelper.Create();
 
-    WifiSpectrumValue5MhzFactory sf;
+    SpectrumValue5MhzFactory sf;
 
     uint32_t channelNumber = 1;
     Ptr<SpectrumValue> txPsd = sf.CreateTxPowerSpectralDensity(txPowerW, channelNumber);

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA
  *
@@ -60,7 +59,7 @@ RawTextConfigSave::SetFilename(std::string filename)
 {
     NS_LOG_FUNCTION(this << filename);
     m_os = new std::ofstream();
-    m_os->open(filename.c_str(), std::ios::out);
+    m_os->open(filename, std::ios::out);
 }
 
 void
@@ -94,7 +93,7 @@ RawTextConfigSave::Default()
             ns3::TypeId::SupportLevel supportLevel = TypeId::SupportLevel::SUPPORTED;
             for (std::size_t i = 0; i < tid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation tmp = tid.GetAttribute(i);
+                TypeId::AttributeInformation tmp = tid.GetAttribute(i);
                 if (tmp.name == name)
                 {
                     supportLevel = tmp.supportLevel;
@@ -106,8 +105,7 @@ RawTextConfigSave::Default()
                 NS_LOG_WARN("Global attribute " << m_typeId << "::" << name
                                                 << " was not saved because it is OBSOLETE");
             }
-            else if ((supportLevel == TypeId::SupportLevel::DEPRECATED) &&
-                     (m_saveDeprecated == false))
+            else if (supportLevel == TypeId::SupportLevel::DEPRECATED && !m_saveDeprecated)
             {
                 NS_LOG_WARN("Global attribute " << m_typeId << "::" << name
                                                 << " was not saved because it is DEPRECATED");
@@ -133,7 +131,7 @@ void
 RawTextConfigSave::Global()
 {
     NS_LOG_FUNCTION(this);
-    for (GlobalValue::Iterator i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
+    for (auto i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
     {
         StringValue value;
         (*i)->GetValue(value);
@@ -170,7 +168,7 @@ RawTextConfigSave::Attributes()
 
             for (std::size_t i = 0; i < tid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation tmp = tid.GetAttribute(i);
+                TypeId::AttributeInformation tmp = tid.GetAttribute(i);
                 if (tmp.name == name)
                 {
                     supportLevel = tmp.supportLevel;
@@ -182,8 +180,7 @@ RawTextConfigSave::Attributes()
                 NS_LOG_WARN("Attribute " << GetCurrentPath()
                                          << " was not saved because it is OBSOLETE");
             }
-            else if ((supportLevel == TypeId::SupportLevel::DEPRECATED) &&
-                     (m_saveDeprecated == false))
+            else if (supportLevel == TypeId::SupportLevel::DEPRECATED && !m_saveDeprecated)
             {
                 NS_LOG_WARN("Attribute " << GetCurrentPath()
                                          << " was not saved because it is DEPRECATED");
@@ -227,7 +224,7 @@ RawTextConfigLoad::SetFilename(std::string filename)
 {
     NS_LOG_FUNCTION(this << filename);
     m_is = new std::ifstream();
-    m_is->open(filename.c_str(), std::ios::in);
+    m_is->open(filename, std::ios::in);
 }
 
 std::string

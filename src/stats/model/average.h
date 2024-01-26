@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -21,7 +20,8 @@
 
 #ifndef AVERAGE_H
 #define AVERAGE_H
-#include "ns3/basic-data-calculators.h"
+
+#include "basic-data-calculators.h"
 
 #include <cmath>
 #include <limits>
@@ -201,7 +201,7 @@ class Average
  * Print avg (err) [min, max]
  * \param os The output stream
  * \param x The Average value to print
- * \return the ouput stream.
+ * \return the output stream.
  */
 template <typename T>
 std::ostream&

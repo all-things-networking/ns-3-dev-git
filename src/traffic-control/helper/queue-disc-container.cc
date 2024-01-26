@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
  *
@@ -59,7 +58,7 @@ QueueDiscContainer::Get(std::size_t i) const
 void
 QueueDiscContainer::Add(QueueDiscContainer other)
 {
-    for (ConstIterator i = other.Begin(); i != other.End(); i++)
+    for (auto i = other.Begin(); i != other.End(); i++)
     {
         m_queueDiscs.push_back(*i);
     }

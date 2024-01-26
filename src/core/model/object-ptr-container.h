@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA, Mathieu Lacage
  *
@@ -209,8 +208,8 @@ class ObjectPtrContainerChecker : public ns3::ObjectPtrContainerChecker
 
     bool Copy(const AttributeValue& source, AttributeValue& destination) const override
     {
-        const ObjectPtrContainerValue* src = dynamic_cast<const ObjectPtrContainerValue*>(&source);
-        ObjectPtrContainerValue* dst = dynamic_cast<ObjectPtrContainerValue*>(&destination);
+        const auto src = dynamic_cast<const ObjectPtrContainerValue*>(&source);
+        auto dst = dynamic_cast<ObjectPtrContainerValue*>(&destination);
         if (src == nullptr || dst == nullptr)
         {
             return false;

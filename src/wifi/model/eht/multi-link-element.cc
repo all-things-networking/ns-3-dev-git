@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 Universita' degli Studi di Napoli Federico II
  *
@@ -50,8 +49,6 @@ CommonInfoBasicMle::GetSize() const
     ret += (m_linkIdInfo.has_value() ? 1 : 0);
     ret += (m_bssParamsChangeCount.has_value() ? 1 : 0);
     ret += (m_mediumSyncDelayInfo.has_value() ? 2 : 0);
-    // NOTE Fig. 9-1002h of 802.11be D1.5 reports that the size of the EML Capabilities
-    // subfield is 3 octets, but this is likely a typo (the correct size is 2 octets)
     ret += (m_emlCapabilities.has_value() ? 2 : 0);
     ret += (m_mldCapabilities.has_value() ? 2 : 0);
     return ret;
@@ -156,17 +153,156 @@ CommonInfoBasicMle::Deserialize(Buffer::Iterator start, uint16_t presence)
     return count;
 }
 
+uint8_t
+CommonInfoBasicMle::EncodeEmlsrPaddingDelay(Time delay)
+{
+    auto delayUs = delay.GetMicroSeconds();
+
+    if (delayUs == 0)
+    {
+        return 0;
+    }
+
+    for (uint8_t i = 1; i <= 4; i++)
+    {
+        if (1 << (i + 4) == delayUs)
+        {
+            return i;
+        }
+    }
+
+    NS_ABORT_MSG("Value not allowed (" << delay.As(Time::US) << ")");
+    return 0;
+}
+
+Time
+CommonInfoBasicMle::DecodeEmlsrPaddingDelay(uint8_t value)
+{
+    NS_ABORT_MSG_IF(value > 4, "Value not allowed (" << +value << ")");
+    if (value == 0)
+    {
+        return MicroSeconds(0);
+    }
+    return MicroSeconds(1 << (4 + value));
+}
+
+uint8_t
+CommonInfoBasicMle::EncodeEmlsrTransitionDelay(Time delay)
+{
+    auto delayUs = delay.GetMicroSeconds();
+
+    if (delayUs == 0)
+    {
+        return 0;
+    }
+
+    for (uint8_t i = 1; i <= 5; i++)
+    {
+        if (1 << (i + 3) == delayUs)
+        {
+            return i;
+        }
+    }
+
+    NS_ABORT_MSG("Value not allowed (" << delay.As(Time::US) << ")");
+    return 0;
+}
+
+Time
+CommonInfoBasicMle::DecodeEmlsrTransitionDelay(uint8_t value)
+{
+    NS_ABORT_MSG_IF(value > 5, "Value not allowed (" << +value << ")");
+    if (value == 0)
+    {
+        return MicroSeconds(0);
+    }
+    return MicroSeconds(1 << (3 + value));
+}
+
+void
+CommonInfoBasicMle::SetMediumSyncDelayTimer(Time delay)
+{
+    int64_t delayUs = delay.GetMicroSeconds();
+    NS_ABORT_MSG_IF(delayUs % 32 != 0, "Delay must be a multiple of 32 microseconds");
+    delayUs /= 32;
+
+    if (!m_mediumSyncDelayInfo.has_value())
+    {
+        m_mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+    }
+    m_mediumSyncDelayInfo->mediumSyncDuration = (delayUs & 0xff);
+}
+
+Time
+CommonInfoBasicMle::GetMediumSyncDelayTimer() const
+{
+    NS_ASSERT(m_mediumSyncDelayInfo);
+    return MicroSeconds(m_mediumSyncDelayInfo->mediumSyncDuration * 32);
+}
+
+void
+CommonInfoBasicMle::SetMediumSyncOfdmEdThreshold(int8_t threshold)
+{
+    NS_ABORT_MSG_IF(threshold < -72 || threshold > -62, "Threshold may range from -72 to -62 dBm");
+    uint8_t value = 72 + threshold;
+
+    if (!m_mediumSyncDelayInfo.has_value())
+    {
+        m_mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+    }
+    m_mediumSyncDelayInfo->mediumSyncOfdmEdThreshold = value;
+}
+
+int8_t
+CommonInfoBasicMle::GetMediumSyncOfdmEdThreshold() const
+{
+    NS_ASSERT(m_mediumSyncDelayInfo);
+    return (m_mediumSyncDelayInfo->mediumSyncOfdmEdThreshold) - 72;
+}
+
+void
+CommonInfoBasicMle::SetMediumSyncMaxNTxops(uint8_t nTxops)
+{
+    NS_ASSERT_MSG(nTxops < 16, "Value " << +nTxops << "cannot be encoded in 4 bits");
+
+    if (!m_mediumSyncDelayInfo.has_value())
+    {
+        m_mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+    }
+
+    if (nTxops == 0)
+    {
+        // no limit on max number of TXOPs
+        m_mediumSyncDelayInfo->mediumSyncMaxNTxops = 15;
+        return;
+    }
+
+    m_mediumSyncDelayInfo->mediumSyncMaxNTxops = --nTxops;
+}
+
+std::optional<uint8_t>
+CommonInfoBasicMle::GetMediumSyncMaxNTxops() const
+{
+    NS_ASSERT(m_mediumSyncDelayInfo);
+    uint8_t nTxops = m_mediumSyncDelayInfo->mediumSyncMaxNTxops;
+    if (nTxops == 15)
+    {
+        return std::nullopt;
+    }
+    return nTxops + 1;
+}
+
 /**
  * MultiLinkElement
  */
-MultiLinkElement::MultiLinkElement(WifiMacType frameType)
-    : m_frameType(frameType),
+MultiLinkElement::MultiLinkElement(ContainingFrame frame)
+    : m_containingFrame(frame),
       m_commonInfo(std::in_place_type<std::monostate>) // initialize as UNSET
 {
 }
 
-MultiLinkElement::MultiLinkElement(Variant variant, WifiMacType frameType)
-    : MultiLinkElement(frameType)
+MultiLinkElement::MultiLinkElement(Variant variant, ContainingFrame frame)
+    : MultiLinkElement(frame)
 {
     NS_ASSERT(variant != UNSET);
     SetVariant(variant);
@@ -204,6 +340,18 @@ MultiLinkElement::SetVariant(Variant variant)
     default:
         NS_ABORT_MSG("Unsupported variant: " << +variant);
     }
+}
+
+CommonInfoBasicMle&
+MultiLinkElement::GetCommonInfoBasic()
+{
+    return std::get<BASIC_VARIANT>(m_commonInfo);
+}
+
+const CommonInfoBasicMle&
+MultiLinkElement::GetCommonInfoBasic() const
+{
+    return std::get<BASIC_VARIANT>(m_commonInfo);
 }
 
 void
@@ -255,84 +403,109 @@ MultiLinkElement::GetBssParamsChangeCount() const
 }
 
 void
-MultiLinkElement::SetMediumSyncDelayTimer(Time delay)
+MultiLinkElement::SetEmlsrSupported(bool supported)
 {
-    int64_t delayUs = delay.GetMicroSeconds();
-    NS_ABORT_MSG_IF(delayUs % 32 != 0, "Delay must be a multiple of 32 microseconds");
-    delayUs /= 32;
-
-    auto& mediumSyncDelayInfo = std::get<BASIC_VARIANT>(m_commonInfo).m_mediumSyncDelayInfo;
-    if (!mediumSyncDelayInfo.has_value())
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    if (!emlCapabilities.has_value())
     {
-        mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+        emlCapabilities = CommonInfoBasicMle::EmlCapabilities{};
     }
-    mediumSyncDelayInfo.value().mediumSyncDuration = (delayUs & 0xff);
-}
-
-Time
-MultiLinkElement::GetMediumSyncDelayTimer() const
-{
-    return MicroSeconds(
-        (std::get<BASIC_VARIANT>(m_commonInfo).m_mediumSyncDelayInfo.value().mediumSyncDuration) *
-        32);
+    emlCapabilities->emlsrSupport = supported ? 1 : 0;
 }
 
 void
-MultiLinkElement::SetMediumSyncOfdmEdThreshold(int8_t threshold)
+MultiLinkElement::SetEmlsrPaddingDelay(Time delay)
 {
-    NS_ABORT_MSG_IF(threshold < -72 || threshold > -62, "Threshold may range from -72 to -62 dBm");
-    uint8_t value = 72 + threshold;
-
-    auto& mediumSyncDelayInfo = std::get<BASIC_VARIANT>(m_commonInfo).m_mediumSyncDelayInfo;
-    if (!mediumSyncDelayInfo.has_value())
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    if (!emlCapabilities.has_value())
     {
-        mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+        emlCapabilities = CommonInfoBasicMle::EmlCapabilities{};
     }
-    mediumSyncDelayInfo.value().mediumSyncOfdmEdThreshold = value;
-}
-
-int8_t
-MultiLinkElement::GetMediumSyncOfdmEdThreshold() const
-{
-    return (std::get<BASIC_VARIANT>(m_commonInfo)
-                .m_mediumSyncDelayInfo.value()
-                .mediumSyncOfdmEdThreshold) -
-           72;
+    emlCapabilities->emlsrPaddingDelay = CommonInfoBasicMle::EncodeEmlsrPaddingDelay(delay);
 }
 
 void
-MultiLinkElement::SetMediumSyncMaxNTxops(uint8_t nTxops)
+MultiLinkElement::SetEmlsrTransitionDelay(Time delay)
 {
-    NS_ASSERT(nTxops > 0);
-    nTxops--;
-
-    auto& mediumSyncDelayInfo = std::get<BASIC_VARIANT>(m_commonInfo).m_mediumSyncDelayInfo;
-    if (!mediumSyncDelayInfo.has_value())
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    if (!emlCapabilities.has_value())
     {
-        mediumSyncDelayInfo = CommonInfoBasicMle::MediumSyncDelayInfo{};
+        emlCapabilities = CommonInfoBasicMle::EmlCapabilities{};
     }
-    mediumSyncDelayInfo.value().mediumSyncMaxNTxops = (nTxops & 0x0f);
+    emlCapabilities->emlsrTransitionDelay = CommonInfoBasicMle::EncodeEmlsrTransitionDelay(delay);
 }
 
-uint8_t
-MultiLinkElement::GetMediumSyncMaxNTxops() const
+void
+MultiLinkElement::SetTransitionTimeout(Time timeout)
 {
-    return (std::get<BASIC_VARIANT>(m_commonInfo)
-                .m_mediumSyncDelayInfo.value()
-                .mediumSyncMaxNTxops) +
-           1;
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    if (!emlCapabilities.has_value())
+    {
+        emlCapabilities = CommonInfoBasicMle::EmlCapabilities{};
+    }
+    auto timeoutUs = timeout.GetMicroSeconds();
+
+    if (timeoutUs == 0)
+    {
+        emlCapabilities->transitionTimeout = 0;
+    }
+    else
+    {
+        uint8_t i;
+        for (i = 1; i <= 10; i++)
+        {
+            if (1 << (i + 6) == timeoutUs)
+            {
+                emlCapabilities->transitionTimeout = i;
+                break;
+            }
+        }
+        NS_ABORT_MSG_IF(i > 10, "Value not allowed (" << timeout.As(Time::US) << ")");
+    }
 }
 
 bool
-MultiLinkElement::HasMediumSyncDelayInfo() const
+MultiLinkElement::HasEmlCapabilities() const
 {
-    return std::get<BASIC_VARIANT>(m_commonInfo).m_mediumSyncDelayInfo.has_value();
+    return std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities.has_value();
 }
 
-MultiLinkElement::PerStaProfileSubelement::PerStaProfileSubelement(Variant variant,
-                                                                   WifiMacType frameType)
+bool
+MultiLinkElement::IsEmlsrSupported() const
+{
+    return std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities->emlsrSupport;
+}
+
+Time
+MultiLinkElement::GetEmlsrPaddingDelay() const
+{
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    NS_ASSERT(emlCapabilities);
+    return CommonInfoBasicMle::DecodeEmlsrPaddingDelay(emlCapabilities->emlsrPaddingDelay);
+}
+
+Time
+MultiLinkElement::GetEmlsrTransitionDelay() const
+{
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    NS_ASSERT(emlCapabilities);
+    return CommonInfoBasicMle::DecodeEmlsrTransitionDelay(emlCapabilities->emlsrTransitionDelay);
+}
+
+Time
+MultiLinkElement::GetTransitionTimeout() const
+{
+    auto& emlCapabilities = std::get<BASIC_VARIANT>(m_commonInfo).m_emlCapabilities;
+    NS_ASSERT(emlCapabilities);
+    if (emlCapabilities->transitionTimeout == 0)
+    {
+        return MicroSeconds(0);
+    }
+    return MicroSeconds(1 << (6 + emlCapabilities->transitionTimeout));
+}
+
+MultiLinkElement::PerStaProfileSubelement::PerStaProfileSubelement(Variant variant)
     : m_variant(variant),
-      m_frameType(frameType),
       m_staControl(0)
 {
 }
@@ -340,26 +513,23 @@ MultiLinkElement::PerStaProfileSubelement::PerStaProfileSubelement(Variant varia
 MultiLinkElement::PerStaProfileSubelement::PerStaProfileSubelement(
     const PerStaProfileSubelement& perStaProfile)
     : m_variant(perStaProfile.m_variant),
-      m_frameType(perStaProfile.m_frameType),
       m_staControl(perStaProfile.m_staControl),
       m_staMacAddress(perStaProfile.m_staMacAddress)
 {
     // deep copy of the STA Profile field
-    if (perStaProfile.HasAssocRequest())
-    {
-        m_staProfile = std::make_unique<MgtAssocRequestHeader>(
-            *static_cast<MgtAssocRequestHeader*>(perStaProfile.m_staProfile.get()));
-    }
-    else if (perStaProfile.HasReassocRequest())
-    {
-        m_staProfile = std::make_unique<MgtReassocRequestHeader>(
-            *static_cast<MgtReassocRequestHeader*>(perStaProfile.m_staProfile.get()));
-    }
-    else if (perStaProfile.HasAssocResponse())
-    {
-        m_staProfile = std::make_unique<MgtAssocResponseHeader>(
-            *static_cast<MgtAssocResponseHeader*>(perStaProfile.m_staProfile.get()));
-    }
+    auto staProfileCopy = [&](auto&& frame) {
+        using Ptr = std::decay_t<decltype(frame)>;
+        if constexpr (std::is_same_v<Ptr, std::monostate>)
+        {
+            return;
+        }
+        else
+        {
+            using T = std::decay_t<decltype(*frame.get())>;
+            m_staProfile = std::make_unique<T>(*frame.get());
+        }
+    };
+    std::visit(staProfileCopy, perStaProfile.m_staProfile);
 }
 
 MultiLinkElement::PerStaProfileSubelement&
@@ -372,26 +542,23 @@ MultiLinkElement::PerStaProfileSubelement::operator=(const PerStaProfileSubeleme
     }
 
     m_variant = perStaProfile.m_variant;
-    m_frameType = perStaProfile.m_frameType;
     m_staControl = perStaProfile.m_staControl;
     m_staMacAddress = perStaProfile.m_staMacAddress;
 
     // deep copy of the STA Profile field
-    if (perStaProfile.HasAssocRequest())
-    {
-        m_staProfile = std::make_unique<MgtAssocRequestHeader>(
-            *static_cast<MgtAssocRequestHeader*>(perStaProfile.m_staProfile.get()));
-    }
-    else if (perStaProfile.HasReassocRequest())
-    {
-        m_staProfile = std::make_unique<MgtReassocRequestHeader>(
-            *static_cast<MgtReassocRequestHeader*>(perStaProfile.m_staProfile.get()));
-    }
-    else if (perStaProfile.HasAssocResponse())
-    {
-        m_staProfile = std::make_unique<MgtAssocResponseHeader>(
-            *static_cast<MgtAssocResponseHeader*>(perStaProfile.m_staProfile.get()));
-    }
+    auto staProfileCopy = [&](auto&& frame) {
+        using Ptr = std::decay_t<decltype(frame)>;
+        if constexpr (std::is_same_v<Ptr, std::monostate>)
+        {
+            return;
+        }
+        else
+        {
+            using T = std::decay_t<decltype(*frame.get())>;
+            m_staProfile = std::make_unique<T>(*frame.get());
+        }
+    };
+    std::visit(staProfileCopy, perStaProfile.m_staProfile);
 
     return *this;
 }
@@ -446,50 +613,35 @@ void
 MultiLinkElement::PerStaProfileSubelement::SetAssocRequest(
     const std::variant<MgtAssocRequestHeader, MgtReassocRequestHeader>& assoc)
 {
-    switch (m_frameType)
-    {
-    case WIFI_MAC_MGT_ASSOCIATION_REQUEST:
-        m_staProfile =
-            std::make_unique<MgtAssocRequestHeader>(std::get<MgtAssocRequestHeader>(assoc));
-        break;
-    case WIFI_MAC_MGT_REASSOCIATION_REQUEST:
-        m_staProfile =
-            std::make_unique<MgtReassocRequestHeader>(std::get<MgtReassocRequestHeader>(assoc));
-        break;
-    default:
-        NS_ABORT_MSG("Invalid frame type: " << m_frameType);
-    }
+    std::visit(
+        [&](auto&& frame) {
+            m_staProfile = std::make_unique<std::decay_t<decltype(frame)>>(frame);
+        },
+        assoc);
 }
 
 void
 MultiLinkElement::PerStaProfileSubelement::SetAssocRequest(
     std::variant<MgtAssocRequestHeader, MgtReassocRequestHeader>&& assoc)
 {
-    switch (m_frameType)
-    {
-    case WIFI_MAC_MGT_ASSOCIATION_REQUEST:
-        m_staProfile = std::make_unique<MgtAssocRequestHeader>(
-            std::move(std::get<MgtAssocRequestHeader>(assoc)));
-        break;
-    case WIFI_MAC_MGT_REASSOCIATION_REQUEST:
-        m_staProfile = std::make_unique<MgtReassocRequestHeader>(
-            std::move(std::get<MgtReassocRequestHeader>(assoc)));
-        break;
-    default:
-        NS_ABORT_MSG("Invalid frame type: " << m_frameType);
-    }
+    std::visit(
+        [&](auto&& frame) {
+            using T = std::decay_t<decltype(frame)>;
+            m_staProfile = std::make_unique<T>(std::forward<T>(frame));
+        },
+        assoc);
 }
 
 bool
 MultiLinkElement::PerStaProfileSubelement::HasAssocRequest() const
 {
-    return m_staProfile && m_frameType == WIFI_MAC_MGT_ASSOCIATION_REQUEST;
+    return std::holds_alternative<std::unique_ptr<MgtAssocRequestHeader>>(m_staProfile);
 }
 
 bool
 MultiLinkElement::PerStaProfileSubelement::HasReassocRequest() const
 {
-    return m_staProfile && m_frameType == WIFI_MAC_MGT_REASSOCIATION_REQUEST;
+    return std::holds_alternative<std::unique_ptr<MgtReassocRequestHeader>>(m_staProfile);
 }
 
 AssocReqRefVariant
@@ -497,40 +649,35 @@ MultiLinkElement::PerStaProfileSubelement::GetAssocRequest() const
 {
     if (HasAssocRequest())
     {
-        return *static_cast<MgtAssocRequestHeader*>(m_staProfile.get());
+        return *std::get<std::unique_ptr<MgtAssocRequestHeader>>(m_staProfile);
     }
     NS_ABORT_UNLESS(HasReassocRequest());
-    return *static_cast<MgtReassocRequestHeader*>(m_staProfile.get());
+    return *std::get<std::unique_ptr<MgtReassocRequestHeader>>(m_staProfile);
 }
 
 void
 MultiLinkElement::PerStaProfileSubelement::SetAssocResponse(const MgtAssocResponseHeader& assoc)
 {
-    NS_ABORT_IF(m_frameType != WIFI_MAC_MGT_ASSOCIATION_RESPONSE &&
-                m_frameType != WIFI_MAC_MGT_REASSOCIATION_RESPONSE);
     m_staProfile = std::make_unique<MgtAssocResponseHeader>(assoc);
 }
 
 void
 MultiLinkElement::PerStaProfileSubelement::SetAssocResponse(MgtAssocResponseHeader&& assoc)
 {
-    NS_ABORT_IF(m_frameType != WIFI_MAC_MGT_ASSOCIATION_RESPONSE &&
-                m_frameType != WIFI_MAC_MGT_REASSOCIATION_RESPONSE);
     m_staProfile = std::make_unique<MgtAssocResponseHeader>(std::move(assoc));
 }
 
 bool
 MultiLinkElement::PerStaProfileSubelement::HasAssocResponse() const
 {
-    return m_staProfile && (m_frameType == WIFI_MAC_MGT_ASSOCIATION_RESPONSE ||
-                            m_frameType == WIFI_MAC_MGT_REASSOCIATION_RESPONSE);
+    return std::holds_alternative<std::unique_ptr<MgtAssocResponseHeader>>(m_staProfile);
 }
 
 MgtAssocResponseHeader&
 MultiLinkElement::PerStaProfileSubelement::GetAssocResponse() const
 {
     NS_ABORT_IF(!HasAssocResponse());
-    return *static_cast<MgtAssocResponseHeader*>(m_staProfile.get());
+    return *std::get<std::unique_ptr<MgtAssocResponseHeader>>(m_staProfile);
 }
 
 uint8_t
@@ -559,10 +706,25 @@ MultiLinkElement::PerStaProfileSubelement::GetInformationFieldSize() const
 
     ret += GetStaInfoLength();
 
-    if (HasAssocRequest() || HasReassocRequest() || HasAssocResponse())
-    {
-        ret += m_staProfile->GetSerializedSize();
-    }
+    auto staProfileSize = [&](auto&& frame) {
+        using T = std::decay_t<decltype(frame)>;
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+            NS_ASSERT_MSG(std::holds_alternative<std::monostate>(m_containingFrame),
+                          "Missing management frame for Per-STA Profile subelement");
+            return static_cast<uint32_t>(0);
+        }
+        else
+        {
+            using U = std::decay_t<decltype(*frame)>;
+            NS_ASSERT_MSG(
+                std::holds_alternative<std::reference_wrapper<const U>>(m_containingFrame),
+                "Containing frame type and frame type in Per-STA Profile do not match");
+            const auto& containing = std::get<std::reference_wrapper<const U>>(m_containingFrame);
+            return frame->GetSerializedSizeInPerStaProfile(containing);
+        }
+    };
+    ret += std::visit(staProfileSize, m_staProfile);
 
     return ret;
 }
@@ -578,10 +740,25 @@ MultiLinkElement::PerStaProfileSubelement::SerializeInformationField(Buffer::Ite
         WriteTo(start, m_staMacAddress);
     }
     // TODO add other subfields of the STA Info field
-    if (HasAssocRequest() || HasReassocRequest() || HasAssocResponse())
-    {
-        m_staProfile->Serialize(start);
-    }
+    auto staProfileSerialize = [&](auto&& frame) {
+        using T = std::decay_t<decltype(frame)>;
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+            NS_ASSERT_MSG(std::holds_alternative<std::monostate>(m_containingFrame),
+                          "Missing management frame for Per-STA Profile subelement");
+            return;
+        }
+        else
+        {
+            using U = std::decay_t<decltype(*frame)>;
+            NS_ASSERT_MSG(
+                std::holds_alternative<std::reference_wrapper<const U>>(m_containingFrame),
+                "Containing frame type and frame type in Per-STA Profile do not match");
+            const auto& containing = std::get<std::reference_wrapper<const U>>(m_containingFrame);
+            frame->SerializeInPerStaProfile(start, containing);
+        }
+    };
+    std::visit(staProfileSerialize, m_staProfile);
 }
 
 uint16_t
@@ -589,46 +766,37 @@ MultiLinkElement::PerStaProfileSubelement::DeserializeInformationField(Buffer::I
                                                                        uint16_t length)
 {
     Buffer::Iterator i = start;
-    uint16_t count = 0;
 
     m_staControl = i.ReadLsbtohU16();
-    count += 2;
-
     i.ReadU8(); // STA Info Length
-    count++;
 
     if (HasStaMacAddress())
     {
         ReadFrom(i, m_staMacAddress);
-        count += 6;
     }
 
     // TODO add other subfields of the STA Info field
+    uint16_t count = i.GetDistanceFrom(start);
 
-    if (count >= length)
+    NS_ASSERT_MSG(count <= length,
+                  "Bytes read (" << count << ") exceed expected number (" << length << ")");
+
+    if (count == length)
     {
         return count;
     }
 
-    if (m_frameType == WIFI_MAC_MGT_ASSOCIATION_REQUEST)
-    {
-        MgtAssocRequestHeader assoc;
-        count += assoc.Deserialize(i);
-        SetAssocRequest(std::move(assoc));
-    }
-    else if (m_frameType == WIFI_MAC_MGT_REASSOCIATION_REQUEST)
-    {
-        MgtReassocRequestHeader reassoc;
-        count += reassoc.Deserialize(i);
-        SetAssocRequest(std::move(reassoc));
-    }
-    else if (m_frameType == WIFI_MAC_MGT_ASSOCIATION_RESPONSE ||
-             m_frameType == WIFI_MAC_MGT_REASSOCIATION_RESPONSE)
-    {
-        MgtAssocResponseHeader assoc;
-        count += assoc.Deserialize(i);
-        SetAssocResponse(assoc);
-    }
+    auto staProfileDeserialize = [&](auto&& frame) {
+        using T = std::decay_t<decltype(frame)>;
+        if constexpr (!std::is_same_v<T, std::monostate>)
+        {
+            using U = std::decay_t<decltype(frame.get())>;
+            U assoc;
+            count += assoc.DeserializeFromPerStaProfile(i, length - count, frame.get());
+            m_staProfile = std::make_unique<U>(std::move(assoc));
+        }
+    };
+    std::visit(staProfileDeserialize, m_containingFrame);
 
     return count;
 }
@@ -638,8 +806,7 @@ MultiLinkElement::AddPerStaProfileSubelement()
 {
     auto variant = GetVariant();
     NS_ABORT_IF(variant == UNSET);
-    NS_ABORT_IF(m_frameType == WIFI_MAC_DATA);
-    m_perStaProfileSubelements.emplace_back(variant, m_frameType);
+    m_perStaProfileSubelements.emplace_back(variant);
 }
 
 std::size_t
@@ -683,6 +850,7 @@ MultiLinkElement::GetInformationFieldSize() const
 
     for (const auto& subelement : m_perStaProfileSubelements)
     {
+        subelement.m_containingFrame = m_containingFrame;
         ret += subelement.GetSerializedSize();
     }
 
@@ -749,11 +917,14 @@ MultiLinkElement::DeserializeInformationField(Buffer::Iterator start, uint16_t l
     {
         switch (static_cast<SubElementId>(i.PeekU8()))
         {
-        case PER_STA_PROFILE_SUBELEMENT_ID:
+        case PER_STA_PROFILE_SUBELEMENT_ID: {
             AddPerStaProfileSubelement();
-            i = GetPerStaProfile(GetNPerStaProfileSubelements() - 1).Deserialize(i);
+            auto& perStaProfile = GetPerStaProfile(GetNPerStaProfileSubelements() - 1);
+            perStaProfile.m_containingFrame = m_containingFrame;
+            i = perStaProfile.Deserialize(i);
             count = i.GetDistanceFrom(start);
-            break;
+        }
+        break;
         default:
             NS_ABORT_MSG("Unsupported Subelement ID: " << +i.PeekU8());
         }

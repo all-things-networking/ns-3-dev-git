@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006,2007 INRIA
  *
@@ -62,7 +61,7 @@ main(int argc, char* argv[])
     mobility.Install(nodes);
 
     // iterate our nodes and print their position.
-    for (NodeContainer::Iterator j = nodes.Begin(); j != nodes.End(); ++j)
+    for (auto j = nodes.Begin(); j != nodes.End(); ++j)
     {
         Ptr<Node> object = *j;
         Ptr<MobilityModel> position = object->GetObject<MobilityModel>();

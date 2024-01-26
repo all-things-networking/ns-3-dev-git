@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -62,7 +61,7 @@
  * \brief Performance System Tests
  *
  * Note: these tests are (for real) scripts to be run.
- * The ouput is the time (in nanoseconds) that the test
+ * The output is the time (in nanoseconds) that the test
  * required to perform the requested write operations.
  */
 

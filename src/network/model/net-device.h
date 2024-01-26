@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -349,7 +348,7 @@ class NetDevice : public Object
                      uint16_t,
                      const Address&,
                      const Address&,
-                     enum PacketType>
+                     PacketType>
         PromiscReceiveCallback;
 
     /**

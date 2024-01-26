@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -230,13 +229,13 @@ class Ptr
      * \note Explicit tests against `0`, `NULL` or `nullptr` are not supported.
      * All these cases will fail to compile:
      * \code
-     *   if (p != 0)      {...}    // Should be `if (p)`
+     *   if (p != nullptr {...}    // Should be `if (p)`
      *   if (p != NULL)   {...}
-     *   if (p != nullptr {...}
+     *   if (p != 0)      {...}
      *
-     *   if (p == 0)      {...}    // Should be `if (!p)`
+     *   if (p == nullptr {...}    // Should be `if (!p)`
      *   if (p == NULL)   {...}
-     *   if (p == nullptr {...}
+     *   if (p == 0)      {...}
      * \endcode
      * Just use `if (p)` or `if (!p)` as indicated.
      *
@@ -333,9 +332,7 @@ bool operator==(const Ptr<T1>& lhs, const Ptr<T2>& rhs);
  * \copydoc operator==(Ptr<T1>const&,Ptr<T2>const&)
  */
 template <typename T1, typename T2>
-typename std::enable_if<std::is_same<T2, std::nullptr_t>::value, bool>::type operator==(
-    const Ptr<T1>& lhs,
-    T2 rhs);
+std::enable_if_t<std::is_same_v<T2, std::nullptr_t>, bool> operator==(const Ptr<T1>& lhs, T2 rhs);
 
 /**
  * \ingroup ptr
@@ -374,9 +371,7 @@ bool operator!=(const Ptr<T1>& lhs, const Ptr<T2>& rhs);
  * \copydoc operator==(Ptr<T1>const&,Ptr<T2>const&)
  */
 template <typename T1, typename T2>
-typename std::enable_if<std::is_same<T2, std::nullptr_t>::value, bool>::type operator!=(
-    const Ptr<T1>& lhs,
-    T2 rhs);
+std::enable_if_t<std::is_same_v<T2, std::nullptr_t>, bool> operator!=(const Ptr<T1>& lhs, T2 rhs);
 
 /**
  * \ingroup ptr
@@ -550,14 +545,14 @@ operator!=(const Ptr<T1>& lhs, const Ptr<T2>& rhs)
 }
 
 template <typename T1, typename T2>
-typename std::enable_if<std::is_same<T2, std::nullptr_t>::value, bool>::type
+std::enable_if_t<std::is_same_v<T2, std::nullptr_t>, bool>
 operator==(const Ptr<T1>& lhs, T2 rhs)
 {
     return PeekPointer(lhs) == nullptr;
 }
 
 template <typename T1, typename T2>
-typename std::enable_if<std::is_same<T2, std::nullptr_t>::value, bool>::type
+std::enable_if_t<std::is_same_v<T2, std::nullptr_t>, bool>
 operator!=(const Ptr<T1>& lhs, T2 rhs)
 {
     return PeekPointer(lhs) != nullptr;
@@ -781,9 +776,9 @@ Ptr<T>::operator*()
 template <typename T>
 Ptr<T>::operator Tester*() const // NS_DEPRECATED_3_37
 {
-    if (m_ptr == 0)
+    if (m_ptr == nullptr)
     {
-        return 0;
+        return nullptr;
     }
     static Tester test;
     return &test;

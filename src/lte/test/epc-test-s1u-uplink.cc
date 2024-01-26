@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDCAST
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
@@ -53,7 +52,6 @@ NS_LOG_COMPONENT_DEFINE("EpcTestS1uUplink");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * A Udp client. Sends UDP packet carrying sequence number and time
  * stamp but also including the EpsBearerTag. This tag is normally
@@ -126,11 +124,12 @@ EpsBearerTagUdpClient::GetTypeId()
         TypeId("ns3::EpsBearerTagUdpClient")
             .SetParent<Application>()
             .AddConstructor<EpsBearerTagUdpClient>()
-            .AddAttribute("MaxPackets",
-                          "The maximum number of packets the application will send",
-                          UintegerValue(100),
-                          MakeUintegerAccessor(&EpsBearerTagUdpClient::m_count),
-                          MakeUintegerChecker<uint32_t>())
+            .AddAttribute(
+                "MaxPackets",
+                "The maximum number of packets the application will send (zero means infinite)",
+                UintegerValue(100),
+                MakeUintegerAccessor(&EpsBearerTagUdpClient::m_count),
+                MakeUintegerChecker<uint32_t>())
             .AddAttribute("Interval",
                           "The time to wait between packets",
                           TimeValue(Seconds(1.0)),
@@ -242,7 +241,7 @@ EpsBearerTagUdpClient::Send()
         NS_LOG_INFO("Error while sending " << m_size << " bytes to " << m_peerAddress);
     }
 
-    if (m_sent < m_count)
+    if (m_sent < m_count || m_count == 0)
     {
         m_sendEvent = Simulator::Schedule(m_interval, &EpsBearerTagUdpClient::Send, this);
     }
@@ -250,7 +249,6 @@ EpsBearerTagUdpClient::Send()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Custom test structure to hold information of data transmitted in the uplink per UE
  */
@@ -285,7 +283,6 @@ UeUlTestData::UeUlTestData(uint32_t n, uint32_t s, uint16_t r, uint8_t l)
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Custom structure containing information about data sent in the uplink
  * of eNodeB. Includes the information of the data sent in the uplink per UE.
@@ -297,7 +294,6 @@ struct EnbUlTestData
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief EpcS1uUlTestCase class
  */
@@ -370,9 +366,7 @@ EpcS1uUlTestCase::DoRun()
     uint16_t cellIdCounter = 0;
     uint64_t imsiCounter = 0;
 
-    for (std::vector<EnbUlTestData>::iterator enbit = m_enbUlTestData.begin();
-         enbit < m_enbUlTestData.end();
-         ++enbit)
+    for (auto enbit = m_enbUlTestData.begin(); enbit < m_enbUlTestData.end(); ++enbit)
     {
         Ptr<Node> enb = CreateObject<Node>();
         enbs.Add(enb);
@@ -490,12 +484,9 @@ EpcS1uUlTestCase::DoRun()
 
     Simulator::Run();
 
-    for (std::vector<EnbUlTestData>::iterator enbit = m_enbUlTestData.begin();
-         enbit < m_enbUlTestData.end();
-         ++enbit)
+    for (auto enbit = m_enbUlTestData.begin(); enbit < m_enbUlTestData.end(); ++enbit)
     {
-        for (std::vector<UeUlTestData>::iterator ueit = enbit->ues.begin(); ueit < enbit->ues.end();
-             ++ueit)
+        for (auto ueit = enbit->ues.begin(); ueit < enbit->ues.end(); ++ueit)
         {
             NS_TEST_ASSERT_MSG_EQ(ueit->serverApp->GetTotalRx(),
                                   (ueit->numPkts) * (ueit->pktSize),

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -21,9 +20,10 @@
 #ifndef ADDRESS_H
 #define ADDRESS_H
 
+#include "tag-buffer.h"
+
 #include "ns3/attribute-helper.h"
 #include "ns3/attribute.h"
-#include "ns3/tag-buffer.h"
 
 #include <ostream>
 #include <stdint.h>
@@ -49,7 +49,7 @@ namespace ns3
  *   - allocate a type id with Address::Register
  *   - provide a method to convert his new address to an Address
  *     instance. This method is typically a member method named ConvertTo:
- *     Address MyAddress::ConvertTo (void) const;
+ *     Address MyAddress::ConvertTo () const;
  *   - provide a method to convert an Address instance back to
  *     an instance of his new address type. This method is typically
  *     a static member method of his address class named ConvertFrom:
@@ -63,13 +63,13 @@ namespace ns3
  * class MyAddress
  * {
  * public:
- *   Address ConvertTo (void) const;
- *   static MyAddress ConvertFrom (void);
+ *   Address ConvertTo () const;
+ *   static MyAddress ConvertFrom ();
  * private:
- *   static uint8_t GetType (void);
+ *   static uint8_t GetType ();
  * };
  *
- * Address MyAddress::ConvertTo (void) const
+ * Address MyAddress::ConvertTo () const
  * {
  *   return Address (GetType (), m_buffer, 2);
  * }
@@ -80,11 +80,19 @@ namespace ns3
  *   address.CopyTo (ad.m_buffer, 2);
  *   return ad;
  * }
- * uint8_t MyAddress::GetType (void)
+ * uint8_t MyAddress::GetType ()
  * {
  *   static uint8_t type = Address::Register ();
  *   return type;
  * }
+ * \endcode
+ *
+ * To convert a specific Address T (e.g., Ipv6Address) to and from an Address type,
+ * a class must implement three public functions:
+ * \code
+ * static T ConvertFrom(const Address& address);
+ * Address ConvertTo() const;
+ * operator Address() const;
  * \endcode
  *
  * \see attribute_Address
@@ -96,10 +104,7 @@ class Address
      * The maximum size of a byte buffer which
      * can be stored in an Address instance.
      */
-    enum MaxSize_e
-    {
-        MAX_SIZE = 20
-    };
+    static constexpr uint32_t MAX_SIZE{20};
 
     /**
      * Create an invalid address

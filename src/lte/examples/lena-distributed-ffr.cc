@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -20,7 +19,6 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/log.h"
@@ -40,13 +38,13 @@ void
 PrintGnuplottableUeListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         int nDevs = node->GetNDevices();
@@ -69,13 +67,13 @@ void
 PrintGnuplottableEnbListToFile(std::string filename)
 {
     std::ofstream outFile;
-    outFile.open(filename.c_str(), std::ios_base::out | std::ios_base::trunc);
+    outFile.open(filename, std::ios_base::out | std::ios_base::trunc);
     if (!outFile.is_open())
     {
         NS_LOG_ERROR("Can't open file " << filename);
         return;
     }
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         int nDevs = node->GetNDevices();

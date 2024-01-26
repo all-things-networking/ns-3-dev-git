@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 The Boeing Company
  *
@@ -23,6 +22,8 @@
 
 #include "lr-wpan-csmaca.h"
 
+#include "lr-wpan-constants.h"
+
 #include <ns3/log.h>
 #include <ns3/random-variable-stream.h>
 #include <ns3/simulator.h>
@@ -30,7 +31,9 @@
 #include <algorithm>
 
 #undef NS_LOG_APPEND_CONTEXT
-#define NS_LOG_APPEND_CONTEXT std::clog << "[address " << m_mac->GetShortAddress() << "] ";
+#define NS_LOG_APPEND_CONTEXT                                                                      \
+    std::clog << "[address " << m_mac->GetShortAddress() << " | " << m_mac->GetExtendedAddress()   \
+              << "] ";
 
 namespace ns3
 {
@@ -60,7 +63,6 @@ LrWpanCsmaCa::LrWpanCsmaCa()
     m_macMinBE = 3;
     m_macMaxBE = 5;
     m_macMaxCSMABackoffs = 4;
-    m_aUnitBackoffPeriod = 20; // symbols
     m_random = CreateObject<UniformRandomVariable>();
     m_BE = m_macMinBE;
     m_ccaRequestRunning = false;
@@ -113,14 +115,14 @@ bool
 LrWpanCsmaCa::IsSlottedCsmaCa() const
 {
     NS_LOG_FUNCTION(this);
-    return (m_isSlotted);
+    return m_isSlotted;
 }
 
 bool
 LrWpanCsmaCa::IsUnSlottedCsmaCa() const
 {
     NS_LOG_FUNCTION(this);
-    return (!m_isSlotted);
+    return !m_isSlotted;
 }
 
 void
@@ -170,20 +172,6 @@ LrWpanCsmaCa::GetMacMaxCSMABackoffs() const
     return m_macMaxCSMABackoffs;
 }
 
-void
-LrWpanCsmaCa::SetUnitBackoffPeriod(uint64_t unitBackoffPeriod)
-{
-    NS_LOG_FUNCTION(this << unitBackoffPeriod);
-    m_aUnitBackoffPeriod = unitBackoffPeriod;
-}
-
-uint64_t
-LrWpanCsmaCa::GetUnitBackoffPeriod() const
-{
-    NS_LOG_FUNCTION(this);
-    return m_aUnitBackoffPeriod;
-}
-
 Time
 LrWpanCsmaCa::GetTimeToNextSlot() const
 {
@@ -194,25 +182,21 @@ LrWpanCsmaCa::GetTimeToNextSlot() const
     // or other device/incoming frame (Rx beacon time reference ).
 
     Time elapsedSuperframe; // (i.e  The beacon + the elapsed CAP)
-    Time currentTime;
+    Time currentTime = Simulator::Now();
     double symbolsToBoundary;
     Time nextBoundary;
     uint64_t elapsedSuperframeSymbols;
-    uint64_t symbolRate;
+    uint64_t symbolRate =
+        (uint64_t)m_mac->GetPhy()->GetDataOrSymbolRate(false); // symbols per second
     Time timeAtBoundary;
-    [[maybe_unused]] Time elapsedCap;
-    [[maybe_unused]] Time beaconTime;
-
-    currentTime = Simulator::Now();
-    symbolRate = (uint64_t)m_mac->GetPhy()->GetDataOrSymbolRate(false); // symbols per second
 
     if (m_coorDest)
     {
         // Take the Incoming Frame Reference
         elapsedSuperframe = currentTime - m_mac->m_macBeaconRxTime;
 
-        beaconTime = Seconds((double)m_mac->m_rxBeaconSymbols / symbolRate);
-        elapsedCap = elapsedSuperframe - beaconTime;
+        Time beaconTime [[maybe_unused]] = Seconds((double)m_mac->m_rxBeaconSymbols / symbolRate);
+        Time elapsedCap [[maybe_unused]] = elapsedSuperframe - beaconTime;
         NS_LOG_DEBUG("Elapsed incoming CAP symbols: " << (elapsedCap.GetSeconds() * symbolRate)
                                                       << " (" << elapsedCap.As(Time::S) << ")");
     }
@@ -224,8 +208,8 @@ LrWpanCsmaCa::GetTimeToNextSlot() const
 
     // get a close value to the the boundary in symbols
     elapsedSuperframeSymbols = elapsedSuperframe.GetSeconds() * symbolRate;
-    symbolsToBoundary =
-        m_aUnitBackoffPeriod - std::fmod((double)elapsedSuperframeSymbols, m_aUnitBackoffPeriod);
+    symbolsToBoundary = lrwpan::aUnitBackoffPeriod -
+                        std::fmod((double)elapsedSuperframeSymbols, lrwpan::aUnitBackoffPeriod);
 
     timeAtBoundary = Seconds((double)(elapsedSuperframeSymbols + symbolsToBoundary) / symbolRate);
 
@@ -313,7 +297,7 @@ LrWpanCsmaCa::RandomBackoffDelay()
     }
 
     randomBackoff =
-        Seconds((double)(m_randomBackoffPeriodsLeft * GetUnitBackoffPeriod()) / symbolRate);
+        Seconds((double)(m_randomBackoffPeriodsLeft * lrwpan::aUnitBackoffPeriod) / symbolRate);
 
     if (IsUnSlottedCsmaCa())
     {
@@ -335,14 +319,14 @@ LrWpanCsmaCa::RandomBackoffDelay()
                      << randomBackoff.As(Time::S) << ")");
 
         NS_LOG_DEBUG("Backoff periods left in CAP: "
-                     << ((timeLeftInCap.GetSeconds() * symbolRate) / m_aUnitBackoffPeriod) << " ("
-                     << (timeLeftInCap.GetSeconds() * symbolRate) << " symbols or "
+                     << ((timeLeftInCap.GetSeconds() * symbolRate) / lrwpan::aUnitBackoffPeriod)
+                     << " (" << (timeLeftInCap.GetSeconds() * symbolRate) << " symbols or "
                      << timeLeftInCap.As(Time::S) << ")");
 
         if (randomBackoff >= timeLeftInCap)
         {
             uint64_t usedBackoffs =
-                (double)(timeLeftInCap.GetSeconds() * symbolRate) / m_aUnitBackoffPeriod;
+                (double)(timeLeftInCap.GetSeconds() * symbolRate) / lrwpan::aUnitBackoffPeriod;
             m_randomBackoffPeriodsLeft -= usedBackoffs;
             NS_LOG_DEBUG("No time in CAP to complete backoff delay, deferring to the next CAP");
             m_endCapEvent =
@@ -429,7 +413,7 @@ LrWpanCsmaCa::CanProceed()
     else
     {
         // time the PHY takes to switch from Rx to Tx and Tx to Rx
-        transactionSymbols += (m_mac->GetPhy()->aTurnaroundTime * 2);
+        transactionSymbols += (lrwpan::aTurnaroundTime * 2);
     }
     transactionSymbols += m_mac->GetIfsSize();
 
@@ -576,13 +560,13 @@ LrWpanCsmaCa::AssignStreams(int64_t stream)
 }
 
 uint8_t
-LrWpanCsmaCa::GetNB()
+LrWpanCsmaCa::GetNB() const
 {
     return m_NB;
 }
 
 bool
-LrWpanCsmaCa::GetBatteryLifeExtension()
+LrWpanCsmaCa::GetBatteryLifeExtension() const
 {
     return m_macBattLifeExt;
 }

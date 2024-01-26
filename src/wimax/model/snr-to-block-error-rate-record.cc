@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -19,7 +18,7 @@
  *                              <amine.ismail@udcast.com>
  */
 
-#include "ns3/snr-to-block-error-rate-record.h"
+#include "snr-to-block-error-rate-record.h"
 
 #include "ns3/assert.h"
 #include "ns3/simulator.h"
@@ -43,7 +42,7 @@ SNRToBlockErrorRateRecord::SNRToBlockErrorRateRecord(double snrValue,
 }
 
 SNRToBlockErrorRateRecord*
-SNRToBlockErrorRateRecord::Copy()
+SNRToBlockErrorRateRecord::Copy() const
 {
     return (new SNRToBlockErrorRateRecord(m_snrValue,
                                           m_bitErrorRate,
@@ -54,7 +53,7 @@ SNRToBlockErrorRateRecord::Copy()
 }
 
 double
-SNRToBlockErrorRateRecord::GetSNRValue()
+SNRToBlockErrorRateRecord::GetSNRValue() const
 {
     return m_snrValue;
 }
@@ -70,31 +69,31 @@ SNRToBlockErrorRateRecord::~SNRToBlockErrorRateRecord()
 }
 
 double
-SNRToBlockErrorRateRecord::GetBitErrorRate()
+SNRToBlockErrorRateRecord::GetBitErrorRate() const
 {
     return m_bitErrorRate;
 }
 
 double
-SNRToBlockErrorRateRecord::GetBlockErrorRate()
+SNRToBlockErrorRateRecord::GetBlockErrorRate() const
 {
     return m_blockErrorRate;
 }
 
 double
-SNRToBlockErrorRateRecord::GetSigma2()
+SNRToBlockErrorRateRecord::GetSigma2() const
 {
     return m_sigma2;
 }
 
 double
-SNRToBlockErrorRateRecord::GetI1()
+SNRToBlockErrorRateRecord::GetI1() const
 {
     return m_i1;
 }
 
 double
-SNRToBlockErrorRateRecord::GetI2()
+SNRToBlockErrorRateRecord::GetI2() const
 {
     return m_i2;
 }

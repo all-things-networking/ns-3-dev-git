@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Adrian Sai-wah Tam
  *
@@ -118,7 +117,7 @@ TcpRxBuffer::MaxRxSequence() const
     { // No data allowed beyond FIN
         return m_finSeq;
     }
-    else if (m_data.size() && m_nextRxSeq > m_data.begin()->first)
+    else if (!m_data.empty() && m_nextRxSeq > m_data.begin()->first)
     { // No data allowed beyond Rx window allowed
         return m_data.begin()->first + SequenceNumber32(m_maxBuffer);
     }
@@ -160,7 +159,7 @@ TcpRxBuffer::Add(Ptr<Packet> p, const TcpHeader& tcph)
     {
         headSeq = m_nextRxSeq;
     }
-    if (m_data.size())
+    if (!m_data.empty())
     {
         SequenceNumber32 maxSeq = m_data.begin()->first + SequenceNumber32(m_maxBuffer);
         if (maxSeq < tailSeq)
@@ -173,7 +172,7 @@ TcpRxBuffer::Add(Ptr<Packet> p, const TcpHeader& tcph)
         }
     }
     // Remove overlapped bytes from packet
-    BufIterator i = m_data.begin();
+    auto i = m_data.begin();
     while (i != m_data.end() && i->first <= tailSeq)
     {
         SequenceNumber32 lastByteSeq = i->first + SequenceNumber32(i->second->GetSize());
@@ -205,7 +204,7 @@ TcpRxBuffer::Add(Ptr<Packet> p, const TcpHeader& tcph)
     else
     {
         uint32_t start = static_cast<uint32_t>(headSeq - tcph.GetSequenceNumber());
-        uint32_t length = static_cast<uint32_t>(tailSeq - headSeq);
+        auto length = static_cast<uint32_t>(tailSeq - headSeq);
         p = p->CreateFragment(start, length);
         NS_ASSERT(length == p->GetSize());
     }
@@ -293,7 +292,7 @@ TcpRxBuffer::UpdateSackList(const SequenceNumber32& head, const SequenceNumber32
     // We have inserted the block at the beginning of the list. Now, we should
     // check if any existing blocks overlap with that.
     bool updated = false;
-    TcpOptionSack::SackList::iterator it = m_sackList.begin();
+    auto it = m_sackList.begin();
     TcpOptionSack::SackBlock begin = *it;
     TcpOptionSack::SackBlock merged;
     ++it;
@@ -354,8 +353,7 @@ TcpRxBuffer::ClearSackList(const SequenceNumber32& seq)
 {
     NS_LOG_FUNCTION(this << seq);
 
-    TcpOptionSack::SackList::iterator it;
-    for (it = m_sackList.begin(); it != m_sackList.end();)
+    for (auto it = m_sackList.begin(); it != m_sackList.end();)
     {
         TcpOptionSack::SackBlock block = *it;
         NS_ASSERT(block.first < block.second);
@@ -389,7 +387,7 @@ TcpRxBuffer::Extract(uint32_t maxSize)
     {
         return nullptr; // No contiguous block to return
     }
-    NS_ASSERT(m_data.size());              // At least we have something to extract
+    NS_ASSERT(!m_data.empty());            // At least we have something to extract
     Ptr<Packet> outPkt = Create<Packet>(); // The packet that contains all the data to return
     BufIterator i;
     while (extractSize)

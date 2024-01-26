@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -22,6 +21,7 @@
 
 #include "callback.h"
 #include "type-id.h"
+#include "warnings.h"
 
 #include <list>
 #include <string>
@@ -30,7 +30,7 @@
  * \file
  * \ingroup object
  * ns3::ObjectBase declaration and
- * NS_OBJECT_ENSURE_REGISTERED() madro definition.
+ * NS_OBJECT_ENSURE_REGISTERED() macro definition.
  */
 
 /**
@@ -48,9 +48,11 @@
     {                                                                                              \
         Object##type##RegistrationClass()                                                          \
         {                                                                                          \
+            NS_WARNING_PUSH_DEPRECATED;                                                            \
             ns3::TypeId tid = type::GetTypeId();                                                   \
             tid.SetSize(sizeof(type));                                                             \
             tid.GetParent();                                                                       \
+            NS_WARNING_POP;                                                                        \
         }                                                                                          \
     } Object##type##RegistrationVariable
 
@@ -236,7 +238,7 @@ class ObjectBase
      */
     void GetAttribute(std::string name, AttributeValue& value) const;
     /**
-     * Get the value of an attribute without raising erros.
+     * Get the value of an attribute without raising errors.
      *
      * If the attribute could not be read this will return \c false,
      * but not raise any errors.
@@ -332,6 +334,15 @@ class ObjectBase
                Ptr<const AttributeChecker> checker,
                const AttributeValue& value);
 };
+
+// The following explicit template instantiation declarations prevent all the translation
+// units including this header file to implicitly instantiate the callbacks class and
+// function templates having ObjectBase as template type parameter that are required to be
+// instantiated more often (accorging to the ClangBuildAnalyzer tool).
+// These classes and functions are explicitly instantiated in object-base.cc
+extern template Callback<ObjectBase*> MakeCallback<ObjectBase*>(ObjectBase* (*)());
+extern template Callback<ObjectBase*>::Callback();
+extern template class CallbackImpl<ObjectBase*>;
 
 } // namespace ns3
 

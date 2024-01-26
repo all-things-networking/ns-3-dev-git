@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -26,7 +25,6 @@
 #include "ns3/radio-bearer-stats-calculator.h"
 #include "ns3/string.h"
 #include <ns3/boolean.h>
-#include <ns3/config-store-module.h>
 #include <ns3/constant-position-mobility-model.h>
 #include <ns3/enum.h>
 #include <ns3/eps-bearer.h>
@@ -50,6 +48,7 @@
 
 #include <errno.h>
 #include <iostream>
+#include <map>
 
 using namespace ns3;
 
@@ -256,6 +255,10 @@ TestCarrierAggregationSuite::TestCarrierAggregationSuite()
     }
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static TestCarrierAggregationSuite lenaTestRrFfMacSchedulerSuite;
 
 std::string
@@ -373,7 +376,7 @@ CarrierAggregationTestCase::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -421,8 +424,7 @@ CarrierAggregationTestCase::DoRun()
 
     bool testDownlinkShare = true;
 
-    for (std::map<uint8_t, uint32_t>::iterator itDownlink = m_ccDownlinkTraffic.begin();
-         itDownlink != m_ccDownlinkTraffic.end();
+    for (auto itDownlink = m_ccDownlinkTraffic.begin(); itDownlink != m_ccDownlinkTraffic.end();
          itDownlink++)
     {
         if (itDownlink == m_ccDownlinkTraffic.begin())
@@ -441,9 +443,7 @@ CarrierAggregationTestCase::DoRun()
 
     bool testUplinkShare = true;
 
-    for (std::map<uint8_t, uint32_t>::iterator itUplink = m_ccUplinkTraffic.begin();
-         itUplink != m_ccUplinkTraffic.end();
-         itUplink++)
+    for (auto itUplink = m_ccUplinkTraffic.begin(); itUplink != m_ccUplinkTraffic.end(); itUplink++)
     {
         if (itUplink == m_ccUplinkTraffic.begin())
         {
@@ -534,10 +534,10 @@ CarrierAggregationTestCase::UlScheduling(uint32_t frameNo,
 }
 
 void
-CarrierAggregationTestCase::WriteResultToFile()
+CarrierAggregationTestCase::WriteResultToFile() const
 {
     std::ofstream dlOutFile;
-    dlOutFile.open(dlResultsFileName.c_str(), std::ofstream::out | std::ofstream::app);
+    dlOutFile.open(dlResultsFileName, std::ofstream::out | std::ofstream::app);
     dlOutFile.setf(std::ios_base::fixed);
 
     if (!dlOutFile.is_open())
@@ -550,7 +550,7 @@ CarrierAggregationTestCase::WriteResultToFile()
     dlOutFile.close();
 
     std::ofstream ulOutFile;
-    ulOutFile.open(ulResultsFileName.c_str(), std::ofstream::out | std::ofstream::app);
+    ulOutFile.open(ulResultsFileName, std::ofstream::out | std::ofstream::app);
     ulOutFile.setf(std::ios_base::fixed);
 
     if (!ulOutFile.is_open())

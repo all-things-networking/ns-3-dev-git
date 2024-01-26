@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
@@ -40,17 +39,21 @@
 #include "ns3/socket.h"
 #include "ns3/test.h"
 
-#include <limits>
+#ifdef __WIN32__
+#include "ns3/win32-internet.h"
+#else
 #include <netinet/in.h>
-#include <string>
 #include <sys/socket.h>
+#endif
+
+#include <limits>
+#include <string>
 #include <sys/types.h>
 
 using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 RAW Socket Test
  */
@@ -368,7 +371,6 @@ Ipv4RawSocketImplTest::DoRun()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 RAW Socket TestSuite
  */

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -18,7 +17,7 @@
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/epc-x2-header.h"
+#include "epc-x2-header.h"
 
 #include "ns3/log.h"
 
@@ -1210,8 +1209,7 @@ EpcX2LoadInformationHeader::Deserialize(Buffer::Iterator start)
         m_headerLength += 2;
         for (int k = 0; k < sz2; k++)
         {
-            EpcX2Sap::UlInterferenceOverloadIndicationItem item =
-                (EpcX2Sap::UlInterferenceOverloadIndicationItem)i.ReadU8();
+            auto item = (EpcX2Sap::UlInterferenceOverloadIndicationItem)i.ReadU8();
             cellInfoItem.ulInterferenceOverloadIndicationList.push_back(item);
         }
         m_headerLength += sz2;

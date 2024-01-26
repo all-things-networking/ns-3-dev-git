@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
@@ -23,7 +22,6 @@
 
 #include "ns3/attribute-helper.h"
 #include "ns3/attribute.h"
-#include "ns3/deprecated.h"
 #include "ns3/nstime.h"
 
 #include <iostream>
@@ -58,7 +56,7 @@ namespace ns3
  * * A unit.
  *
  * Whitespace is allowed but not required between the numeric value and
- * multipler or unit.
+ * multiplier or unit.
  *
  * Supported multiplier prefixes:
  *
@@ -125,7 +123,7 @@ class DataRate
      *
      * \param rhs the DataRate to add to this DataRate
      */
-    DataRate operator+(DataRate rhs);
+    DataRate operator+(DataRate rhs) const;
 
     /**
      * \return the DataRate representing the sum of this object with rhs
@@ -139,7 +137,7 @@ class DataRate
      *
      * \param rhs the DataRate to subtract from this DataRate
      */
-    DataRate operator-(DataRate rhs);
+    DataRate operator-(DataRate rhs) const;
 
     /**
      * \return the DataRate representing the difference of this object with rhs
@@ -157,7 +155,7 @@ class DataRate
      *
      * \param rhs the double to multiply to this datarate
      */
-    DataRate operator*(double rhs);
+    DataRate operator*(double rhs) const;
 
     /**
      * \brief Scales the DataRate
@@ -166,7 +164,7 @@ class DataRate
      *
      * \return DataRate object representing the product of this object with rhs
      *
-     * \param rhs the double to multipy to this datarate
+     * \param rhs the double to multiply to this datarate
      */
     DataRate& operator*=(double rhs);
 
@@ -175,16 +173,16 @@ class DataRate
      *
      * \return DataRate object representing the product of this object with rhs
      *
-     * \param rhs the uint64_t to multipy to this datarate
+     * \param rhs the uint64_t to multiply to this datarate
      */
-    DataRate operator*(uint64_t rhs);
+    DataRate operator*(uint64_t rhs) const;
 
     /**
      * \brief Scales the DataRate
      *
      * \return DataRate object representing the product of this object with rhs
      *
-     * \param rhs the uint64_t to multipy to this datarate
+     * \param rhs the uint64_t to multiply to this datarate
      */
     DataRate& operator*=(uint64_t rhs);
 

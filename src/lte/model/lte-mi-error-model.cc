@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 SIGNET LAB. Department of Information Engineering (DEI), University of Padua
  *
@@ -29,15 +28,15 @@
  *      Marco Miozzo <marco.miozzo@cttc.es>
  */
 
-#include "stdlib.h"
+#include "lte-mi-error-model.h"
 
 #include <ns3/log.h>
-#include <ns3/lte-mi-error-model.h>
 #include <ns3/pointer.h>
 
 #include <cmath>
 #include <list>
 #include <stdint.h>
+#include <stdlib.h>
 #include <vector>
 
 namespace ns3
@@ -1043,7 +1042,7 @@ LteMiErrorModel::GetPcfichPdcchError(const SpectrumValue& sinr)
     NS_LOG_FUNCTION(sinr);
     double MI;
     double MIsum = 0.0;
-    Values::const_iterator sinrIt = sinr.ConstValuesBegin();
+    auto sinrIt = sinr.ConstValuesBegin();
     uint16_t rb = 0;
     NS_ASSERT(sinrIt != sinr.ConstValuesEnd());
     while (sinrIt != sinr.ConstValuesEnd())
@@ -1123,7 +1122,7 @@ LteMiErrorModel::GetPcfichPdcchError(const SpectrumValue& sinr)
         errorRate = PdcchPcfichBlerCurveYaxis[i];
     }
 
-    return (errorRate);
+    return errorRate;
 }
 
 TbStats_t
@@ -1139,7 +1138,7 @@ LteMiErrorModel::GetTbDecodificationStats(const SpectrumValue& sinr,
     double MI = 0.0;
     double Reff = 0.0;
     NS_ASSERT(mcs < 29);
-    if (miHistory.size() > 0)
+    if (!miHistory.empty())
     {
         // evaluate R_eff and MI_eff
         uint16_t codeBitsSum = 0;
@@ -1256,7 +1255,7 @@ LteMiErrorModel::GetTbDecodificationStats(const SpectrumValue& sinr,
 
     double errorRate = 1.0;
     uint8_t ecrId = 0;
-    if (miHistory.size() == 0)
+    if (miHistory.empty())
     {
         // first tx -> get ECR from MCS
         ecrId = McsEcrBlerTableMapping[mcs];

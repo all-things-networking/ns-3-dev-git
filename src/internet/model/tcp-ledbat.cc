@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
@@ -103,10 +102,10 @@ TcpLedbat::TcpLedbat()
     m_sndCwndCnt = 0;
     m_flag = LEDBAT_CAN_SS;
     m_minCwnd = 2;
-};
+}
 
 void
-TcpLedbat::InitCircBuf(struct OwdCircBuf& buffer)
+TcpLedbat::InitCircBuf(OwdCircBuf& buffer)
 {
     NS_LOG_FUNCTION(this);
     buffer.buffer.clear();
@@ -148,10 +147,10 @@ TcpLedbat::GetName() const
 }
 
 uint32_t
-TcpLedbat::MinCircBuf(struct OwdCircBuf& b)
+TcpLedbat::MinCircBuf(OwdCircBuf& b)
 {
     NS_LOG_FUNCTION_NOARGS();
-    if (b.buffer.size() == 0)
+    if (b.buffer.empty())
     {
         return ~0U;
     }
@@ -240,10 +239,10 @@ TcpLedbat::CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 }
 
 void
-TcpLedbat::AddDelay(struct OwdCircBuf& cb, uint32_t owd, uint32_t maxlen)
+TcpLedbat::AddDelay(OwdCircBuf& cb, uint32_t owd, uint32_t maxlen)
 {
     NS_LOG_FUNCTION(this << owd << maxlen << cb.buffer.size());
-    if (cb.buffer.size() == 0)
+    if (cb.buffer.empty())
     {
         NS_LOG_LOGIC("First Value for queue");
         cb.buffer.push_back(owd);
@@ -275,7 +274,7 @@ void
 TcpLedbat::UpdateBaseDelay(uint32_t owd)
 {
     NS_LOG_FUNCTION(this << owd);
-    if (m_baseHistory.buffer.size() == 0)
+    if (m_baseHistory.buffer.empty())
     {
         AddDelay(m_baseHistory, owd, m_baseHistoLen);
         return;
@@ -289,7 +288,7 @@ TcpLedbat::UpdateBaseDelay(uint32_t owd)
     }
     else
     {
-        uint32_t last = static_cast<uint32_t>(m_baseHistory.buffer.size() - 1);
+        auto last = static_cast<uint32_t>(m_baseHistory.buffer.size() - 1);
         if (owd < m_baseHistory.buffer[last])
         {
             m_baseHistory.buffer[last] = owd;

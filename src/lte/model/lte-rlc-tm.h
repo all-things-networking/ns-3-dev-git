@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011,2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,7 +21,8 @@
 #ifndef LTE_RLC_TM_H
 #define LTE_RLC_TM_H
 
-#include "ns3/lte-rlc.h"
+#include "lte-rlc.h"
+
 #include <ns3/event-id.h>
 
 #include <map>

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2009-2010 TELEMATICS LAB - Poliotecnico di Bari
  *
@@ -64,8 +63,8 @@ Ns3WimaxFragmentationTestCase::DoRun()
     GenericMacHeader hdr;
 
     Cid cid;
-    WimaxConnection* connectionTx = new WimaxConnection(cid, Cid::TRANSPORT);
-    WimaxConnection* connectionRx = new WimaxConnection(cid, Cid::TRANSPORT);
+    auto connectionTx = new WimaxConnection(cid, Cid::TRANSPORT);
+    auto connectionRx = new WimaxConnection(cid, Cid::TRANSPORT);
 
     // A Packet of 1000 bytes has been created.
     // It will be fragmentated into 4 fragments and then defragmentated into fullPacket.
@@ -128,9 +127,7 @@ Ns3WimaxFragmentationTestCase::DoRun()
             WimaxConnection::FragmentsQueue fragmentsQueue = connectionRx->GetFragmentsQueue();
 
             // DEFRAGMENTATION
-            for (std::list<Ptr<const Packet>>::const_iterator iter = fragmentsQueue.begin();
-                 iter != fragmentsQueue.end();
-                 ++iter)
+            for (auto iter = fragmentsQueue.begin(); iter != fragmentsQueue.end(); ++iter)
             {
                 // Create the whole Packet
                 fullPacket->AddAtEnd(*iter);

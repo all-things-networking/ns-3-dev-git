@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -49,16 +48,18 @@ NS_OBJECT_ENSURE_REGISTERED(UdpTraceClient);
 /**
  * \brief Default trace to send
  */
-struct UdpTraceClient::TraceEntry UdpTraceClient::g_defaultEntries[] = {{0, 534, 'I'},
-                                                                        {40, 1542, 'P'},
-                                                                        {120, 134, 'B'},
-                                                                        {80, 390, 'B'},
-                                                                        {240, 765, 'P'},
-                                                                        {160, 407, 'B'},
-                                                                        {200, 504, 'B'},
-                                                                        {360, 903, 'P'},
-                                                                        {280, 421, 'B'},
-                                                                        {320, 587, 'B'}};
+UdpTraceClient::TraceEntry UdpTraceClient::g_defaultEntries[] = {
+    {0, 534, 'I'},
+    {40, 1542, 'P'},
+    {120, 134, 'B'},
+    {80, 390, 'B'},
+    {240, 765, 'P'},
+    {160, 407, 'B'},
+    {200, 504, 'B'},
+    {360, 903, 'P'},
+    {280, 421, 'B'},
+    {320, 587, 'B'},
+};
 
 TypeId
 UdpTraceClient::GetTypeId()
@@ -150,7 +151,7 @@ void
 UdpTraceClient::SetTraceFile(std::string traceFile)
 {
     NS_LOG_FUNCTION(this << traceFile);
-    if (traceFile == "")
+    if (traceFile.empty())
     {
         LoadDefaultTrace();
     }
@@ -193,7 +194,7 @@ UdpTraceClient::LoadTrace(std::string filename)
     char frameType;
     TraceEntry entry;
     std::ifstream ifTraceFile;
-    ifTraceFile.open(filename.c_str(), std::ifstream::in);
+    ifTraceFile.open(filename, std::ifstream::in);
     m_entries.clear();
     if (!ifTraceFile.good())
     {
@@ -230,9 +231,9 @@ UdpTraceClient::LoadDefaultTrace()
 {
     NS_LOG_FUNCTION(this);
     uint32_t prevTime = 0;
-    for (uint32_t i = 0; i < (sizeof(g_defaultEntries) / sizeof(struct TraceEntry)); i++)
+    for (uint32_t i = 0; i < (sizeof(g_defaultEntries) / sizeof(TraceEntry)); i++)
     {
-        struct TraceEntry entry = g_defaultEntries[i];
+        TraceEntry entry = g_defaultEntries[i];
         if (entry.frameType == 'B')
         {
             entry.timeToSend = 0;
@@ -257,7 +258,7 @@ UdpTraceClient::StartApplication()
     {
         TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
         m_socket = Socket::CreateSocket(GetNode(), tid);
-        if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+        if (Ipv4Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -266,7 +267,7 @@ UdpTraceClient::StartApplication()
             m_socket->Connect(
                 InetSocketAddress(Ipv4Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
+        else if (Ipv6Address::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -275,7 +276,7 @@ UdpTraceClient::StartApplication()
             m_socket->Connect(
                 Inet6SocketAddress(Ipv6Address::ConvertFrom(m_peerAddress), m_peerPort));
         }
-        else if (InetSocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (InetSocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind() == -1)
             {
@@ -283,7 +284,7 @@ UdpTraceClient::StartApplication()
             }
             m_socket->Connect(m_peerAddress);
         }
-        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress) == true)
+        else if (Inet6SocketAddress::IsMatchingType(m_peerAddress))
         {
             if (m_socket->Bind6() == -1)
             {
@@ -328,11 +329,11 @@ UdpTraceClient::SendPacket(uint32_t size)
     p->AddHeader(seqTs);
 
     std::stringstream addressString;
-    if (Ipv4Address::IsMatchingType(m_peerAddress) == true)
+    if (Ipv4Address::IsMatchingType(m_peerAddress))
     {
         addressString << Ipv4Address::ConvertFrom(m_peerAddress);
     }
-    else if (Ipv6Address::IsMatchingType(m_peerAddress) == true)
+    else if (Ipv6Address::IsMatchingType(m_peerAddress))
     {
         addressString << Ipv6Address::ConvertFrom(m_peerAddress);
     }
@@ -361,7 +362,7 @@ UdpTraceClient::Send()
 
     bool cycled = false;
     Ptr<Packet> p;
-    struct TraceEntry* entry = &m_entries[m_currentEntry];
+    TraceEntry* entry = &m_entries[m_currentEntry];
     do
     {
         for (uint32_t i = 0; i < entry->packetSize / m_maxPacketSize; i++)

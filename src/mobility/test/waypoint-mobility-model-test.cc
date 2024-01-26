@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 Phillip Sitbon
  *
@@ -28,7 +27,6 @@ using namespace ns3;
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Mobility Model Notify Test
  */
@@ -107,15 +105,14 @@ WaypointMobilityModelNotifyTest::DoRun()
     }
 
     // Add the same waypoints to each node
-    std::vector<Ptr<MobilityModel>>::iterator i;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
         Ptr<WaypointMobilityModel> mob = (*i)->GetObject<WaypointMobilityModel>();
         mob->TraceConnectWithoutContext(
             "CourseChange",
             MakeCallback(&WaypointMobilityModelNotifyTest::CourseChangeCallback, this));
 
-        for (std::deque<Waypoint>::iterator w = waypoints.begin(); w != waypoints.end(); ++w)
+        for (auto w = waypoints.begin(); w != waypoints.end(); ++w)
         {
             mob->AddWaypoint(*w);
         }
@@ -137,8 +134,7 @@ WaypointMobilityModelNotifyTest::DoRun()
 void
 WaypointMobilityModelNotifyTest::ForceUpdates()
 {
-    std::vector<Ptr<MobilityModel>>::iterator i;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
         Ptr<WaypointMobilityModel> mob = (*i)->GetObject<WaypointMobilityModel>();
         mob->Update();
@@ -173,7 +169,6 @@ WaypointMobilityModelNotifyTest::CourseChangeCallback(Ptr<const MobilityModel> m
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Mobility Model Add Waypoint Test
  */
@@ -198,7 +193,7 @@ class WaypointMobilityModelAddWaypointTest : public TestCase
     void DoRun() override;
     void DoTeardown() override;
     /**
-     * Course change calback
+     * Course change callback
      * \param model the mobility model
      */
     void CourseChangeCallback(Ptr<const MobilityModel> model);
@@ -258,7 +253,6 @@ WaypointMobilityModelAddWaypointTest::CourseChangeCallback(Ptr<const MobilityMod
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Waypoint Mobility Model Test Suite
  */

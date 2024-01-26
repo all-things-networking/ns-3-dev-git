@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -94,7 +93,7 @@ main(int argc, char* argv[])
     NS_LOG_INFO("Create Source");
     // IP protocol configuration
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(addresses.GetAddress(3));
+    InetSocketAddress dst(addresses.GetAddress(3));
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(dataRate * 1000));
     onoff.SetAttribute("PacketSize", UintegerValue(1250));
@@ -122,4 +121,6 @@ main(int argc, char* argv[])
     Simulator::Run();
     Simulator::Destroy();
     NS_LOG_INFO("Done.");
+
+    return 0;
 }

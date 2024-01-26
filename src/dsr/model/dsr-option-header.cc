@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -372,9 +371,7 @@ DsrOptionRreqHeader::Print(std::ostream& os) const
 {
     os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
-         it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         os << *it << " ";
     }
@@ -399,8 +396,7 @@ DsrOptionRreqHeader::Serialize(Buffer::Iterator start) const
     i.WriteHtonU16(m_identification);
     WriteTo(i, m_target);
 
-    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         it->Serialize(buff);
         i.Write(buff, 4);
@@ -418,14 +414,11 @@ DsrOptionRreqHeader::Deserialize(Buffer::Iterator start)
     m_identification = i.ReadNtohU16();
     ReadFrom(i, m_target);
 
-    uint8_t index = 0;
-    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (std::size_t index = 0; index < m_ipv4Address.size(); index++)
     {
         i.Read(buff, 4);
-        m_address = it->Deserialize(buff);
-        SetNodeAddress(index, m_address);
-        ++index;
+        m_address = Ipv4Address::Deserialize(buff);
+        SetNodeAddress(static_cast<uint8_t>(index), m_address);
     }
 
     return GetSerializedSize();
@@ -510,9 +503,7 @@ DsrOptionRrepHeader::Print(std::ostream& os) const
 {
     os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
-         it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         os << *it << " ";
     }
@@ -537,8 +528,7 @@ DsrOptionRrepHeader::Serialize(Buffer::Iterator start) const
     i.WriteU8(0);
     i.WriteU8(0);
 
-    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         it->Serialize(buff);
         i.Write(buff, 4);
@@ -556,14 +546,11 @@ DsrOptionRrepHeader::Deserialize(Buffer::Iterator start)
     i.ReadU8();
     i.ReadU8();
 
-    uint8_t index = 0;
-    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (std::size_t index = 0; index < m_ipv4Address.size(); index++)
     {
         i.Read(buff, 4);
-        m_address = it->Deserialize(buff);
-        SetNodeAddress(index, m_address);
-        ++index;
+        m_address = Ipv4Address::Deserialize(buff);
+        SetNodeAddress(static_cast<uint8_t>(index), m_address);
     }
 
     return GetSerializedSize();
@@ -673,9 +660,7 @@ DsrOptionSRHeader::Print(std::ostream& os) const
 {
     os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
-         it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         os << *it << " ";
     }
@@ -700,8 +685,7 @@ DsrOptionSRHeader::Serialize(Buffer::Iterator start) const
     i.WriteU8(m_salvage);
     i.WriteU8(m_segmentsLeft);
 
-    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (auto it = m_ipv4Address.begin(); it != m_ipv4Address.end(); it++)
     {
         it->Serialize(buff);
         i.Write(buff, 4);
@@ -719,14 +703,11 @@ DsrOptionSRHeader::Deserialize(Buffer::Iterator start)
     m_salvage = i.ReadU8();
     m_segmentsLeft = i.ReadU8();
 
-    uint8_t index = 0;
-    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
-         it++)
+    for (std::size_t index = 0; index < m_ipv4Address.size(); index++)
     {
         i.Read(buff, 4);
-        m_address = it->Deserialize(buff);
-        SetNodeAddress(index, m_address);
-        ++index;
+        m_address = Ipv4Address::Deserialize(buff);
+        SetNodeAddress(static_cast<uint8_t>(index), m_address);
     }
 
     return GetSerializedSize();
@@ -1019,25 +1000,25 @@ DsrOptionRerrUnreachHeader::GetAlignment() const
     return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED(DsrOptionRerrUnsupportHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRerrUnsupportedHeader);
 
 TypeId
-DsrOptionRerrUnsupportHeader::GetTypeId()
+DsrOptionRerrUnsupportedHeader::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::dsr::DsrOptionRerrUnsupportHeader")
-                            .AddConstructor<DsrOptionRerrUnsupportHeader>()
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRerrUnsupportedHeader")
+                            .AddConstructor<DsrOptionRerrUnsupportedHeader>()
                             .SetParent<DsrOptionRerrHeader>()
                             .SetGroupName("Dsr");
     return tid;
 }
 
 TypeId
-DsrOptionRerrUnsupportHeader::GetInstanceTypeId() const
+DsrOptionRerrUnsupportedHeader::GetInstanceTypeId() const
 {
     return GetTypeId();
 }
 
-DsrOptionRerrUnsupportHeader::DsrOptionRerrUnsupportHeader()
+DsrOptionRerrUnsupportedHeader::DsrOptionRerrUnsupportedHeader()
     : m_salvage(0)
 {
     SetType(3);
@@ -1045,75 +1026,75 @@ DsrOptionRerrUnsupportHeader::DsrOptionRerrUnsupportHeader()
     SetErrorType(3);
 }
 
-DsrOptionRerrUnsupportHeader::~DsrOptionRerrUnsupportHeader()
+DsrOptionRerrUnsupportedHeader::~DsrOptionRerrUnsupportedHeader()
 {
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetSalvage(uint8_t salvage)
+DsrOptionRerrUnsupportedHeader::SetSalvage(uint8_t salvage)
 {
     m_salvage = salvage;
 }
 
 uint8_t
-DsrOptionRerrUnsupportHeader::GetSalvage() const
+DsrOptionRerrUnsupportedHeader::GetSalvage() const
 {
     return m_salvage;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetErrorSrc(Ipv4Address errorSrcAddress)
+DsrOptionRerrUnsupportedHeader::SetErrorSrc(Ipv4Address errorSrcAddress)
 {
     m_errorSrcAddress = errorSrcAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnsupportHeader::GetErrorSrc() const
+DsrOptionRerrUnsupportedHeader::GetErrorSrc() const
 {
     return m_errorSrcAddress;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetErrorDst(Ipv4Address errorDstAddress)
+DsrOptionRerrUnsupportedHeader::SetErrorDst(Ipv4Address errorDstAddress)
 {
     m_errorDstAddress = errorDstAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnsupportHeader::GetErrorDst() const
+DsrOptionRerrUnsupportedHeader::GetErrorDst() const
 {
     return m_errorDstAddress;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetUnsupported(uint16_t unsupport)
+DsrOptionRerrUnsupportedHeader::SetUnsupported(uint16_t unsupported)
 {
-    m_unsupport = unsupport;
+    m_unsupported = unsupported;
 }
 
 uint16_t
-DsrOptionRerrUnsupportHeader::GetUnsupported() const
+DsrOptionRerrUnsupportedHeader::GetUnsupported() const
 {
-    return m_unsupport;
+    return m_unsupported;
 }
 
 void
-DsrOptionRerrUnsupportHeader::Print(std::ostream& os) const
+DsrOptionRerrUnsupportedHeader::Print(std::ostream& os) const
 {
     os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
        << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
        << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
-       << " unsupported option = " << m_unsupport << " )";
+       << " unsupported option = " << m_unsupported << " )";
 }
 
 uint32_t
-DsrOptionRerrUnsupportHeader::GetSerializedSize() const
+DsrOptionRerrUnsupportedHeader::GetSerializedSize() const
 {
     return 16;
 }
 
 void
-DsrOptionRerrUnsupportHeader::Serialize(Buffer::Iterator start) const
+DsrOptionRerrUnsupportedHeader::Serialize(Buffer::Iterator start) const
 {
     Buffer::Iterator i = start;
 
@@ -1123,11 +1104,11 @@ DsrOptionRerrUnsupportHeader::Serialize(Buffer::Iterator start) const
     i.WriteU8(m_salvage);
     WriteTo(i, m_errorSrcAddress);
     WriteTo(i, m_errorDstAddress);
-    i.WriteU16(m_unsupport);
+    i.WriteU16(m_unsupported);
 }
 
 uint32_t
-DsrOptionRerrUnsupportHeader::Deserialize(Buffer::Iterator start)
+DsrOptionRerrUnsupportedHeader::Deserialize(Buffer::Iterator start)
 {
     Buffer::Iterator i = start;
 
@@ -1137,13 +1118,13 @@ DsrOptionRerrUnsupportHeader::Deserialize(Buffer::Iterator start)
     m_salvage = i.ReadU8();
     ReadFrom(i, m_errorSrcAddress);
     ReadFrom(i, m_errorDstAddress);
-    m_unsupport = i.ReadU16();
+    m_unsupported = i.ReadU16();
 
     return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRerrUnsupportHeader::GetAlignment() const
+DsrOptionRerrUnsupportedHeader::GetAlignment() const
 {
     Alignment retVal = {4, 0};
     return retVal;

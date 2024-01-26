@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 University of Washington
  *
@@ -36,7 +35,7 @@
 #include "ns3/string.h"
 #include "ns3/tcp-header.h"
 #include "ns3/tcp-socket-factory.h"
-#include "ns3/tcp-westwood.h"
+#include "ns3/tcp-westwood-plus.h"
 #include "ns3/test.h"
 #include "ns3/uinteger.h"
 
@@ -102,7 +101,7 @@ class Ns3TcpLossTestCase : public TestCase
     std::string m_tcpModel;         //!< The TCP model name.
 
     /**
-     * Check that the transmitted packets are consitent with the trace.
+     * Check that the transmitted packets are consistent with the trace.
      * This callback is hooked to ns3::Ipv4L3Protocol/Tx.
      *
      * \param context The callback context (unused).
@@ -147,7 +146,7 @@ Ns3TcpLossTestCase::Ns3TcpLossTestCase()
       m_writeResults(WRITE_PCAP),
       m_writeLogging(WRITE_LOGGING),
       m_needToClose(true),
-      m_tcpModel("ns3::TcpWestwood")
+      m_tcpModel("ns3::TcpWestwoodPlus")
 {
 }
 
@@ -247,7 +246,7 @@ Ns3TcpLossTestCase::Ipv4L3Tx(std::string, Ptr<const Packet> packet, Ptr<Ipv4>, u
 
         NS_LOG_INFO("read " << readLen << " bytes");
 
-        uint8_t* actual = new uint8_t[readLen];
+        auto actual = new uint8_t[readLen];
         received->CopyData(actual, readLen);
 
         int result = memcmp(actual, expectedBuffer, readLen);
@@ -352,15 +351,7 @@ Ns3TcpLossTestCase::DoRun()
 
     std::ostringstream tcpModel;
     tcpModel << "ns3::Tcp" << m_tcpModel;
-    if (m_tcpModel == "WestwoodPlus")
-    {
-        Config::SetDefault("ns3::TcpL4Protocol::SocketType", TypeIdValue(TcpWestwood::GetTypeId()));
-        Config::SetDefault("ns3::TcpWestwood::ProtocolType", EnumValue(TcpWestwood::WESTWOODPLUS));
-    }
-    else
-    {
-        Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue(tcpModel.str()));
-    }
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue(tcpModel.str()));
 
     Config::SetDefault("ns3::TcpSocket::SegmentSize", UintegerValue(1000));
     Config::SetDefault("ns3::TcpSocket::DelAckCount", UintegerValue(1));
@@ -371,7 +362,7 @@ Ns3TcpLossTestCase::DoRun()
         LogComponentEnableAll(LOG_PREFIX_FUNC);
         LogComponentEnable("Ns3TcpLossTest", LOG_LEVEL_ALL);
         LogComponentEnable("ErrorModel", LOG_LEVEL_DEBUG);
-        LogComponentEnable("TcpWestwood", LOG_LEVEL_ALL);
+        LogComponentEnable("TcpWestwoodPlus", LOG_LEVEL_ALL);
         LogComponentEnable("TcpCongestionOps", LOG_LEVEL_INFO);
         LogComponentEnable("TcpSocketBase", LOG_LEVEL_INFO);
     }
@@ -530,12 +521,6 @@ Ns3TcpLossTestSuite::Ns3TcpLossTestSuite()
     AddTestCase(new Ns3TcpLossTestCase("NewReno", 2), TestCase::QUICK);
     AddTestCase(new Ns3TcpLossTestCase("NewReno", 3), TestCase::QUICK);
     AddTestCase(new Ns3TcpLossTestCase("NewReno", 4), TestCase::QUICK);
-
-    AddTestCase(new Ns3TcpLossTestCase("Westwood", 0), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("Westwood", 1), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("Westwood", 2), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("Westwood", 3), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("Westwood", 4), TestCase::QUICK);
 
     AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 0), TestCase::QUICK);
     AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 1), TestCase::QUICK);

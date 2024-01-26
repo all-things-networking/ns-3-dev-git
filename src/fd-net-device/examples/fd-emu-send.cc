@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -58,15 +57,15 @@ Send(Ptr<NetDevice> dev, int level, std::string emuMode)
 
     int packets = 10000000;
 
-    Mac48Address sender = Mac48Address("00:00:00:aa:00:01");
-    Mac48Address receiver = Mac48Address("ff:ff:ff:ff:ff:ff");
+    Mac48Address sender("00:00:00:aa:00:01");
+    Mac48Address receiver("ff:ff:ff:ff:ff:ff");
 
     int packetsSize = 64;
     Ptr<Packet> packet = Create<Packet>(packetsSize);
     EthernetHeader header;
 
     ssize_t len = (size_t)packet->GetSize();
-    uint8_t* buffer = (uint8_t*)malloc(len);
+    auto buffer = (uint8_t*)malloc(len);
     packet->CopyData(buffer, len);
 
     int sent = 0;
@@ -100,7 +99,7 @@ Send(Ptr<NetDevice> dev, int level, std::string emuMode)
 
         if (level == 1)
         {
-            if (device->SendFrom(packet, sender, receiver, 0) == false)
+            if (!device->SendFrom(packet, sender, receiver, 0))
             {
                 failed++;
             }
@@ -167,7 +166,7 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw = new EmuFdNetDeviceHelper;
+        auto raw = new EmuFdNetDeviceHelper;
         raw->SetDeviceName(deviceName);
         helper = raw;
     }
@@ -198,4 +197,6 @@ main(int argc, char* argv[])
     Simulator::Destroy();
     delete helper;
     NS_LOG_INFO("Done.");
+
+    return 0;
 }

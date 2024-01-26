@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011-2018 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -15,8 +14,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * Authors: Nicola Baldo <nbaldo@cttc.es>
- *          Manuel Requena <manuel.requena@cttc.es>
+ * Authors:
+ *   Nicola Baldo <nbaldo@cttc.es>
+ *   Manuel Requena <manuel.requena@cttc.es>
  */
 
 #include "ns3/epc-tft-classifier.h"
@@ -40,7 +40,6 @@ NS_LOG_COMPONENT_DEFINE("TestEpcTftClassifier");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test case to check the functionality of the Tft Classifier. Test
  * consist of defining different TFT configurations, i.e. direction, ports,
@@ -96,8 +95,9 @@ class EpcTftClassifierTestCase : public TestCase
      * \param dp the destination port
      * \param tos the TOS
      * \param tftId the TFT ID
-     * \param useIpv6 use IPv6 or IPv4 addresses. If set, addresses will be used as IPv4 mapped
-     * addresses \returns the name string
+     * \param useIpv6 use IPv6 or IPv4 addresses. If set, addresses will be used as IPv4
+     * mapped addresses
+     * \returns the name string
      */
     static std::string BuildNameString(Ptr<EpcTftClassifier> c,
                                        EpcTft::Direction d,
@@ -206,7 +206,6 @@ EpcTftClassifierTestCase::DoRun()
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Epc Tft Classifier Test Suite
  */
@@ -216,6 +215,10 @@ class EpcTftClassifierTestSuite : public TestSuite
     EpcTftClassifierTestSuite();
 };
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static EpcTftClassifierTestSuite g_lteTftClassifierTestSuite;
 
 EpcTftClassifierTestSuite::EpcTftClassifierTestSuite()

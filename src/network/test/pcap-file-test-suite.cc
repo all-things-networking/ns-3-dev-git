@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -61,7 +60,7 @@ CheckFileExists(std::string filename)
 }
 
 static bool
-CheckFileLength(std::string filename, uint64_t sizeExpected)
+CheckFileLength(std::string filename, long sizeExpected)
 {
     FILE* p = std::fopen(filename.c_str(), "rb");
     if (p == nullptr)
@@ -71,7 +70,7 @@ CheckFileLength(std::string filename, uint64_t sizeExpected)
 
     std::fseek(p, 0, SEEK_END);
 
-    uint64_t sizeActual = std::ftell(p);
+    auto sizeActual = std::ftell(p);
     std::fclose(p);
 
     return sizeActual == sizeExpected;
@@ -337,9 +336,9 @@ public:
   virtual ~AppendModeCreateTestCase ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoRun (void);
-  virtual void DoTeardown (void);
+  virtual void DoSetup ();
+  virtual void DoRun ();
+  virtual void DoTeardown ();
 
   std::string m_testFilename;
 };
@@ -354,7 +353,7 @@ AppendModeCreateTestCase::~AppendModeCreateTestCase ()
 }
 
 void
-AppendModeCreateTestCase::DoSetup (void)
+AppendModeCreateTestCase::DoSetup ()
 {
   std::stringstream filename;
   uint32_t n = rand ();
@@ -363,7 +362,7 @@ AppendModeCreateTestCase::DoSetup (void)
 }
 
 void
-AppendModeCreateTestCase::DoTeardown (void)
+AppendModeCreateTestCase::DoTeardown ()
 {
   if (remove (m_testFilename.c_str ()))
     {
@@ -372,7 +371,7 @@ AppendModeCreateTestCase::DoTeardown (void)
 }
 
 void
-AppendModeCreateTestCase::DoRun (void)
+AppendModeCreateTestCase::DoRun ()
 {
   PcapFile f;
 
@@ -509,7 +508,7 @@ FileHeaderTestCase::DoRun()
     //
     FILE* p = std::fopen(m_testFilename.c_str(), "r+b");
     NS_TEST_ASSERT_MSG_NE(p,
-                          0,
+                          nullptr,
                           "fopen("
                               << m_testFilename
                               << ") should have been able to open a correctly created pcap file");
@@ -651,7 +650,7 @@ FileHeaderTestCase::DoRun()
     //
     p = std::fopen(m_testFilename.c_str(), "r+b");
     NS_TEST_ASSERT_MSG_NE(p,
-                          0,
+                          nullptr,
                           "fopen("
                               << m_testFilename
                               << ") should have been able to open a correctly created pcap file");
@@ -807,7 +806,7 @@ RecordHeaderTestCase::DoRun()
     //
     FILE* p = std::fopen(m_testFilename.c_str(), "r+b");
     NS_TEST_ASSERT_MSG_NE(p,
-                          0,
+                          nullptr,
                           "fopen() should have been able to open a correctly created pcap file");
 
     //
@@ -816,7 +815,7 @@ RecordHeaderTestCase::DoRun()
     // double check that this is exactly what happened.
     //
     std::fseek(p, 0, SEEK_END);
-    uint64_t size = std::ftell(p);
+    auto size = std::ftell(p);
     NS_TEST_ASSERT_MSG_EQ(size, 83, "Pcap file with one 43 byte packet is incorrect size");
 
     //
@@ -979,7 +978,7 @@ RecordHeaderTestCase::DoRun()
     //
     p = std::fopen(m_testFilename.c_str(), "r+b");
     NS_TEST_ASSERT_MSG_NE(p,
-                          0,
+                          nullptr,
                           "fopen() should have been able to open a correctly created pcap file");
 
     //
@@ -1117,135 +1116,137 @@ static const uint32_t N_PACKET_BYTES = 16;
 /**
  * PCAP Packet structure
  */
-typedef struct PACKET_ENTRY
+struct PacketEntry
 {
     uint32_t tsSec;                //!< Time (seconds part)
     uint32_t tsUsec;               //!< Time (micro seconds part)
     uint32_t inclLen;              //!< Length of the entry in the PCAP
     uint32_t origLen;              //!< length of the original packet
     uint16_t data[N_PACKET_BYTES]; //!< Packet data
-} PacketEntry;
+};
 
-static const PacketEntry knownPackets[] = {{2,
-                                            3696,
-                                            46,
-                                            46,
-                                            {0x0001,
-                                             0x0800,
-                                             0x0604,
-                                             0x0001,
-                                             0x0000,
-                                             0x0000,
-                                             0x0003,
-                                             0x0a01,
-                                             0x0201,
-                                             0xffff,
-                                             0xffff,
-                                             0xffff,
-                                             0x0a01,
-                                             0x0204,
-                                             0x0000,
-                                             0x0000}},
-                                           {2,
-                                            3707,
-                                            46,
-                                            46,
-                                            {0x0001,
-                                             0x0800,
-                                             0x0604,
-                                             0x0002,
-                                             0x0000,
-                                             0x0000,
-                                             0x0006,
-                                             0x0a01,
-                                             0x0204,
-                                             0x0000,
-                                             0x0000,
-                                             0x0003,
-                                             0x0a01,
-                                             0x0201,
-                                             0x0000,
-                                             0x0000}},
-                                           {2,
-                                            3801,
-                                            1070,
-                                            1070,
-                                            {0x4500,
-                                             0x041c,
-                                             0x0000,
-                                             0x0000,
-                                             0x3f11,
-                                             0x0000,
-                                             0x0a01,
-                                             0x0101,
-                                             0x0a01,
-                                             0x0204,
-                                             0xc001,
-                                             0x0009,
-                                             0x0408,
-                                             0x0000,
-                                             0x0000,
-                                             0x0000}},
-                                           {2,
-                                            3811,
-                                            46,
-                                            46,
-                                            {0x0001,
-                                             0x0800,
-                                             0x0604,
-                                             0x0001,
-                                             0x0000,
-                                             0x0000,
-                                             0x0006,
-                                             0x0a01,
-                                             0x0204,
-                                             0xffff,
-                                             0xffff,
-                                             0xffff,
-                                             0x0a01,
-                                             0x0201,
-                                             0x0000,
-                                             0x0000}},
-                                           {2,
-                                            3822,
-                                            46,
-                                            46,
-                                            {0x0001,
-                                             0x0800,
-                                             0x0604,
-                                             0x0002,
-                                             0x0000,
-                                             0x0000,
-                                             0x0003,
-                                             0x0a01,
-                                             0x0201,
-                                             0x0000,
-                                             0x0000,
-                                             0x0006,
-                                             0x0a01,
-                                             0x0204,
-                                             0x0000,
-                                             0x0000}},
-                                           {2,
-                                            3915,
-                                            1070,
-                                            1070,
-                                            {0x4500,
-                                             0x041c,
-                                             0x0000,
-                                             0x0000,
-                                             0x4011,
-                                             0x0000,
-                                             0x0a01,
-                                             0x0204,
-                                             0x0a01,
-                                             0x0101,
-                                             0x0009,
-                                             0xc001,
-                                             0x0408,
-                                             0x0000,
-                                             0x0000,
-                                             0x0000}}};
+static const PacketEntry knownPackets[] = {
+    {2,
+     3696,
+     46,
+     46,
+     {0x0001,
+      0x0800,
+      0x0604,
+      0x0001,
+      0x0000,
+      0x0000,
+      0x0003,
+      0x0a01,
+      0x0201,
+      0xffff,
+      0xffff,
+      0xffff,
+      0x0a01,
+      0x0204,
+      0x0000,
+      0x0000}},
+    {2,
+     3707,
+     46,
+     46,
+     {0x0001,
+      0x0800,
+      0x0604,
+      0x0002,
+      0x0000,
+      0x0000,
+      0x0006,
+      0x0a01,
+      0x0204,
+      0x0000,
+      0x0000,
+      0x0003,
+      0x0a01,
+      0x0201,
+      0x0000,
+      0x0000}},
+    {2,
+     3801,
+     1070,
+     1070,
+     {0x4500,
+      0x041c,
+      0x0000,
+      0x0000,
+      0x3f11,
+      0x0000,
+      0x0a01,
+      0x0101,
+      0x0a01,
+      0x0204,
+      0xc001,
+      0x0009,
+      0x0408,
+      0x0000,
+      0x0000,
+      0x0000}},
+    {2,
+     3811,
+     46,
+     46,
+     {0x0001,
+      0x0800,
+      0x0604,
+      0x0001,
+      0x0000,
+      0x0000,
+      0x0006,
+      0x0a01,
+      0x0204,
+      0xffff,
+      0xffff,
+      0xffff,
+      0x0a01,
+      0x0201,
+      0x0000,
+      0x0000}},
+    {2,
+     3822,
+     46,
+     46,
+     {0x0001,
+      0x0800,
+      0x0604,
+      0x0002,
+      0x0000,
+      0x0000,
+      0x0003,
+      0x0a01,
+      0x0201,
+      0x0000,
+      0x0000,
+      0x0006,
+      0x0a01,
+      0x0204,
+      0x0000,
+      0x0000}},
+    {2,
+     3915,
+     1070,
+     1070,
+     {0x4500,
+      0x041c,
+      0x0000,
+      0x0000,
+      0x4011,
+      0x0000,
+      0x0a01,
+      0x0204,
+      0x0a01,
+      0x0101,
+      0x0009,
+      0xc001,
+      0x0408,
+      0x0000,
+      0x0000,
+      0x0000}},
+};
 
 void
 ReadFileTestCase::DoRun()
@@ -1283,10 +1284,10 @@ ReadFileTestCase::DoRun()
         NS_TEST_ASSERT_MSG_EQ(f.Fail(), false, "Read() of known good pcap file returns error");
         NS_TEST_ASSERT_MSG_EQ(tsSec,
                               p.tsSec,
-                              "Incorrectly read seconds timestap from known good pcap file");
+                              "Incorrectly read seconds timestamp from known good pcap file");
         NS_TEST_ASSERT_MSG_EQ(tsUsec,
                               p.tsUsec,
-                              "Incorrectly read microseconds timestap from known good pcap file");
+                              "Incorrectly read microseconds timestamp from known good pcap file");
         NS_TEST_ASSERT_MSG_EQ(inclLen,
                               p.inclLen,
                               "Incorrectly read included length from known good packet");

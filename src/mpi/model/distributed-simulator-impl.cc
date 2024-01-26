@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -59,25 +58,25 @@ LbtsMessage::GetSmallestTime()
 }
 
 uint32_t
-LbtsMessage::GetTxCount()
+LbtsMessage::GetTxCount() const
 {
     return m_txCount;
 }
 
 uint32_t
-LbtsMessage::GetRxCount()
+LbtsMessage::GetRxCount() const
 {
     return m_rxCount;
 }
 
 uint32_t
-LbtsMessage::GetMyId()
+LbtsMessage::GetMyId() const
 {
     return m_myId;
 }
 
 bool
-LbtsMessage::IsFinished()
+LbtsMessage::IsFinished() const
 {
     return m_isFinished;
 }
@@ -90,7 +89,7 @@ LbtsMessage::IsFinished()
 Time DistributedSimulatorImpl::m_lookAhead = Time::Max();
 
 TypeId
-DistributedSimulatorImpl::GetTypeId(void)
+DistributedSimulatorImpl::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::DistributedSimulatorImpl")
                             .SetParent<SimulatorImpl>()
@@ -118,7 +117,7 @@ DistributedSimulatorImpl::DistributedSimulatorImpl()
     m_currentContext = Simulator::NO_CONTEXT;
     m_unscheduledEvents = 0;
     m_eventCount = 0;
-    m_events = 0;
+    m_events = nullptr;
 }
 
 DistributedSimulatorImpl::~DistributedSimulatorImpl()
@@ -127,7 +126,7 @@ DistributedSimulatorImpl::~DistributedSimulatorImpl()
 }
 
 void
-DistributedSimulatorImpl::DoDispose(void)
+DistributedSimulatorImpl::DoDispose()
 {
     NS_LOG_FUNCTION(this);
 
@@ -136,7 +135,7 @@ DistributedSimulatorImpl::DoDispose(void)
         Scheduler::Event next = m_events->RemoveNext();
         next.impl->Unref();
     }
-    m_events = 0;
+    m_events = nullptr;
     delete[] m_pLBTS;
     SimulatorImpl::DoDispose();
 }
@@ -161,11 +160,11 @@ DistributedSimulatorImpl::Destroy()
 }
 
 void
-DistributedSimulatorImpl::CalculateLookAhead(void)
+DistributedSimulatorImpl::CalculateLookAhead()
 {
     NS_LOG_FUNCTION(this);
 
-    /* If runnning sequential simulation can ignore lookahead */
+    /* If running sequential simulation can ignore lookahead */
     if (MpiInterface::GetSize() <= 1)
     {
         m_lookAhead = Seconds(0);
@@ -173,7 +172,7 @@ DistributedSimulatorImpl::CalculateLookAhead(void)
     else
     {
         NodeContainer c = NodeContainer::GetGlobal();
-        for (NodeContainer::Iterator iter = c.Begin(); iter != c.End(); ++iter)
+        for (auto iter = c.Begin(); iter != c.End(); ++iter)
         {
             if ((*iter)->GetSystemId() != MpiInterface::GetSystemId())
             {
@@ -304,7 +303,7 @@ DistributedSimulatorImpl::SetScheduler(ObjectFactory schedulerFactory)
 }
 
 void
-DistributedSimulatorImpl::ProcessOneEvent(void)
+DistributedSimulatorImpl::ProcessOneEvent()
 {
     NS_LOG_FUNCTION(this);
 
@@ -325,19 +324,19 @@ DistributedSimulatorImpl::ProcessOneEvent(void)
 }
 
 bool
-DistributedSimulatorImpl::IsFinished(void) const
+DistributedSimulatorImpl::IsFinished() const
 {
     return m_globalFinished;
 }
 
 bool
-DistributedSimulatorImpl::IsLocalFinished(void) const
+DistributedSimulatorImpl::IsLocalFinished() const
 {
     return m_events->IsEmpty() || m_stop;
 }
 
 uint64_t
-DistributedSimulatorImpl::NextTs(void) const
+DistributedSimulatorImpl::NextTs() const
 {
     // If local MPI task is has no more events or stop was called
     // next event time is infinity.
@@ -353,13 +352,13 @@ DistributedSimulatorImpl::NextTs(void) const
 }
 
 Time
-DistributedSimulatorImpl::Next(void) const
+DistributedSimulatorImpl::Next() const
 {
     return TimeStep(NextTs());
 }
 
 void
-DistributedSimulatorImpl::Run(void)
+DistributedSimulatorImpl::Run()
 {
     NS_LOG_FUNCTION(this);
 
@@ -458,19 +457,19 @@ DistributedSimulatorImpl::GetSystemId() const
 }
 
 void
-DistributedSimulatorImpl::Stop(void)
+DistributedSimulatorImpl::Stop()
 {
     NS_LOG_FUNCTION(this);
 
     m_stop = true;
 }
 
-void
+EventId
 DistributedSimulatorImpl::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(this << delay.GetTimeStep());
 
-    Simulator::Schedule(delay, &Simulator::Stop);
+    return Simulator::Schedule(delay, &Simulator::Stop);
 }
 
 //
@@ -530,7 +529,7 @@ DistributedSimulatorImpl::ScheduleDestroy(EventImpl* event)
 }
 
 Time
-DistributedSimulatorImpl::Now(void) const
+DistributedSimulatorImpl::Now() const
 {
     return TimeStep(m_currentTs);
 }
@@ -554,7 +553,7 @@ DistributedSimulatorImpl::Remove(const EventId& id)
     if (id.GetUid() == EventId::UID::DESTROY)
     {
         // destroy events.
-        for (DestroyEvents::iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -595,13 +594,12 @@ DistributedSimulatorImpl::IsExpired(const EventId& id) const
 {
     if (id.GetUid() == EventId::UID::DESTROY)
     {
-        if (id.PeekEventImpl() == 0 || id.PeekEventImpl()->IsCancelled())
+        if (id.PeekEventImpl() == nullptr || id.PeekEventImpl()->IsCancelled())
         {
             return true;
         }
         // destroy events.
-        for (DestroyEvents::const_iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end();
-             i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -610,20 +608,13 @@ DistributedSimulatorImpl::IsExpired(const EventId& id) const
         }
         return true;
     }
-    if (id.PeekEventImpl() == 0 || id.GetTs() < m_currentTs ||
-        (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
-        id.PeekEventImpl()->IsCancelled())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
+           (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
+           id.PeekEventImpl()->IsCancelled();
 }
 
 Time
-DistributedSimulatorImpl::GetMaximumSimulationTime(void) const
+DistributedSimulatorImpl::GetMaximumSimulationTime() const
 {
     /// \todo I am fairly certain other compilers use other non-standard
     /// post-fixes to indicate 64 bit constants.
@@ -631,13 +622,13 @@ DistributedSimulatorImpl::GetMaximumSimulationTime(void) const
 }
 
 uint32_t
-DistributedSimulatorImpl::GetContext(void) const
+DistributedSimulatorImpl::GetContext() const
 {
     return m_currentContext;
 }
 
 uint64_t
-DistributedSimulatorImpl::GetEventCount(void) const
+DistributedSimulatorImpl::GetEventCount() const
 {
     return m_eventCount;
 }

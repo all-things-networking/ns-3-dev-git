@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
@@ -185,7 +184,6 @@ TcpRateLinuxBasicTest::SkbDelivered(TcpTxItem* skb)
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Behaves as NewReno except HasCongControl returns true
  */
@@ -345,7 +343,7 @@ Ptr<ErrorModel>
 TcpRateLinuxWithSocketsTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> m_errorModel = CreateObject<TcpSeqErrorModel>();
-    for (std::vector<uint32_t>::iterator it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
         m_errorModel->AddSeqToKill(SequenceNumber32(*it));
     }
@@ -382,8 +380,7 @@ TcpRateLinuxWithSocketsTest::Rx(const Ptr<const Packet> p, const TcpHeader& h, S
 }
 
 void
-TcpRateLinuxWithSocketsTest::BytesInFlightTrace([[maybe_unused]] uint32_t oldValue,
-                                                uint32_t newValue)
+TcpRateLinuxWithSocketsTest::BytesInFlightTrace(uint32_t /* oldValue */, uint32_t newValue)
 {
     m_bytesInFlight = newValue;
 }
@@ -441,7 +438,7 @@ TcpRateLinuxWithSocketsTest::FinalChecks()
  * \ingroup internet-tests
  * \ingroup tests
  *
- * \brief The TcpRateLinuxWithBufferTest tests rate sample functionality with arbitary SACK
+ * \brief The TcpRateLinuxWithBufferTest tests rate sample functionality with arbitrary SACK
  * scenario. Check the value of delivered against a home-made guess
  */
 class TcpRateLinuxWithBufferTest : public TestCase
@@ -473,7 +470,7 @@ class TcpRateLinuxWithBufferTest : public TestCase
     /** \brief Test with acks without drop */
     void TestWithStraightAcks();
 
-    /** \brief Test with arbitary SACK scenario */
+    /** \brief Test with arbitrary SACK scenario */
     void TestWithSackBlocks();
 
     uint32_t m_expectedDelivered{0};   //!< Amount of expected delivered data
@@ -597,7 +594,6 @@ TcpRateLinuxWithBufferTest::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief the TestSuite for the TcpRateLinux test case
  */
@@ -649,12 +645,12 @@ class TcpRateOpsTestSuite : public TestSuite
 
         AddTestCase(
             new TcpRateLinuxWithBufferTest(1000,
-                                           "Checking rate sample values with arbitary SACK Block"),
+                                           "Checking rate sample values with arbitrary SACK Block"),
             TestCase::QUICK);
 
         AddTestCase(
             new TcpRateLinuxWithBufferTest(500,
-                                           "Checking rate sample values with arbitary SACK Block"),
+                                           "Checking rate sample values with arbitrary SACK Block"),
             TestCase::QUICK);
     }
 };

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
  *
@@ -29,6 +28,38 @@ namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("FcfsWifiQueueScheduler");
+
+bool
+operator==(const FcfsPrio& lhs, const FcfsPrio& rhs)
+{
+    return lhs.priority == rhs.priority && lhs.type == rhs.type;
+}
+
+bool
+operator<(const FcfsPrio& lhs, const FcfsPrio& rhs)
+{
+    // Control queues have the highest priority
+    if (lhs.type == WIFI_CTL_QUEUE && rhs.type != WIFI_CTL_QUEUE)
+    {
+        return true;
+    }
+    if (lhs.type != WIFI_CTL_QUEUE && rhs.type == WIFI_CTL_QUEUE)
+    {
+        return false;
+    }
+    // Management queues have the second highest priority
+    if (lhs.type == WIFI_MGT_QUEUE && rhs.type != WIFI_MGT_QUEUE)
+    {
+        return true;
+    }
+    if (lhs.type != WIFI_MGT_QUEUE && rhs.type == WIFI_MGT_QUEUE)
+    {
+        return false;
+    }
+    // we get here if both priority values refer to container queues of the same type,
+    // hence we can compare the time values.
+    return lhs.priority < rhs.priority;
+}
 
 NS_OBJECT_ENSURE_REGISTERED(FcfsWifiQueueScheduler);
 
@@ -66,23 +97,31 @@ FcfsWifiQueueScheduler::HasToDropBeforeEnqueuePriv(AcIndex ac, Ptr<WifiMpdu> mpd
         return nullptr;
     }
 
-    // Management frames should be prioritized
-    if (m_dropPolicy == DROP_OLDEST || mpdu->GetHeader().IsMgt())
+    // Control and management frames should be prioritized
+    if (m_dropPolicy == DROP_OLDEST || mpdu->GetHeader().IsCtl() || mpdu->GetHeader().IsMgt())
     {
-        auto sortedQueuesIt = GetSortedQueues(ac).begin();
-
-        while (sortedQueuesIt != GetSortedQueues(ac).end() &&
-               std::get<WifiContainerQueueType>(sortedQueuesIt->second.get().first) ==
-                   WIFI_MGT_QUEUE)
+        for (const auto& [priority, queueInfo] : GetSortedQueues(ac))
         {
-            sortedQueuesIt++;
-        }
+            if (std::get<WifiContainerQueueType>(queueInfo.get().first) == WIFI_MGT_QUEUE ||
+                std::get<WifiContainerQueueType>(queueInfo.get().first) == WIFI_CTL_QUEUE)
+            {
+                // do not drop control or management frames
+                continue;
+            }
 
-        if (sortedQueuesIt != GetSortedQueues(ac).end())
-        {
-            return queue->PeekByQueueId(sortedQueuesIt->second.get().first);
+            // do not drop frames that are inflight or to be retransmitted
+            Ptr<WifiMpdu> item;
+            while ((item = queue->PeekByQueueId(queueInfo.get().first, item)))
+            {
+                if (!item->IsInFlight() && !item->GetHeader().IsRetry())
+                {
+                    NS_LOG_DEBUG("Dropping " << *item);
+                    return item;
+                }
+            }
         }
     }
+    NS_LOG_DEBUG("Dropping received MPDU: " << *mpdu);
     return mpdu;
 }
 
@@ -93,18 +132,11 @@ FcfsWifiQueueScheduler::DoNotifyEnqueue(AcIndex ac, Ptr<WifiMpdu> mpdu)
 
     const auto queueId = WifiMacQueueContainer::GetQueueId(mpdu);
 
-    if (GetWifiMacQueue(ac)->GetNPackets(queueId) > 1)
-    {
-        // Enqueue takes place at the tail, while the priority is determined by the
-        // head of the queue. Therefore, if the queue was not empty before inserting
-        // this MPDU, priority does not change
-        return;
-    }
+    // priority is determined by the head of the queue
+    auto item = GetWifiMacQueue(ac)->PeekByQueueId(queueId);
+    NS_ASSERT(item);
 
-    auto priority =
-        (mpdu->GetHeader().IsMgt() ? Seconds(0) // Highest priority for management frames
-                                   : mpdu->GetExpiryTime());
-    SetPriority(ac, queueId, priority);
+    SetPriority(ac, queueId, {item->GetTimestamp(), std::get<WifiContainerQueueType>(queueId)});
 }
 
 void
@@ -121,15 +153,11 @@ FcfsWifiQueueScheduler::DoNotifyDequeue(AcIndex ac, const std::list<Ptr<WifiMpdu
 
     for (const auto& queueId : queueIds)
     {
-        if (std::get<WifiContainerQueueType>(queueId) == WIFI_MGT_QUEUE)
+        if (auto item = GetWifiMacQueue(ac)->PeekByQueueId(queueId))
         {
-            // the priority of management queues does not change
-            continue;
-        }
-
-        if (auto item = GetWifiMacQueue(ac)->PeekByQueueId(queueId); item != nullptr)
-        {
-            SetPriority(ac, queueId, item->GetExpiryTime());
+            SetPriority(ac,
+                        queueId,
+                        {item->GetTimestamp(), std::get<WifiContainerQueueType>(queueId)});
         }
     }
 }
@@ -148,15 +176,11 @@ FcfsWifiQueueScheduler::DoNotifyRemove(AcIndex ac, const std::list<Ptr<WifiMpdu>
 
     for (const auto& queueId : queueIds)
     {
-        if (std::get<0>(queueId) == WIFI_MGT_QUEUE)
+        if (auto item = GetWifiMacQueue(ac)->PeekByQueueId(queueId))
         {
-            // the priority of management queues does not change
-            continue;
-        }
-
-        if (auto item = GetWifiMacQueue(ac)->PeekByQueueId(queueId); item != nullptr)
-        {
-            SetPriority(ac, queueId, item->GetExpiryTime());
+            SetPriority(ac,
+                        queueId,
+                        {item->GetTimestamp(), std::get<WifiContainerQueueType>(queueId)});
         }
     }
 }

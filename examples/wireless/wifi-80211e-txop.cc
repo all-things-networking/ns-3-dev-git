@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
@@ -97,8 +96,8 @@ main(int argc, char* argv[])
     uint32_t payloadSize = 1472; // bytes
     double simulationTime = 10;  // seconds
     double distance = 5;         // meters
-    bool enablePcap = 0;
-    bool verifyResults = 0; // used for regression
+    bool enablePcap = false;
+    bool verifyResults = false; // used for regression
     Time txopLimit = MicroSeconds(4096);
 
     CommandLine cmd(__FILE__);

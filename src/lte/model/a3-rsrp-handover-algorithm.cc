@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Budiarto Herman
  *
@@ -21,9 +20,10 @@
 
 #include "a3-rsrp-handover-algorithm.h"
 
+#include "lte-common.h"
+
 #include <ns3/double.h>
 #include <ns3/log.h>
-#include <ns3/lte-common.h>
 
 #include <algorithm>
 #include <list>
@@ -135,8 +135,7 @@ A3RsrpHandoverAlgorithm::DoReportUeMeas(uint16_t rnti, LteRrcSap::MeasResults me
         uint16_t bestNeighbourCellId = 0;
         uint8_t bestNeighbourRsrp = 0;
 
-        for (std::list<LteRrcSap::MeasResultEutra>::iterator it =
-                 measResults.measResultListEutra.begin();
+        for (auto it = measResults.measResultListEutra.begin();
              it != measResults.measResultListEutra.end();
              ++it)
         {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -86,31 +85,31 @@ IeRann::SetOriginatorAddress(Mac48Address originator_address)
 }
 
 uint8_t
-IeRann::GetFlags()
+IeRann::GetFlags() const
 {
     return m_flags;
 }
 
 uint8_t
-IeRann::GetHopcount()
+IeRann::GetHopcount() const
 {
     return m_hopcount;
 }
 
 uint8_t
-IeRann::GetTtl()
+IeRann::GetTtl() const
 {
     return m_ttl;
 }
 
 uint32_t
-IeRann::GetDestSeqNumber()
+IeRann::GetDestSeqNumber() const
 {
     return m_destSeqNumber;
 }
 
 uint32_t
-IeRann::GetMetric()
+IeRann::GetMetric() const
 {
     return m_metric;
 }

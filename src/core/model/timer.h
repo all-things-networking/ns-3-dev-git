@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -122,7 +121,7 @@ class Timer
      * \param [in] destroyPolicy the event lifetime management policies
      * to use for destroy events
      */
-    Timer(enum DestroyPolicy destroyPolicy);
+    Timer(DestroyPolicy destroyPolicy);
     ~Timer();
 
     /**
@@ -199,7 +198,7 @@ class Timer
     /**
      * \returns The current state of the timer.
      */
-    enum Timer::State GetState() const;
+    Timer::State GetState() const;
     /**
      * Schedule a new event using the currently-configured delay, function,
      * and arguments.
@@ -234,11 +233,8 @@ class Timer
     void Resume();
 
   private:
-    /** Internal bit marking the suspended state. */
-    enum InternalSuspended
-    {
-        TIMER_SUSPENDED = (1 << 7) /** Timer suspended. */
-    };
+    /** Internal bit marking the suspended timer state */
+    static constexpr auto TIMER_SUSPENDED{1 << 7};
 
     /**
      * Bitfield for Timer State, DestroyPolicy and InternalSuspended.

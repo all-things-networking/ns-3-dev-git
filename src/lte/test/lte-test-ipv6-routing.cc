@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Jadavpur University, India
  *
@@ -18,7 +17,6 @@
  * Author: Manoj Kumar Rana <manoj24.rana@gmail.com>
  */
 
-#include "ns3/applications-module.h"
 #include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/epc-helper.h"
@@ -30,6 +28,7 @@
 #include "ns3/mobility-module.h"
 #include "ns3/network-module.h"
 #include "ns3/point-to-point-helper.h"
+#include "ns3/udp-echo-helper.h"
 
 #include <algorithm>
 
@@ -52,7 +51,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte Ipv6 routing test case.
  */
@@ -166,8 +164,7 @@ LteIpv6RoutingTestCase::Checker()
     bool b = false;
     bool check = true;
     // Extract each received reply packet of the client
-    for (std::list<Ptr<Packet>>::iterator it1 = m_clientRxPkts.begin(); it1 != m_clientRxPkts.end();
-         it1++)
+    for (auto it1 = m_clientRxPkts.begin(); it1 != m_clientRxPkts.end(); it1++)
     {
         Ipv6Header ipv6header1;
         UdpHeader udpHeader1;
@@ -176,14 +173,12 @@ LteIpv6RoutingTestCase::Checker()
         uint64_t uid = p1->GetUid();
         p1->RemoveHeader(udpHeader1);
         // Search each packet in list of sent request packet of the client
-        for (std::list<Ptr<Packet>>::iterator it2 = m_clientTxPkts.begin();
-             it2 != m_clientTxPkts.end();
-             it2++)
+        for (auto it2 = m_clientTxPkts.begin(); it2 != m_clientTxPkts.end(); it2++)
         {
             Ptr<Packet> p2 = (*it2)->Copy();
             Ipv6Header ipv6header2;
             p2->RemoveHeader(ipv6header2);
-            Ipv6Address sorceAddress = ipv6header2.GetSource();
+            Ipv6Address sourceAddress = ipv6header2.GetSource();
             Ipv6Address destinationAddress = ipv6header2.GetDestination();
             UdpHeader udpHeader2;
             p2->RemoveHeader(udpHeader2);
@@ -192,7 +187,7 @@ LteIpv6RoutingTestCase::Checker()
             sourcePort = udpHeader2.GetSourcePort();
             destinationPort = udpHeader2.GetDestinationPort();
             // Check whether the uids, addresses and ports match
-            if ((p2->GetUid() == p1->GetUid()) && sorceAddress == ipv6header1.GetDestination() &&
+            if ((p2->GetUid() == p1->GetUid()) && sourceAddress == ipv6header1.GetDestination() &&
                 destinationAddress == ipv6header1.GetSource() &&
                 sourcePort == udpHeader1.GetDestinationPort() &&
                 destinationPort == udpHeader1.GetSourcePort())
@@ -397,4 +392,8 @@ LteIpv6RoutingTestSuite::LteIpv6RoutingTestSuite()
     AddTestCase(new LteIpv6RoutingTestCase, TestCase::QUICK);
 }
 
-static LteIpv6RoutingTestSuite lteipv6testsuite;
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
+static LteIpv6RoutingTestSuite g_lteipv6testsuite;

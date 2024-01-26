@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Sébastien Deronne
  *
@@ -41,6 +40,7 @@ class HeOperation : public WifiInformationElement
     // Implementations of pure virtual methods of WifiInformationElement
     WifiInformationElementId ElementId() const override;
     WifiInformationElementId ElementIdExt() const override;
+    void Print(std::ostream& os) const override;
 
     /**
      * Set the HE Operation Parameters field in the HE Operation information element.
@@ -101,16 +101,6 @@ class HeOperation : public WifiInformationElement
 
     // TODO: VHT Operation Information subfields not defined in the standard yet.
 };
-
-/**
- * output stream output operator
- *
- * \param os output stream
- * \param HeOperation the HE operation
- *
- * \returns output stream
- */
-std::ostream& operator<<(std::ostream& os, const HeOperation& HeOperation);
 
 } // namespace ns3
 

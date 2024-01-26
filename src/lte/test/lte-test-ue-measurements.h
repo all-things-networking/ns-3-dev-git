@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -46,7 +45,6 @@ using namespace ns3;
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test that UE Measurements (see 36.214) calculation works fine in a
  * multi-cell interference scenario.
@@ -59,7 +57,6 @@ class LteUeMeasurementsTestSuite : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test that UE measurements calculation works properly in a scenario
  * with 2 eNodeBs and 2UEs. Test that RSRP and RSRQ of the serving cell and of
@@ -129,7 +126,6 @@ class LteUeMeasurementsTestCase : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for generating calls to UE measurements test case
  *        ns3::LteUeMeasurementsPiecewiseTestCase1.
@@ -142,15 +138,14 @@ class LteUeMeasurementsPiecewiseTestSuite1 : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Testing UE measurements in LTE with simulation of 1 eNodeB and 1 UE in
  *        piecewise configuration and 120 ms report interval. During the simulation
  *        the placement of UE is being changed several times. Four different
  *        cases are considered: UE is very near to eNodeB, UE is near to eNodeB,
  *        UE is far from eNodeB and UE is very far from eNodeB. Test checks
- *        if the measurments correspond to the real conditions of the UE, i.e.
- *        wnen the signal from serving cell becomes weak, the measurements should
+ *        if the measurements correspond to the real conditions of the UE, i.e.
+ *        when the signal from serving cell becomes weak, the measurements should
  *        also start to correspond to the new channel conditions. Additionally, it
  *        is checked if UE detects some neighboring signal, if it does the test
  *        fails because there is no neighbor in this configuration. Also, test
@@ -266,7 +261,6 @@ class LteUeMeasurementsPiecewiseTestCase1 : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for generating calls to UE measurements test case
  *        ns3::LteUeMeasurementsPiecewiseTestCase2.
@@ -279,7 +273,6 @@ class LteUeMeasurementsPiecewiseTestSuite2 : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Testing UE measurements in LTE with simulation of 2 eNodeB and 1 UE in
  *        piecewise configuration and 240 ms report interval.
@@ -403,7 +396,6 @@ class LteUeMeasurementsPiecewiseTestCase2 : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for generating calls to UE measurements test case
  *        ns3::LteUeMeasurementsPiecewiseTestCase3.
@@ -416,7 +408,6 @@ class LteUeMeasurementsPiecewiseTestSuite3 : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Testing UE measurements in LTE with simulation of 3 eNodeB and 1 UE in
  *        piecewise configuration and 240 ms report interval.
@@ -538,7 +529,6 @@ class LteUeMeasurementsPiecewiseTestCase3 : public TestCase
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test suite for generating calls to UE measurements test case
  *        ns3::LteUeMeasurementsHandoverTestCase.
@@ -551,7 +541,6 @@ class LteUeMeasurementsHandoverTestSuite : public TestSuite
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Testing UE measurements in LTE with simulation of 2 eNodeB and 1 UE in
  *        a handover configuration.

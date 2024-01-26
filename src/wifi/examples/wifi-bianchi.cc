@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 The Boeing Company
  *
@@ -77,23 +76,23 @@ std::map<Mac48Address, uint64_t>
 std::map<Mac48Address, uint64_t>
     packetsTransmitted; ///< Map that stores the total packets transmitted per STA
 std::map<Mac48Address, uint64_t>
-    psduFailed; ///< Map that stores the total number of unsuccessfully received PSDUS (for which
+    psduFailed; ///< Map that stores the total number of unsuccessfuly received PSDUS (for which
                 ///< the PHY header was successfully received)  per STA (including PSDUs not
                 ///< addressed to that STA)
 std::map<Mac48Address, uint64_t>
     psduSucceeded; ///< Map that stores the total number of successfully received PSDUs per STA
                    ///< (including PSDUs not addressed to that STA)
 std::map<Mac48Address, uint64_t> phyHeaderFailed; ///< Map that stores the total number of
-                                                  ///< unsuccessfully received PHY headers per STA
+                                                  ///< unsuccessfuly received PHY headers per STA
 std::map<Mac48Address, uint64_t>
-    rxEventWhileTxing; ///< Map that stores the number of reception events per STA that occured
+    rxEventWhileTxing; ///< Map that stores the number of reception events per STA that occurred
                        ///< while PHY was already transmitting a PPDU
 std::map<Mac48Address, uint64_t>
-    rxEventWhileRxing; ///< Map that stores the number of reception events per STA that occured
+    rxEventWhileRxing; ///< Map that stores the number of reception events per STA that occurred
                        ///< while PHY was already receiving a PPDU
 std::map<Mac48Address, uint64_t>
     rxEventWhileDecodingPreamble; ///< Map that stores the number of reception events per STA that
-                                  ///< occured while PHY was already decoding a preamble
+                                  ///< occurred while PHY was already decoding a preamble
 std::map<Mac48Address, uint64_t>
     rxEventAbortedByTx; ///< Map that stores the number of reception events aborted per STA because
                         ///< the PHY has started to transmit
@@ -1915,7 +1914,7 @@ ContextToNodeId(std::string context)
 {
     std::string sub = context.substr(10);
     uint32_t pos = sub.find("/Device");
-    return atoi(sub.substr(0, pos).c_str());
+    return std::stoi(sub.substr(0, pos));
 }
 
 /**
@@ -1929,7 +1928,7 @@ ContextToMac(std::string context)
 {
     std::string sub = context.substr(10);
     uint32_t pos = sub.find("/Device");
-    uint32_t nodeId = atoi(sub.substr(0, pos).c_str());
+    uint32_t nodeId = std::stoi(sub.substr(0, pos));
     Ptr<Node> n = NodeList::GetNode(nodeId);
     Ptr<WifiNetDevice> d;
     for (uint32_t i = 0; i < n->GetNDevices(); i++)
@@ -2533,10 +2532,10 @@ Experiment::Run(const WifiHelper& helper,
     MobilityHelper mobility;
     Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
-    // Set postion for AP
+    // Set position for AP
     positionAlloc->Add(Vector(1.0, 1.0, 0.0));
 
-    // Set postion for STAs
+    // Set position for STAs
     double angle = (static_cast<double>(360) / (nNodes - 1));
     for (uint32_t i = 0; i < (nNodes - 1); ++i)
     {
@@ -2594,13 +2593,18 @@ Experiment::Run(const WifiHelper& helper,
                         MakeCallback(&DisassociationLog));
     }
 
+    std::string txop =
+        StaticCast<WifiNetDevice>(wifiNodes.Get(0)->GetDevice(0))->GetMac()->GetQosSupported()
+            ? "BE_Txop"
+            : "Txop";
     // Trace CW evolution
-    Config::Connect("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/$ns3::WifiMac/Txop/CwTrace",
+    Config::Connect("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/$ns3::WifiMac/" + txop +
+                        "/CwTrace",
                     MakeCallback(&CwTrace));
     // Trace backoff evolution
-    Config::Connect(
-        "/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/$ns3::WifiMac/Txop/BackoffTrace",
-        MakeCallback(&BackoffTrace));
+    Config::Connect("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Mac/$ns3::WifiMac/" + txop +
+                        "/BackoffTrace",
+                    MakeCallback(&BackoffTrace));
     // Trace PHY Tx start events
     Config::Connect("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::WifiPhy/PhyTxBegin",
                     MakeCallback(&PhyTxTrace));
@@ -2834,7 +2838,7 @@ main(int argc, char* argv[])
     ss << "wifi-" << standard << "-p-" << pktSize << (infra ? "-infrastructure" : "-adhoc") << "-r-"
        << phyModeStr.str() << "-min-" << nMinStas << "-max-" << nMaxStas << "-step-" << nStepSize
        << "-throughput.plt";
-    std::ofstream throughputPlot(ss.str().c_str());
+    std::ofstream throughputPlot(ss.str());
     ss.str("");
     ss << "wifi-" << standard << "-p-" << pktSize << (infra ? "-infrastructure" : "-adhoc") << "-r-"
        << phyModeStr.str() << "-min-" << nMinStas << "-max-" << nMaxStas << "-step-" << nStepSize

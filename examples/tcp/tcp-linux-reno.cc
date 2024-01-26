@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
@@ -61,7 +60,7 @@ CheckQueueSize(Ptr<QueueDisc> queue)
 
     // Check queue size every 1/100 of a second
     Simulator::Schedule(Seconds(0.001), &CheckQueueSize, queue);
-    std::ofstream fPlotQueue(std::stringstream(dir + "queue-size.dat").str().c_str(),
+    std::ofstream fPlotQueue(std::stringstream(dir + "queue-size.dat").str(),
                              std::ios::out | std::ios::app);
     fPlotQueue << Simulator::Now().GetSeconds() << " " << qSize << std::endl;
     fPlotQueue.close();
@@ -153,21 +152,11 @@ main(int argc, char* argv[])
     // Set recovery algorithm and TCP variant
     Config::SetDefault("ns3::TcpL4Protocol::RecoveryType",
                        TypeIdValue(TypeId::LookupByName(recovery)));
-    if (tcpTypeId == "ns3::TcpWestwoodPlus")
-    {
-        // TcpWestwoodPlus is not an actual TypeId name; we need TcpWestwood here
-        Config::SetDefault("ns3::TcpL4Protocol::SocketType", TypeIdValue(TcpWestwood::GetTypeId()));
-        // the default protocol type in ns3::TcpWestwood is WESTWOOD
-        Config::SetDefault("ns3::TcpWestwood::ProtocolType", EnumValue(TcpWestwood::WESTWOODPLUS));
-    }
-    else
-    {
-        TypeId tcpTid;
-        NS_ABORT_MSG_UNLESS(TypeId::LookupByNameFailSafe(tcpTypeId, &tcpTid),
-                            "TypeId " << tcpTypeId << " not found");
-        Config::SetDefault("ns3::TcpL4Protocol::SocketType",
-                           TypeIdValue(TypeId::LookupByName(tcpTypeId)));
-    }
+    TypeId tcpTid;
+    NS_ABORT_MSG_UNLESS(TypeId::LookupByNameFailSafe(tcpTypeId, &tcpTid),
+                        "TypeId " << tcpTypeId << " not found");
+    Config::SetDefault("ns3::TcpL4Protocol::SocketType",
+                       TypeIdValue(TypeId::LookupByName(tcpTypeId)));
 
     // Create nodes
     NodeContainer leftNodes;
@@ -232,7 +221,7 @@ main(int argc, char* argv[])
 
     // Create directories to store dat files
     struct stat buffer;
-    [[maybe_unused]] int retVal;
+    int retVal [[maybe_unused]];
     if ((stat(dir.c_str(), &buffer)) == 0)
     {
         std::string dirToRemove = "rm -rf " + dir;

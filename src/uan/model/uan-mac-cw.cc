@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -20,12 +19,13 @@
 
 #include "uan-mac-cw.h"
 
+#include "uan-header-common.h"
+
 #include "ns3/attribute.h"
 #include "ns3/double.h"
 #include "ns3/log.h"
 #include "ns3/nstime.h"
 #include "ns3/trace-source-accessor.h"
-#include "ns3/uan-header-common.h"
 #include "ns3/uinteger.h"
 
 namespace ns3
@@ -118,7 +118,7 @@ UanMacCw::Enqueue(Ptr<Packet> packet, uint16_t protocolNumber, const Address& de
     case CCABUSY:
         NS_LOG_DEBUG("Time " << Now().As(Time::S) << " MAC " << GetAddress()
                              << " Starting enqueue CCABUSY");
-        if (m_txOngoing == true)
+        if (m_txOngoing)
         {
             NS_LOG_DEBUG("State is TX");
         }
@@ -127,11 +127,11 @@ UanMacCw::Enqueue(Ptr<Packet> packet, uint16_t protocolNumber, const Address& de
             NS_LOG_DEBUG("State is not TX");
         }
 
-        NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().size() >= 1 || m_phy->IsStateTx());
+        NS_ASSERT(!m_phy->GetTransducer()->GetArrivalList().empty() || m_phy->IsStateTx());
         return false;
     case RUNNING:
         NS_LOG_DEBUG("MAC " << GetAddress() << " Starting enqueue RUNNING");
-        NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().size() == 0 && !m_phy->IsStateTx());
+        NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().empty() && !m_phy->IsStateTx());
         return false;
     case TX:
     case IDLE: {
@@ -151,21 +151,21 @@ UanMacCw::Enqueue(Ptr<Packet> packet, uint16_t protocolNumber, const Address& de
             m_pktTx = packet;
             m_pktTxProt = GetTxModeIndex();
             m_state = CCABUSY;
-            uint32_t cw = (uint32_t)m_rv->GetValue(0, m_cw);
+            auto cw = (uint32_t)m_rv->GetValue(0, m_cw);
             m_savedDelayS = cw * m_slotTime;
             m_sendTime = Simulator::Now() + m_savedDelayS;
             NS_LOG_DEBUG("Time " << Now().As(Time::S) << ": Addr " << GetAddress()
                                  << ": Enqueuing new packet while busy:  (Chose CW " << cw
                                  << ", Sending at " << m_sendTime.As(Time::S)
                                  << " Packet size: " << packet->GetSize());
-            NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().size() >= 1 || m_phy->IsStateTx());
+            NS_ASSERT(!m_phy->GetTransducer()->GetArrivalList().empty() || m_phy->IsStateTx());
         }
         else
         {
             NS_ASSERT(m_state != TX);
             NS_LOG_DEBUG("Time " << Now().As(Time::S) << ": Addr " << GetAddress()
                                  << ": Enqueuing new packet while idle (sending)");
-            NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().size() == 0 && !m_phy->IsStateTx());
+            NS_ASSERT(m_phy->GetTransducer()->GetArrivalList().empty() && !m_phy->IsStateTx());
             m_state = TX;
             m_phy->SendPacket(packet, GetTxModeIndex());
         }
@@ -334,7 +334,7 @@ UanMacCw::GetSlotTime()
 }
 
 void
-UanMacCw::PhyRxPacketGood(Ptr<Packet> packet, [[maybe_unused]] double sinr, UanTxMode mode)
+UanMacCw::PhyRxPacketGood(Ptr<Packet> packet, double /* sinr */, UanTxMode /* mode */)
 {
     UanHeaderCommon header;
     packet->RemoveHeader(header);
@@ -347,7 +347,7 @@ UanMacCw::PhyRxPacketGood(Ptr<Packet> packet, [[maybe_unused]] double sinr, UanT
 }
 
 void
-UanMacCw::PhyRxPacketError(Ptr<Packet> packet, [[maybe_unused]] double sinr)
+UanMacCw::PhyRxPacketError(Ptr<Packet> /* packet */, double /* sinr */)
 {
 }
 

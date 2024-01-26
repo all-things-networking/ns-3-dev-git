@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2021 DERONNE SOFTWARE ENGINEERING
  *
@@ -65,6 +64,7 @@ class EhtPhy : public HePhy
     Ptr<WifiPpdu> BuildPpdu(const WifiConstPsduMap& psdus,
                             const WifiTxVector& txVector,
                             Time ppduDuration) override;
+    WifiMode GetSigBMode(const WifiTxVector& txVector) const override;
 
     /**
      * Initialize all EHT modes.
@@ -260,6 +260,10 @@ class EhtPhy : public HePhy
                                 PhyFieldRxStatus status,
                                 WifiPpduField field) override;
     WifiPhyRxfailureReason GetFailureReason(WifiPpduField field) const override;
+    Time CalculateNonHeDurationForHeTb(const WifiTxVector& txVector) const override;
+    Time CalculateNonHeDurationForHeMu(const WifiTxVector& txVector) const override;
+    uint32_t GetSigBSize(const WifiTxVector& txVector) const override;
+
     /**
      * Create and return the EHT MCS corresponding to
      * the provided index.

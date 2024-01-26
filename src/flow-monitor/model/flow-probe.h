@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -21,7 +20,8 @@
 #ifndef FLOW_PROBE_H
 #define FLOW_PROBE_H
 
-#include "ns3/flow-classifier.h"
+#include "flow-classifier.h"
+
 #include "ns3/nstime.h"
 #include "ns3/object.h"
 

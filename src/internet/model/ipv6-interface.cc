@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
@@ -216,7 +215,7 @@ Ipv6Interface::AddAddress(Ipv6InterfaceAddress iface)
     /* DAD handling */
     if (!addr.IsAny())
     {
-        for (Ipv6InterfaceAddressListCI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+        for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
         {
             if (it->first.GetAddress() == addr)
             {
@@ -283,7 +282,7 @@ Ipv6Interface::IsSolicitedMulticastAddress(Ipv6Address address) const
     /* IPv6 interface has always at least one IPv6 Solicited Multicast address */
     NS_LOG_FUNCTION(this << address);
 
-    for (Ipv6InterfaceAddressListCI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (it->second == address)
         {
@@ -302,7 +301,7 @@ Ipv6Interface::GetAddress(uint32_t index) const
 
     if (m_addresses.size() > index)
     {
-        for (Ipv6InterfaceAddressListCI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+        for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
         {
             if (i == index)
             {
@@ -337,7 +336,7 @@ Ipv6Interface::RemoveAddress(uint32_t index)
         NS_FATAL_ERROR("Removing index that does not exist in Ipv6Interface::RemoveAddress");
     }
 
-    for (Ipv6InterfaceAddressListI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (i == index)
         {
@@ -362,13 +361,13 @@ Ipv6Interface::RemoveAddress(Ipv6Address address)
 {
     NS_LOG_FUNCTION(this << address);
 
-    if (address == address.GetLoopback())
+    if (address == Ipv6Address::GetLoopback())
     {
         NS_LOG_WARN("Cannot remove loopback address.");
         return Ipv6InterfaceAddress();
     }
 
-    for (Ipv6InterfaceAddressListI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (it->first.GetAddress() == address)
         {
@@ -389,8 +388,7 @@ Ipv6Interface::GetAddressMatchingDestination(Ipv6Address dst)
 {
     NS_LOG_FUNCTION(this << dst);
 
-    for (Ipv6InterfaceAddressList::const_iterator it = m_addresses.begin(); it != m_addresses.end();
-         ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         Ipv6InterfaceAddress ifaddr = it->first;
 
@@ -432,17 +430,19 @@ Ipv6Interface::Send(Ptr<Packet> p, const Ipv6Header& hdr, Ipv6Address dest)
     NS_ASSERT(m_tc);
 
     /* check if destination is for one of our interface */
-    for (Ipv6InterfaceAddressListCI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (dest == it->first.GetAddress())
         {
             p->AddHeader(hdr);
-            m_tc->Receive(m_device,
-                          p,
-                          Ipv6L3Protocol::PROT_NUMBER,
-                          m_device->GetBroadcast(),
-                          m_device->GetBroadcast(),
-                          NetDevice::PACKET_HOST);
+            Simulator::ScheduleNow(&TrafficControlLayer::Receive,
+                                   m_tc,
+                                   m_device,
+                                   p,
+                                   Ipv6L3Protocol::PROT_NUMBER,
+                                   m_device->GetBroadcast(),
+                                   m_device->GetBroadcast(),
+                                   NetDevice::PACKET_HOST);
             return;
         }
     }
@@ -560,7 +560,7 @@ Ipv6Interface::SetState(Ipv6Address address, Ipv6InterfaceAddress::State_e state
 {
     NS_LOG_FUNCTION(this << address << state);
 
-    for (Ipv6InterfaceAddressListI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (it->first.GetAddress() == address)
         {
@@ -576,7 +576,7 @@ Ipv6Interface::SetNsDadUid(Ipv6Address address, uint32_t uid)
 {
     NS_LOG_FUNCTION(this << address << uid);
 
-    for (Ipv6InterfaceAddressListI it = m_addresses.begin(); it != m_addresses.end(); ++it)
+    for (auto it = m_addresses.begin(); it != m_addresses.end(); ++it)
     {
         if (it->first.GetAddress() == address)
         {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -126,12 +125,12 @@ RealtimeSimulatorImpl::Destroy()
     // means shutting down the workers and doing a Join() before calling the
     // Simulator::Destroy().
     //
-    while (m_destroyEvents.empty() == false)
+    while (!m_destroyEvents.empty())
     {
         Ptr<EventImpl> ev = m_destroyEvents.front().PeekEventImpl();
         m_destroyEvents.pop_front();
         NS_LOG_LOGIC("handle destroy " << ev);
-        if (ev->IsCancelled() == false)
+        if (!ev->IsCancelled())
         {
             ev->Invoke();
         }
@@ -150,7 +149,7 @@ RealtimeSimulatorImpl::SetScheduler(ObjectFactory schedulerFactory)
 
         if (m_events)
         {
-            while (m_events->IsEmpty() == false)
+            while (!m_events->IsEmpty())
             {
                 Scheduler::Event next = m_events->RemoveNext();
                 scheduler->Insert(next);
@@ -267,7 +266,7 @@ RealtimeSimulatorImpl::ProcessOneEvent()
         //
         // It's easiest to understand if you just consider a short tsDelay that only
         // requires a SpinWait down in the synchronizer.  What will happen is that
-        // whan Synchronize calls SpinWait, SpinWait will look directly at its
+        // when Synchronize calls SpinWait, SpinWait will look directly at its
         // condition variable.  Note that we set this condition variable to false
         // inside the critical section above.
         //
@@ -454,16 +453,15 @@ RealtimeSimulatorImpl::Run()
             }
         }
 
-        if (!process)
+        if (process)
         {
-            // Sleep until signalled
-            tsNow = m_synchronizer->Synchronize(tsNow, tsDelay);
-
-            // Re-check event queue
-            continue;
+            ProcessOneEvent();
         }
-
-        ProcessOneEvent();
+        else
+        {
+            // Sleep until signalled and re-check event queue
+            m_synchronizer->Synchronize(tsNow, tsDelay);
+        }
     }
 
     //
@@ -499,11 +497,11 @@ RealtimeSimulatorImpl::Stop()
     m_stop = true;
 }
 
-void
+EventId
 RealtimeSimulatorImpl::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(this << delay);
-    Simulator::Schedule(delay, &Simulator::Stop);
+    return Simulator::Schedule(delay, &Simulator::Stop);
 }
 
 //
@@ -705,7 +703,7 @@ RealtimeSimulatorImpl::Remove(const EventId& id)
     if (id.GetUid() == EventId::UID::DESTROY)
     {
         // destroy events.
-        for (DestroyEvents::iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -739,7 +737,7 @@ RealtimeSimulatorImpl::Remove(const EventId& id)
 void
 RealtimeSimulatorImpl::Cancel(const EventId& id)
 {
-    if (IsExpired(id) == false)
+    if (!IsExpired(id))
     {
         id.PeekEventImpl()->Cancel();
     }
@@ -755,8 +753,7 @@ RealtimeSimulatorImpl::IsExpired(const EventId& id) const
             return true;
         }
         // destroy events.
-        for (DestroyEvents::const_iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end();
-             i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -774,16 +771,9 @@ RealtimeSimulatorImpl::IsExpired(const EventId& id) const
     //
     // The same is true for the next line involving the m_currentUid.
     //
-    if (id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
-        (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
-        id.PeekEventImpl()->IsCancelled())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
+           (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
+           id.PeekEventImpl()->IsCancelled();
 }
 
 Time
@@ -812,7 +802,7 @@ RealtimeSimulatorImpl::GetEventCount() const
 }
 
 void
-RealtimeSimulatorImpl::SetSynchronizationMode(enum SynchronizationMode mode)
+RealtimeSimulatorImpl::SetSynchronizationMode(SynchronizationMode mode)
 {
     NS_LOG_FUNCTION(this << mode);
     m_synchronizationMode = mode;

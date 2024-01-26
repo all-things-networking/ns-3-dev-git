@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -21,10 +20,10 @@
 
 #include "lte-ffr-enhanced-algorithm.h"
 
+#include "ff-mac-common.h"
+#include "lte-common.h"
+
 #include "ns3/boolean.h"
-#include "ns3/ff-mac-common.h"
-#include "ns3/lte-common.h"
-#include "ns3/lte-vendor-specific-parameters.h"
 #include <ns3/double.h>
 #include <ns3/log.h>
 
@@ -38,32 +37,37 @@ NS_LOG_COMPONENT_DEFINE("LteFfrEnhancedAlgorithm");
 NS_OBJECT_ENSURE_REGISTERED(LteFfrEnhancedAlgorithm);
 
 /// Spectral efficiency for CQI table
-static const double SpectralEfficiencyForCqi[16] = {0.0, // out of range
-                                                    0.15,
-                                                    0.23,
-                                                    0.38,
-                                                    0.6,
-                                                    0.88,
-                                                    1.18,
-                                                    1.48,
-                                                    1.91,
-                                                    2.41,
-                                                    2.73,
-                                                    3.32,
-                                                    3.9,
-                                                    4.52,
-                                                    5.12,
-                                                    5.55};
+static const double SpectralEfficiencyForCqi[16] = {
+    0.0, // out of range
+    0.15,
+    0.23,
+    0.38,
+    0.6,
+    0.88,
+    1.18,
+    1.48,
+    1.91,
+    2.41,
+    2.73,
+    3.32,
+    3.9,
+    4.52,
+    5.12,
+    5.55,
+};
 
 /// FfrEnhancedDownlinkDefaultConfiguration structure
-static const struct FfrEnhancedDownlinkDefaultConfiguration
+struct FfrEnhancedDownlinkDefaultConfiguration
 {
     uint8_t cellId;               ///< cell ID
     uint8_t dlBandwidth;          ///< DL bandwidth
     uint8_t dlSubBandOffset;      ///< DL subband offset
     uint8_t dlReuse3SubBandwidth; ///< reuse 3 subbandwidth
     uint8_t dlReuse1SubBandwidth; ///< reuse 1 subbandwidth
-} g_ffrEnhancedDownlinkDefaultConfiguration[] = {
+};
+
+/// The enhanced downlink default configuration
+static const FfrEnhancedDownlinkDefaultConfiguration g_ffrEnhancedDownlinkDefaultConfiguration[]{
     {1, 25, 0, 4, 4},
     {2, 25, 8, 4, 4},
     {3, 25, 16, 4, 4},
@@ -75,17 +79,21 @@ static const struct FfrEnhancedDownlinkDefaultConfiguration
     {3, 75, 48, 8, 16},
     {1, 100, 0, 16, 16},
     {2, 100, 32, 16, 16},
-    {3, 100, 64, 16, 16}}; ///< the enhanced downlink default configation
+    {3, 100, 64, 16, 16},
+};
 
 /// FfrEnhancedUplinkDefaultConfiguration structure
-static const struct FfrEnhancedUplinkDefaultConfiguration
+struct FfrEnhancedUplinkDefaultConfiguration
 {
     uint8_t cellId;               ///< cell ID
     uint8_t ulBandwidth;          ///< UL bandwidth
     uint8_t ulSubBandOffset;      ///< UL subband offset
     uint8_t ulReuse3SubBandwidth; ///< UL reuse 3 subbandwidth
     uint8_t ulReuse1SubBandwidth; ///< UL reuse 1 subbandwidth
-} g_ffrEnhancedUplinkDefaultConfiguration[] = {
+};
+
+/// The enhanced uplink default configuration
+static const FfrEnhancedUplinkDefaultConfiguration g_ffrEnhancedUplinkDefaultConfiguration[]{
     {1, 25, 0, 4, 4},
     {2, 25, 8, 4, 4},
     {3, 25, 16, 4, 4},
@@ -97,7 +105,8 @@ static const struct FfrEnhancedUplinkDefaultConfiguration
     {3, 75, 48, 8, 16},
     {1, 100, 0, 16, 16},
     {2, 100, 32, 16, 16},
-    {3, 100, 64, 16, 16}}; ///< the enhanced uplink default configuration
+    {3, 100, 64, 16, 16},
+};
 
 /** \returns number of downlink configurations */
 const uint16_t NUM_DOWNLINK_CONFS(sizeof(g_ffrEnhancedDownlinkDefaultConfiguration) /
@@ -469,15 +478,14 @@ LteFfrEnhancedAlgorithm::DoGetAvailableDlRbg()
 
     std::vector<bool> rbgMap = m_dlRbgMap;
 
-    std::map<uint16_t, std::vector<bool>>::iterator it;
-    for (it = m_dlRbgAvailableforUe.begin(); it != m_dlRbgAvailableforUe.end(); it++)
+    for (auto it = m_dlRbgAvailableforUe.begin(); it != m_dlRbgAvailableforUe.end(); it++)
     {
         NS_LOG_INFO("RNTI : " << it->first);
         std::vector<bool> rbgAvailableMap = it->second;
         for (uint32_t i = 0; i < rbgMap.size(); i++)
         {
             NS_LOG_INFO("\t rbgId: " << i << " available " << (int)rbgAvailableMap.at(i));
-            if (rbgAvailableMap.at(i) == true)
+            if (rbgAvailableMap.at(i))
             {
                 rbgMap.at(i) = false;
             }
@@ -497,7 +505,7 @@ LteFfrEnhancedAlgorithm::DoIsDlRbgAvailableForUe(int rbgId, uint16_t rnti)
     bool isPrimarySegmentRbg = m_dlPrimarySegmentRbgMap[rbgId];
     bool isSecondarySegmentRbg = m_dlSecondarySegmentRbgMap[rbgId];
 
-    std::map<uint16_t, uint8_t>::iterator it = m_ues.find(rnti);
+    auto it = m_ues.find(rnti);
     if (it == m_ues.end())
     {
         m_ues.insert(std::pair<uint16_t, uint8_t>(rnti, AreaUnset));
@@ -532,12 +540,12 @@ LteFfrEnhancedAlgorithm::DoIsDlRbgAvailableForUe(int rbgId, uint16_t rnti)
     {
         // check if RB can be used by UE based on CQI information
         NS_LOG_INFO("SECONDARY SEGMENT RNTI: " << rnti << "  rbgId: " << rbgId);
-        std::map<uint16_t, std::vector<bool>>::iterator it = m_dlRbgAvailableforUe.find(rnti);
+        auto it = m_dlRbgAvailableforUe.find(rnti);
         if (it != m_dlRbgAvailableforUe.end())
         {
             NS_LOG_INFO("RNTI: " << rnti << "  rbgId: " << rbgId
                                  << "  available: " << it->second.at(rbgId));
-            if (it->second.at(rbgId) == true)
+            if (it->second.at(rbgId))
             {
                 return true;
             }
@@ -565,15 +573,14 @@ LteFfrEnhancedAlgorithm::DoGetAvailableUlRbg()
 
     std::vector<bool> rbgMap = m_ulRbgMap;
 
-    std::map<uint16_t, std::vector<bool>>::iterator it;
-    for (it = m_ulRbAvailableforUe.begin(); it != m_ulRbAvailableforUe.end(); it++)
+    for (auto it = m_ulRbAvailableforUe.begin(); it != m_ulRbAvailableforUe.end(); it++)
     {
         NS_LOG_INFO("RNTI : " << it->first);
         std::vector<bool> rbAvailableMap = it->second;
         for (uint32_t i = 0; i < rbgMap.size(); i++)
         {
             NS_LOG_INFO("\t rbgId: " << i << " available " << (int)rbAvailableMap.at(i));
-            if (rbAvailableMap.at(i) == true)
+            if (rbAvailableMap.at(i))
             {
                 rbgMap.at(i) = false;
             }
@@ -598,7 +605,7 @@ LteFfrEnhancedAlgorithm::DoIsUlRbgAvailableForUe(int rbgId, uint16_t rnti)
     bool isPrimarySegmentRbg = m_ulPrimarySegmentRbgMap[rbgId];
     bool isSecondarySegmentRbg = m_ulSecondarySegmentRbgMap[rbgId];
 
-    std::map<uint16_t, uint8_t>::iterator it = m_ues.find(rnti);
+    auto it = m_ues.find(rnti);
     if (it == m_ues.end())
     {
         m_ues.insert(std::pair<uint16_t, uint8_t>(rnti, AreaUnset));
@@ -632,12 +639,12 @@ LteFfrEnhancedAlgorithm::DoIsUlRbgAvailableForUe(int rbgId, uint16_t rnti)
     {
         // check if RB can be used by UE based on CQI information
         NS_LOG_INFO("UL SECONDARY SEGMENT RNTI: " << rnti << "  rbgId: " << rbgId);
-        std::map<uint16_t, std::vector<bool>>::iterator it = m_ulRbAvailableforUe.find(rnti);
+        auto it = m_ulRbAvailableforUe.find(rnti);
         if (it != m_ulRbAvailableforUe.end())
         {
             NS_LOG_INFO("RNTI: " << rnti << "  rbgId: " << rbgId
                                  << "  available: " << it->second.at(rbgId));
-            if (it->second.at(rbgId) == true)
+            if (it->second.at(rbgId))
             {
                 return true;
             }
@@ -650,7 +657,7 @@ LteFfrEnhancedAlgorithm::DoIsUlRbgAvailableForUe(int rbgId, uint16_t rnti)
 
 void
 LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
-    const struct FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params)
+    const FfMacSchedSapProvider::SchedDlCqiInfoReqParameters& params)
 {
     NS_LOG_FUNCTION(this);
 
@@ -661,10 +668,9 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
         {
             NS_LOG_INFO("subband CQI reporting high layer configured");
             // subband CQI reporting high layer configured
-            std::map<uint16_t, SbMeasResult_s>::iterator it;
             uint16_t rnti = params.m_cqiList.at(i).m_rnti;
 
-            std::map<uint16_t, uint8_t>::iterator ueIt = m_ues.find(rnti);
+            auto ueIt = m_ues.find(rnti);
             if (ueIt != m_ues.end())
             {
                 if (ueIt->second != CenterArea)
@@ -677,7 +683,7 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
                 continue;
             }
 
-            it = m_dlCqi.find(rnti);
+            auto it = m_dlCqi.find(rnti);
             if (it == m_dlCqi.end())
             {
                 // create the new entry
@@ -699,8 +705,7 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
 
     uint32_t rbgSize = GetRbgSize(m_dlBandwidth);
     m_dlRbgAvailableforUe.clear();
-    std::map<uint16_t, SbMeasResult_s>::iterator it;
-    for (it = m_dlCqi.begin(); it != m_dlCqi.end(); it++)
+    for (auto it = m_dlCqi.begin(); it != m_dlCqi.end(); it++)
     {
         uint16_t rnti = it->first;
         std::vector<bool> rbgAvailableMap;
@@ -723,7 +728,7 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
                 isSecondarySegmentRbg = m_dlSecondarySegmentRbgMap[i];
             }
 
-            rbgAvailable = (isSecondarySegmentRbg == true) ? rbgAvailable : false;
+            rbgAvailable = (isSecondarySegmentRbg ? rbgAvailable : false);
 
             rbgAvailableMap.push_back(rbgAvailable);
         }
@@ -732,9 +737,7 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
     }
 
     m_ulRbAvailableforUe.clear();
-    for (std::map<uint16_t, std::vector<bool>>::iterator it = m_dlRbgAvailableforUe.begin();
-         it != m_dlRbgAvailableforUe.end();
-         it++)
+    for (auto it = m_dlRbgAvailableforUe.begin(); it != m_dlRbgAvailableforUe.end(); it++)
     {
         uint16_t rnti = it->first;
         std::vector<bool> dlRbgAvailableMap = it->second;
@@ -757,7 +760,7 @@ LteFfrEnhancedAlgorithm::DoReportDlCqiInfo(
 
 void
 LteFfrEnhancedAlgorithm::DoReportUlCqiInfo(
-    const struct FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params)
+    const FfMacSchedSapProvider::SchedUlCqiInfoReqParameters& params)
 {
     NS_LOG_FUNCTION(this);
     if (params.m_ulCqi.m_type == UlCqi_s::SRS)
@@ -787,11 +790,11 @@ LteFfrEnhancedAlgorithm::EstimateUlSinr(uint16_t rnti,
                                         uint16_t rb,
                                         std::map<uint16_t, std::vector<double>> ulCqiMap)
 {
-    std::map<uint16_t, std::vector<double>>::iterator itCqi = ulCqiMap.find(rnti);
+    auto itCqi = ulCqiMap.find(rnti);
     if (itCqi == ulCqiMap.end())
     {
         // no cqi info about this UE
-        return (NO_SINR);
+        return NO_SINR;
     }
     else
     {
@@ -810,7 +813,7 @@ LteFfrEnhancedAlgorithm::EstimateUlSinr(uint16_t rnti,
         double estimatedSinr = (sinrNum > 0) ? (sinrSum / sinrNum) : DBL_MAX;
         // store the value
         (*itCqi).second.at(rb) = estimatedSinr;
-        return (estimatedSinr);
+        return estimatedSinr;
     }
 }
 
@@ -835,7 +838,7 @@ LteFfrEnhancedAlgorithm::DoGetTpc(uint16_t rnti)
     //------------------------------------------------
     //  here Absolute mode is used
 
-    std::map<uint16_t, uint8_t>::iterator it = m_ues.find(rnti);
+    auto it = m_ues.find(rnti);
     if (it == m_ues.end())
     {
         return 1;
@@ -894,7 +897,7 @@ LteFfrEnhancedAlgorithm::DoReportUeMeas(uint16_t rnti, LteRrcSap::MeasResults me
     }
     else
     {
-        std::map<uint16_t, uint8_t>::iterator it = m_ues.find(rnti);
+        auto it = m_ues.find(rnti);
         if (it == m_ues.end())
         {
             m_ues.insert(std::pair<uint16_t, uint8_t>(rnti, AreaUnset));

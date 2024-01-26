@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
@@ -371,7 +370,7 @@ main(int argc, char* argv[])
     params.payloadSize = 1472;  // bytes
     params.simulationTime = 10; // seconds
 
-    bool verifyResults = 0; // used for regression
+    bool verifyResults = false; // used for regression
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("payloadSize", "Payload size in bytes", params.payloadSize);

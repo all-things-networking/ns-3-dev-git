@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
@@ -21,7 +20,8 @@
 #ifndef LI_ION_ENERGY_SOURCE_H
 #define LI_ION_ENERGY_SOURCE_H
 
-#include "ns3/energy-source.h"
+#include "energy-source.h"
+
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
 #include "ns3/traced-value.h"
@@ -32,6 +32,9 @@ namespace ns3
 /**
  * \ingroup energy
  * \brief Model a generic Lithium Ion Battery basing on [1][2].
+ *
+ * \deprecated The LiIonEnergySource was deprecated in ns-3.40 in favor of GenericBatteryModel, and
+ * will be removed in a future release.
  *
  * The model can be fitted to any type of Li-Ion Battery, simply changing the
  * model parameters.
@@ -47,7 +50,7 @@ namespace ns3
  *
  *
  * The model requires several parameters to approximates the discharge curves:
- * - IntialCellVoltage, maximum voltage of the fully charged cell
+ * - InitialCellVoltage, maximum voltage of the fully charged cell
  * - NominalCellVoltage, nominal cell's voltage, is used to determine the end of the
  *   nominal zone.
  * - ExpCellVoltage, cell's voltage at the end of the exponential zone
@@ -132,6 +135,7 @@ class LiIonEnergySource : public EnergySource
      *
      * Implements DecreaseRemainingEnergy.
      */
+    NS_DEPRECATED_3_40("Use GenericBatteryModel instead")
     virtual void DecreaseRemainingEnergy(double energyJ);
 
     /**
@@ -139,6 +143,7 @@ class LiIonEnergySource : public EnergySource
      *
      * Implements IncreaseRemainingEnergy.
      */
+    NS_DEPRECATED_3_40("Use GenericBatteryModel instead")
     virtual void IncreaseRemainingEnergy(double energyJ);
 
     /**
@@ -180,12 +185,12 @@ class LiIonEnergySource : public EnergySource
     void CalculateRemainingEnergy();
 
     /**
-     *  \param current the actual discharge current value.
-     *  \return the cell voltage
+     * Get the cell voltage in function of the discharge current.
+     * It consider different discharge curves for different discharge currents
+     * and the remaining energy of the cell.
      *
-     *  Get the cell voltage in function of the discharge current.
-     *  It consider different discharge curves for different discharge currents
-     *  and the remaining energy of the cell.
+     * \param current the actual discharge current value.
+     * \return the cell voltage
      */
     double GetVoltage(double current) const;
 

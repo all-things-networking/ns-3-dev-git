@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -39,13 +38,13 @@
 #include "ns3/packet-socket-address.h"
 #include "ns3/packet-socket-helper.h"
 #include "ns3/packet.h"
+#include "ns3/ping-helper.h"
 #include "ns3/pointer.h"
 #include "ns3/simple-channel.h"
 #include "ns3/simulator.h"
 #include "ns3/string.h"
 #include "ns3/test.h"
 #include "ns3/uinteger.h"
-#include "ns3/v4ping-helper.h"
 
 #include <string>
 
@@ -785,23 +784,18 @@ class CsmaPingTestCase : public TestCase
     void DoRun() override;
     /**
      * Sink called when a packet is received by a node.
-     * \param p Received packet (unused).
-     * \param ad Sender's address (uused).
      */
-    void SinkRx(Ptr<const Packet> p, const Address& ad);
+    void SinkRx(Ptr<const Packet>, const Address&);
 
     /**
-     * Sink called when a PING ois received.
-     * \param context Context path (unused).
-     * \param rtt Round Trip Time (unused).
+     * Sink called when a PING is received.
      */
-    void PingRtt(std::string context, Time rtt);
+    void PingRtt(std::string, uint16_t, Time);
 
     /**
      * Sink called when a packet is dropped.
-     * \param p Received packet (unused).
      */
-    void DropEvent(Ptr<const Packet> p);
+    void DropEvent(Ptr<const Packet>);
 
     uint32_t m_countSinkRx;  //!< Counter of received packets.
     uint32_t m_countPingRtt; //!< Counter of PING received.
@@ -822,19 +816,19 @@ CsmaPingTestCase::~CsmaPingTestCase()
 }
 
 void
-CsmaPingTestCase::SinkRx(Ptr<const Packet> p, const Address& ad)
+CsmaPingTestCase::SinkRx(Ptr<const Packet>, const Address&)
 {
     m_countSinkRx++;
 }
 
 void
-CsmaPingTestCase::PingRtt(std::string context, Time rtt)
+CsmaPingTestCase::PingRtt(std::string, uint16_t, Time)
 {
     m_countPingRtt++;
 }
 
 void
-CsmaPingTestCase::DropEvent(Ptr<const Packet> p)
+CsmaPingTestCase::DropEvent(Ptr<const Packet>)
 {
     m_drops++;
 }
@@ -876,7 +870,7 @@ CsmaPingTestCase::DoRun()
     // Make packets be sent about every DefaultPacketSize / DataRate =
     // 4096 bits / (5000 bits/second) = 0.82 second.
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(addresses.GetAddress(3));
+    InetSocketAddress dst(addresses.GetAddress(3));
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(5000));
 
@@ -889,7 +883,7 @@ CsmaPingTestCase::DoRun()
     apps.Start(Seconds(0.0));
     apps.Stop(Seconds(11.0));
 
-    V4PingHelper ping = V4PingHelper(addresses.GetAddress(2));
+    PingHelper ping(addresses.GetAddress(2));
     NodeContainer pingers;
     pingers.Add(c.Get(0));
     pingers.Add(c.Get(1));
@@ -903,7 +897,7 @@ CsmaPingTestCase::DoRun()
                                   MakeCallback(&CsmaPingTestCase::SinkRx, this));
 
     // Trace pings
-    Config::Connect("/NodeList/*/ApplicationList/*/$ns3::V4Ping/Rtt",
+    Config::Connect("/NodeList/*/ApplicationList/*/$ns3::Ping/Rtt",
                     MakeCallback(&CsmaPingTestCase::PingRtt, this));
 
     Simulator::Run();
@@ -1010,7 +1004,7 @@ CsmaRawIpSocketTestCase::DoRun()
     // Make packets be sent about every DefaultPacketSize / DataRate =
     // 4096 bits / (5000 bits/second) = 0.82 second.
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(addresses.GetAddress(3));
+    InetSocketAddress dst(addresses.GetAddress(3));
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(5000));
 
@@ -1152,7 +1146,7 @@ CsmaStarTestCase::DoRun()
     // assign addresses to them as well.  We put all of the fill devices into
     // a single device container, so the first nFill devices are associated
     // with the channel connected to spokeDevices.Get (0), the second nFill
-    // devices afe associated with the channel connected to spokeDevices.Get (1)
+    // devices are associated with the channel connected to spokeDevices.Get (1)
     // etc.
     //
     Ipv4AddressHelper address;

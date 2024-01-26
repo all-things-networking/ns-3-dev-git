@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -65,7 +64,7 @@ SSRecord::Initialize()
 
     m_serviceFlows = new std::vector<ServiceFlow*>();
     m_dsaRsp = DsaRsp();
-    m_broadcast = 0;
+    m_broadcast = false;
 }
 
 SSRecord::~SSRecord()
@@ -231,17 +230,15 @@ SSRecord::AddServiceFlow(ServiceFlow* serviceFlow)
 }
 
 std::vector<ServiceFlow*>
-SSRecord::GetServiceFlows(enum ServiceFlow::SchedulingType schedulingType) const
+SSRecord::GetServiceFlows(ServiceFlow::SchedulingType schedulingType) const
 {
     std::vector<ServiceFlow*> tmpServiceFlows;
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if (((*iter)->GetSchedulingType() == schedulingType) ||
             (schedulingType == ServiceFlow::SF_TYPE_ALL))
         {
-            tmpServiceFlows.push_back((*iter));
+            tmpServiceFlows.push_back(*iter);
         }
     }
     return tmpServiceFlows;
@@ -254,7 +251,7 @@ SSRecord::SetIsBroadcastSS(bool broadcast_enable)
 }
 
 bool
-SSRecord::GetIsBroadcastSS()
+SSRecord::GetIsBroadcastSS() const
 {
     return m_broadcast;
 }
@@ -262,9 +259,7 @@ SSRecord::GetIsBroadcastSS()
 bool
 SSRecord::GetHasServiceFlowUgs() const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetSchedulingType() == ServiceFlow::SF_TYPE_UGS)
         {
@@ -277,9 +272,7 @@ SSRecord::GetHasServiceFlowUgs() const
 bool
 SSRecord::GetHasServiceFlowRtps() const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetSchedulingType() == ServiceFlow::SF_TYPE_RTPS)
         {
@@ -292,9 +285,7 @@ SSRecord::GetHasServiceFlowRtps() const
 bool
 SSRecord::GetHasServiceFlowNrtps() const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetSchedulingType() == ServiceFlow::SF_TYPE_NRTPS)
         {
@@ -307,9 +298,7 @@ SSRecord::GetHasServiceFlowNrtps() const
 bool
 SSRecord::GetHasServiceFlowBe() const
 {
-    for (std::vector<ServiceFlow*>::iterator iter = m_serviceFlows->begin();
-         iter != m_serviceFlows->end();
-         ++iter)
+    for (auto iter = m_serviceFlows->begin(); iter != m_serviceFlows->end(); ++iter)
     {
         if ((*iter)->GetSchedulingType() == ServiceFlow::SF_TYPE_BE)
         {

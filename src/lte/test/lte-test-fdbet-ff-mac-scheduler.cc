@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -195,6 +194,10 @@ LenaTestFdBetFfMacSchedulerSuite::LenaTestFdBetFfMacSchedulerSuite()
         TestCase::QUICK);
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestFdBetFfMacSchedulerSuite lenaTestFdBetFfMacSchedulerSuite;
 
 // --------------- T E S T - C A S E   # 1 ------------------------------
@@ -277,7 +280,7 @@ LenaFdBetFfMacSchedulerTestCase1::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -380,7 +383,7 @@ LenaFdBetFfMacSchedulerTestCase2::BuildNameString(uint16_t nUser, std::vector<do
 {
     std::ostringstream oss;
     oss << "distances (m) = [ ";
-    for (std::vector<double>::iterator it = dist.begin(); it != dist.end(); ++it)
+    for (auto it = dist.begin(); it != dist.end(); ++it)
     {
         oss << *it << " ";
     }
@@ -459,7 +462,7 @@ LenaFdBetFfMacSchedulerTestCase2::DoRun()
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -520,7 +523,7 @@ LenaFdBetFfMacSchedulerTestCase2::DoRun()
      */
     for (int i = 0; i < m_nUser; i++)
     {
-        double thrRatio = (double)1 / m_nUser;
+        double thrRatio = 1.0 / m_nUser;
         double estThrRatio = (double)dlDataRxed.at(i) / totalData;
         NS_LOG_INFO("\tUser " << i << " thrRatio " << thrRatio << " estThrRatio " << estThrRatio);
         NS_TEST_ASSERT_MSG_EQ_TOL(estThrRatio, thrRatio, tolerance, " Unfair Throughput!");

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 CTTC
  *
@@ -92,7 +91,7 @@ NetDeviceContainer
 AdhocAlohaNoackIdealPhyHelper::Install(NodeContainer c) const
 {
     NetDeviceContainer devices;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Ptr<Node> node = *i;
 

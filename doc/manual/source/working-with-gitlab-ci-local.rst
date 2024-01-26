@@ -5,7 +5,7 @@
 Working with gitlab-ci-local
 ----------------------------
 
-.. _continuos integration (CI) : https://docs.gitlab.com/ee/ci/
+.. _continuous integration (CI) : https://docs.gitlab.com/ee/ci/
 .. _pipelines : https://docs.gitlab.com/ee/ci/introduction/index.html#continuous-integration
 .. _daily and weekly pipelines : https://gitlab.com/nsnam/ns-3-dev/-/pipeline_schedules
 .. _crypto miners abuse : https://about.gitlab.com/blog/2021/05/17/prevent-crypto-mining-abuse/
@@ -15,7 +15,7 @@ Working with gitlab-ci-local
 .. _rootless mode : https://docs.docker.com/engine/security/rootless/
 
 The ns-3 project repository is currently hosted in GitLab, which includes
-`continuos integration (CI)`_ tools to automate build, tests, packaging and
+`continuous integration (CI)`_ tools to automate build, tests, packaging and
 distribution of software. The CI works based on jobs, that are defined
 on YAML files.
 
@@ -167,3 +167,15 @@ Artifacts built by the CI jobs will be stored in separate subfolders
 based on the job name.
 
 ``~/ns-3-dev/.gitlab-ci-local/artifacts/jobname``
+
+Note: some jobs may access the ``CI_DEFAULT_BRANCH`` environment variable,
+which is set by default to ``main`` instead of ``master``. To change that, we need
+to create a file ``~/.gitlab-ci-local/variables.yml`` containing the following:
+
+.. sourcecode:: YAML
+
+  global:
+    CI_DEFAULT_BRANCH: "master"
+
+In case you are using Docker with root, you need to create this file in
+``/root/.gitlab-ci-local/variables.yml``.

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -22,7 +21,7 @@
 // The actual steps required to configure the virtual machines can be rather
 // involved, so we don't go into that here.  Please have a look at one of
 // our HOWTOs on the nsnam wiki for more details about how to get the
-// system confgured.  For an example, have a look at "HOWTO Use Linux
+// system configured.  For an example, have a look at "HOWTO Use Linux
 // Containers to set up virtual networks" which uses this code as an
 // example.
 //
@@ -166,4 +165,6 @@ main(int argc, char* argv[])
     Simulator::Stop(Seconds(600.));
     Simulator::Run();
     Simulator::Destroy();
+
+    return 0;
 }

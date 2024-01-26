@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011-2013 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -115,6 +114,10 @@ LenaTestPhyErrorModelSuite::LenaTestPhyErrorModelSuite()
     }
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LenaTestPhyErrorModelSuite lenaTestPhyErrorModelSuite;
 
 std::string
@@ -202,7 +205,7 @@ LenaDataPhyErrorModelTestCase::DoRun()
     lena->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lena->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -246,7 +249,7 @@ LenaDataPhyErrorModelTestCase::DoRun()
 
         double dlRxPackets = rlcStats->GetDlRxPackets(imsi, lcId);
         double dlTxPackets = rlcStats->GetDlTxPackets(imsi, lcId);
-        [[maybe_unused]] double dlBler = 1.0 - (dlRxPackets / dlTxPackets);
+        double dlBler [[maybe_unused]] = 1.0 - (dlRxPackets / dlTxPackets);
         double expectedDlRxPackets = dlTxPackets - dlTxPackets * m_blerRef;
         NS_LOG_INFO("\tUser " << i << " imsi " << imsi << " DOWNLINK"
                               << " pkts rx " << dlRxPackets << " tx " << dlTxPackets << " BLER "
@@ -257,7 +260,7 @@ LenaDataPhyErrorModelTestCase::DoRun()
 
         // sanity check for whether the tx packets reported by the stats are correct
         // we expect one packet per TTI
-        double expectedDlTxPackets = static_cast<double>(statsDuration.GetMilliSeconds());
+        auto expectedDlTxPackets = static_cast<double>(statsDuration.GetMilliSeconds());
         NS_TEST_ASSERT_MSG_EQ_TOL(dlTxPackets,
                                   expectedDlTxPackets,
                                   expectedDlTxPackets * 0.005,
@@ -363,7 +366,7 @@ LenaDlCtrlPhyErrorModelTestCase::DoRun()
     lena->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate an EPS bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lena->ActivateDataRadioBearer(ueDevs, bearer);
 
@@ -408,7 +411,7 @@ LenaDlCtrlPhyErrorModelTestCase::DoRun()
         uint8_t lcId = 3;
         double dlRxPackets = rlcStats->GetDlRxPackets(imsi, lcId);
         double dlTxPackets = rlcStats->GetDlTxPackets(imsi, lcId);
-        [[maybe_unused]] double dlBler = 1.0 - (dlRxPackets / dlTxPackets);
+        double dlBler [[maybe_unused]] = 1.0 - (dlRxPackets / dlTxPackets);
         double expectedDlRxPackets = dlTxPackets - dlTxPackets * m_blerRef;
         NS_LOG_INFO("\tUser " << i << " imsi " << imsi << " DOWNLINK"
                               << " pkts rx " << dlRxPackets << " tx " << dlTxPackets << " BLER "
@@ -419,7 +422,7 @@ LenaDlCtrlPhyErrorModelTestCase::DoRun()
 
         // sanity check for whether the tx packets reported by the stats are correct
         // we expect one packet per TTI
-        double expectedDlTxPackets = static_cast<double>(statsDuration.GetMilliSeconds());
+        auto expectedDlTxPackets = static_cast<double>(statsDuration.GetMilliSeconds());
         NS_TEST_ASSERT_MSG_EQ_TOL(dlTxPackets,
                                   expectedDlTxPackets,
                                   expectedDlTxPackets * 0.005,

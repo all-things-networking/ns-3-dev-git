@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2003,2007 INRIA
  *
@@ -130,7 +129,7 @@ WifiRemoteStation*
 AmrrWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    AmrrWifiRemoteStation* station = new AmrrWifiRemoteStation();
+    auto station = new AmrrWifiRemoteStation();
     station->m_nextModeUpdate = Simulator::Now() + m_updatePeriod;
     station->m_tx_ok = 0;
     station->m_tx_err = 0;
@@ -159,7 +158,7 @@ void
 AmrrWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    AmrrWifiRemoteStation* station = static_cast<AmrrWifiRemoteStation*>(st);
+    auto station = static_cast<AmrrWifiRemoteStation*>(st);
     station->m_retry++;
     station->m_tx_retr++;
 }
@@ -182,7 +181,7 @@ AmrrWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    AmrrWifiRemoteStation* station = static_cast<AmrrWifiRemoteStation*>(st);
+    auto station = static_cast<AmrrWifiRemoteStation*>(st);
     station->m_retry = 0;
     station->m_tx_ok++;
 }
@@ -197,7 +196,7 @@ void
 AmrrWifiManager::DoReportFinalDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    AmrrWifiRemoteStation* station = static_cast<AmrrWifiRemoteStation*>(st);
+    auto station = static_cast<AmrrWifiRemoteStation*>(st);
     station->m_retry = 0;
     station->m_tx_err++;
 }
@@ -335,7 +334,7 @@ WifiTxVector
 AmrrWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    AmrrWifiRemoteStation* station = static_cast<AmrrWifiRemoteStation*>(st);
+    auto station = static_cast<AmrrWifiRemoteStation*>(st);
     UpdateMode(station);
     NS_ASSERT(station->m_txrate < GetNSupported(station));
     uint8_t rateIndex;
@@ -404,7 +403,7 @@ WifiTxVector
 AmrrWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    AmrrWifiRemoteStation* station = static_cast<AmrrWifiRemoteStation*>(st);
+    auto station = static_cast<AmrrWifiRemoteStation*>(st);
     uint16_t channelWidth = GetChannelWidth(station);
     if (channelWidth > 20 && channelWidth != 22)
     {
@@ -412,7 +411,7 @@ AmrrWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
     }
     UpdateMode(station);
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 INRIA
  *
@@ -80,13 +79,13 @@ Scheduler::Event
 MapScheduler::PeekNext() const
 {
     NS_LOG_FUNCTION(this);
-    EventMapCI i = m_list.begin();
+    auto i = m_list.begin();
     NS_ASSERT(i != m_list.end());
 
     Event ev;
     ev.impl = i->second;
     ev.key = i->first;
-    NS_LOG_DEBUG(this << ev.impl << ev.key.m_ts << ev.key.m_uid);
+    NS_LOG_DEBUG(this << ": " << ev.impl << ", " << ev.key.m_ts << ", " << ev.key.m_uid);
     return ev;
 }
 
@@ -94,13 +93,13 @@ Scheduler::Event
 MapScheduler::RemoveNext()
 {
     NS_LOG_FUNCTION(this);
-    EventMapI i = m_list.begin();
+    auto i = m_list.begin();
     NS_ASSERT(i != m_list.end());
     Event ev;
     ev.impl = i->second;
     ev.key = i->first;
     m_list.erase(i);
-    NS_LOG_DEBUG(this << ev.impl << ev.key.m_ts << ev.key.m_uid);
+    NS_LOG_DEBUG("@" << this << ": " << ev.impl << ", " << ev.key.m_ts << ", " << ev.key.m_uid);
     return ev;
 }
 
@@ -108,7 +107,7 @@ void
 MapScheduler::Remove(const Event& ev)
 {
     NS_LOG_FUNCTION(this << ev.impl << ev.key.m_ts << ev.key.m_uid);
-    EventMapI i = m_list.find(ev.key);
+    auto i = m_list.find(ev.key);
     NS_ASSERT(i->second == ev.impl);
     m_list.erase(i);
 }

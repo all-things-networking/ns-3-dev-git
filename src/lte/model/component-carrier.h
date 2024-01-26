@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2015 Danilo Abrignani
  *
@@ -189,7 +188,7 @@ class ComponentCarrierBaseStation : public ComponentCarrier
      * Get cell identifier
      * \return cell identifier
      */
-    uint16_t GetCellId();
+    uint16_t GetCellId() const;
 
     /**
      * Set physical cell identifier

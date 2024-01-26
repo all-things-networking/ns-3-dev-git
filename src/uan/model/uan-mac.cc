@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 University of Washington
  *
@@ -44,7 +43,7 @@ UanMac::SetTxModeIndex(uint32_t txModeIndex)
 }
 
 uint32_t
-UanMac::GetTxModeIndex()
+UanMac::GetTxModeIndex() const
 {
     return m_txModeIndex;
 }

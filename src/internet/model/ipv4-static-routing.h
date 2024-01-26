@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 Georgia Tech Research Corporation
  *
@@ -22,10 +21,11 @@
 #ifndef IPV4_STATIC_ROUTING_H
 #define IPV4_STATIC_ROUTING_H
 
+#include "ipv4-header.h"
+#include "ipv4-routing-protocol.h"
+#include "ipv4.h"
+
 #include "ns3/ipv4-address.h"
-#include "ns3/ipv4-header.h"
-#include "ns3/ipv4-routing-protocol.h"
-#include "ns3/ipv4.h"
 #include "ns3/ptr.h"
 #include "ns3/socket.h"
 
@@ -84,10 +84,10 @@ class Ipv4StaticRouting : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
 
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;

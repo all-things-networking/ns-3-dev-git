@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 University of Washington
  *
@@ -370,7 +369,7 @@ PfifoFastQueueDiscNoPriority::DoRun()
                           2,
                           "unexpected queue depth");
     p = Create<Packet>(100);
-    uint8_t* buf = new uint8_t[100];
+    auto buf = new uint8_t[100];
     uint8_t counter = 0;
     for (uint32_t i = 0; i < 100; i++)
     {

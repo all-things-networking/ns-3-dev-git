@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2008 Louis Pasteur University
  *
@@ -114,13 +113,13 @@ class Inet6SocketAddress
      */
     static Inet6SocketAddress ConvertFrom(const Address& addr);
 
-  private:
     /**
      * \brief Convert to Address.
      * \return Address instance
      */
     Address ConvertTo() const;
 
+  private:
     /**
      * \brief Get the type.
      * \return the type of Inet6SocketAddress

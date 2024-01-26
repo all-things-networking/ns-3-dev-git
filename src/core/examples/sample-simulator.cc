@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 INRIA
  *
@@ -125,4 +124,6 @@ main(int argc, char* argv[])
     Simulator::Run();
 
     Simulator::Destroy();
+
+    return 0;
 }

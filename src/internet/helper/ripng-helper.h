@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
@@ -21,10 +20,13 @@
 #ifndef RIPNG_HELPER_H
 #define RIPNG_HELPER_H
 
-#include "ns3/ipv6-routing-helper.h"
+#include "ipv6-routing-helper.h"
+
 #include "ns3/node-container.h"
 #include "ns3/node.h"
 #include "ns3/object-factory.h"
+
+#include <map>
 
 namespace ns3
 {

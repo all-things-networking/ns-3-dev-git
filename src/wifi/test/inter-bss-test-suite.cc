@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 University of Washington
  *
@@ -45,7 +44,7 @@ ConvertContextToNodeId(std::string context)
 {
     std::string sub = context.substr(10);
     uint32_t pos = sub.find("/Device");
-    uint32_t nodeId = atoi(sub.substr(0, pos).c_str());
+    uint32_t nodeId = std::stoi(sub.substr(0, pos));
     return nodeId;
 }
 
@@ -78,7 +77,12 @@ ConvertContextToNodeId(std::string context)
 class TestInterBssConstantObssPdAlgo : public TestCase
 {
   public:
-    TestInterBssConstantObssPdAlgo();
+    /**
+     * Constructor
+     *
+     * \param standard The standard to use for the test
+     */
+    TestInterBssConstantObssPdAlgo(WifiStandard standard);
     ~TestInterBssConstantObssPdAlgo() override;
 
     void DoRun() override;
@@ -206,9 +210,11 @@ class TestInterBssConstantObssPdAlgo : public TestCase
     uint8_t m_bssColor1; ///< color for BSS 1
     uint8_t m_bssColor2; ///< color for BSS 2
     uint8_t m_bssColor3; ///< color for BSS 3
+
+    WifiStandard m_standard; ///< the standard to use for the test
 };
 
-TestInterBssConstantObssPdAlgo::TestInterBssConstantObssPdAlgo()
+TestInterBssConstantObssPdAlgo::TestInterBssConstantObssPdAlgo(WifiStandard standard)
     : TestCase("InterBssConstantObssPd"),
       m_numSta1PacketsSent(0),
       m_numSta2PacketsSent(0),
@@ -227,7 +233,8 @@ TestInterBssConstantObssPdAlgo::TestInterBssConstantObssPdAlgo()
       m_expectedTxPowerDbm(15),
       m_bssColor1(1),
       m_bssColor2(2),
-      m_bssColor3(3)
+      m_bssColor3(3),
+      m_standard(standard)
 {
 }
 
@@ -851,7 +858,7 @@ TestInterBssConstantObssPdAlgo::RunOne()
     phy.Set("ChannelSettings", StringValue("{36, 20, BAND_5GHZ, 0}"));
 
     WifiHelper wifi;
-    wifi.SetStandard(WIFI_STANDARD_80211ax);
+    wifi.SetStandard(m_standard);
     wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
                                  "DataMode",
                                  StringValue("HeMcs5"),
@@ -992,7 +999,8 @@ class InterBssTestSuite : public TestSuite
 InterBssTestSuite::InterBssTestSuite()
     : TestSuite("wifi-inter-bss", UNIT)
 {
-    AddTestCase(new TestInterBssConstantObssPdAlgo, TestCase::QUICK);
+    AddTestCase(new TestInterBssConstantObssPdAlgo(WIFI_STANDARD_80211ax), TestCase::QUICK);
+    AddTestCase(new TestInterBssConstantObssPdAlgo(WIFI_STANDARD_80211be), TestCase::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

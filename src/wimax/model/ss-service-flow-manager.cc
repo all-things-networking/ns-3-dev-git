@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA, UDcast
  *
@@ -106,7 +105,7 @@ SsServiceFlowManager::GetDsaAckTimeoutEvent() const
 void
 SsServiceFlowManager::AddServiceFlow(ServiceFlow serviceFlow)
 {
-    ServiceFlow* sf = new ServiceFlow();
+    auto sf = new ServiceFlow();
     sf->CopyParametersFrom(serviceFlow);
     ServiceFlowManager::AddServiceFlow(sf);
 }

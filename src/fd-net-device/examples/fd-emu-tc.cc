@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -169,11 +168,11 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw0 = new EmuFdNetDeviceHelper;
+        auto raw0 = new EmuFdNetDeviceHelper;
         raw0->SetDeviceName(deviceName0);
         helper0 = raw0;
 
-        EmuFdNetDeviceHelper* raw1 = new EmuFdNetDeviceHelper;
+        auto raw1 = new EmuFdNetDeviceHelper;
         raw1->SetDeviceName(deviceName1);
         helper1 = raw1;
     }
@@ -305,10 +304,9 @@ main(int argc, char* argv[])
         }
 #endif
 
-        Ipv4GlobalRoutingHelper g;
         Ptr<OutputStreamWrapper> routingStream =
             Create<OutputStreamWrapper>("router-routes.txt", std::ios::out);
-        g.PrintRoutingTableAllAt(Seconds(3), routingStream);
+        Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(3), routingStream);
     }
 
     NS_LOG_INFO("Run Emulation.");
@@ -318,4 +316,6 @@ main(int argc, char* argv[])
     delete helper0;
     delete helper1;
     NS_LOG_INFO("Done.");
+
+    return 0;
 }

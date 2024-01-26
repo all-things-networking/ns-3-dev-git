@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -30,7 +29,7 @@ namespace ns3
 {
 
 /**
- * The length in octects of the LLC/SNAP header
+ * The length in octets of the LLC/SNAP header
  */
 static const uint16_t LLC_SNAP_HEADER_LENGTH = 8;
 

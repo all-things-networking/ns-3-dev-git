@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007-2008 Louis Pasteur University
  *
@@ -109,22 +108,10 @@ Ipv6Header::SetSource(Ipv6Address src)
     m_sourceAddress = src;
 }
 
-void
-Ipv6Header::SetSourceAddress(Ipv6Address src)
-{
-    SetSource(src);
-}
-
 Ipv6Address
 Ipv6Header::GetSource() const
 {
     return m_sourceAddress;
-}
-
-Ipv6Address
-Ipv6Header::GetSourceAddress() const
-{
-    return GetSource();
 }
 
 void
@@ -133,22 +120,10 @@ Ipv6Header::SetDestination(Ipv6Address dst)
     m_destinationAddress = dst;
 }
 
-void
-Ipv6Header::SetDestinationAddress(Ipv6Address dst)
-{
-    SetDestination(dst);
-}
-
 Ipv6Address
 Ipv6Header::GetDestination() const
 {
     return m_destinationAddress;
-}
-
-Ipv6Address
-Ipv6Header::GetDestinationAddress() const
-{
-    return GetDestination();
 }
 
 TypeId

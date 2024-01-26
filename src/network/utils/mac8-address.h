@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -44,8 +43,7 @@ class Address;
 class Mac8Address
 {
   public:
-    /** Constructor */
-    Mac8Address();
+    Mac8Address() = default;
     /**
      * Create Mac8Address object with address addr.
      *
@@ -62,6 +60,13 @@ class Mac8Address
      * \return Mac8Address from Address.
      */
     static Mac8Address ConvertFrom(const Address& address);
+
+    /**
+     * Convert to a generic Address.
+     *
+     * \return The Address value.
+     */
+    Address ConvertTo() const;
 
     /**
      * Check that a generic Address is compatible with Mac8Address.
@@ -126,7 +131,7 @@ class Mac8Address
 
   private:
     static uint8_t m_allocationIndex; //!< Address allocation index
-    uint8_t m_address;                //!< The address.
+    uint8_t m_address{255};           //!< The address.
 
     /**
      * Get the Mac8Address type.
@@ -134,12 +139,6 @@ class Mac8Address
      * \return The type value.
      */
     static uint8_t GetType();
-    /**
-     * Convert to a generic Address.
-     *
-     * \return The Address value.
-     */
-    Address ConvertTo() const;
 
     friend bool operator<(const Mac8Address& a, const Mac8Address& b);
     friend bool operator==(const Mac8Address& a, const Mac8Address& b);
@@ -159,7 +158,7 @@ class Mac8Address
 bool operator<(const Mac8Address& a, const Mac8Address& b);
 
 /**
- * Address comparison, equalit.
+ * Address comparison, equality.
  *
  * \param a First address to compare.
  * \param b Second address to compare.

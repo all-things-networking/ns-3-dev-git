@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA
  *
@@ -30,6 +29,7 @@
 #include "ns3/string.h"
 
 #include <libxml/encoding.h>
+#include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
 
 namespace ns3
@@ -47,7 +47,7 @@ void
 XmlConfigSave::SetFilename(std::string filename)
 {
     NS_LOG_FUNCTION(filename);
-    if (filename == "")
+    if (filename.empty())
     {
         return;
     }
@@ -132,7 +132,7 @@ XmlConfigSave::Default()
             ns3::TypeId::SupportLevel supportLevel = TypeId::SupportLevel::SUPPORTED;
             for (std::size_t i = 0; i < tid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation tmp = tid.GetAttribute(i);
+                TypeId::AttributeInformation tmp = tid.GetAttribute(i);
                 if (tmp.name == name)
                 {
                     supportLevel = tmp.supportLevel;
@@ -145,8 +145,7 @@ XmlConfigSave::Default()
                                                 << " was not saved because it is OBSOLETE");
                 return;
             }
-            else if ((supportLevel == TypeId::SupportLevel::DEPRECATED) &&
-                     (m_saveDeprecated == false))
+            else if (supportLevel == TypeId::SupportLevel::DEPRECATED && !m_saveDeprecated)
             {
                 NS_LOG_WARN("Global attribute " << m_typeid << "::" << name
                                                 << " was not saved because it is DEPRECATED");
@@ -212,7 +211,7 @@ XmlConfigSave::Attributes()
             ns3::TypeId::SupportLevel supportLevel = TypeId::SupportLevel::SUPPORTED;
             for (std::size_t i = 0; i < tid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation tmp = tid.GetAttribute(i);
+                TypeId::AttributeInformation tmp = tid.GetAttribute(i);
                 if (tmp.name == name)
                 {
                     supportLevel = tmp.supportLevel;
@@ -225,8 +224,7 @@ XmlConfigSave::Attributes()
                                          << " was not saved because it is OBSOLETE");
                 return;
             }
-            else if ((supportLevel == TypeId::SupportLevel::DEPRECATED) &&
-                     (m_saveDeprecated == false))
+            else if (supportLevel == TypeId::SupportLevel::DEPRECATED && !m_saveDeprecated)
             {
                 NS_LOG_WARN("Attribute " << GetCurrentPath()
                                          << " was not saved because it is DEPRECATED");
@@ -273,7 +271,7 @@ void
 XmlConfigSave::Global()
 {
     int rc;
-    for (GlobalValue::Iterator i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
+    for (auto i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
     {
         StringValue value;
         (*i)->GetValue(value);

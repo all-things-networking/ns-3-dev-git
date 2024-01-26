@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Magister Solutions
  *
@@ -21,6 +20,8 @@
 
 #include "three-gpp-http-server.h"
 
+#include "three-gpp-http-variables.h"
+
 #include <ns3/callback.h>
 #include <ns3/config.h>
 #include <ns3/inet-socket-address.h>
@@ -32,7 +33,6 @@
 #include <ns3/socket.h>
 #include <ns3/tcp-socket-factory.h>
 #include <ns3/tcp-socket.h>
-#include <ns3/three-gpp-http-variables.h>
 #include <ns3/uinteger.h>
 
 NS_LOG_COMPONENT_DEFINE("ThreeGppHttpServer");
@@ -156,17 +156,13 @@ ThreeGppHttpServer::GetStateString(ThreeGppHttpServer::State_t state)
     {
     case NOT_STARTED:
         return "NOT_STARTED";
-        break;
     case STARTED:
         return "STARTED";
-        break;
     case STOPPED:
         return "STOPPED";
-        break;
     default:
         NS_FATAL_ERROR("Unknown state");
         return "FATAL_ERROR";
-        break;
     }
 }
 
@@ -198,7 +194,7 @@ ThreeGppHttpServer::StartApplication()
             const TypeId tcpSocketTid = TcpSocket::GetTypeId();
             for (uint32_t i = 0; i < tcpSocketTid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation attrInfo = tcpSocketTid.GetAttribute(i);
+                TypeId::AttributeInformation attrInfo = tcpSocketTid.GetAttribute(i);
                 if (attrInfo.name == "SegmentSize")
                 {
                     previousSocketMtu = attrInfo.initialValue;
@@ -209,15 +205,13 @@ ThreeGppHttpServer::StartApplication()
             m_initialSocket = Socket::CreateSocket(GetNode(), TcpSocketFactory::GetTypeId());
             m_initialSocket->SetAttribute("SegmentSize", UintegerValue(m_mtuSize));
 
-            [[maybe_unused]] int ret;
-
             if (Ipv4Address::IsMatchingType(m_localAddress))
             {
                 const Ipv4Address ipv4 = Ipv4Address::ConvertFrom(m_localAddress);
                 const InetSocketAddress inetSocket = InetSocketAddress(ipv4, m_localPort);
                 NS_LOG_INFO(this << " Binding on " << ipv4 << " port " << m_localPort << " / "
                                  << inetSocket << ".");
-                ret = m_initialSocket->Bind(inetSocket);
+                int ret [[maybe_unused]] = m_initialSocket->Bind(inetSocket);
                 NS_LOG_DEBUG(this << " Bind() return value= " << ret
                                   << " GetErrNo= " << m_initialSocket->GetErrno() << ".");
             }
@@ -227,12 +221,12 @@ ThreeGppHttpServer::StartApplication()
                 const Inet6SocketAddress inet6Socket = Inet6SocketAddress(ipv6, m_localPort);
                 NS_LOG_INFO(this << " Binding on " << ipv6 << " port " << m_localPort << " / "
                                  << inet6Socket << ".");
-                ret = m_initialSocket->Bind(inet6Socket);
+                int ret [[maybe_unused]] = m_initialSocket->Bind(inet6Socket);
                 NS_LOG_DEBUG(this << " Bind() return value= " << ret
                                   << " GetErrNo= " << m_initialSocket->GetErrno() << ".");
             }
 
-            ret = m_initialSocket->Listen();
+            int ret [[maybe_unused]] = m_initialSocket->Listen();
             NS_LOG_DEBUG(this << " Listen () return value= " << ret
                               << " GetErrNo= " << m_initialSocket->GetErrno() << ".");
 
@@ -454,8 +448,8 @@ ThreeGppHttpServer::SendCallback(Ptr<Socket> socket, uint32_t availableBufferSiz
 
     if (!m_txBuffer->IsBufferEmpty(socket))
     {
-        [[maybe_unused]] const uint32_t txBufferSize = m_txBuffer->GetBufferSize(socket);
-        [[maybe_unused]] const uint32_t actualSent = ServeFromTxBuffer(socket);
+        const uint32_t txBufferSize [[maybe_unused]] = m_txBuffer->GetBufferSize(socket);
+        const uint32_t actualSent [[maybe_unused]] = ServeFromTxBuffer(socket);
 
 #ifdef NS3_LOG_ENABLE
         // Some log messages.
@@ -639,8 +633,7 @@ ThreeGppHttpServerTxBuffer::ThreeGppHttpServerTxBuffer()
 bool
 ThreeGppHttpServerTxBuffer::IsSocketAvailable(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     return (it != m_txBuffer.end());
 }
 
@@ -666,8 +659,7 @@ ThreeGppHttpServerTxBuffer::RemoveSocket(Ptr<Socket> socket)
 {
     NS_LOG_FUNCTION(this << socket);
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
 
     if (!Simulator::IsExpired(it->second.nextServe))
@@ -690,8 +682,7 @@ ThreeGppHttpServerTxBuffer::CloseSocket(Ptr<Socket> socket)
 {
     NS_LOG_FUNCTION(this << socket);
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
 
     if (!Simulator::IsExpired(it->second.nextServe))
@@ -722,8 +713,7 @@ ThreeGppHttpServerTxBuffer::CloseAllSockets()
 {
     NS_LOG_FUNCTION(this);
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    for (it = m_txBuffer.begin(); it != m_txBuffer.end(); ++it)
+    for (auto it = m_txBuffer.begin(); it != m_txBuffer.end(); ++it)
     {
         if (!Simulator::IsExpired(it->second.nextServe))
         {
@@ -745,8 +735,7 @@ ThreeGppHttpServerTxBuffer::CloseAllSockets()
 bool
 ThreeGppHttpServerTxBuffer::IsBufferEmpty(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     return (it->second.txBufferSize == 0);
 }
@@ -754,8 +743,7 @@ ThreeGppHttpServerTxBuffer::IsBufferEmpty(Ptr<Socket> socket) const
 Time
 ThreeGppHttpServerTxBuffer::GetClientTs(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     return it->second.clientTs;
 }
@@ -763,8 +751,7 @@ ThreeGppHttpServerTxBuffer::GetClientTs(Ptr<Socket> socket) const
 ThreeGppHttpHeader::ContentType_t
 ThreeGppHttpServerTxBuffer::GetBufferContentType(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     return it->second.txBufferContentType;
 }
@@ -772,8 +759,7 @@ ThreeGppHttpServerTxBuffer::GetBufferContentType(Ptr<Socket> socket) const
 uint32_t
 ThreeGppHttpServerTxBuffer::GetBufferSize(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     return it->second.txBufferSize;
 }
@@ -781,8 +767,7 @@ ThreeGppHttpServerTxBuffer::GetBufferSize(Ptr<Socket> socket) const
 bool
 ThreeGppHttpServerTxBuffer::HasTxedPartOfObject(Ptr<Socket> socket) const
 {
-    std::map<Ptr<Socket>, TxBuffer_t>::const_iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found");
     return it->second.hasTxedPartOfObject;
 }
@@ -798,8 +783,7 @@ ThreeGppHttpServerTxBuffer::WriteNewObject(Ptr<Socket> socket,
                   "Unable to write an object without a proper Content-Type.");
     NS_ASSERT_MSG(objectSize > 0, "Unable to write a zero-sized object.");
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     NS_ASSERT_MSG(it->second.txBufferSize == 0,
                   "Cannot write to Tx buffer of socket "
@@ -816,8 +800,7 @@ ThreeGppHttpServerTxBuffer::RecordNextServe(Ptr<Socket> socket,
 {
     NS_LOG_FUNCTION(this << socket << clientTs.As(Time::S));
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     it->second.nextServe = eventId;
     it->second.clientTs = clientTs;
@@ -830,8 +813,7 @@ ThreeGppHttpServerTxBuffer::DepleteBufferSize(Ptr<Socket> socket, uint32_t amoun
 
     NS_ASSERT_MSG(amount > 0, "Unable to consume zero bytes.");
 
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     NS_ASSERT_MSG(it->second.txBufferSize >= amount,
                   "The requested amount is larger than the current buffer size.");
@@ -853,8 +835,7 @@ void
 ThreeGppHttpServerTxBuffer::PrepareClose(Ptr<Socket> socket)
 {
     NS_LOG_FUNCTION(this << socket);
-    std::map<Ptr<Socket>, TxBuffer_t>::iterator it;
-    it = m_txBuffer.find(socket);
+    auto it = m_txBuffer.find(socket);
     NS_ASSERT_MSG(it != m_txBuffer.end(), "Socket " << socket << " cannot be found.");
     it->second.isClosing = true;
 }

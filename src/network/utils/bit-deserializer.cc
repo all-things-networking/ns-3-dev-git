@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
@@ -86,7 +85,7 @@ void
 BitDeserializer::PrepareDeserialization()
 {
     NS_LOG_FUNCTION(this);
-    if (m_deserializing == false)
+    if (!m_deserializing)
     {
         m_deserializing = true;
         for (auto index = m_bytesBlob.begin(); index != m_bytesBlob.end(); index++)

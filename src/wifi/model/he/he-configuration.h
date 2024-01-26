@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 University of Washington
  *
@@ -69,14 +68,6 @@ class HeConfiguration : public Object
      * \return the maximum TB PPDU delay
      */
     Time GetMaxTbPpduDelay() const;
-    /**
-     * \param size the MPDU buffer size to receive A-MPDUs
-     */
-    void SetMpduBufferSize(uint16_t size);
-    /**
-     * \return the MPDU buffer size to receive A-MPDUs
-     */
-    uint16_t GetMpduBufferSize() const;
 
   private:
     Time m_guardInterval;      //!< Supported HE guard interval

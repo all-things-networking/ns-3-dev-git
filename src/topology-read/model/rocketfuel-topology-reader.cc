@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
@@ -21,6 +20,7 @@
 #include "rocketfuel-topology-reader.h"
 
 #include "ns3/log.h"
+#include "ns3/names.h"
 #include "ns3/node-container.h"
 
 #include <cstdlib>
@@ -88,13 +88,13 @@ RocketfuelTopologyReader::~RocketfuelTopologyReader()
  * Build a Regex object for RocketFuel topology maps file type
  * \return a static regex object for maps file type
  */
-static const std::regex rocketfuel_maps_regex(ROCKETFUEL_MAPS_LINE, std::regex::extended);
+static const std::regex rocketfuel_maps_regex(ROCKETFUEL_MAPS_LINE);
 
 /**
  * Build a Regex object for RocketFuel topology weights file type
  * \return a static regex object for weights file type
  */
-static const std::regex rocketfuel_weights_regex(ROCKETFUEL_WEIGHTS_LINE, std::regex::extended);
+static const std::regex rocketfuel_weights_regex(ROCKETFUEL_WEIGHTS_LINE);
 
 /**
  * \brief Print node info
@@ -213,6 +213,8 @@ RocketfuelTopologyReader::GenerateFromMapsFile(const std::vector<std::string>& a
         if (!m_nodeMap[uid])
         {
             Ptr<Node> tmpNode = CreateObject<Node>();
+            std::string nodename = "RocketFuelTopology/NodeName/" + uid;
+            Names::Add(nodename, tmpNode);
             m_nodeMap[uid] = tmpNode;
             nodes.Add(tmpNode);
             m_nodesNumber++;
@@ -228,6 +230,8 @@ RocketfuelTopologyReader::GenerateFromMapsFile(const std::vector<std::string>& a
             if (!m_nodeMap[nuid])
             {
                 Ptr<Node> tmpNode = CreateObject<Node>();
+                std::string nodename = "RocketFuelTopology/NodeName/" + nuid;
+                Names::Add(nodename, tmpNode);
                 m_nodeMap[nuid] = tmpNode;
                 nodes.Add(tmpNode);
                 m_nodesNumber++;
@@ -257,7 +261,7 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
 
     sname = argv[0];
     tname = argv[1];
-    double v [[maybe_unused]] = std::stod(argv[2], &endptr); // weight
+    std::stod(argv[2], &endptr); // weight
 
     if (argv[2].size() != endptr)
     {
@@ -271,6 +275,8 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
         if (!m_nodeMap[sname])
         {
             Ptr<Node> tmpNode = CreateObject<Node>();
+            std::string nodename = "RocketFuelTopology/NodeName/" + sname;
+            Names::Add(nodename, tmpNode);
             m_nodeMap[sname] = tmpNode;
             nodes.Add(tmpNode);
             m_nodesNumber++;
@@ -279,6 +285,8 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
         if (!m_nodeMap[tname])
         {
             Ptr<Node> tmpNode = CreateObject<Node>();
+            std::string nodename = "RocketFuelTopology/NodeName/" + tname;
+            Names::Add(nodename, tmpNode);
             m_nodeMap[tname] = tmpNode;
             nodes.Add(tmpNode);
             m_nodesNumber++;
@@ -311,22 +319,18 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
     return nodes;
 }
 
-enum RocketfuelTopologyReader::RF_FileType
+RocketfuelTopologyReader::RF_FileType
 RocketfuelTopologyReader::GetFileType(const std::string& line)
 {
-    int ret;
-
     // Check whether Maps file or not
     std::smatch matches;
-    ret = std::regex_match(line, matches, rocketfuel_maps_regex);
-    if (ret)
+    if (std::regex_match(line, matches, rocketfuel_maps_regex))
     {
         return RF_MAPS;
     }
 
     // Check whether Weights file or not
-    ret = std::regex_match(line, matches, rocketfuel_weights_regex);
-    if (ret)
+    if (std::regex_match(line, matches, rocketfuel_weights_regex))
     {
         return RF_WEIGHTS;
     }
@@ -338,13 +342,13 @@ NodeContainer
 RocketfuelTopologyReader::Read()
 {
     std::ifstream topgen;
-    topgen.open(GetFileName().c_str());
+    topgen.open(GetFileName());
     NodeContainer nodes;
 
     std::istringstream lineBuffer;
     std::string line;
     int lineNumber = 0;
-    enum RF_FileType ftype = RF_UNKNOWN;
+    RF_FileType ftype = RF_UNKNOWN;
 
     if (!topgen.is_open())
     {
@@ -354,7 +358,6 @@ RocketfuelTopologyReader::Read()
 
     while (!topgen.eof())
     {
-        int ret;
         std::vector<std::string> argv;
 
         lineNumber++;
@@ -377,8 +380,8 @@ RocketfuelTopologyReader::Read()
 
         if (ftype == RF_MAPS)
         {
-            ret = std::regex_match(line, matches, rocketfuel_maps_regex);
-            if (ret != true || matches.empty())
+            bool ret = std::regex_match(line, matches, rocketfuel_maps_regex);
+            if (!ret || matches.empty())
             {
                 NS_LOG_WARN("match failed (maps file): %s" << line);
                 break;
@@ -386,8 +389,8 @@ RocketfuelTopologyReader::Read()
         }
         else if (ftype == RF_WEIGHTS)
         {
-            ret = std::regex_match(line, matches, rocketfuel_weights_regex);
-            if (ret != true || matches.empty())
+            bool ret = std::regex_match(line, matches, rocketfuel_weights_regex);
+            if (!ret || matches.empty())
             {
                 NS_LOG_WARN("match failed (weights file): %s" << line);
                 break;

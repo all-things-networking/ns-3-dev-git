@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
@@ -137,12 +136,12 @@ class HwmpProtocol : public MeshL2RoutingProtocol
     bool Install(Ptr<MeshPointDevice> mp);
     /**
      * Peer link status function
-     * \param meshPontAddress The MAC address of the mesh point
+     * \param meshPointAddress The MAC address of the mesh point
      * \param peerAddress The MAC address of the peer
      * \param interface The interface number
      * \param status The status of the peer link
      */
-    void PeerLinkStatus(Mac48Address meshPontAddress,
+    void PeerLinkStatus(Mac48Address meshPointAddress,
                         Mac48Address peerAddress,
                         uint32_t interface,
                         bool status);
@@ -356,9 +355,9 @@ class HwmpProtocol : public MeshL2RoutingProtocol
     /// Route discovery time:
     TracedCallback<Time> m_routeDiscoveryTimeCallback;
     /// RouteChangeTracedCallback typedef
-    typedef TracedCallback<struct RouteChange> RouteChangeTracedCallback;
+    typedef TracedCallback<RouteChange> RouteChangeTracedCallback;
     /// Route change trace source
-    TracedCallback<struct RouteChange> m_routeChangeTraceSource;
+    TracedCallback<RouteChange> m_routeChangeTraceSource;
 
     // /\name Methods related to Queue/Dequeue procedures
     ///@{
@@ -421,12 +420,12 @@ class HwmpProtocol : public MeshL2RoutingProtocol
      * Get do flag function
      * \returns DO flag
      */
-    bool GetDoFlag();
+    bool GetDoFlag() const;
     /**
      * Get rf flag function
      * \returns the RF flag
      */
-    bool GetRfFlag();
+    bool GetRfFlag() const;
     /**
      * Get PREQ minimum interval function
      * \returns the PREQ
@@ -441,7 +440,7 @@ class HwmpProtocol : public MeshL2RoutingProtocol
      * Get maximum TTL function
      * \returns the maximum TTL
      */
-    uint8_t GetMaxTtl();
+    uint8_t GetMaxTtl() const;
     /**
      * Get next period function
      * \returns the next period
@@ -461,7 +460,7 @@ class HwmpProtocol : public MeshL2RoutingProtocol
      * Get unicast PERR threshold function
      * \returns the unicast PERR threshold
      */
-    uint8_t GetUnicastPerrThreshold();
+    uint8_t GetUnicastPerrThreshold() const;
     ///@}
 
   private:

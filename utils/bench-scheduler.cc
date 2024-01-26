@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2006 INRIA
  *
@@ -372,12 +371,14 @@ BenchSuite::Log() const
 #undef ACCUMULATE
     }
 
-    auto stdev = Result{{std::sqrt(moment2.init.time / n),
-                         std::sqrt(moment2.init.rate / n),
-                         std::sqrt(moment2.init.period / n)},
-                        {std::sqrt(moment2.run.time / n),
-                         std::sqrt(moment2.run.rate / n),
-                         std::sqrt(moment2.run.period / n)}};
+    auto stdev = Result{
+        {std::sqrt(moment2.init.time / n),
+         std::sqrt(moment2.init.rate / n),
+         std::sqrt(moment2.init.period / n)},
+        {std::sqrt(moment2.run.time / n),
+         std::sqrt(moment2.run.rate / n),
+         std::sqrt(moment2.run.period / n)},
+    };
 
     average.Log("average");
     stdev.Log("stdev");
@@ -402,7 +403,7 @@ GetRandomStream(std::string filename)
 {
     Ptr<RandomVariableStream> stream = nullptr;
 
-    if (filename == "")
+    if (filename.empty())
     {
         LOG("  Event time distribution:      default exponential");
         auto erv = CreateObject<ExponentialRandomVariable>();
@@ -421,7 +422,7 @@ GetRandomStream(std::string filename)
         else
         {
             LOG("  Event time distribution:      from " << filename);
-            input = new std::ifstream(filename.c_str());
+            input = new std::ifstream(filename);
         }
 
         double value;
@@ -431,7 +432,7 @@ GetRandomStream(std::string filename)
         {
             if (*input >> value)
             {
-                uint64_t ns = (uint64_t)(value * 1000000000);
+                auto ns = (uint64_t)(value * 1000000000);
                 nsValues.push_back(ns);
             }
             else
@@ -478,10 +479,10 @@ main(int argc, char* argv[])
               "\n"
               "If no scheduler is specified the MapScheduler will be run.");
     cmd.AddValue("all", "use all schedulers", allSched);
-    cmd.AddValue("cal", "use CalendarSheduler", schedCal);
+    cmd.AddValue("cal", "use CalendarScheduler", schedCal);
     cmd.AddValue("calrev", "reverse ordering in the CalendarScheduler", calRev);
     cmd.AddValue("heap", "use HeapScheduler", schedHeap);
-    cmd.AddValue("list", "use ListSheduler", schedList);
+    cmd.AddValue("list", "use ListScheduler", schedList);
     cmd.AddValue("map", "use MapScheduler (default)", schedMap);
     cmd.AddValue("pri", "use PriorityQueue", schedPQ);
     cmd.AddValue("debug", "enable debugging output", g_debug);

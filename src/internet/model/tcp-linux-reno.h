@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
@@ -23,8 +22,8 @@
 #ifndef TCPLINUXRENO_H
 #define TCPLINUXRENO_H
 
-#include "ns3/tcp-congestion-ops.h"
-#include "ns3/tcp-socket-state.h"
+#include "tcp-congestion-ops.h"
+#include "tcp-socket-state.h"
 
 namespace ns3
 {

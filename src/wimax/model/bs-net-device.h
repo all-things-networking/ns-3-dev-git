@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -22,12 +21,12 @@
 #ifndef WIMAX_BS_NET_DEVICE_H
 #define WIMAX_BS_NET_DEVICE_H
 
+#include "bs-service-flow-manager.h"
 #include "dl-mac-messages.h"
 #include "ipcs-classifier.h"
 #include "wimax-connection.h"
 #include "wimax-net-device.h"
 
-#include "ns3/bs-service-flow-manager.h"
 #include "ns3/event-id.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/mac48-address.h"
@@ -493,7 +492,7 @@ class BaseStationNetDevice : public WimaxNetDevice
      * \see class CallBackTraceSource
      */
     TracedCallback<Ptr<const Packet>>
-        m_bsPromiscRxTrace; ///< base station promiscious receive trace callback
+        m_bsPromiscRxTrace; ///< base station promiscuous receive trace callback
 
     /**
      * The trace source fired for packets successfully received by the device

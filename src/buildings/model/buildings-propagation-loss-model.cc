@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,13 +21,14 @@
 
 #include "buildings-propagation-loss-model.h"
 
+#include "mobility-building-info.h"
+
 #include "ns3/double.h"
 #include "ns3/enum.h"
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
 #include "ns3/pointer.h"
 #include "ns3/propagation-loss-model.h"
-#include <ns3/mobility-building-info.h>
 
 #include <cmath>
 
@@ -54,7 +54,7 @@ BuildingsPropagationLossModel::ShadowingLoss::ShadowingLoss(double shadowingValu
 double
 BuildingsPropagationLossModel::ShadowingLoss::GetLoss() const
 {
-    return (m_shadowingValue);
+    return m_shadowingValue;
 }
 
 Ptr<MobilityModel>
@@ -130,7 +130,7 @@ BuildingsPropagationLossModel::ExternalWallLoss(Ptr<MobilityBuildingInfo> a) con
     {
         loss = 12;
     }
-    return (loss);
+    return loss;
 }
 
 double
@@ -140,7 +140,7 @@ BuildingsPropagationLossModel::HeightLoss(Ptr<MobilityBuildingInfo> node) const
 
     int nfloors = node->GetFloorNumber() - 1;
     loss = -2 * (nfloors);
-    return (loss);
+    return loss;
 }
 
 double
@@ -160,14 +160,13 @@ BuildingsPropagationLossModel::GetShadowing(Ptr<MobilityModel> a, Ptr<MobilityMo
     Ptr<MobilityBuildingInfo> b1 = b->GetObject<MobilityBuildingInfo>();
     NS_ASSERT_MSG(a1 && b1, "BuildingsPropagationLossModel only works with MobilityBuildingInfo");
 
-    std::map<Ptr<MobilityModel>, std::map<Ptr<MobilityModel>, ShadowingLoss>>::iterator ait =
-        m_shadowingLossMap.find(a);
+    auto ait = m_shadowingLossMap.find(a);
     if (ait != m_shadowingLossMap.end())
     {
-        std::map<Ptr<MobilityModel>, ShadowingLoss>::iterator bit = ait->second.find(b);
+        auto bit = ait->second.find(b);
         if (bit != ait->second.end())
         {
-            return (bit->second.GetLoss());
+            return bit->second.GetLoss();
         }
         else
         {
@@ -176,7 +175,7 @@ BuildingsPropagationLossModel::GetShadowing(Ptr<MobilityModel> a, Ptr<MobilityMo
             // sigma is standard deviation, not variance
             double shadowingValue = m_randVariable->GetValue(0.0, (sigma * sigma));
             ait->second[b] = ShadowingLoss(shadowingValue, b);
-            return (ait->second[b].GetLoss());
+            return ait->second[b].GetLoss();
         }
     }
     else
@@ -186,7 +185,7 @@ BuildingsPropagationLossModel::GetShadowing(Ptr<MobilityModel> a, Ptr<MobilityMo
         // sigma is standard deviation, not variance
         double shadowingValue = m_randVariable->GetValue(0.0, (sigma * sigma));
         m_shadowingLossMap[a][b] = ShadowingLoss(shadowingValue, b);
-        return (m_shadowingLossMap[a][b].GetLoss());
+        return m_shadowingLossMap[a][b].GetLoss();
     }
 }
 
@@ -201,24 +200,24 @@ BuildingsPropagationLossModel::EvaluateSigma(Ptr<MobilityBuildingInfo> a,
     {
         if (!isBIndoor) // b is outdoor
         {
-            return (m_shadowingSigmaOutdoor);
+            return m_shadowingSigmaOutdoor;
         }
         else
         {
             double sigma = std::sqrt((m_shadowingSigmaOutdoor * m_shadowingSigmaOutdoor) +
                                      (m_shadowingSigmaExtWalls * m_shadowingSigmaExtWalls));
-            return (sigma);
+            return sigma;
         }
     }
     else if (isBIndoor) // b is indoor
     {
-        return (m_shadowingSigmaIndoor);
+        return m_shadowingSigmaIndoor;
     }
     else
     {
         double sigma = std::sqrt((m_shadowingSigmaOutdoor * m_shadowingSigmaOutdoor) +
                                  (m_shadowingSigmaExtWalls * m_shadowingSigmaExtWalls));
-        return (sigma);
+        return sigma;
     }
 }
 

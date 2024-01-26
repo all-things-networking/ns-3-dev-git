@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  *
@@ -154,4 +153,6 @@ main(int argc, char* argv[])
     NS_LOG_INFO("5.  txQueue limit changed through wildcarded namespace: " << limit.Get());
 
     Simulator::Destroy();
+
+    return 0;
 }

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 Tokushima University, Japan.
  *
@@ -57,11 +56,11 @@ using namespace ns3;
 static void
 ScanConfirm(Ptr<LrWpanNetDevice> device, MlmeScanConfirmParams params)
 {
-    if (params.m_status == MLMESCAN_SUCCESS)
+    if (params.m_status == LrWpanMacStatus::SUCCESS)
     {
         std::cout << Simulator::Now().As(Time::S) << "| Active scan status SUCCESSFUL (Completed)"
                   << "\n";
-        if (params.m_panDescList.size() > 0)
+        if (!params.m_panDescList.empty())
         {
             std::cout << "Device [" << device->GetMac()->GetShortAddress()
                       << "] found the following PANs:\n";

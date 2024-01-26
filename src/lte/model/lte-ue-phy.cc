@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  * Copyright (c) 2018 Fraunhofer ESK : RLF extensions
@@ -27,19 +26,15 @@
 
 #include "ff-mac-common.h"
 #include "lte-amc.h"
-#include "lte-chunk-processor.h"
-#include "lte-enb-net-device.h"
-#include "lte-enb-phy.h"
+#include "lte-common.h"
 #include "lte-net-device.h"
 #include "lte-spectrum-value-helper.h"
-#include "lte-ue-mac.h"
 #include "lte-ue-net-device.h"
+#include "lte-ue-power-control.h"
 
 #include <ns3/boolean.h>
 #include <ns3/double.h>
 #include <ns3/log.h>
-#include <ns3/lte-common.h>
-#include <ns3/lte-ue-power-control.h>
 #include <ns3/node.h>
 #include <ns3/object-factory.h>
 #include <ns3/pointer.h>
@@ -127,7 +122,10 @@ UeMemberLteUePhySapProvider::NotifyConnectionSuccessful()
 ////////////////////////////////////////
 
 /// Map each of UE PHY states to its string representation.
-static const std::string g_uePhyStateName[LteUePhy::NUM_STATES] = {"CELL_SEARCH", "SYNCHRONIZED"};
+static const std::string g_uePhyStateName[LteUePhy::NUM_STATES] = {
+    "CELL_SEARCH",
+    "SYNCHRONIZED",
+};
 
 /**
  * \param s The UE PHY state.
@@ -377,7 +375,7 @@ LteUePhySapProvider*
 LteUePhy::GetLteUePhySapProvider()
 {
     NS_LOG_FUNCTION(this);
-    return (m_uePhySapProvider);
+    return m_uePhySapProvider;
 }
 
 void
@@ -391,7 +389,7 @@ LteUeCphySapProvider*
 LteUePhy::GetLteUeCphySapProvider()
 {
     NS_LOG_FUNCTION(this);
-    return (m_ueCphySapProvider);
+    return m_ueCphySapProvider;
 }
 
 void
@@ -433,7 +431,7 @@ LteUePhy::GetUplinkPowerControl() const
 uint8_t
 LteUePhy::GetMacChDelay() const
 {
-    return (m_macChTtiDelay);
+    return m_macChTtiDelay;
 }
 
 Ptr<LteSpectrumPhy>
@@ -611,8 +609,8 @@ LteUePhy::GenerateCqiRsrpRsrq(const SpectrumValue& sinr)
         // RSRP evaluated as averaged received power among RBs
         double sum = 0.0;
         uint8_t rbNum = 0;
-        Values::const_iterator it;
-        for (it = m_rsReceivedPower.ConstValuesBegin(); it != m_rsReceivedPower.ConstValuesEnd();
+        for (auto it = m_rsReceivedPower.ConstValuesBegin();
+             it != m_rsReceivedPower.ConstValuesEnd();
              it++)
         {
             // convert PSD [W/Hz] to linear power [W] for the single RE
@@ -650,14 +648,14 @@ LteUePhy::GenerateCqiRsrpRsrq(const SpectrumValue& sinr)
         // measure instantaneous RSRQ now
         NS_ASSERT_MSG(m_rsInterferencePowerUpdated, " RS interference power info obsolete");
 
-        std::list<PssElement>::iterator itPss = m_pssList.begin();
+        auto itPss = m_pssList.begin();
         while (itPss != m_pssList.end())
         {
             uint16_t rbNum = 0;
             double rssiSum = 0.0;
 
-            Values::const_iterator itIntN = m_rsInterferencePower.ConstValuesBegin();
-            Values::const_iterator itPj = m_rsReceivedPower.ConstValuesBegin();
+            auto itIntN = m_rsInterferencePower.ConstValuesBegin();
+            auto itPj = m_rsReceivedPower.ConstValuesBegin();
             for (itPj = m_rsReceivedPower.ConstValuesBegin();
                  itPj != m_rsReceivedPower.ConstValuesEnd();
                  itIntN++, itPj++)
@@ -677,8 +675,7 @@ LteUePhy::GenerateCqiRsrpRsrq(const SpectrumValue& sinr)
                 NS_LOG_INFO(this << " PSS RNTI " << m_rnti << " cellId " << m_cellId << " has RSRQ "
                                  << rsrq_dB << " and RBnum " << rbNum);
                 // store measurements
-                std::map<uint16_t, UeMeasurementsElement>::iterator itMeasMap;
-                itMeasMap = m_ueMeasurementsMap.find((*itPss).cellId);
+                auto itMeasMap = m_ueMeasurementsMap.find((*itPss).cellId);
                 if (itMeasMap != m_ueMeasurementsMap.end())
                 {
                     (*itMeasMap).second.rsrqSum += rsrq_dB;
@@ -708,9 +705,8 @@ LteUePhy::ComputeAvgSinr(const SpectrumValue& sinr)
     // averaged SINR among RBs
     double sum = 0.0;
     uint8_t rbNum = 0;
-    Values::const_iterator it;
 
-    for (it = sinr.ConstValuesBegin(); it != sinr.ConstValuesEnd(); it++)
+    for (auto it = sinr.ConstValuesBegin(); it != sinr.ConstValuesEnd(); it++)
     {
         sum += (*it);
         rbNum++;
@@ -820,14 +816,12 @@ LteUePhy::ReportRsReceivedPower(const SpectrumValue& power)
     if (m_enableUplinkPowerControl)
     {
         double sum = 0;
-        uint32_t rbNum = 0;
-        Values::const_iterator it;
-        for (it = m_rsReceivedPower.ConstValuesBegin(); it != m_rsReceivedPower.ConstValuesEnd();
+        for (auto it = m_rsReceivedPower.ConstValuesBegin();
+             it != m_rsReceivedPower.ConstValuesEnd();
              it++)
         {
             double powerTxW = ((*it) * 180000);
             sum += powerTxW;
-            rbNum++;
         }
         double rsrp = 10 * log10(sum) + 30;
 
@@ -870,7 +864,7 @@ LteUePhy::CreateDlCqiFeedbackMessage(const SpectrumValue& sinr)
         }
         dlcqi.m_rnti = m_rnti;
         dlcqi.m_ri = 1;                          // not yet used
-        dlcqi.m_cqiType = CqiListElement_s::P10; // Peridic CQI using PUCCH wideband
+        dlcqi.m_cqiType = CqiListElement_s::P10; // Periodic CQI using PUCCH wideband
         NS_ASSERT_MSG(nLayer > 0, " nLayer negative");
         NS_ASSERT_MSG(nLayer < 3, " nLayer limit is 2s");
         for (uint8_t i = 0; i < nLayer; i++)
@@ -942,10 +936,9 @@ LteUePhy::ReportUeMeasurements()
     NS_LOG_FUNCTION(this << Simulator::Now());
     NS_LOG_DEBUG(this << " Report UE Measurements ");
 
-    LteUeCphySapUser::UeMeasurementsParameters ret;
+    LteUeCphySapUser::UeMeasurementsParameters ret{};
 
-    std::map<uint16_t, UeMeasurementsElement>::iterator it;
-    for (it = m_ueMeasurementsMap.begin(); it != m_ueMeasurementsMap.end(); it++)
+    for (auto it = m_ueMeasurementsMap.begin(); it != m_ueMeasurementsMap.end(); it++)
     {
         double avg_rsrp = (*it).second.rsrpSum / (double)(*it).second.rsrpNum;
         double avg_rsrq = (*it).second.rsrqSum / (double)(*it).second.rsrqNum;
@@ -972,7 +965,7 @@ LteUePhy::ReportUeMeasurements()
                                (*it).first,
                                avg_rsrp,
                                avg_rsrq,
-                               ((*it).first == m_cellId ? 1 : 0),
+                               (*it).first == m_cellId,
                                m_componentCarrierId);
     }
 
@@ -1033,10 +1026,9 @@ LteUePhy::ReceiveLteControlMessageList(std::list<Ptr<LteControlMessage>> msgList
 {
     NS_LOG_FUNCTION(this);
 
-    std::list<Ptr<LteControlMessage>>::iterator it;
     NS_LOG_DEBUG(this << " I am rnti = " << m_rnti << " and I received msgs "
                       << (uint16_t)msgList.size());
-    for (it = msgList.begin(); it != msgList.end(); it++)
+    for (auto it = msgList.begin(); it != msgList.end(); it++)
     {
         Ptr<LteControlMessage> msg = (*it);
 
@@ -1139,10 +1131,7 @@ LteUePhy::ReceiveLteControlMessageList(std::list<Ptr<LteControlMessage>> msgList
             Ptr<RarLteControlMessage> rarMsg = DynamicCast<RarLteControlMessage>(msg);
             if (rarMsg->GetRaRnti() == m_raRnti)
             {
-                for (std::list<RarLteControlMessage::Rar>::const_iterator it =
-                         rarMsg->RarListBegin();
-                     it != rarMsg->RarListEnd();
-                     ++it)
+                for (auto it = rarMsg->RarListBegin(); it != rarMsg->RarListEnd(); ++it)
                 {
                     if (it->rapId != m_raPreambleId)
                     {
@@ -1199,8 +1188,7 @@ LteUePhy::ReceivePss(uint16_t cellId, Ptr<SpectrumValue> p)
 
     double sum = 0.0;
     uint16_t nRB = 0;
-    Values::const_iterator itPi;
-    for (itPi = p->ConstValuesBegin(); itPi != p->ConstValuesEnd(); itPi++)
+    for (auto itPi = p->ConstValuesBegin(); itPi != p->ConstValuesEnd(); itPi++)
     {
         // convert PSD [W/Hz] to linear power [W] for the single RE
         double powerTxW = ((*itPi) * 180000.0) / 12.0;
@@ -1215,8 +1203,7 @@ LteUePhy::ReceivePss(uint16_t cellId, Ptr<SpectrumValue> p)
     // note that m_pssReceptionThreshold does not apply here
 
     // store measurements
-    std::map<uint16_t, UeMeasurementsElement>::iterator itMeasMap =
-        m_ueMeasurementsMap.find(cellId);
+    auto itMeasMap = m_ueMeasurementsMap.find(cellId);
     if (itMeasMap == m_ueMeasurementsMap.end())
     {
         // insert new entry
@@ -1309,7 +1296,7 @@ LteUePhy::SubframeIndication(uint32_t frameNo, uint32_t subframeNo)
         else
         {
             // send only PUCCH (ideal: fake null bandwidth signal)
-            if (ctrlMsg.size() > 0)
+            if (!ctrlMsg.empty())
             {
                 NS_LOG_LOGIC(this << " UE - start TX PUCCH (NO PUSCH)");
                 std::vector<int> dlRb;
@@ -1480,11 +1467,11 @@ LteUePhy::DoSetDlBandwidth(uint16_t dlBandwidth)
         m_dlBandwidth = dlBandwidth;
 
         static const int Type0AllocationRbg[4] = {
-            10, // RGB size 1
-            26, // RGB size 2
-            63, // RGB size 3
-            110 // RGB size 4
-        };      // see table 7.1.6.1-1 of 36.213
+            10,  // RGB size 1
+            26,  // RGB size 2
+            63,  // RGB size 3
+            110, // RGB size 4
+        };       // see table 7.1.6.1-1 of 36.213
         for (int i = 0; i < 4; i++)
         {
             if (dlBandwidth < Type0AllocationRbg[i])
@@ -1585,7 +1572,7 @@ LteUePhy::DoResetRlfParams()
 }
 
 void
-LteUePhy::DoStartInSnycDetection()
+LteUePhy::DoStartInSyncDetection()
 {
     NS_LOG_FUNCTION(this);
     // indicates that the downlink radio link quality has to be monitored for in-sync indications
@@ -1617,7 +1604,7 @@ LteUePhy::RlfDetection(double sinrDb)
     m_numOfSubframes++;
     NS_LOG_LOGIC("No of Subframes: " << m_numOfSubframes
                                      << " UE synchronized: " << m_downlinkInSync);
-    // check for out_of_snyc indications first when UE is both DL and UL synchronized
+    // check for out_of_sync indications first when UE is both DL and UL synchronized
     // m_downlinkInSync=true indicates that the evaluation is for out-of-sync indications
     if (m_downlinkInSync && m_numOfSubframes == 10)
     {
@@ -1653,11 +1640,11 @@ LteUePhy::RlfDetection(double sinrDb)
     if (m_downlinkInSync && (m_numOfFrames * 10) == m_numOfQoutEvalSf)
     {
         NS_LOG_LOGIC("At " << Simulator::Now().As(Time::MS)
-                           << " ms UE PHY sending out of snyc indication to UE RRC layer");
+                           << " ms UE PHY sending out of sync indication to UE RRC layer");
         m_ueCphySapUser->NotifyOutOfSync();
         m_numOfFrames = 0;
     }
-    // check for in_snyc indications when T310 timer is started
+    // check for in_sync indications when T310 timer is started
     // m_downlinkInSync=false indicates that the evaluation is for in-sync indications
     if (!m_downlinkInSync && m_numOfSubframes == 10)
     {
@@ -1692,7 +1679,7 @@ LteUePhy::RlfDetection(double sinrDb)
     if (!m_downlinkInSync && (m_numOfFrames * 10) == m_numOfQinEvalSf)
     {
         NS_LOG_LOGIC("At " << Simulator::Now().As(Time::MS)
-                           << " ms UE PHY sending in snyc indication to UE RRC layer");
+                           << " ms UE PHY sending in sync indication to UE RRC layer");
         m_ueCphySapUser->NotifyInSync();
         m_numOfFrames = 0;
     }

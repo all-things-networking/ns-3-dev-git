@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 University of Washington
  * Copyright (c) 2011 Atishay Jain
@@ -516,7 +515,7 @@ Ipv6AddressGeneratorImpl::AddAllocated(const Ipv6Address address)
         taddr[15] += 1;
         if (Ipv6Address(addr) == Ipv6Address(taddr))
         {
-            std::list<Entry>::iterator j = i;
+            auto j = i;
             ++j;
 
             if (j != m_entries.end())
@@ -554,7 +553,7 @@ Ipv6AddressGeneratorImpl::AddAllocated(const Ipv6Address address)
             taddr[j] = (*i).addrLow[j];
         }
         taddr[15] -= 1;
-        if ((Ipv6Address(addr) == Ipv6Address(taddr)))
+        if (Ipv6Address(addr) == Ipv6Address(taddr))
         {
             NS_LOG_LOGIC("New addrLow = " << Ipv6Address(addr));
             for (uint32_t j = 0; j < 16; j++)
@@ -582,9 +581,7 @@ Ipv6AddressGeneratorImpl::IsAddressAllocated(const Ipv6Address address)
     uint8_t addr[16];
     address.GetBytes(addr);
 
-    std::list<Entry>::iterator i;
-
-    for (i = m_entries.begin(); i != m_entries.end(); ++i)
+    for (auto i = m_entries.begin(); i != m_entries.end(); ++i)
     {
         NS_LOG_LOGIC("examine entry: " << Ipv6Address((*i).addrLow) << " to "
                                        << Ipv6Address((*i).addrHigh));
@@ -595,10 +592,10 @@ Ipv6AddressGeneratorImpl::IsAddressAllocated(const Ipv6Address address)
         {
             NS_LOG_LOGIC("Ipv6AddressGeneratorImpl::IsAddressAllocated(): Address Collision: "
                          << Ipv6Address(addr));
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 bool
@@ -606,15 +603,12 @@ Ipv6AddressGeneratorImpl::IsNetworkAllocated(const Ipv6Address address, const Ip
 {
     NS_LOG_FUNCTION(this << address << prefix);
 
-    Ipv6Address addr = address;
     NS_ABORT_MSG_UNLESS(
-        address == addr.CombinePrefix(prefix),
+        address == address.CombinePrefix(prefix),
         "Ipv6AddressGeneratorImpl::IsNetworkAllocated(): network address and mask don't match "
             << address << " " << prefix);
 
-    std::list<Entry>::iterator i;
-
-    for (i = m_entries.begin(); i != m_entries.end(); ++i)
+    for (auto i = m_entries.begin(); i != m_entries.end(); ++i)
     {
         NS_LOG_LOGIC("examine entry: " << Ipv6Address((*i).addrLow) << " to "
                                        << Ipv6Address((*i).addrHigh));

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 INRIA
  *
@@ -292,8 +291,7 @@ BufferTest::DoRun()
     i.Prev(100);
     i.WriteU8(1, 100);
 
-    /// \internal
-    /// See \bugid{54}
+    // See \bugid{54}
     {
         const uint32_t actualSize = 72602;
         const uint32_t chunkSize = 67624;
@@ -355,7 +353,7 @@ BufferTest::DoRun()
     i.Write(buffer.Begin(), buffer.End());
     ENSURE_WRITTEN_BYTES(other, 9, 0x1, 0x2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3, 0x4);
 
-    /// \internal See \bugid{1001}
+    // See \bugid{1001}
     std::string ct("This is the next content of the buffer.");
     buffer = Buffer();
     buffer.AddAtStart(ct.size());
@@ -365,7 +363,7 @@ BufferTest::DoRun()
     NS_TEST_ASSERT_MSG_EQ(sizeBuffer, ct.size(), "Buffer bad size");
     const uint8_t* evilBuffer = buffer.PeekData();
     NS_TEST_ASSERT_MSG_NE(evilBuffer, 0, "Buffer PeekData failed");
-    uint8_t* cBuf = (uint8_t*)malloc(sizeBuffer);
+    auto cBuf = (uint8_t*)malloc(sizeBuffer);
     uint32_t copyLen = buffer.CopyData(cBuf, sizeBuffer);
     NS_TEST_ASSERT_MSG_EQ(copyLen, sizeBuffer, "CopyData return bad size");
     for (uint32_t i = 0; i < sizeBuffer; i++)
@@ -377,7 +375,7 @@ BufferTest::DoRun()
     }
     free(cBuf);
 
-    /// \internal See \bugid{2044}  Will not pass without bug2044 fix.
+    // See \bugid{2044}  Will not pass without bug2044 fix.
     buffer = Buffer(1);
     buffer.AddAtEnd(2);
     i = buffer.Begin();

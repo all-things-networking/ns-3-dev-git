@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011-2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,8 +20,9 @@
 #ifndef LTE_PDCP_H
 #define LTE_PDCP_H
 
-#include "ns3/lte-pdcp-sap.h"
-#include "ns3/lte-rlc-sap.h"
+#include "lte-pdcp-sap.h"
+#include "lte-rlc-sap.h"
+
 #include "ns3/object.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-value.h"
@@ -108,7 +108,7 @@ class LtePdcp : public Object // SimpleRefCount<LtePdcp>
      *
      * \return the current status of the PDCP
      */
-    Status GetStatus();
+    Status GetStatus() const;
 
     /**
      * Set the status of the PDCP

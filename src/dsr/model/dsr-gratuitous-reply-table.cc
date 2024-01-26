@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -68,7 +67,7 @@ bool
 DsrGraReply::FindAndUpdate(Ipv4Address replyTo, Ipv4Address replyFrom, Time gratReplyHoldoff)
 {
     Purge(); // purge the gratuitous reply table
-    for (std::vector<GraReplyEntry>::iterator i = m_graReply.begin(); i != m_graReply.end(); ++i)
+    for (auto i = m_graReply.begin(); i != m_graReply.end(); ++i)
     {
         if ((i->m_replyTo == replyTo) && (i->m_hearFrom == replyFrom))
         {

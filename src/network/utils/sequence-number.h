@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2008-2010 INESC Porto
 //
@@ -294,7 +293,7 @@ class SequenceNumber
      */
     bool operator==(const SequenceNumber<NUMERIC_TYPE, SIGNED_TYPE>& other) const
     {
-        return (m_value == other.m_value);
+        return m_value == other.m_value;
     }
 
     /**
@@ -304,7 +303,7 @@ class SequenceNumber
      */
     bool operator!=(const SequenceNumber<NUMERIC_TYPE, SIGNED_TYPE>& other) const
     {
-        return (m_value != other.m_value);
+        return m_value != other.m_value;
     }
 
     /**

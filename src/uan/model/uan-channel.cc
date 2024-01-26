@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -85,7 +84,7 @@ UanChannel::Clear()
         return;
     }
     m_cleared = true;
-    UanDeviceList::iterator it = m_devList.begin();
+    auto it = m_devList.begin();
     for (; it != m_devList.end(); it++)
     {
         if (it->first)
@@ -151,7 +150,7 @@ UanChannel::TxPacket(Ptr<UanTransducer> src, Ptr<Packet> packet, double txPowerD
     Ptr<MobilityModel> senderMobility = nullptr;
 
     NS_LOG_DEBUG("Channel scheduling");
-    for (UanDeviceList::const_iterator i = m_devList.begin(); i != m_devList.end(); i++)
+    for (auto i = m_devList.begin(); i != m_devList.end(); i++)
     {
         if (src == i->second)
         {
@@ -161,7 +160,7 @@ UanChannel::TxPacket(Ptr<UanTransducer> src, Ptr<Packet> packet, double txPowerD
     }
     NS_ASSERT(senderMobility);
     uint32_t j = 0;
-    UanDeviceList::const_iterator i = m_devList.begin();
+    auto i = m_devList.begin();
     for (; i != m_devList.end(); i++)
     {
         if (src != i->second)

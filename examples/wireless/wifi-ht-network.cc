@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
@@ -24,6 +23,7 @@
 #include "ns3/config.h"
 #include "ns3/double.h"
 #include "ns3/enum.h"
+#include "ns3/ht-phy.h"
 #include "ns3/internet-stack-helper.h"
 #include "ns3/ipv4-address-helper.h"
 #include "ns3/ipv4-global-routing-helper.h"
@@ -96,11 +96,8 @@ main(int argc, char* argv[])
         Config::SetDefault("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue("0"));
     }
 
-    double prevThroughput[8];
-    for (uint32_t l = 0; l < 8; l++)
-    {
-        prevThroughput[l] = 0;
-    }
+    double prevThroughput[8] = {0};
+
     std::cout << "MCS value"
               << "\t\t"
               << "Channel width"
@@ -121,7 +118,7 @@ main(int argc, char* argv[])
         double previous = 0;
         for (int channelWidth = 20; channelWidth <= 40;)
         {
-            for (int sgi = 0; sgi < 2; sgi++)
+            for (auto sgi : {false, true})
             {
                 uint32_t payloadSize; // 1500 byte IP packet
                 if (udp)
@@ -145,14 +142,17 @@ main(int argc, char* argv[])
 
                 WifiMacHelper mac;
                 WifiHelper wifi;
+                std::ostringstream ossControlMode;
 
                 if (frequency == 5.0)
                 {
+                    ossControlMode << "OfdmRate";
                     wifi.SetStandard(WIFI_STANDARD_80211n);
                 }
                 else if (frequency == 2.4)
                 {
                     wifi.SetStandard(WIFI_STANDARD_80211n);
+                    ossControlMode << "ErpOfdmRate";
                     Config::SetDefault("ns3::LogDistancePropagationLossModel::ReferenceLoss",
                                        DoubleValue(40.046));
                 }
@@ -162,13 +162,16 @@ main(int argc, char* argv[])
                     return 0;
                 }
 
-                std::ostringstream oss;
-                oss << "HtMcs" << mcs;
+                auto nonHtRefRateMbps = HtPhy::GetNonHtReferenceRate(mcs) / 1e6;
+                ossControlMode << nonHtRefRateMbps << "Mbps";
+
+                std::ostringstream ossDataMode;
+                ossDataMode << "HtMcs" << mcs;
                 wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
                                              "DataMode",
-                                             StringValue(oss.str()),
+                                             StringValue(ossDataMode.str()),
                                              "ControlMode",
-                                             StringValue(oss.str()));
+                                             StringValue(ossControlMode.str()));
                 // Set guard interval
                 wifi.ConfigHtOptions("ShortGuardIntervalSupported", BooleanValue(sgi));
 
@@ -280,11 +283,11 @@ main(int argc, char* argv[])
 
                 Simulator::Destroy();
 
-                std::cout << mcs << "\t\t\t" << channelWidth << " MHz\t\t\t" << sgi << "\t\t\t"
-                          << throughput << " Mbit/s" << std::endl;
+                std::cout << mcs << "\t\t\t" << channelWidth << " MHz\t\t\t" << std::boolalpha
+                          << sgi << "\t\t\t" << throughput << " Mbit/s" << std::endl;
 
                 // test first element
-                if (mcs == 0 && channelWidth == 20 && sgi == 0)
+                if (mcs == 0 && channelWidth == 20 && !sgi)
                 {
                     if (throughput < minExpectedThroughput)
                     {
@@ -292,7 +295,7 @@ main(int argc, char* argv[])
                     }
                 }
                 // test last element
-                if (mcs == 7 && channelWidth == 40 && sgi == 1)
+                if (mcs == 7 && channelWidth == 40 && sgi)
                 {
                     if (maxExpectedThroughput > 0 && throughput > maxExpectedThroughput)
                     {

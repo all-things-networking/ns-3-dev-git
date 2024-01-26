@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -274,7 +273,7 @@ DsrOptionField::CalculatePad(DsrOptionHeader::Alignment alignment) const
 }
 
 uint32_t
-DsrOptionField::GetDsrOptionsOffset()
+DsrOptionField::GetDsrOptionsOffset() const
 {
     return m_optionsOffset;
 }

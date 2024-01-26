@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -211,10 +210,9 @@ main(int argc, char* argv[])
     Simulator::Schedule(Seconds(14), &Ipv4::SetUp, ipv41, ipv4ifIndex1);
 
     // Trace routing tables
-    Ipv4GlobalRoutingHelper g;
     Ptr<OutputStreamWrapper> routingStream =
         Create<OutputStreamWrapper>("dynamic-global-routing.routes", std::ios::out);
-    g.PrintRoutingTableAllAt(Seconds(12), routingStream);
+    Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(12), routingStream);
 
     NS_LOG_INFO("Run Simulation.");
     Simulator::Run();

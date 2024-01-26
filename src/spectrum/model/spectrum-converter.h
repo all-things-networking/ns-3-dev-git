@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -21,7 +20,7 @@
 #ifndef SPECTRUM_CONVERTER_H
 #define SPECTRUM_CONVERTER_H
 
-#include <ns3/spectrum-value.h>
+#include "spectrum-value.h"
 
 namespace ns3
 {
@@ -45,7 +44,7 @@ class SpectrumConverter : public SimpleRefCount<SpectrumConverter>
     /**
      * Create a SpectrumConverter class that will be able to convert ValueVsFreq
      * instances defined over one SpectrumModel to corresponding ValueVsFreq
-     * instances defined over a diffent SpectrumModel
+     * instances defined over a different SpectrumModel
      *
      * @param fromSpectrumModel the SpectrumModel to convert from
      * @param toSpectrumModel the SpectrumModel to convert to

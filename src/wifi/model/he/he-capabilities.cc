@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016
  *
@@ -137,6 +136,14 @@ HeCapabilities::ElementIdExt() const
     return IE_EXT_HE_CAPABILITIES;
 }
 
+void
+HeCapabilities::Print(std::ostream& os) const
+{
+    os << "HE Capabilities=" << GetHeMacCapabilitiesInfo1() << "|" << +GetHeMacCapabilitiesInfo2()
+       << "|" << GetHePhyCapabilitiesInfo1() << "|" << GetHePhyCapabilitiesInfo2() << "|"
+       << +GetHePhyCapabilitiesInfo3() << "|" << GetSupportedMcsAndNss();
+}
+
 uint16_t
 HeCapabilities::GetInformationFieldSize() const
 {
@@ -153,7 +160,7 @@ HeCapabilities::SerializeInformationField(Buffer::Iterator start) const
 {
     // write the corresponding value for each bit
     start.WriteHtolsbU32(GetHeMacCapabilitiesInfo1());
-    start.WriteU16(GetHeMacCapabilitiesInfo2());
+    start.WriteHtolsbU16(GetHeMacCapabilitiesInfo2());
     start.WriteHtolsbU64(GetHePhyCapabilitiesInfo1());
     start.WriteHtolsbU16(GetHePhyCapabilitiesInfo2());
     start.WriteU8(GetHePhyCapabilitiesInfo3());
@@ -608,18 +615,6 @@ uint32_t
 HeCapabilities::GetMaxAmpduLength() const
 {
     return std::min<uint32_t>((1UL << (20 + m_maxAmpduLengthExponent)) - 1, 6500631);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const HeCapabilities& HeCapabilities)
-{
-    os << HeCapabilities.GetHeMacCapabilitiesInfo1() << "|"
-       << +HeCapabilities.GetHeMacCapabilitiesInfo2() << "|"
-       << HeCapabilities.GetHePhyCapabilitiesInfo1() << "|"
-       << HeCapabilities.GetHePhyCapabilitiesInfo2() << "|"
-       << +HeCapabilities.GetHePhyCapabilitiesInfo3() << "|"
-       << HeCapabilities.GetSupportedMcsAndNss();
-    return os;
 }
 
 } // namespace ns3

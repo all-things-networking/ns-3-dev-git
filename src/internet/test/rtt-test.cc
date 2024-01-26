@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -29,7 +28,6 @@ NS_LOG_COMPONENT_DEFINE("RttEstimatorTestSuite");
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief RTT estimator Test
  */
@@ -182,7 +180,6 @@ RttEstimatorTestCase::DoTeardown()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief RTT estimator TestSuite
  */

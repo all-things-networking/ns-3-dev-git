@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -22,7 +21,6 @@
 
 #include "lte-pdcp.h"
 #include "lte-rlc.h"
-#include "lte-ue-rrc.h"
 
 #include <ns3/log.h>
 

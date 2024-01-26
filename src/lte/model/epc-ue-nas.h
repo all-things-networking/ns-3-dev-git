@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,10 +20,10 @@
 #ifndef EPC_UE_NAS_H
 #define EPC_UE_NAS_H
 
+#include "epc-tft-classifier.h"
 #include "eps-bearer.h"
+#include "lte-as-sap.h"
 
-#include <ns3/epc-tft-classifier.h>
-#include <ns3/lte-as-sap.h>
 #include <ns3/object.h>
 #include <ns3/traced-callback.h>
 

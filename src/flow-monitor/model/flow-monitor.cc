@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -103,9 +102,7 @@ FlowMonitor::DoDispose()
     NS_LOG_FUNCTION(this);
     Simulator::Cancel(m_startEvent);
     Simulator::Cancel(m_stopEvent);
-    for (std::list<Ptr<FlowClassifier>>::iterator iter = m_classifiers.begin();
-         iter != m_classifiers.end();
-         iter++)
+    for (auto iter = m_classifiers.begin(); iter != m_classifiers.end(); iter++)
     {
         *iter = nullptr;
     }
@@ -121,8 +118,7 @@ inline FlowMonitor::FlowStats&
 FlowMonitor::GetStatsForFlow(FlowId flowId)
 {
     NS_LOG_FUNCTION(this);
-    FlowStatsContainerI iter;
-    iter = m_flowStats.find(flowId);
+    auto iter = m_flowStats.find(flowId);
     if (iter == m_flowStats.end())
     {
         FlowMonitor::FlowStats& ref = m_flowStats[flowId];
@@ -192,7 +188,7 @@ FlowMonitor::ReportForwarding(Ptr<FlowProbe> probe,
         return;
     }
     std::pair<FlowId, FlowPacketId> key(flowId, packetId);
-    TrackedPacketMap::iterator tracked = m_trackedPackets.find(key);
+    auto tracked = m_trackedPackets.find(key);
     if (tracked == m_trackedPackets.end())
     {
         NS_LOG_WARN("Received packet forward report (flowId="
@@ -219,7 +215,7 @@ FlowMonitor::ReportLastRx(Ptr<FlowProbe> probe,
         NS_LOG_DEBUG("FlowMonitor not enabled; returning");
         return;
     }
-    TrackedPacketMap::iterator tracked = m_trackedPackets.find(std::make_pair(flowId, packetId));
+    auto tracked = m_trackedPackets.find(std::make_pair(flowId, packetId));
     if (tracked == m_trackedPackets.end())
     {
         NS_LOG_WARN("Received packet last-tx report (flowId="
@@ -303,7 +299,7 @@ FlowMonitor::ReportDrop(Ptr<FlowProbe> probe,
     NS_LOG_DEBUG("++stats.packetsDropped["
                  << reasonCode << "]; // becomes: " << stats.packetsDropped[reasonCode]);
 
-    TrackedPacketMap::iterator tracked = m_trackedPackets.find(std::make_pair(flowId, packetId));
+    auto tracked = m_trackedPackets.find(std::make_pair(flowId, packetId));
     if (tracked != m_trackedPackets.end())
     {
         // we don't need to track this packet anymore
@@ -326,13 +322,12 @@ FlowMonitor::CheckForLostPackets(Time maxDelay)
     NS_LOG_FUNCTION(this << maxDelay.As(Time::S));
     Time now = Simulator::Now();
 
-    for (TrackedPacketMap::iterator iter = m_trackedPackets.begin();
-         iter != m_trackedPackets.end();)
+    for (auto iter = m_trackedPackets.begin(); iter != m_trackedPackets.end();)
     {
         if (now - iter->second.lastSeenTime >= maxDelay)
         {
             // packet is considered lost, add it to the loss statistics
-            FlowStatsContainerI flow = m_flowStats.find(iter->first.first);
+            auto flow = m_flowStats.find(iter->first.first);
             NS_ASSERT(flow != m_flowStats.end());
             flow->second.lostPackets++;
 
@@ -445,7 +440,7 @@ FlowMonitor::SerializeToXmlStream(std::ostream& os,
     indent += 2;
     os << std::string(indent, ' ') << "<FlowStats>\n";
     indent += 2;
-    for (FlowStatsContainerCI flowI = m_flowStats.begin(); flowI != m_flowStats.end(); flowI++)
+    for (auto flowI = m_flowStats.begin(); flowI != m_flowStats.end(); flowI++)
     {
         os << std::string(indent, ' ');
 #define ATTRIB(name) << " " #name "=\"" << flowI->second.name << "\""
@@ -493,9 +488,7 @@ FlowMonitor::SerializeToXmlStream(std::ostream& os,
     indent -= 2;
     os << std::string(indent, ' ') << "</FlowStats>\n";
 
-    for (std::list<Ptr<FlowClassifier>>::iterator iter = m_classifiers.begin();
-         iter != m_classifiers.end();
-         iter++)
+    for (auto iter = m_classifiers.begin(); iter != m_classifiers.end(); iter++)
     {
         (*iter)->SerializeToXmlStream(os, indent);
     }
@@ -529,10 +522,37 @@ void
 FlowMonitor::SerializeToXmlFile(std::string fileName, bool enableHistograms, bool enableProbes)
 {
     NS_LOG_FUNCTION(this << fileName << enableHistograms << enableProbes);
-    std::ofstream os(fileName.c_str(), std::ios::out | std::ios::binary);
+    std::ofstream os(fileName, std::ios::out | std::ios::binary);
     os << "<?xml version=\"1.0\" ?>\n";
     SerializeToXmlStream(os, 0, enableHistograms, enableProbes);
     os.close();
+}
+
+void
+FlowMonitor::ResetAllStats()
+{
+    NS_LOG_FUNCTION(this);
+
+    for (auto& iter : m_flowStats)
+    {
+        auto& flowStat = iter.second;
+        flowStat.delaySum = Seconds(0);
+        flowStat.jitterSum = Seconds(0);
+        flowStat.lastDelay = Seconds(0);
+        flowStat.txBytes = 0;
+        flowStat.rxBytes = 0;
+        flowStat.txPackets = 0;
+        flowStat.rxPackets = 0;
+        flowStat.lostPackets = 0;
+        flowStat.timesForwarded = 0;
+        flowStat.bytesDropped.clear();
+        flowStat.packetsDropped.clear();
+
+        flowStat.delayHistogram.Clear();
+        flowStat.jitterHistogram.Clear();
+        flowStat.packetSizeHistogram.Clear();
+        flowStat.flowInterruptionsHistogram.Clear();
+    }
 }
 
 } // namespace ns3

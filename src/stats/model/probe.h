@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Bucknell University
  *
@@ -22,7 +21,8 @@
 #ifndef PROBE_H
 #define PROBE_H
 
-#include "ns3/data-collection-object.h"
+#include "data-collection-object.h"
+
 #include "ns3/nstime.h"
 
 namespace ns3

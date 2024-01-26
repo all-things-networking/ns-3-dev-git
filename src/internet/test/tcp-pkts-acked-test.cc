@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
@@ -31,7 +30,6 @@ class DummyCongControl;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Check the number of times that PktsAcked is called
  *
@@ -77,7 +75,6 @@ class TcpPktsAckedOpenTest : public TcpGeneralTest
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief Behaves as NewReno, except that each time PktsAcked is called,
  * a notification is sent to TcpPktsAckedOpenTest.
@@ -174,7 +171,6 @@ TcpPktsAckedOpenTest::FinalChecks()
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief PktsAcked is calls TestSuite.
  */

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -19,10 +18,10 @@
 #define IPV4_ROUTING_PROTOCOL_H
 
 #include "ipv4-header.h"
+#include "ipv4-interface-address.h"
 #include "ipv4.h"
 
 #include "ns3/callback.h"
-#include "ns3/ipv4-interface-address.h"
 #include "ns3/nstime.h"
 #include "ns3/object.h"
 #include "ns3/output-stream-wrapper.h"
@@ -127,10 +126,10 @@ class Ipv4RoutingProtocol : public Object
     virtual bool RouteInput(Ptr<const Packet> p,
                             const Ipv4Header& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb) = 0;
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb) = 0;
 
     /**
      * \param interface the index of the interface we are being notified about

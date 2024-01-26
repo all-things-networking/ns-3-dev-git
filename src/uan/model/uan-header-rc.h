@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -94,7 +93,7 @@ class UanHeaderRcData : public Header
      */
     void Print(std::ostream& os, Time::Unit unit) const;
 
-    // Inherrited methods
+    // Inherited methods
     uint32_t GetSerializedSize() const override;
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
@@ -212,7 +211,7 @@ class UanHeaderRcRts : public Header
      */
     void Print(std::ostream& os, Time::Unit unit) const;
 
-    // Inherrited methods
+    // Inherited methods
     uint32_t GetSerializedSize() const override;
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
@@ -316,7 +315,7 @@ class UanHeaderRcCtsGlobal : public Header
      */
     void Print(std::ostream& os, Time::Unit unit) const;
 
-    // Inherrited methods
+    // Inherited methods
     uint32_t GetSerializedSize() const override;
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
@@ -434,7 +433,7 @@ class UanHeaderRcCts : public Header
      */
     void Print(std::ostream& os, Time::Unit unit) const;
 
-    // Inherrited methods
+    // Inherited methods
     uint32_t GetSerializedSize() const override;
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;
@@ -501,7 +500,7 @@ class UanHeaderRcAck : public Header
      */
     uint8_t GetNoNacks() const;
 
-    // Inherrited methods
+    // Inherited methods
     uint32_t GetSerializedSize() const override;
     void Serialize(Buffer::Iterator start) const override;
     uint32_t Deserialize(Buffer::Iterator start) override;

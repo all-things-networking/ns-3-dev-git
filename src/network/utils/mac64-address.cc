@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -35,74 +34,43 @@ NS_LOG_COMPONENT_DEFINE("Mac64Address");
 
 ATTRIBUTE_HELPER_CPP(Mac64Address);
 
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-/**
- * Converts a char to lower case.
- * \param c the char
- * \returns the lower case
- */
-static char
-AsciiToLowCase(char c)
-{
-    NS_LOG_FUNCTION(c);
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
 uint64_t Mac64Address::m_allocationIndex = 0;
-
-Mac64Address::Mac64Address()
-{
-    NS_LOG_FUNCTION(this);
-    std::memset(m_address, 0, 8);
-}
 
 Mac64Address::Mac64Address(const char* str)
 {
     NS_LOG_FUNCTION(this << str);
-    int i = 0;
-    while (*str != 0 && i < 8)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        m_address[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-    NS_ASSERT(i == 8);
+    NS_ASSERT_MSG(strlen(str) <= 23, "Mac64Address: illegal string (too long) " << str);
+
+    unsigned int bytes[8];
+    int charsRead = 0;
+
+    int i = sscanf(str,
+                   "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x%n",
+                   bytes,
+                   bytes + 1,
+                   bytes + 2,
+                   bytes + 3,
+                   bytes + 4,
+                   bytes + 5,
+                   bytes + 6,
+                   bytes + 7,
+                   &charsRead);
+    NS_ASSERT_MSG(i == 8 && !str[charsRead], "Mac64Address: illegal string " << str);
+
+    std::copy(std::begin(bytes), std::end(bytes), std::begin(m_address));
+}
+
+Mac64Address::Mac64Address(uint64_t addr)
+{
+    NS_LOG_FUNCTION(this);
+    m_address[7] = addr & 0xFF;
+    m_address[6] = (addr >> 8) & 0xFF;
+    m_address[5] = (addr >> 16) & 0xFF;
+    m_address[4] = (addr >> 24) & 0xFF;
+    m_address[3] = (addr >> 32) & 0xFF;
+    m_address[2] = (addr >> 40) & 0xFF;
+    m_address[1] = (addr >> 48) & 0xFF;
+    m_address[0] = (addr >> 56) & 0xFF;
 }
 
 void
@@ -146,6 +114,23 @@ Mac64Address::ConvertTo() const
 {
     NS_LOG_FUNCTION(this);
     return Address(GetType(), m_address, 8);
+}
+
+uint64_t
+Mac64Address::ConvertToInt() const
+{
+    uint64_t shift = 0xFF;
+    uint64_t addr = static_cast<uint64_t>(m_address[7]) & (shift);
+    addr |= (static_cast<uint64_t>(m_address[6]) << 8) & (shift << 8);
+    addr |= (static_cast<uint64_t>(m_address[5]) << 16) & (shift << 16);
+    addr |= (static_cast<uint64_t>(m_address[4]) << 24) & (shift << 24);
+
+    addr |= (static_cast<uint64_t>(m_address[3]) << 32) & (shift << 32);
+    addr |= (static_cast<uint64_t>(m_address[2]) << 40) & (shift << 40);
+    addr |= (static_cast<uint64_t>(m_address[1]) << 48) & (shift << 48);
+    addr |= (static_cast<uint64_t>(m_address[0]) << 56) & (shift << 56);
+
+    return addr;
 }
 
 Mac64Address
@@ -220,13 +205,13 @@ operator>>(std::istream& is, Mac64Address& address)
         if (next == std::string::npos)
         {
             tmp = v.substr(col, v.size() - col);
-            address.m_address[i] = strtoul(tmp.c_str(), nullptr, 16);
+            address.m_address[i] = std::stoul(tmp, nullptr, 16);
             break;
         }
         else
         {
             tmp = v.substr(col, next - col);
-            address.m_address[i] = strtoul(tmp.c_str(), nullptr, 16);
+            address.m_address[i] = std::stoul(tmp, nullptr, 16);
             col = next + 1;
         }
     }

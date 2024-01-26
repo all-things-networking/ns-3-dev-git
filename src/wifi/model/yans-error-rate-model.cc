@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -207,7 +206,7 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
     if (mode.GetModulationClass() >= WIFI_MOD_CLASS_ERP_OFDM)
     {
         uint64_t phyRate;
-        if ((txVector.IsMu() && (staId == SU_STA_ID)) || (mode != txVector.GetMode()))
+        if ((txVector.IsMu() && (staId == SU_STA_ID)) || (mode != txVector.GetMode(staId)))
         {
             phyRate = mode.GetPhyRate(txVector.GetChannelWidth() >= 40
                                           ? 20
@@ -386,7 +385,7 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
                 return GetFecQamBer(snr,
                                     nbits,
                                     txVector.GetChannelWidth() * 1000000, // signal spread
-                                    mode.GetPhyRate(txVector),            // PHY rate
+                                    phyRate,                              // PHY rate
                                     4096,                                 // m
                                     4,                                    // dFree
                                     14,                                   // adFree
@@ -398,7 +397,7 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
                 return GetFecQamBer(snr,
                                     nbits,
                                     txVector.GetChannelWidth() * 1000000, // signal spread
-                                    mode.GetPhyRate(txVector),            // PHY rate
+                                    phyRate,                              // PHY rate
                                     4096,                                 // m
                                     5,                                    // dFree
                                     8,                                    // adFree

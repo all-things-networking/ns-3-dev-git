@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
@@ -27,12 +26,12 @@
 
 #include "null-message-mpi-interface.h"
 
+#include "mpi-receiver.h"
 #include "null-message-simulator-impl.h"
 #include "remote-channel-bundle-manager.h"
 #include "remote-channel-bundle.h"
 
 #include "ns3/log.h"
-#include "ns3/mpi-receiver.h"
 #include "ns3/net-device.h"
 #include "ns3/node-list.h"
 #include "ns3/node.h"
@@ -97,8 +96,8 @@ const uint32_t NULL_MESSAGE_MAX_MPI_MSG_SIZE = 2000;
 
 NullMessageSentBuffer::NullMessageSentBuffer()
 {
-    m_buffer = 0;
-    m_request = 0;
+    m_buffer = nullptr;
+    m_request = MPI_REQUEST_NULL;
 }
 
 NullMessageSentBuffer::~NullMessageSentBuffer()
@@ -138,7 +137,7 @@ MPI_Request* NullMessageMpiInterface::g_requests;
 char** NullMessageMpiInterface::g_pRxBuffers;
 
 TypeId
-NullMessageMpiInterface::GetTypeId(void)
+NullMessageMpiInterface::GetTypeId()
 {
     static TypeId tid =
         TypeId("ns3::NullMessageMpiInterface").SetParent<Object>().SetGroupName("Mpi");
@@ -229,7 +228,7 @@ NullMessageMpiInterface::Enable(MPI_Comm communicator)
 }
 
 void
-NullMessageMpiInterface::InitializeSendReceiveBuffers(void)
+NullMessageMpiInterface::InitializeSendReceiveBuffers()
 {
     NS_LOG_FUNCTION_NOARGS();
     NS_ASSERT(g_enabled);
@@ -271,23 +270,22 @@ NullMessageMpiInterface::SendPacket(Ptr<Packet> p, const Time& rxTime, uint32_t 
 
     NullMessageSentBuffer sendBuf;
     g_pendingTx.push_back(sendBuf);
-    std::list<NullMessageSentBuffer>::reverse_iterator iter =
-        g_pendingTx.rbegin(); // Points to the last element
+    auto iter = g_pendingTx.rbegin(); // Points to the last element
 
     uint32_t serializedSize = p->GetSerializedSize();
     uint32_t bufferSize = serializedSize + (2 * sizeof(uint64_t)) + (2 * sizeof(uint32_t));
-    uint8_t* buffer = new uint8_t[bufferSize];
+    auto buffer = new uint8_t[bufferSize];
     iter->SetBuffer(buffer);
     // Add the time, dest node and dest device
     uint64_t t = rxTime.GetInteger();
-    uint64_t* pTime = reinterpret_cast<uint64_t*>(buffer);
+    auto pTime = reinterpret_cast<uint64_t*>(buffer);
     *pTime++ = t;
 
     Time guarantee_update =
         NullMessageSimulatorImpl::GetInstance()->CalculateGuaranteeTime(nodeSysId);
     *pTime++ = guarantee_update.GetTimeStep();
 
-    uint32_t* pData = reinterpret_cast<uint32_t*>(pTime);
+    auto pData = reinterpret_cast<uint32_t*>(pTime);
     *pData++ = node;
     *pData++ = dev;
     // Serialize the packet
@@ -314,17 +312,16 @@ NullMessageMpiInterface::SendNullMessage(const Time& guarantee_update,
 
     NullMessageSentBuffer sendBuf;
     g_pendingTx.push_back(sendBuf);
-    std::list<NullMessageSentBuffer>::reverse_iterator iter =
-        g_pendingTx.rbegin(); // Points to the last element
+    auto iter = g_pendingTx.rbegin(); // Points to the last element
 
     uint32_t bufferSize = 2 * sizeof(uint64_t) + 2 * sizeof(uint32_t);
-    uint8_t* buffer = new uint8_t[bufferSize];
+    auto buffer = new uint8_t[bufferSize];
     iter->SetBuffer(buffer);
     // Add the time, dest node and dest device
-    uint64_t* pTime = reinterpret_cast<uint64_t*>(buffer);
+    auto pTime = reinterpret_cast<uint64_t*>(buffer);
     *pTime++ = 0;
     *pTime++ = guarantee_update.GetInteger();
-    uint32_t* pData = reinterpret_cast<uint32_t*>(pTime);
+    auto pData = reinterpret_cast<uint32_t*>(pTime);
     *pData++ = 0;
     *pData++ = 0;
 
@@ -396,11 +393,11 @@ NullMessageMpiInterface::ReceiveMessages(bool blocking)
             MPI_Get_count(&status, MPI_CHAR, &count);
 
             // Get the meta data first
-            uint64_t* pTime = reinterpret_cast<uint64_t*>(g_pRxBuffers[index]);
+            auto pTime = reinterpret_cast<uint64_t*>(g_pRxBuffers[index]);
             uint64_t time = *pTime++;
             uint64_t guaranteeUpdate = *pTime++;
 
-            uint32_t* pData = reinterpret_cast<uint32_t*>(pTime);
+            auto pData = reinterpret_cast<uint32_t*>(pTime);
             uint32_t node = *pData++;
             uint32_t dev = *pData++;
 
@@ -415,7 +412,7 @@ NullMessageMpiInterface::ReceiveMessages(bool blocking)
 
                 // Find the correct node/device to schedule receive event
                 Ptr<Node> pNode = NodeList::GetNode(node);
-                Ptr<MpiReceiver> pMpiRec = 0;
+                Ptr<MpiReceiver> pMpiRec = nullptr;
                 uint32_t nDevices = pNode->GetNDevices();
                 for (uint32_t i = 0; i < nDevices; ++i)
                 {
@@ -466,14 +463,14 @@ NullMessageMpiInterface::TestSendComplete()
 
     NS_ASSERT(g_enabled);
 
-    std::list<NullMessageSentBuffer>::iterator iter = g_pendingTx.begin();
+    auto iter = g_pendingTx.begin();
     while (iter != g_pendingTx.end())
     {
         MPI_Status status;
         int flag = 0;
         MPI_Test(iter->GetRequest(), &flag, &status);
-        std::list<NullMessageSentBuffer>::iterator current = iter; // Save current for erasing
-        ++iter;                                                    // Advance to next
+        auto current = iter; // Save current for erasing
+        ++iter;              // Advance to next
         if (flag)
         { // This message is complete
             g_pendingTx.erase(current);
@@ -488,9 +485,7 @@ NullMessageMpiInterface::Disable()
 
     if (g_enabled)
     {
-        for (std::list<NullMessageSentBuffer>::iterator iter = g_pendingTx.begin();
-             iter != g_pendingTx.end();
-             ++iter)
+        for (auto iter = g_pendingTx.begin(); iter != g_pendingTx.end(); ++iter)
         {
             MPI_Cancel(iter->GetRequest());
             MPI_Request_free(iter->GetRequest());

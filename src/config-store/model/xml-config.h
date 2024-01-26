@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 INRIA
  *
@@ -23,9 +22,12 @@
 
 #include "file-config.h"
 
-#include <libxml/xmlreader.h>
-#include <libxml/xmlwriter.h>
 #include <string>
+
+// These are in #include <libxml/xmlwriter.h>,
+// here we just need a forward declaration.
+typedef struct _xmlTextWriter xmlTextWriter;
+typedef xmlTextWriter* xmlTextWriterPtr;
 
 namespace ns3
 {

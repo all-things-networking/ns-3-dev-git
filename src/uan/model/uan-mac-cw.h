@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -21,13 +20,14 @@
 #ifndef UAN_MAC_CW_H
 #define UAN_MAC_CW_H
 
+#include "uan-mac.h"
+#include "uan-phy.h"
+#include "uan-tx-mode.h"
+
 #include "ns3/mac8-address.h"
 #include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
-#include "ns3/uan-mac.h"
-#include "ns3/uan-phy.h"
-#include "ns3/uan-tx-mode.h"
 
 namespace ns3
 {
@@ -108,13 +108,13 @@ class UanMacCw : public UanMac, public UanPhyListener
 
   private:
     /** Enum defining possible Phy states. */
-    typedef enum
+    enum State
     {
         IDLE,    //!< Idle state.
         CCABUSY, //!< Channel busy.
         RUNNING, //!< Delay timer running.
         TX       //!< Transmitting.
-    } State;
+    };
 
     /** Forwarding up callback. */
     Callback<void, Ptr<Packet>, uint16_t, const Mac8Address&> m_forwardUpCb;

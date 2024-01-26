@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
@@ -82,14 +81,14 @@ uint32_t Buffer::g_recommendedStart = 0;
 #define UNINITIALIZED ((Buffer::FreeList*)0)
 uint32_t Buffer::g_maxSize = 0;
 Buffer::FreeList* Buffer::g_freeList = nullptr;
-struct Buffer::LocalStaticDestructor Buffer::g_localStaticDestructor;
+Buffer::LocalStaticDestructor Buffer::g_localStaticDestructor;
 
 Buffer::LocalStaticDestructor::~LocalStaticDestructor()
 {
     NS_LOG_FUNCTION(this);
     if (IS_INITIALIZED(g_freeList))
     {
-        for (Buffer::FreeList::iterator i = g_freeList->begin(); i != g_freeList->end(); i++)
+        for (auto i = g_freeList->begin(); i != g_freeList->end(); i++)
         {
             Buffer::Deallocate(*i);
         }
@@ -99,7 +98,7 @@ Buffer::LocalStaticDestructor::~LocalStaticDestructor()
 }
 
 void
-Buffer::Recycle(struct Buffer::Data* data)
+Buffer::Recycle(Buffer::Data* data)
 {
     NS_LOG_FUNCTION(data);
     NS_ASSERT(data->m_count == 0);
@@ -130,7 +129,7 @@ Buffer::Create(uint32_t dataSize)
     {
         while (!g_freeList->empty())
         {
-            struct Buffer::Data* data = g_freeList->back();
+            Buffer::Data* data = g_freeList->back();
             g_freeList->pop_back();
             if (data->m_size >= dataSize)
             {
@@ -140,13 +139,13 @@ Buffer::Create(uint32_t dataSize)
             Buffer::Deallocate(data);
         }
     }
-    struct Buffer::Data* data = Buffer::Allocate(dataSize);
+    Buffer::Data* data = Buffer::Allocate(dataSize);
     NS_ASSERT(data->m_count == 1);
     return data;
 }
 #else  /* BUFFER_FREE_LIST */
 void
-Buffer::Recycle(struct Buffer::Data* data)
+Buffer::Recycle(Buffer::Data* data)
 {
     NS_LOG_FUNCTION(data);
     NS_ASSERT(data->m_count == 0);
@@ -161,7 +160,9 @@ Buffer::Create(uint32_t size)
 }
 #endif /* BUFFER_FREE_LIST */
 
-struct Buffer::Data*
+constexpr uint32_t ALLOC_OVER_PROVISION = 100; //!< Additional bytes to over-provision.
+
+Buffer::Data*
 Buffer::Allocate(uint32_t reqSize)
 {
     NS_LOG_FUNCTION(reqSize);
@@ -170,20 +171,21 @@ Buffer::Allocate(uint32_t reqSize)
         reqSize = 1;
     }
     NS_ASSERT(reqSize >= 1);
-    uint32_t size = reqSize - 1 + sizeof(struct Buffer::Data);
-    uint8_t* b = new uint8_t[size];
-    struct Buffer::Data* data = reinterpret_cast<struct Buffer::Data*>(b);
+    reqSize += ALLOC_OVER_PROVISION;
+    uint32_t size = reqSize - 1 + sizeof(Buffer::Data);
+    auto b = new uint8_t[size];
+    auto data = reinterpret_cast<Buffer::Data*>(b);
     data->m_size = reqSize;
     data->m_count = 1;
     return data;
 }
 
 void
-Buffer::Deallocate(struct Buffer::Data* data)
+Buffer::Deallocate(Buffer::Data* data)
 {
     NS_LOG_FUNCTION(data);
     NS_ASSERT(data->m_count == 0);
-    uint8_t* buf = reinterpret_cast<uint8_t*>(data);
+    auto buf = reinterpret_cast<uint8_t*>(data);
     delete[] buf;
 }
 
@@ -202,7 +204,7 @@ Buffer::Buffer(uint32_t dataSize)
 Buffer::Buffer(uint32_t dataSize, bool initialize)
 {
     NS_LOG_FUNCTION(this << dataSize << initialize);
-    if (initialize == true)
+    if (initialize)
     {
         Initialize(dataSize);
     }
@@ -329,7 +331,7 @@ Buffer::AddAtStart(uint32_t start)
     else
     {
         uint32_t newSize = GetInternalSize() + start;
-        struct Buffer::Data* newData = Buffer::Create(newSize);
+        Buffer::Data* newData = Buffer::Create(newSize);
         memcpy(newData->m_data + start, m_data->m_data + m_start, GetInternalSize());
         m_data->m_count--;
         if (m_data->m_count == 0)
@@ -375,7 +377,7 @@ Buffer::AddAtEnd(uint32_t end)
     else
     {
         uint32_t newSize = GetInternalSize() + end;
-        struct Buffer::Data* newData = Buffer::Create(newSize);
+        Buffer::Data* newData = Buffer::Create(newSize);
         memcpy(newData->m_data, m_data->m_data + m_start, GetInternalSize());
         m_data->m_count--;
         if (m_data->m_count == 0)
@@ -580,69 +582,63 @@ uint32_t
 Buffer::Serialize(uint8_t* buffer, uint32_t maxSize) const
 {
     NS_LOG_FUNCTION(this << &buffer << maxSize);
-    uint32_t* p = reinterpret_cast<uint32_t*>(buffer);
+    auto p = reinterpret_cast<uint32_t*>(buffer);
     uint32_t size = 0;
 
     // Add the zero data length
-    if (size + 4 <= maxSize)
-    {
-        size += 4;
-        *p++ = m_zeroAreaEnd - m_zeroAreaStart;
-    }
-    else
+    size += 4;
+
+    if (size > maxSize)
     {
         return 0;
     }
+
+    *p++ = m_zeroAreaEnd - m_zeroAreaStart;
 
     // Add the length of actual start data
-    uint32_t dataStartLength = m_zeroAreaStart - m_start;
-    if (size + 4 <= maxSize)
-    {
-        size += 4;
-        *p++ = dataStartLength;
-    }
-    else
+    size += 4;
+
+    if (size > maxSize)
     {
         return 0;
     }
 
+    uint32_t dataStartLength = m_zeroAreaStart - m_start;
+    *p++ = dataStartLength;
+
     // Add the actual data
-    if (size + ((dataStartLength + 3) & (~3)) <= maxSize)
-    {
-        size += (dataStartLength + 3) & (~3);
-        memcpy(p, m_data->m_data + m_start, dataStartLength);
-        p += (((dataStartLength + 3) & (~3)) / 4); // Advance p, insuring 4 byte boundary
-    }
-    else
+    size += (dataStartLength + 3) & (~3);
+
+    if (size > maxSize)
     {
         return 0;
     }
+
+    memcpy(p, m_data->m_data + m_start, dataStartLength);
+    p += (((dataStartLength + 3) & (~3)) / 4); // Advance p, insuring 4 byte boundary
 
     // Add the length of the actual end data
-    uint32_t dataEndLength = m_end - m_zeroAreaEnd;
-    if (size + 4 <= maxSize)
-    {
-        size += 4;
-        *p++ = dataEndLength;
-    }
-    else
+    size += 4;
+
+    if (size > maxSize)
     {
         return 0;
     }
 
+    uint32_t dataEndLength = m_end - m_zeroAreaEnd;
+    *p++ = dataEndLength;
+
     // Add the actual data
-    if (size + ((dataEndLength + 3) & (~3)) <= maxSize)
-    {
-        // The following line is unnecessary.
-        // size += (dataEndLength + 3) & (~3);
-        memcpy(p, m_data->m_data + m_zeroAreaStart, dataEndLength);
-        // The following line is unnecessary.
-        // p += (((dataEndLength + 3) & (~3))/4); // Advance p, insuring 4 byte boundary
-    }
-    else
+    size += (dataEndLength + 3) & (~3);
+
+    if (size > maxSize)
     {
         return 0;
     }
+
+    memcpy(p, m_data->m_data + m_zeroAreaStart, dataEndLength);
+    // The following line is unnecessary.
+    // p += (((dataEndLength + 3) & (~3))/4); // Advance p, insuring 4 byte boundary
 
     // Serialized everything successfully
     return 1;
@@ -652,7 +648,7 @@ uint32_t
 Buffer::Deserialize(const uint8_t* buffer, uint32_t size)
 {
     NS_LOG_FUNCTION(this << &buffer << size);
-    const uint32_t* p = reinterpret_cast<const uint32_t*>(buffer);
+    auto p = reinterpret_cast<const uint32_t*>(buffer);
     uint32_t sizeCheck = size - 4;
 
     NS_ASSERT(sizeCheck >= 4);

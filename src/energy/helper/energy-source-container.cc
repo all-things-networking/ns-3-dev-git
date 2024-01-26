@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
@@ -94,7 +93,7 @@ EnergySourceContainer::Get(uint32_t i) const
 void
 EnergySourceContainer::Add(EnergySourceContainer container)
 {
-    for (Iterator i = container.Begin(); i != container.End(); i++)
+    for (auto i = container.Begin(); i != container.End(); i++)
     {
         m_sources.push_back(*i);
     }
@@ -123,7 +122,7 @@ void
 EnergySourceContainer::DoDispose()
 {
     // call Object::Dispose for all EnergySource objects
-    for (std::vector<Ptr<EnergySource>>::iterator i = m_sources.begin(); i != m_sources.end(); i++)
+    for (auto i = m_sources.begin(); i != m_sources.end(); i++)
     {
         (*i)->DisposeDeviceModels();
         (*i)->Dispose();
@@ -135,7 +134,7 @@ void
 EnergySourceContainer::DoInitialize()
 {
     // call Object::Start for all EnergySource objects
-    for (std::vector<Ptr<EnergySource>>::iterator i = m_sources.begin(); i != m_sources.end(); i++)
+    for (auto i = m_sources.begin(); i != m_sources.end(); i++)
     {
         (*i)->Initialize();
         (*i)->InitializeDeviceModels();

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005 INRIA
  *
@@ -63,7 +62,7 @@ void
 ListScheduler::Insert(const Event& ev)
 {
     NS_LOG_FUNCTION(this << &ev);
-    for (EventsI i = m_events.begin(); i != m_events.end(); i++)
+    for (auto i = m_events.begin(); i != m_events.end(); i++)
     {
         if (ev.key < i->key)
         {
@@ -101,7 +100,7 @@ void
 ListScheduler::Remove(const Event& ev)
 {
     NS_LOG_FUNCTION(this << &ev);
-    for (EventsI i = m_events.begin(); i != m_events.end(); i++)
+    for (auto i = m_events.begin(); i != m_events.end(); i++)
     {
         if (i->key.m_uid == ev.key.m_uid)
         {

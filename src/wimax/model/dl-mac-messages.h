@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007,2008,2009 INRIA, UDcast
  *
@@ -512,7 +511,7 @@ class OfdmDlMapIe
     uint16_t GetSize() const;
 
     /**
-     * Wrtie item
+     * Write item
      * \param start the iterator
      * \returns the updated iterator
      */

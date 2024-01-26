@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
  * Copyright (c) 2018 Fraunhofer ESK : RLF extensions
@@ -25,13 +24,14 @@
 #ifndef LTE_UE_PHY_H
 #define LTE_UE_PHY_H
 
-#include <ns3/ff-mac-common.h>
-#include <ns3/lte-amc.h>
-#include <ns3/lte-control-messages.h>
-#include <ns3/lte-phy.h>
-#include <ns3/lte-ue-cphy-sap.h>
-#include <ns3/lte-ue-phy-sap.h>
-#include <ns3/lte-ue-power-control.h>
+#include "ff-mac-common.h"
+#include "lte-amc.h"
+#include "lte-control-messages.h"
+#include "lte-phy.h"
+#include "lte-ue-cphy-sap.h"
+#include "lte-ue-phy-sap.h"
+#include "lte-ue-power-control.h"
+
 #include <ns3/ptr.h>
 
 #include <set>
@@ -573,7 +573,7 @@ class LteUePhy : public LtePhy
     void DoResetRlfParams();
 
     /**
-     * \brief Start in Snyc detection function
+     * \brief Start in Sync detection function
      *
      * When T310 timer is started, it indicates that physical layer
      * problems are detected at the UE and the recovery process is
@@ -581,7 +581,7 @@ class LteUePhy : public LtePhy
      * consecutive times.
      *
      */
-    void DoStartInSnycDetection();
+    void DoStartInSyncDetection();
 
     /**
      * \brief Radio link failure detection function
@@ -698,7 +698,7 @@ class LteUePhy : public LtePhy
 
     uint16_t m_srsPeriodicity;    ///< SRS periodicity
     uint16_t m_srsSubframeOffset; ///< SRS subframe offset
-    uint16_t m_srsConfigured;     ///< SRS configured
+    bool m_srsConfigured;         ///< SRS configured
     Time m_srsStartTime;          ///< SRS start time
 
     double m_paLinear; ///< PA linear

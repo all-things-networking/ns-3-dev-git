@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -23,6 +22,8 @@
 #define LTE_SPECTRUM_SIGNAL_PARAMETERS_H
 
 #include <ns3/spectrum-signal-parameters.h>
+
+#include <list>
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -303,9 +302,7 @@ HalfDuplexIdealPhy::StartTx(Ptr<Packet> p)
     break;
 
     case TX:
-
         return true;
-        break;
     }
     return false;
 }

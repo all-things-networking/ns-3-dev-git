@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -45,7 +44,6 @@ NS_LOG_COMPONENT_DEFINE("LteEpcE2eData");
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  */
 
 /// BearerTestData structure
@@ -92,7 +90,6 @@ struct EnbTestData
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Test that e2e packet flow is correct. Compares the data send and the
  * data received. Test uses mostly the PDCP stats to check the performance.
@@ -198,13 +195,11 @@ LteEpcE2eDataTestCase::DoRun()
                                      StringValue("RowFirst"));
     enbMobility.Install(enbs);
     NetDeviceContainer enbLteDevs = lteHelper->InstallEnbDevice(enbs);
-    NetDeviceContainer::Iterator enbLteDevIt = enbLteDevs.Begin();
+    auto enbLteDevIt = enbLteDevs.Begin();
 
     uint16_t ulPort = 1000;
 
-    for (std::vector<EnbTestData>::iterator enbit = m_enbTestData.begin();
-         enbit < m_enbTestData.end();
-         ++enbit, ++enbLteDevIt)
+    for (auto enbit = m_enbTestData.begin(); enbit < m_enbTestData.end(); ++enbit, ++enbLteDevIt)
     {
         NS_ABORT_IF(enbLteDevIt == enbLteDevs.End());
 
@@ -320,12 +315,9 @@ LteEpcE2eDataTestCase::DoRun()
 
     uint64_t imsiCounter = 0;
 
-    for (std::vector<EnbTestData>::iterator enbit = m_enbTestData.begin();
-         enbit < m_enbTestData.end();
-         ++enbit)
+    for (auto enbit = m_enbTestData.begin(); enbit < m_enbTestData.end(); ++enbit)
     {
-        for (std::vector<UeTestData>::iterator ueit = enbit->ues.begin(); ueit < enbit->ues.end();
-             ++ueit)
+        for (auto ueit = enbit->ues.begin(); ueit < enbit->ues.end(); ++ueit)
         {
             uint64_t imsi = ++imsiCounter;
             for (uint32_t b = 0; b < ueit->bearers.size(); ++b)
@@ -376,7 +368,7 @@ LteEpcE2eDataTestCase::DoRun()
 }
 
 /**
- * \ingroup tests lte-test
+ * \ingroup lte-test
  *
  * \brief Test that the S1-U interface implementation works correctly
  */

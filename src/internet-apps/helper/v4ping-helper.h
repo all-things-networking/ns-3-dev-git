@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2008 INRIA
  *
@@ -44,6 +43,7 @@ class V4PingHelper
      *
      * \param remote The address which should be pinged
      */
+    NS_DEPRECATED_3_38("Use PingHelper instead - the attributes might have been renamed.")
     V4PingHelper(Ipv4Address remote);
 
     /**

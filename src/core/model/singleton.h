@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007 INRIA
  *
@@ -62,8 +61,8 @@ class Singleton
 {
   public:
     // Delete copy constructor and assignment operator to avoid misuse
-    Singleton<T>(const Singleton<T>&) = delete;
-    Singleton<T>& operator=(const Singleton<T>&) = delete;
+    Singleton(const Singleton<T>&) = delete;
+    Singleton& operator=(const Singleton<T>&) = delete;
 
     /**
      * Get a pointer to the singleton instance.
@@ -77,12 +76,12 @@ class Singleton
 
   protected:
     /** Constructor. */
-    Singleton<T>()
+    Singleton()
     {
     }
 
     /** Destructor. */
-    virtual ~Singleton<T>()
+    virtual ~Singleton()
     {
     }
 };

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -49,13 +48,13 @@ class UanTxMode
     /**
      * Modulation type.
      */
-    typedef enum
+    enum ModulationType
     {
         PSK,  //!< Phase shift keying.
         QAM,  //!< Quadrature amplitude modulation.
         FSK,  //!< Frequency shift keying.
         OTHER //!< Unspecified/undefined.
-    } ModulationType;
+    };
 
     /**
      * Get the modulation type of the mode.

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
@@ -55,6 +54,7 @@ class HtOperation : public WifiInformationElement
 
     // Implementations of pure virtual methods of WifiInformationElement
     WifiInformationElementId ElementId() const override;
+    void Print(std::ostream& os) const override;
 
     /**
      * Set the Primary Channel field in the HT Operation information element.
@@ -83,8 +83,9 @@ class HtOperation : public WifiInformationElement
     /**
      * Set the Basic MCS Set field in the HT Operation information element.
      *
-     * \param ctrl1 the first 64 bytes of the Basic MCS Set field in the HT Operation information
-     * element \param ctrl2 the last 64 bytes of the Basic MCS Set field in the HT Operation
+     * \param ctrl1 the first 64 bytes of the Basic MCS Set field in the HT Operation
+     * information element
+     * \param ctrl2 the last 64 bytes of the Basic MCS Set field in the HT Operation
      * information element
      */
     void SetBasicMcsSet(uint64_t ctrl1, uint64_t ctrl2);
@@ -393,16 +394,6 @@ class HtOperation : public WifiInformationElement
     uint32_t m_reservedMcsSet3;                ///< reserved MCS set 3
     uint8_t m_rxMcsBitmask[MAX_SUPPORTED_MCS]; ///< receive MCS bitmask
 };
-
-/**
- * output stream output operator
- *
- * \param os output stream
- * \param htOperation the HT operation
- *
- * \returns output stream
- */
-std::ostream& operator<<(std::ostream& os, const HtOperation& htOperation);
 
 } // namespace ns3
 

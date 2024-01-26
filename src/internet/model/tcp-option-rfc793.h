@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
@@ -20,7 +19,7 @@
 #ifndef TCPOPTIONRFC793_H
 #define TCPOPTIONRFC793_H
 
-#include "ns3/tcp-option.h"
+#include "tcp-option.h"
 
 namespace ns3
 {

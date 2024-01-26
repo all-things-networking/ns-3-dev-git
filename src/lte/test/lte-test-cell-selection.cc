@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Budiarto Herman
  *
@@ -97,6 +96,10 @@ LteCellSelectionTestSuite::LteCellSelectionTestSuite()
 
 } // end of LteCellSelectionTestSuite::LteCellSelectionTestSuite ()
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteCellSelectionTestSuite g_lteCellSelectionTestSuite;
 
 /*
@@ -182,7 +185,7 @@ LteCellSelectionTestCase::DoRun()
     NodeContainer enbNodes;
     enbNodes.Create(4);
     NodeContainer ueNodes;
-    uint16_t nUe = static_cast<uint16_t>(m_ueSetupList.size());
+    auto nUe = static_cast<uint16_t>(m_ueSetupList.size());
     ueNodes.Create(nUe);
 
     // Assign nodes to position

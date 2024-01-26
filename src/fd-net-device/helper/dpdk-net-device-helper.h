@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 NITK Surathkal
  *
@@ -22,7 +21,7 @@
 #ifndef DPDK_NET_DEVICE_HELPER_H
 #define DPDK_NET_DEVICE_HELPER_H
 
-#include "ns3/emu-fd-net-device-helper.h"
+#include "emu-fd-net-device-helper.h"
 
 namespace ns3
 {
@@ -38,13 +37,10 @@ class DpdkNetDeviceHelper : public EmuFdNetDeviceHelper
   public:
     /**
      * Construct a DpdkNetDeviceHelper and initialize DPDK EAL
-     *
-     * \param argc Dpdk EAL args count.
-     * \param argv Dpdk EAL args list.
      */
     DpdkNetDeviceHelper();
 
-    virtual ~DpdkNetDeviceHelper()
+    ~DpdkNetDeviceHelper() override
     {
     }
 
@@ -77,7 +73,7 @@ class DpdkNetDeviceHelper : public EmuFdNetDeviceHelper
      * \param node The node to install the device in
      * \returns A container holding the added net device.
      */
-    Ptr<NetDevice> InstallPriv(Ptr<Node> node) const;
+    Ptr<NetDevice> InstallPriv(Ptr<Node> node) const override;
 
     /**
      * Logical cores to use

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2013 Magister Solutions
  *
@@ -21,6 +20,7 @@
 
 #include <ns3/boolean.h>
 #include <ns3/callback.h>
+#include <ns3/cc-helper.h>
 #include <ns3/config.h>
 #include <ns3/data-rate.h>
 #include <ns3/internet-stack-helper.h>
@@ -45,7 +45,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("LteHandoverDelayTest");
 
 /**
- * \ingroup tests lte-test
+ * \ingroup lte-test
  *
  * \brief Verifying that the time needed for handover is under a
  * specified threshold.
@@ -287,7 +287,6 @@ LteHandoverDelayTestCase::EnbHandoverEndOkCallback(std::string context,
 
 /**
  * \ingroup lte-test
- * \ingroup tests
  *
  * \brief Lte Handover Delay Test Suite
  */

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -81,7 +80,7 @@ class ValueClassTest
  * \return always true.
  */
 bool
-operator!=([[maybe_unused]] const ValueClassTest& a, [[maybe_unused]] const ValueClassTest& b)
+operator!=(const ValueClassTest& a [[maybe_unused]], const ValueClassTest& b [[maybe_unused]])
 {
     return true;
 }
@@ -94,7 +93,7 @@ operator!=([[maybe_unused]] const ValueClassTest& a, [[maybe_unused]] const Valu
  * \returns The reference to the output stream.
  */
 std::ostream&
-operator<<(std::ostream& os, [[maybe_unused]] ValueClassTest v)
+operator<<(std::ostream& os, ValueClassTest v [[maybe_unused]])
 {
     return os;
 }
@@ -107,7 +106,7 @@ operator<<(std::ostream& os, [[maybe_unused]] ValueClassTest v)
  * \returns The reference to the input stream.
  */
 std::istream&
-operator>>(std::istream& is, [[maybe_unused]] ValueClassTest& v)
+operator>>(std::istream& is, ValueClassTest& v [[maybe_unused]])
 {
     return is;
 }
@@ -238,6 +237,11 @@ class AttributeObjectTest : public Object
                               ObjectMapValue(),
                               MakeObjectMapAccessor(&AttributeObjectTest::m_map1),
                               MakeObjectMapChecker<Derived>())
+                .AddAttribute("TestUnorderedMap",
+                              "help text",
+                              ObjectMapValue(),
+                              MakeObjectMapAccessor(&AttributeObjectTest::m_unorderedMap),
+                              MakeObjectMapChecker<Derived>())
                 .AddAttribute("IntegerTraceSource1",
                               "help text",
                               IntegerValue(-2),
@@ -266,7 +270,7 @@ class AttributeObjectTest : public Object
                               MakeBooleanChecker())
                 .AddAttribute("EnumTraceSource",
                               "help text",
-                              EnumValue(false),
+                              EnumValue(TEST_A),
                               MakeEnumAccessor(&AttributeObjectTest::m_enumSrc),
                               MakeEnumChecker(TEST_A, "TestA"))
                 .AddAttribute("ValueClassSource",
@@ -349,6 +353,24 @@ class AttributeObjectTest : public Object
     void AddToMap1(uint32_t i)
     {
         m_map1.insert(std::pair<uint32_t, Ptr<Derived>>(i, CreateObject<Derived>()));
+    }
+
+    /**
+     * Adds an object to the unordered map.
+     * \param i The index to assign to the object.
+     */
+    void AddToUnorderedMap(uint64_t i)
+    {
+        m_unorderedMap.insert({i, CreateObject<Derived>()});
+    }
+
+    /**
+     * Remove an object from the first map.
+     * \param i The index to assign to the object.
+     */
+    void RemoveFromUnorderedMap(uint64_t i)
+    {
+        m_unorderedMap.erase(i);
     }
 
     /**
@@ -478,15 +500,17 @@ class AttributeObjectTest : public Object
     int16_t m_int16SetGet;                   //!< 16-bit integer set-get.
     uint8_t m_uint8;                         //!< 8-bit integer.
     float m_float;                           //!< float.
-    enum Test_e m_enum;                      //!< Enum.
-    enum Test_e m_enumSetGet;                //!< Enum set-get.
+    Test_e m_enum;                           //!< Enum.
+    Test_e m_enumSetGet;                     //!< Enum set-get.
     Ptr<RandomVariableStream> m_random;      //!< Random number generator.
     std::vector<Ptr<Derived>> m_vector1;     //!< First vector of derived objects.
     std::vector<Ptr<Derived>> m_vector2;     //!< Second vector of derived objects.
     std::map<uint32_t, Ptr<Derived>> m_map1; //!< Map of uint32_t, derived objects.
-    Callback<void, int8_t> m_cbValue;        //!< Callback accepting an integer.
-    TracedValue<int8_t> m_intSrc1;           //!< First int8_t Traced value.
-    TracedValue<int8_t> m_intSrc2;           //!< Second int8_t Traced value.
+    std::unordered_map<uint64_t, Ptr<Derived>>
+        m_unorderedMap;               //!< Unordered map of uint64_t, derived objects.
+    Callback<void, int8_t> m_cbValue; //!< Callback accepting an integer.
+    TracedValue<int8_t> m_intSrc1;    //!< First int8_t Traced value.
+    TracedValue<int8_t> m_intSrc2;    //!< Second int8_t Traced value.
 
     /// Traced callbacks for (double, int, float) values.
     typedef void (*NumericTracedCallback)(double, int, float);
@@ -496,7 +520,7 @@ class AttributeObjectTest : public Object
     Ptr<Derived> m_ptrInitialized;           //!< Pointer to Derived class.
     Ptr<Derived> m_ptrInitialized2;          //!< Pointer to Derived class.
     TracedValue<uint8_t> m_uintSrc;          //!< uint8_t Traced value.
-    TracedValue<enum Test_e> m_enumSrc;      //!< enum Traced value.
+    TracedValue<Test_e> m_enumSrc;           //!< enum Traced value.
     TracedValue<double> m_doubleSrc;         //!< double Traced value.
     TracedValue<bool> m_boolSrc;             //!< bool Traced value.
     Time m_timeWithBounds;                   //!< Time with bounds
@@ -909,16 +933,16 @@ AttributeTestCase<DoubleValue>::DoRun()
     // When the object is first created, the Attribute should have the default
     // value.
     //
-    ok = CheckGetCodePaths(p, "TestFloat", "-1.1", DoubleValue((float)-1.1));
+    ok = CheckGetCodePaths(p, "TestFloat", "-1.1", DoubleValue(-1.1F));
     NS_TEST_ASSERT_MSG_EQ(ok, true, "Attribute not set properly by default value");
 
     //
     // Set the Attribute.
     //
-    ok = p->SetAttributeFailSafe("TestFloat", DoubleValue((float)2.3));
+    ok = p->SetAttributeFailSafe("TestFloat", DoubleValue(2.3F));
     NS_TEST_ASSERT_MSG_EQ(ok, true, "Could not SetAttributeFailSafe() to 2.3");
 
-    ok = CheckGetCodePaths(p, "TestFloat", "2.3", DoubleValue((float)2.3));
+    ok = CheckGetCodePaths(p, "TestFloat", "2.3", DoubleValue(2.3F));
     NS_TEST_ASSERT_MSG_EQ(ok,
                           true,
                           "Attribute not set properly by SetAttributeFailSafe() via DoubleValue");
@@ -1330,6 +1354,42 @@ ObjectMapAttributeTestCase::DoRun()
     //
     p->GetAttribute("TestMap1", map);
     NS_TEST_ASSERT_MSG_EQ(map.GetN(), 2, "ObjectVectorValue \"TestMap1\" should be incremented");
+
+    //
+    // Test that ObjectMapValue is iterable with an underlying unordered_map
+    //
+    ObjectMapValue unorderedMap;
+    // Add objects at 1, 2, 3, 4
+    p->AddToUnorderedMap(4);
+    p->AddToUnorderedMap(2);
+    p->AddToUnorderedMap(1);
+    p->AddToUnorderedMap(3);
+    // Remove object 2
+    p->RemoveFromUnorderedMap(2);
+    p->GetAttribute("TestUnorderedMap", unorderedMap);
+    NS_TEST_ASSERT_MSG_EQ(unorderedMap.GetN(),
+                          3,
+                          "ObjectMapValue \"TestUnorderedMap\" should have three values");
+    Ptr<Object> o1 = unorderedMap.Get(1);
+    NS_TEST_ASSERT_MSG_NE(o1,
+                          nullptr,
+                          "ObjectMapValue \"TestUnorderedMap\" should have value with key 1");
+    Ptr<Object> o2 = unorderedMap.Get(2);
+    NS_TEST_ASSERT_MSG_EQ(o2,
+                          nullptr,
+                          "ObjectMapValue \"TestUnorderedMap\" should not have value with key 2");
+    auto it = unorderedMap.Begin();
+    NS_TEST_ASSERT_MSG_EQ(it->first,
+                          1,
+                          "ObjectMapValue \"TestUnorderedMap\" should have a value with key 1");
+    it++;
+    NS_TEST_ASSERT_MSG_EQ(it->first,
+                          3,
+                          "ObjectMapValue \"TestUnorderedMap\" should have a value with key 3");
+    it++;
+    NS_TEST_ASSERT_MSG_EQ(it->first,
+                          4,
+                          "ObjectMapValue \"TestUnorderedMap\" should have a value with key 4");
 }
 
 /**
@@ -1472,7 +1532,7 @@ class IntegerTraceSourceTestCase : public TestCase
      * \param old First value.
      * \param n Second value.
      */
-    void NotifySource1([[maybe_unused]] int8_t old, int8_t n)
+    void NotifySource1(int8_t old [[maybe_unused]], int8_t n)
     {
         m_got1 = n;
     }
@@ -1575,7 +1635,7 @@ class TracedCallbackTestCase : public TestCase
      * \param b Second value.
      * \param c Third value.
      */
-    void NotifySource2(double a, [[maybe_unused]] int b, [[maybe_unused]] float c)
+    void NotifySource2(double a, int b [[maybe_unused]], float c [[maybe_unused]])
     {
         m_got2 = a;
     }
@@ -1676,7 +1736,7 @@ class PointerAttributeTestCase : public TestCase
      * \param b Second value.
      * \param c Third value.
      */
-    void NotifySource2(double a, [[maybe_unused]] int b, [[maybe_unused]] float c)
+    void NotifySource2(double a, int b [[maybe_unused]], float c [[maybe_unused]])
     {
         m_got2 = a;
     }

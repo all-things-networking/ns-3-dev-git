@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Tom Henderson (tomh@tomh.org)
  *
@@ -174,8 +173,8 @@ class BulkSendSeqTsSizeTestCase : public TestCase
     uint64_t m_received{0};      //!< number of bytes received
     uint64_t m_seqTxCounter{0};  //!< Counter for Sequences on Tx
     uint64_t m_seqRxCounter{0};  //!< Counter for Sequences on Rx
-    Time m_lastTxTs{Seconds(0)}; //!< Last recored timestamp on Tx
-    Time m_lastRxTs{Seconds(0)}; //!< Last recored timestamp on Rx
+    Time m_lastTxTs{Seconds(0)}; //!< Last recorded timestamp on Tx
+    Time m_lastRxTs{Seconds(0)}; //!< Last recorded timestamp on Rx
 };
 
 BulkSendSeqTsSizeTestCase::BulkSendSeqTsSizeTestCase()

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan
  *
@@ -237,7 +236,7 @@ TracerouteExample::InstallInternetStack()
     {
         Ptr<OutputStreamWrapper> routingStream =
             Create<OutputStreamWrapper>("aodv.routes", std::ios::out);
-        aodv.PrintRoutingTableAllAt(Seconds(8), routingStream);
+        Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(8), routingStream);
     }
 }
 

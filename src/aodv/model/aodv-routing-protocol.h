@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 IITP RAS
  *
@@ -79,10 +78,10 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override;
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override;
     void NotifyInterfaceUp(uint32_t interface) override;
     void NotifyInterfaceDown(uint32_t interface) override;
     void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address) override;
@@ -231,7 +230,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     uint32_t m_netDiameter; ///< Net diameter measures the maximum possible number of hops between
                             ///< two nodes in the network
     /**
-     *  NodeTraversalTime is a conservative estimate of the average one hop traversal time for
+     * NodeTraversalTime is a conservative estimate of the average one hop traversal time for
      * packets and should include queuing delays, interrupt processing times and transfer times.
      */
     Time m_nodeTraversalTime;
@@ -261,7 +260,6 @@ class RoutingProtocol : public Ipv4RoutingProtocol
                              ///< originated route discovery.
     bool m_enableHello;      ///< Indicates whether a hello messages enable
     bool m_enableBroadcast;  ///< Indicates whether a a broadcast data packets forwarding enable
-    //\}
 
     /// IP protocol
     Ptr<Ipv4> m_ipv4;
@@ -329,9 +327,11 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     void ScheduleRreqRetry(Ipv4Address dst);
     /**
      * Set lifetime field in routing table entry to the maximum of existing lifetime and lt, if the
-     * entry exists \param addr - destination address \param lt - proposed time for lifetime field
-     * in routing table entry for destination with address addr. \return true if route to
-     * destination address addr exist
+     * entry exists
+     * \param addr destination address
+     * \param lt proposed time for lifetime field in routing table entry for destination with
+     * address addr.
+     * \return true if route to destination address addr exist
      */
     bool UpdateRouteLifeTime(Ipv4Address addr, Time lt);
     /**
@@ -376,8 +376,10 @@ class RoutingProtocol : public Ipv4RoutingProtocol
      */
     Ptr<Ipv4Route> LoopbackRoute(const Ipv4Header& header, Ptr<NetDevice> oif) const;
 
-    ///\name Receive control packets
-    //\{
+    /**
+     * \name Receive control packets
+     * @{
+     */
     /**
      * Receive and process control packet
      * \param socket input socket
@@ -409,10 +411,12 @@ class RoutingProtocol : public Ipv4RoutingProtocol
      */
     /// Receive  from node with address src
     void RecvError(Ptr<Packet> p, Ipv4Address src);
-    //\}
+    /** @} */
 
-    ///\name Send
-    //\{
+    /**
+     * \name Send
+     * @{
+     */
     /** Forward packet from route request queue
      * \param dst destination address
      * \param route route to use
@@ -452,17 +456,19 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     void SendRerrMessage(Ptr<Packet> packet, std::vector<Ipv4Address> precursors);
     /**
      * Send RERR message when no route to forward input packet. Unicast if there is reverse route to
-     * originating node, broadcast otherwise. \param dst - destination node IP address \param
-     * dstSeqNo - destination node sequence number \param origin - originating node IP address
+     * originating node, broadcast otherwise.
+     * \param dst destination node IP address
+     * \param dstSeqNo destination node sequence number
+     * \param origin originating node IP address
      */
     void SendRerrWhenNoRouteToForward(Ipv4Address dst, uint32_t dstSeqNo, Ipv4Address origin);
-    /// @}
+    /** @} */
 
     /**
-     * Send packet to destination scoket
-     * \param socket - destination node socket
-     * \param packet - packet to send
-     * \param destination - destination node IP address
+     * Send packet to destination socket
+     * \param socket destination node socket
+     * \param packet packet to send
+     * \param destination destination node IP address
      */
     void SendTo(Ptr<Socket> socket, Ptr<Packet> packet, Ipv4Address destination);
 
@@ -488,7 +494,7 @@ class RoutingProtocol : public Ipv4RoutingProtocol
     /**
      * Mark link to neighbor node as unidirectional for blacklistTimeout
      *
-     * \param neighbor the IP address of the neightbor node
+     * \param neighbor the IP address of the neighbor node
      * \param blacklistTimeout the black list timeout time
      */
     void AckTimerExpire(Ipv4Address neighbor, Time blacklistTimeout);

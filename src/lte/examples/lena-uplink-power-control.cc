@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2014 Piotr Gawlowicz
  *
@@ -19,7 +18,6 @@
  *
  */
 
-#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/lte-module.h"
 #include "ns3/mobility-module.h"
@@ -92,7 +90,7 @@ main(int argc, char* argv[])
     lteHelper->Attach(ueDevs, enbDevs.Get(0));
 
     // Activate a data radio bearer
-    enum EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
+    EpsBearer::Qci q = EpsBearer::GBR_CONV_VOICE;
     EpsBearer bearer(q);
     lteHelper->ActivateDataRadioBearer(ueDevs, bearer);
 

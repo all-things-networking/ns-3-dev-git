@@ -55,17 +55,19 @@ To create a WifiNetDevice, users need to follow these steps:
   are needed for propagation loss calculations.
 
 The following sample code illustrates a typical configuration using mostly
-default values in the simulator, and infrastructure mode::
+default values in the simulator, and infrastructure mode:
+
+.. sourcecode:: cpp
 
   NodeContainer wifiStaNode;
-  wifiStaNode.Create (10);   // Create 10 station node objects
+  wifiStaNode.Create(10);   // Create 10 station node objects
   NodeContainer wifiApNode;
-  wifiApNode.Create (1);   // Create 1 access point node object
+  wifiApNode.Create(1);   // Create 1 access point node object
 
   // Create a channel helper and phy helper, and then create the channel
-  YansWifiChannelHelper channel = YansWifiChannelHelper::Default ();
-  YansWifiPhyHelper phy = YansWifiPhyHelper::Default ();
-  phy.SetChannel (channel.Create ());
+  YansWifiChannelHelper channel = YansWifiChannelHelper::Default();
+  YansWifiPhyHelper phy = YansWifiPhyHelper::Default();
+  phy.SetChannel(channel.Create());
 
   // Create a WifiMacHelper, which is reused across STA and AP configurations
   WifiMacHelper mac;
@@ -74,16 +76,16 @@ default values in the simulator, and infrastructure mode::
   // and install Wifi devices.  Configure a Wifi standard to use, which
   // will align various parameters in the Phy and Mac to standard defaults.
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211n);
+  wifi.SetStandard(WIFI_STANDARD_80211n);
   // Declare NetDeviceContainers to hold the container returned by the helper
   NetDeviceContainer wifiStaDevices;
   NetDeviceContainer wifiApDevice;
 
   // Perform the installation
-  mac.SetType ("ns3::StaWifiMac");
-  wifiStaDevices = wifi.Install (phy, mac, wifiStaNodes);
-  mac.SetType ("ns3::ApWifiMac");
-  wifiApDevice = wifi.Install (phy, mac, wifiApNode);
+  mac.SetType("ns3::StaWifiMac");
+  wifiStaDevices = wifi.Install(phy, mac, wifiStaNodes);
+  mac.SetType("ns3::ApWifiMac");
+  wifiApDevice = wifi.Install(phy, mac, wifiApNode);
 
 At this point, the 11 nodes have Wi-Fi devices configured, attached to a
 common channel.  The rest of this section describes how additional
@@ -98,10 +100,12 @@ named this way. The reference is to the `yans simulator
 helper can be used to create a YansWifiChannel with a default PropagationLoss and
 PropagationDelay model.
 
-Users will typically type code such as::
+Users will typically type code such as:
 
-  YansWifiChannelHelper wifiChannelHelper = YansWifiChannelHelper::Default ();
-  Ptr<Channel> wifiChannel = wifiChannelHelper.Create ();
+.. sourcecode:: cpp
+
+  YansWifiChannelHelper wifiChannelHelper = YansWifiChannelHelper::Default();
+  Ptr<Channel> wifiChannel = wifiChannelHelper.Create();
 
 to get the defaults.  Specifically, the default is a channel model with a
 propagation delay equal to a constant, the speed of light (``ns3::ConstantSpeedPropagationDelayModel``),
@@ -133,19 +137,23 @@ the ``YansWifiPhyHelper`` will do the work.
 The YansWifiPhyHelper class configures an object factory to create instances of
 a ``YansWifiPhy`` and adds some other objects to it, including possibly a
 supplemental ErrorRateModel and a pointer to a MobilityModel. The user code is
-typically::
+typically:
+
+.. sourcecode:: cpp
 
   YansWifiPhyHelper wifiPhyHelper;
-  wifiPhyHelper.SetChannel (wifiChannel);
+  wifiPhyHelper.SetChannel(wifiChannel);
 
 The default YansWifiPhyHelper is configured with TableBasedErrorRateModel
 (``ns3::TableBasedErrorRateModel``). You can change the error rate model by
 calling the ``YansWifiPhyHelper::SetErrorRateModel`` method.
 
 Optionally, if pcap tracing is needed, a user may use the following
-command to enable pcap tracing::
+command to enable pcap tracing:
 
-  YansWifiPhyHelper::SetPcapDataLinkType (enum SupportedPcapDataLinkTypes dlt)
+.. sourcecode:: cpp
+
+  YansWifiPhyHelper::SetPcapDataLinkType(enum SupportedPcapDataLinkTypes dlt)
 
 |ns3| supports RadioTap and Prism tracing extensions for 802.11.
 
@@ -154,45 +162,49 @@ prepared the YansWifiPhyHelper by telling it which channel it is connected to.
 The Phy objects are created in the next step.
 
 In order to enable 802.11n/ac/ax MIMO, the number of antennas as well as the number of supported spatial streams need to be configured.
-For example, this code enables MIMO with 2 antennas and 2 spatial streams::
+For example, this code enables MIMO with 2 antennas and 2 spatial streams:
 
- wifiPhyHelper.Set ("Antennas", UintegerValue (2));
- wifiPhyHelper.Set ("MaxSupportedTxSpatialStreams", UintegerValue (2));
- wifiPhyHelper.Set ("MaxSupportedRxSpatialStreams", UintegerValue (2));
+.. sourcecode:: cpp
+
+ wifiPhyHelper.Set("Antennas", UintegerValue(2));
+ wifiPhyHelper.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
+ wifiPhyHelper.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
 
 It is also possible to configure less streams than the number of antennas in order to benefit from diversity gain, and to define different MIMO capabilities for downlink and uplink.
-For example, this code configures a node with 3 antennas that supports 2 spatial streams in downstream and 1 spatial stream in upstream::
+For example, this code configures a node with 3 antennas that supports 2 spatial streams in downstream and 1 spatial stream in upstream:
 
- wifiPhyHelper.Set ("Antennas", UintegerValue (3));
- wifiPhyHelper.Set ("MaxSupportedTxSpatialStreams", UintegerValue (2));
- wifiPhyHelper.Set ("MaxSupportedRxSpatialStreams", UintegerValue (1));
+.. sourcecode:: cpp
+
+ wifiPhyHelper.Set("Antennas", UintegerValue(3));
+ wifiPhyHelper.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
+ wifiPhyHelper.Set("MaxSupportedRxSpatialStreams", UintegerValue(1));
 
 802.11n PHY layer can support both 20 (default) or 40 MHz channel width, and 802.11ac/ax PHY layer can use either 20, 40, 80 (default) or 160 MHz channel width.  See below for further documentation on setting the frequency, channel width, and channel number.
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211ac);
-  wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager",
-                                "DataMode", StringValue ("VhtMcs9"),
-                                "ControlMode", StringValue ("VhtMcs0"));
+  wifi.SetStandard(WIFI_STANDARD_80211ac);
+  wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                               "DataMode", StringValue("VhtMcs9"),
+                               "ControlMode", StringValue("VhtMcs0"));
 
   //Install PHY and MAC
-  Ssid ssid = Ssid ("ns3-wifi");
+  Ssid ssid = Ssid("ns3-wifi");
   WifiMacHelper mac;
 
-  mac.SetType ("ns3::StaWifiMac",
-               "Ssid", SsidValue (ssid),
-               "ActiveProbing", BooleanValue (false));
+  mac.SetType("ns3::StaWifiMac",
+               "Ssid", SsidValue(ssid),
+               "ActiveProbing", BooleanValue(false));
 
   NetDeviceContainer staDevice;
-  staDevice = wifi.Install (phy, mac, wifiStaNode);
+  staDevice = wifi.Install(phy, mac, wifiStaNode);
 
-  mac.SetType ("ns3::ApWifiMac",
-               "Ssid", SsidValue (ssid));
+  mac.SetType("ns3::ApWifiMac",
+               "Ssid", SsidValue(ssid));
 
   NetDeviceContainer apDevice;
-  apDevice = wifi.Install (phy, mac, wifiApNode);
+  apDevice = wifi.Install(phy, mac, wifiApNode);
 
 .. _Channel-settings:
 
@@ -207,16 +219,16 @@ providing either a StringValue object or a TupleValue object:
 
 * Defining a StringValue object to set the ``ChannelSettings`` attribute
 
-::
+.. sourcecode:: cpp
 
-  StringValue value ("{38, 40, BAND_5GHZ, 0}"));
+  StringValue value("{38, 40, BAND_5GHZ, 0}"));
 
 * Defining a TupleValue object to set the ``ChannelSettings`` attribute
 
-::
+.. sourcecode:: cpp
 
   TupleValue<UintegerValue, UintegerValue, EnumValue, UintegerValue> value;
-  value.Set (WifiPhy::ChannelTuple {38, 40, WIFI_PHY_BAND_5GHZ, 0});
+  value.Set(WifiPhy::ChannelTuple {38, 40, WIFI_PHY_BAND_5GHZ, 0});
 
 In both cases, the operating channel will be channel 38 in the 5 GHz band, which
 has a width of 40 MHz, and the primary20 channel will be the 20 MHz subchannel
@@ -226,28 +238,28 @@ The operating channel settings can then be configured in a number of ways:
 
 * by setting global configuration default; e.g.
 
-::
+.. sourcecode:: cpp
 
-  Config::SetDefault ("ns3::WifiPhy::ChannelSettings", StringValue ("{38, 40, BAND_5GHZ, 0}"));
+  Config::SetDefault("ns3::WifiPhy::ChannelSettings", StringValue("{38, 40, BAND_5GHZ, 0}"));
 
 * by setting an attribute value in the helper; e.g.
 
-::
+.. sourcecode:: cpp
 
   TupleValue<UintegerValue, UintegerValue, EnumValue, UintegerValue> value;
-  value.Set (WifiPhy::ChannelTuple {38, 40, WIFI_PHY_BAND_5GHZ, 0});
-  YansWifiPhyHelper wifiPhyHelper = YansWifiPhyHelper::Default ();
-  wifiPhyHelper.Set ("ChannelSettings", value);
+  value.Set(WifiPhy::ChannelTuple {38, 40, WIFI_PHY_BAND_5GHZ, 0});
+  YansWifiPhyHelper wifiPhyHelper = YansWifiPhyHelper::Default();
+  wifiPhyHelper.Set("ChannelSettings", value);
 
-* by setting the WifiHelper::SetStandard (enum WifiStandard) method; and
+* by setting the WifiHelper::SetStandard(enum WifiStandard) method; and
 
 * by performing post-installation configuration of the option, either
   via a Ptr to the WifiPhy object, or through the Config namespace; e.g.:
 
-::
+.. sourcecode:: cpp
 
-  Config::Set ("/NodeList/0/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::WifiPhy/ChannelSettings",
-               StringValue ("{38, 40, BAND_5GHZ, 0}"));
+  Config::Set("/NodeList/0/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::WifiPhy/ChannelSettings",
+              StringValue("{38, 40, BAND_5GHZ, 0}"));
 
 This section provides guidance on how to properly configure these settings.
 
@@ -263,7 +275,7 @@ band can only be configured if the standard is 802.11ax (or beyond).
 The following values for WifiStandard are defined in
 ``src/wifi/model/wifi-standards.h``:
 
-::
+.. sourcecode:: cpp
 
   WIFI_STANDARD_80211a,
   WIFI_STANDARD_80211b,
@@ -308,40 +320,40 @@ as soon as the WifiStandard is set. Here are the rules (applied in the given ord
 
 Following are a few examples to clarify these rules:
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211ac);
+  wifi.SetStandard(WIFI_STANDARD_80211ac);
   YansWifiPhyHelper phyHelper;
-  phyHelper.Set ("ChannelSettings", StringValue ("{58, 0, BAND_5GHZ, 0}"));
+  phyHelper.Set("ChannelSettings", StringValue("{58, 0, BAND_5GHZ, 0}"));
   // channel width unspecified
   // -> it is set to 80 MHz (width of channel 58)
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211n);
+  wifi.SetStandard(WIFI_STANDARD_80211n);
   YansWifiPhyHelper phyHelper;
-  phyHelper.Set ("ChannelSettings", StringValue ("{0, 40, BAND_5GHZ, 0}"));
+  phyHelper.Set("ChannelSettings", StringValue("{0, 40, BAND_5GHZ, 0}"));
   // channel number unspecified
   // -> it is set to channel 38 (first 40 MHz channel in the 5GHz band)
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211ax);
+  wifi.SetStandard(WIFI_STANDARD_80211ax);
   YansWifiPhyHelper phyHelper;
-  phyHelper.Set ("ChannelSettings", StringValue ("{0, 0, BAND_2_4GHZ, 0}"));
+  phyHelper.Set("ChannelSettings", StringValue("{0, 0, BAND_2_4GHZ, 0}"));
   // both channel number and width unspecified
   // -> width set to 20 MHz (default width for 802.11ax in the 2.4 GHZ band)
   // -> channel number set to 1 (first 20 MHz channel in the 2.4 GHz band)
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211a);
+  wifi.SetStandard(WIFI_STANDARD_80211a);
   YansWifiPhyHelper phyHelper;
-  phyHelper.Set ("ChannelSettings", StringValue ("{0, 0, BAND_UNSPECIFIED, 0}"));
+  phyHelper.Set("ChannelSettings", StringValue("{0, 0, BAND_UNSPECIFIED, 0}"));
   // band, channel number and width unspecified
   // -> band is set to WIFI_PHY_BAND_5GHZ (default band for 802.11a)
   // -> width set to 20 MHz (default width for 802.11a in the 5 GHZ band)
@@ -455,10 +467,10 @@ WifiPhy object.
 If an unknown channel number (other than zero) is configured, the
 simulator will exit with an error; for instance, such as:
 
-::
+.. sourcecode:: cpp
 
   Ptr<WifiPhy> wifiPhy = ...;
-  wifiPhy->SetAttribute ("ChannelSettings", StringValue ("{1321, 20, BAND_5GHZ, 0}"));
+  wifiPhy->SetAttribute("ChannelSettings", StringValue("{1321, 20, BAND_5GHZ, 0}"));
 
 The known channel numbers are defined in the implementation file
 ``src/wifi/model/wifi-phy-operating-channel.cc``. Of course, this file may be edited
@@ -468,13 +480,13 @@ If a known channel number is configured against an incorrect value
 of the WifiPhyStandard, the simulator will exit with an error; for instance,
 such as:
 
-::
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211n);
+  wifi.SetStandard(WIFI_STANDARD_80211n);
   ...
   Ptr<WifiPhy> wifiPhy = ...;
-  wifiPhy->SetAttribute ("ChannelSettings", StringValue ("{14, 20, BAND_5GHZ, 0}"));
+  wifiPhy->SetAttribute("ChannelSettings", StringValue("{14, 20, BAND_5GHZ, 0}"));
 
 In the above, while channel number 14 is well-defined in practice for 802.11b
 only, it is for 2.4 GHz band, not 5 GHz band.
@@ -505,6 +517,19 @@ The API for this helper closely tracks the API of the YansWifiPhyHelper,
 with the exception that a channel of type ``ns3::SpectrumChannel`` instead
 of type ``ns3::YansWifiChannel`` must be used with it.
 
+Its API has been extended for 802.11be multi-link and EMLSR in order to
+attach multiple spectrum channels to a same PHY. For that purpose, a user
+may use the following command to attach a spectrum channel to the PHY objects
+that will be created upon a call to ``ns3::WifiHelper::Install``:
+
+.. sourcecode:: cpp
+
+  SpectrumWifiPhyHelper::SetPcapDataLinkType(const Ptr<SpectrumChannel> channel,
+                                             const FrequencyRange& freqRange)
+
+where FrequencyRange is a structure that contains the start and stop frequencies
+expressed in MHz which corresponds to the spectrum portion that is covered by the channel.
+
 WifiMacHelper
 =============
 
@@ -517,22 +542,26 @@ By default, it creates an ad-hoc MAC instance that does not have 802.11e/WMM-sty
 nor 802.11ac-style Very High Throughput (VHT) nor 802.11ax-style High Efficiency (HE) support enabled.
 
 For example the following user code configures a non-QoS and non-HT/non-VHT/non-HE MAC that
-will be a non-AP STA in an infrastructure network where the AP has SSID ``ns-3-ssid``::
+will be a non-AP STA in an infrastructure network where the AP has SSID ``ns-3-ssid``:
+
+.. sourcecode:: cpp
 
     WifiMacHelper wifiMacHelper;
-    Ssid ssid = Ssid ("ns-3-ssid");
-    wifiMacHelper.SetType ("ns3::StaWifiMac",
-                          "Ssid", SsidValue (ssid),
-                          "ActiveProbing", BooleanValue (false));
+    Ssid ssid = Ssid("ns-3-ssid");
+    wifiMacHelper.SetType("ns3::StaWifiMac",
+                         "Ssid", SsidValue(ssid),
+                         "ActiveProbing", BooleanValue(false));
 
-The following code shows how to create an AP with QoS enabled::
+The following code shows how to create an AP with QoS enabled:
+
+.. sourcecode:: cpp
 
   WifiMacHelper wifiMacHelper;
-  wifiMacHelper.SetType ("ns3::ApWifiMac",
-                         "Ssid", SsidValue (ssid),
-                         "QosSupported", BooleanValue (true),
-                         "BeaconGeneration", BooleanValue (true),
-                         "BeaconInterval", TimeValue (Seconds (2.5)));
+  wifiMacHelper.SetType("ns3::ApWifiMac",
+                        "Ssid", SsidValue(ssid),
+                        "QosSupported", BooleanValue(true),
+                        "BeaconGeneration", BooleanValue(true),
+                        "BeaconInterval", TimeValue(Seconds(2.5)));
 
 To create ad-hoc MAC instances, simply use ``ns3::AdhocWifiMac`` instead of ``ns3::StaWifiMac`` or ``ns3::ApWifiMac``.
 
@@ -552,15 +581,17 @@ For MAC instances that have QoS support enabled, the ``ns3::WifiMacHelper`` can 
 * block ack inactivity timeout.
 
 For example the following user code configures a MAC that will be a non-AP STA with QoS enabled and a block ack threshold for AC_BE set to 2 packets,
-in an infrastructure network where the AP has SSID ``ns-3-ssid``::
+in an infrastructure network where the AP has SSID ``ns-3-ssid``:
+
+.. sourcecode:: cpp
 
     WifiMacHelper wifiMacHelper;
-    Ssid ssid = Ssid ("ns-3-ssid");
-    wifiMacHelper.SetType ("ns3::StaWifiMac",
-                          "Ssid", SsidValue (ssid),
-                          "QosSupported", BooleanValue (true),
-                          "BE_BlockAckThreshold", UintegerValue (2),
-                          "ActiveProbing", BooleanValue (false));
+    Ssid ssid = Ssid("ns-3-ssid");
+    wifiMacHelper.SetType("ns3::StaWifiMac",
+                         "Ssid", SsidValue(ssid),
+                         "QosSupported", BooleanValue(true),
+                         "BE_BlockAckThreshold", UintegerValue(2),
+                         "ActiveProbing", BooleanValue(false));
 
 For MAC instances that have 802.11n-style High Throughput (HT) and/or 802.11ac-style Very High Throughput (VHT) and/or 802.11ax-style High Efficiency (HE) support enabled,
 the ``ns3::WifiMacHelper`` can be also used to set:
@@ -571,34 +602,40 @@ the ``ns3::WifiMacHelper`` can be also used to set:
 By default, MSDU aggregation feature is disabled for all ACs and MPDU aggregation is enabled for AC_VI and AC_BE, with a maximum aggregation size of 65535 bytes.
 
 For example the following user code configures a MAC that will be a non-AP STA with HT and QoS enabled, MPDU aggregation enabled for AC_VO with a maximum aggregation size of 65535 bytes, and MSDU aggregation enabled for AC_BE with a maximum aggregation size of 7935 bytes,
-in an infrastructure network where the AP has SSID ``ns-3-ssid``::
+in an infrastructure network where the AP has SSID ``ns-3-ssid``:
+
+.. sourcecode:: cpp
 
     WifiHelper wifi;
-    wifi.SetStandard (WIFI_STANDARD_80211n);
+    wifi.SetStandard(WIFI_STANDARD_80211n);
 
     WifiMacHelper wifiMacHelper;
-    Ssid ssid = Ssid ("ns-3-ssid");
-    wifiMacHelper.SetType ("ns3::StaWifiMac",
-                          "Ssid", SsidValue (ssid),
-                          "VO_MaxAmpduSize", UintegerValue (65535),
-                          "BE_MaxAmsduSize", UintegerValue (7935),
-                          "ActiveProbing", BooleanValue (false));
+    Ssid ssid = Ssid("ns-3-ssid");
+    wifiMacHelper.SetType("ns3::StaWifiMac",
+                          "Ssid", SsidValue(ssid),
+                          "VO_MaxAmpduSize", UintegerValue(65535),
+                          "BE_MaxAmsduSize", UintegerValue(7935),
+                          "ActiveProbing", BooleanValue(false));
 
 802.11ax APs support sending multi-user frames via DL OFDMA and UL OFDMA if a Multi-User Scheduler is
-aggregated to the wifi MAC (by default no scheduler is aggregated). WifiMacHelper enables to aggregate
-a Multi-User Scheduler to an AP and set its parameters::
+aggregated to the wifi MAC(by default no scheduler is aggregated). WifiMacHelper enables to aggregate
+a Multi-User Scheduler to an AP and set its parameters:
+
+.. sourcecode:: cpp
 
     WifiMacHelper wifiMacHelper;
-    wifiMacHelper.SetMultiUserScheduler ("ns3::RrMultiUserScheduler",
-                                        "EnableUlOfdma", BooleanValue (true),
-                                        "EnableBsrp", BooleanValue (false));
+    wifiMacHelper.SetMultiUserScheduler("ns3::RrMultiUserScheduler",
+                                        "EnableUlOfdma", BooleanValue(true),
+                                        "EnableBsrp", BooleanValue(false));
 
 The Ack Manager is in charge of selecting the acknowledgment method among the three
-available methods (see section :ref:`wifi-mu-ack-sequences` ). The default ack manager
-enables to select the acknowledgment method, e.g.::
+available methods(see section :ref:`wifi-mu-ack-sequences` ). The default ack manager
+enables to select the acknowledgment method, e.g.:
 
-    Config::SetDefault ("ns3::WifiDefaultAckManager::DlMuAckSequenceType",
-                       EnumValue (WifiAcknowledgment::DL_MU_AGGREGATE_TF));
+.. sourcecode:: cpp
+
+    Config::SetDefault("ns3::WifiDefaultAckManager::DlMuAckSequenceType",
+                       EnumValue(WifiAcknowledgment::DL_MU_AGGREGATE_TF));
 
 Selection of the Access Category (AC)
 +++++++++++++++++++++++++++++++++++++
@@ -609,11 +646,13 @@ value of the DS field in the IP header of the packet (ToS field in case of IPv4,
 Traffic Class field in case of IPv6). Details on how to set the ToS field of IPv4
 packets are given in the :ref:`Type-of-service` section of the documentation. In
 summary, users can create an address of type :cpp:class:`ns3::InetSocketAddress`
-with the desired type of service value and pass it to the application helpers::
+with the desired type of service value and pass it to the application helpers:
 
-    InetSocketAddress destAddress (ipv4Address, udpPort);
-    destAddress.SetTos (tos);
-    OnOffHelper onoff ("ns3::UdpSocketFactory", destAddress);
+.. sourcecode:: cpp
+
+    InetSocketAddress destAddress(ipv4Address, udpPort);
+    destAddress.SetTos(tos);
+    OnOffHelper onoff("ns3::UdpSocketFactory", destAddress);
 
 Mapping the values of the DS field onto user priorities is performed similarly to the
 Linux mac80211 subsystem. Basically, the :cpp:func:`ns3::WifiNetDevice::SelectQueue()`
@@ -663,9 +702,11 @@ CS6           110000xx      6   AC_VO
 CS7           111000xx      7   AC_VO
 ============  ============  ==  ===============
 
-So, for example,::
+So, for example,
 
-    destAddress.SetTos (0xc0);
+.. sourcecode:: cpp
+
+    destAddress.SetTos(0xc0);
 
 will map to CS6, User Priority 6, and Access Category AC_VO.
 Also, the ns3-wifi-ac-mapping test suite (defined in
@@ -685,7 +726,9 @@ WifiHelper
 ==========
 
 We're now ready to create WifiNetDevices. First, let's create
-a WifiHelper with default settings::
+a WifiHelper with default settings:
+
+.. sourcecode:: cpp
 
   WifiHelper wifiHelper;
 
@@ -695,59 +738,67 @@ What does this do?  It sets the default wifi standard to **802.11a** and sets th
 ``WifiHelper::SetStandard`` method with the desired standard.
 
 Now, let's use the wifiPhyHelper and wifiMacHelper created above to install WifiNetDevices
-on a set of nodes in a NodeContainer "c"::
+on a set of nodes in a NodeContainer "c":
 
-  NetDeviceContainer wifiContainer = WifiHelper::Install (wifiPhyHelper, wifiMacHelper, c);
+.. sourcecode:: cpp
+
+  NetDeviceContainer wifiContainer = WifiHelper::Install(wifiPhyHelper, wifiMacHelper, c);
 
 This creates the WifiNetDevice which includes also a WifiRemoteStationManager, a
 WifiMac, and a WifiPhy (connected to the matching Channel).
 
 The ``WifiHelper::SetStandard`` method sets various default timing parameters as defined in the selected standard version, overwriting values that may exist or have been previously configured.
-In order to change parameters that are overwritten by ``WifiHelper::SetStandard``, this should be done post-install using ``Config::Set``::
+In order to change parameters that are overwritten by ``WifiHelper::SetStandard``, this should be done post-install using ``Config::Set``:
+
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211n);
-  wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue("HtMcs7"), "ControlMode", StringValue("HtMcs0"));
+  wifi.SetStandard(WIFI_STANDARD_80211n);
+  wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager", "DataMode", StringValue("HtMcs7"), "ControlMode", StringValue("HtMcs0"));
 
   //Install PHY and MAC
-  Ssid ssid = Ssid ("ns3-wifi");
+  Ssid ssid = Ssid("ns3-wifi");
 
   WifiMacHelper mac;
-  mac.SetType ("ns3::StaWifiMac",
-  "Ssid", SsidValue (ssid),
-  "ActiveProbing", BooleanValue (false));
+  mac.SetType("ns3::StaWifiMac",
+  "Ssid", SsidValue(ssid),
+  "ActiveProbing", BooleanValue(false));
 
   NetDeviceContainer staDevice;
-  staDevice = wifi.Install (phy, mac, wifiStaNode);
+  staDevice = wifi.Install(phy, mac, wifiStaNode);
 
-  mac.SetType ("ns3::ApWifiMac",
-  "Ssid", SsidValue (ssid));
+  mac.SetType("ns3::ApWifiMac",
+  "Ssid", SsidValue(ssid));
 
   NetDeviceContainer apDevice;
-  apDevice = wifi.Install (phy, mac, wifiApNode);
+  apDevice = wifi.Install(phy, mac, wifiApNode);
 
   //Once install is done, we overwrite the standard timing values
-  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Slot", TimeValue (MicroSeconds (slot)));
-  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Sifs", TimeValue (MicroSeconds (sifs)));
-  Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Pifs", TimeValue (MicroSeconds (pifs)));
+  Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Slot", TimeValue(MicroSeconds(slot)));
+  Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Sifs", TimeValue(MicroSeconds(sifs)));
+  Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Pifs", TimeValue(MicroSeconds(pifs)));
 
 The WifiHelper can be used to set the attributes of the default ack policy selector
 (``ConstantWifiAckPolicySelector``) or to select a different (user provided) ack
 policy selector, for each of the available Access Categories. As an example, the
 following code can be used to set the BaThreshold attribute of the default ack
-policy selector associated with BE AC to 0.5::
+policy selector associated with BE AC to 0.5:
+
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetAckPolicySelectorForAc (AC_BE, "ns3::ConstantWifiAckPolicySelector",
-                                  "BaThreshold", DoubleValue (0.5));
+  wifi.SetAckPolicySelectorForAc(AC_BE, "ns3::ConstantWifiAckPolicySelector",
+                                 "BaThreshold", DoubleValue(0.5));
 
 The WifiHelper is also used to configure OBSS PD spatial reuse for 802.11ax.
 The following lines configure a WifiHelper to support OBSS PD spatial reuse
-using the ``ConstantObssPdAlgorithm`` with a threshold set to -72 dBm::
+using the ``ConstantObssPdAlgorithm`` with a threshold set to -72 dBm:
+
+.. sourcecode:: cpp
 
   WifiHelper wifi;
-  wifi.SetObssPdAlgorithm ("ns3::ConstantObssPdAlgorithm",
-                           "ObssPdLevel", DoubleValue (-72.0));
+  wifi.SetObssPdAlgorithm("ns3::ConstantObssPdAlgorithm",
+                          "ObssPdLevel", DoubleValue(-72.0));
 
 There are many other |ns3| attributes that can be set on the above helpers to
 deviate from the default behavior; the example scripts show how to do some of
@@ -763,17 +814,21 @@ user sets the standard to a variant that supports HT capabilities (802.11n,
 created for the device.  The configuration object is used to store and
 manage HT-specific attributes.
 
-802.11n/ac PHY layer can use either long (800 ns) or short (400 ns) OFDM guard intervals. To configure this parameter for a given device, the following lines of code could be used (in this example, it enables the support of a short guard interval for the first station)::
+802.11n/ac PHY layer can use either long (800 ns) or short (400 ns) OFDM guard intervals. To configure this parameter for a given device, the following lines of code could be used (in this example, it enables the support of a short guard interval for the first station):
 
- Ptr<NetDevice> nd = wifiStaDevices.Get (0);
- Ptr<WifiNetDevice> wnd = nd->GetObject<WifiNetDevice> ();
- Ptr<HtConfiguration> htConfiguration = wnd->GetHtConfiguration ();
- htConfiguration->SetShortGuardIntervalSupported (true);
+.. sourcecode:: cpp
+
+ Ptr<NetDevice> nd = wifiStaDevices.Get(0);
+ Ptr<WifiNetDevice> wnd = nd->GetObject<WifiNetDevice>();
+ Ptr<HtConfiguration> htConfiguration = wnd->GetHtConfiguration();
+ htConfiguration->SetShortGuardIntervalSupported(true);
 
 It is also possible to configure HT-specific attributes using ``Config::Set``.
 The following line of code enables the support of a short guard interval for all stations:
 
- Config::Set ("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/ShortGuardIntervalSupported", BooleanValue (true));
+.. sourcecode:: cpp
+
+ Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/ShortGuardIntervalSupported", BooleanValue(true));
 
 VHT configuration
 =================
@@ -792,19 +847,24 @@ IEEE 802.11ax is also known as High Efficiency (HE).  Once the ``ns3::WifiHelper
 HE configuration object will automatically be created to manage HE-specific
 attributes for 802.11ax devices.
 
-802.11ax PHY layer can use either 3200 ns, 1600 ns or 800 ns OFDM guard intervals. To configure this parameter, the following lines of code could be used (in this example, it enables the support of 1600 ns guard interval), such as in this example code snippet::
+802.11ax PHY layer can use either 3200 ns, 1600 ns or 800 ns OFDM guard intervals. To configure this parameter, the following lines of code could be used (in this example, it enables the support of 1600 ns guard interval), such as in this example code snippet:
 
- Ptr<NetDevice> nd = wifiStaDevices.Get (0);
- Ptr<WifiNetDevice> wnd = nd->GetObject<WifiNetDevice> ();
- Ptr<HeConfiguration> heConfiguration = wnd->GetHeConfiguration ();
- heConfiguration->SetGuardInterval (NanoSeconds (1600));
+.. sourcecode:: cpp
 
-802.11ax allows extended compressed Block ACKs containing a 256-bits bitmap, making
+ Ptr<NetDevice> nd = wifiStaDevices.Get(0);
+ Ptr<WifiNetDevice> wnd = nd->GetObject<WifiNetDevice>();
+ Ptr<HeConfiguration> heConfiguration = wnd->GetHeConfiguration();
+ heConfiguration->SetGuardInterval(NanoSeconds(1600));
+
+802.11ax allows compressed Block ACKs containing a 256-bits bitmap, making
 possible transmissions of A-MPDUs containing up to 256 MPDUs, depending on the
 negotiated buffer size. In order to configure the buffer size of an 802.11ax device,
-the following line of code could be used::
+the following line of code could be used:
 
- heConfiguration->SetMpduBufferSize (256);
+.. sourcecode:: cpp
+
+ WifiMacHelper mac;
+ mac.SetType("ns3::StaWifiMac", "MpduBufferSize", UintegerValue(256));
 
 For transmitting large MPDUs, it might also be needed to increase the maximum
 aggregation size (see above).
@@ -842,43 +902,45 @@ In this example, we create two ad-hoc nodes equipped with 802.11a Wi-Fi devices.
 We use the ``ns3::ConstantSpeedPropagationDelayModel`` as the propagation delay model and
 ``ns3::LogDistancePropagationLossModel`` with the exponent of 3.0 as the propagation loss model.
 Both devices are configured with ``ConstantRateWifiManager`` at the fixed rate of 12Mbps.
-Finally, we manually place them by using the ``ns3::ListPositionAllocator``::
+Finally, we manually place them by using the ``ns3::ListPositionAllocator``:
 
-  std::string phyMode ("OfdmRate12Mbps");
+.. sourcecode:: cpp
+
+  std::string phyMode("OfdmRate12Mbps");
 
   NodeContainer c;
-  c.Create (2);
+  c.Create(2);
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211a);
+  wifi.SetStandard(WIFI_STANDARD_80211a);
 
-  YansWifiPhyHelper wifiPhy =  YansWifiPhyHelper::Default ();
+  YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default();
   // ns-3 supports RadioTap and Prism tracing extensions for 802.11
-  wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  wifiPhy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
 
   YansWifiChannelHelper wifiChannel;
-  wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
-  wifiChannel.AddPropagationLoss ("ns3::LogDistancePropagationLossModel",
-                                  "Exponent", DoubleValue (3.0));
-  wifiPhy.SetChannel (wifiChannel.Create ());
+  wifiChannel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
+  wifiChannel.AddPropagationLoss("ns3::LogDistancePropagationLossModel",
+                                 "Exponent", DoubleValue(3.0));
+  wifiPhy.SetChannel(wifiChannel.Create());
 
   // Add a non-QoS upper mac, and disable rate control (i.e. ConstantRateWifiManager)
   WifiMacHelper wifiMac;
-  wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager",
-                                "DataMode",StringValue (phyMode),
-                                "ControlMode",StringValue (phyMode));
+  wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                               "DataMode",StringValue(phyMode),
+                               "ControlMode",StringValue(phyMode));
   // Set it to adhoc mode
-  wifiMac.SetType ("ns3::AdhocWifiMac");
-  NetDeviceContainer devices = wifi.Install (wifiPhy, wifiMac, c);
+  wifiMac.SetType("ns3::AdhocWifiMac");
+  NetDeviceContainer devices = wifi.Install(wifiPhy, wifiMac, c);
 
   // Configure mobility
   MobilityHelper mobility;
-  Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
-  positionAlloc->Add (Vector (0.0, 0.0, 0.0));
-  positionAlloc->Add (Vector (5.0, 0.0, 0.0));
-  mobility.SetPositionAllocator (positionAlloc);
-  mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-  mobility.Install (c);
+  Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
+  positionAlloc->Add(Vector(0.0, 0.0, 0.0));
+  positionAlloc->Add(Vector(5.0, 0.0, 0.0));
+  mobility.SetPositionAllocator(positionAlloc);
+  mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+  mobility.Install(c);
 
   // other set up (e.g. InternetStack, Application)
 
@@ -887,60 +949,204 @@ Infrastructure (access point and clients) WifiNetDevice configuration
 
 This is a typical example of how a user might configure an access point and a set of clients.
 In this example, we create one access point and two clients.
-Each node is equipped with 802.11b Wi-Fi device::
+Each node is equipped with 802.11b Wi-Fi device:
 
-  std::string phyMode ("DsssRate1Mbps");
+.. sourcecode:: cpp
+
+  std::string phyMode("DsssRate1Mbps");
 
   NodeContainer ap;
-  ap.Create (1);
-  NodeContainer sta;
-  sta.Create (2);
+  ap.Create(1);
+  NodeContainer stas;
+  stas.Create(2);
 
   WifiHelper wifi;
-  wifi.SetStandard (WIFI_STANDARD_80211b);
+  wifi.SetStandard(WIFI_STANDARD_80211b);
 
-  YansWifiPhyHelper wifiPhy =  YansWifiPhyHelper::Default ();
+  YansWifiPhyHelper wifiPhy =  YansWifiPhyHelper::Default();
   // ns-3 supports RadioTap and Prism tracing extensions for 802.11
-  wifiPhy.SetPcapDataLinkType (WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  wifiPhy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
 
   YansWifiChannelHelper wifiChannel;
   // reference loss must be changed since 802.11b is operating at 2.4GHz
-  wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
-  wifiChannel.AddPropagationLoss ("ns3::LogDistancePropagationLossModel",
-                                  "Exponent", DoubleValue (3.0),
-                                  "ReferenceLoss", DoubleValue (40.0459));
-  wifiPhy.SetChannel (wifiChannel.Create ());
+  wifiChannel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
+  wifiChannel.AddPropagationLoss("ns3::LogDistancePropagationLossModel",
+                                 "Exponent", DoubleValue(3.0),
+                                 "ReferenceLoss", DoubleValue(40.0459));
+  wifiPhy.SetChannel(wifiChannel.Create());
 
   // Add a non-QoS upper mac, and disable rate control
   WifiMacHelper wifiMac;
-  wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager",
-                                "DataMode",StringValue (phyMode),
-                                "ControlMode",StringValue (phyMode));
+  wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                               "DataMode",StringValue(phyMode),
+                               "ControlMode",StringValue(phyMode));
 
   // Setup the rest of the upper mac
-  Ssid ssid = Ssid ("wifi-default");
-  // setup ap.
-  wifiMac.SetType ("ns3::ApWifiMac",
-                   "Ssid", SsidValue (ssid));
-  NetDeviceContainer apDevice = wifi.Install (wifiPhy, wifiMac, ap);
+  Ssid ssid = Ssid("wifi-default");
+
+  // setup AP.
+  wifiMac.SetType("ns3::ApWifiMac",
+                  "Ssid", SsidValue(ssid));
+  NetDeviceContainer apDevice = wifi.Install(wifiPhy, wifiMac, ap);
   NetDeviceContainer devices = apDevice;
 
-  // setup sta.
-  wifiMac.SetType ("ns3::StaWifiMac",
-                   "Ssid", SsidValue (ssid),
-                   "ActiveProbing", BooleanValue (false));
-  NetDeviceContainer staDevice = wifi.Install (wifiPhy, wifiMac, sta);
-  devices.Add (staDevice);
+  // setup STAs.
+  wifiMac.SetType("ns3::StaWifiMac",
+                  "Ssid", SsidValue(ssid),
+                  "ActiveProbing", BooleanValue(false));
+  NetDeviceContainer staDevices = wifi.Install(wifiPhy, wifiMac, stas);
+  devices.Add(staDevices);
 
   // Configure mobility
   MobilityHelper mobility;
-  Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
-  positionAlloc->Add (Vector (0.0, 0.0, 0.0));
-  positionAlloc->Add (Vector (5.0, 0.0, 0.0));
-  positionAlloc->Add (Vector (0.0, 5.0, 0.0));
-  mobility.SetPositionAllocator (positionAlloc);
-  mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-  mobility.Install (ap);
-  mobility.Install (sta);
+  Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
+  positionAlloc->Add(Vector(0.0, 0.0, 0.0));
+  positionAlloc->Add(Vector(5.0, 0.0, 0.0));
+  positionAlloc->Add(Vector(0.0, 5.0, 0.0));
+  mobility.SetPositionAllocator(positionAlloc);
+  mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+  mobility.Install(ap);
+  mobility.Install(sta);
 
   // other set up (e.g. InternetStack, Application)
+
+Multiple RF interfaces configuration
+++++++++++++++++++++++++++++++++++++
+
+.. sourcecode:: cpp
+
+  NodeContainer ap;
+  ap.Create(1);
+  NodeContainer sta;
+  sta.Create(1);
+
+  WifiHelper wifi;
+  wifi.SetStandard(WIFI_STANDARD_80211be);
+
+  // Create multiple spectrum channels
+  Ptr<MultiModelSpectrumChannel> spectrumChannel2_4Ghz =
+      CreateObject<MultiModelSpectrumChannel>();
+  Ptr<MultiModelSpectrumChannel> spectrumChannel5Ghz =
+      CreateObject<MultiModelSpectrumChannel>();
+  Ptr<MultiModelSpectrumChannel> spectrumChannel6Ghz =
+      CreateObject<MultiModelSpectrumChannel>();
+
+  // optional: set up propagation loss model separately for each spectrum channel
+
+  // SpectrumWifiPhyHelper (3 links)
+  SpectrumWifiPhyHelper phy(3);
+  phy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  phy.AddChannel(spectrumChannel2_4Ghz, WIFI_SPECTRUM_2_4_GHZ);
+  phy.AddChannel(spectrumChannel5Ghz, WIFI_SPECTRUM_5_GHZ);
+  phy.AddChannel(spectrumChannel6Ghz, WIFI_SPECTRUM_6_GHZ);
+
+  // configure operating channel for each link
+  phy.Set(0, "ChannelSettings", StringValue("{42, 0, BAND_2_4GHZ, 0}"));
+  phy.Set(1, "ChannelSettings", StringValue("{42, 0, BAND_5GHZ, 0}"));
+  phy.Set(2, "ChannelSettings", StringValue("{215, 0, BAND_6GHZ, 0}"));
+
+  // configure rate manager for each link
+  wifi.SetRemoteStationManager(0,
+                               "ns3::ConstantRateWifiManager",
+                               "DataMode", StringValue("EhtMcs11"),
+                               "ControlMode", StringValue("ErpOfdmRate24Mbps"));
+  wifi.SetRemoteStationManager(1,
+                               "ns3::ConstantRateWifiManager",
+                               "DataMode", StringValue("EhtMcs9"),
+                               "ControlMode", StringValue("OfdmRate24Mbps"));
+  wifi.SetRemoteStationManager(2,
+                               "ns3::ConstantRateWifiManager",
+                               "DataMode", StringValue("EhtMcs7"),
+                               "ControlMode", StringValue("HeMcs4"));
+
+  // setup AP.
+  wifiMac.SetType("ns3::ApWifiMac",
+                  "Ssid", SsidValue(ssid));
+  NetDeviceContainer apDevice = wifi.Install(wifiPhy, wifiMac, ap);
+  NetDeviceContainer devices = apDevice;
+
+  // setup STA.
+  wifiMac.SetType("ns3::StaWifiMac",
+                  "Ssid", SsidValue(ssid),
+                  "ActiveProbing", BooleanValue(false));
+  NetDeviceContainer staDevice = wifi.Install(wifiPhy, wifiMac, sta);
+  devices.Add(staDevice);
+
+  // Configure mobility
+  MobilityHelper mobility;
+  Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
+  positionAlloc->Add(Vector(0.0, 0.0, 0.0));
+  positionAlloc->Add(Vector(5.0, 0.0, 0.0));
+  mobility.SetPositionAllocator(positionAlloc);
+  mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+  mobility.Install(c);
+
+  // other set up (e.g. InternetStack, Application)
+
+EMLSR configuration
++++++++++++++++++++
+
+Proper EMLSR operations require the configuration of multiple RF interfaces, as illustrated above.
+Therefore, in order to configure EMLSR operations, we can start from the configuration shown above
+and apply the changes described in the following. Firstly, we need to activate EMLSR on both the
+AP MLD and the EMLSR client. This can be done by configuring the appropriate ``EhtConfiguration``
+attribute through the wifi helper:
+
+.. sourcecode:: cpp
+
+  WifiHelper wifi;
+  wifi.SetStandard(WIFI_STANDARD_80211be);
+  wifi.ConfigEhtOptions("EmlsrActivated", BooleanValue(true));
+
+The ``EhtConfiguration`` class also provides attributes for the various EMLSR parameters that an
+AP MLD that supports EMLSR has to advertise. Given that these attributes are simply ignored by
+non-AP MLDs, we can use the same wifi helper to configure such parameters:
+
+.. sourcecode:: cpp
+
+  WifiHelper wifi;
+  wifi.SetStandard(WIFI_STANDARD_80211be);
+  wifi.ConfigEhtOptions("EmlsrActivated", BooleanValue(true));
+  wifi.ConfigEhtOptions("TransitionTimeout", TimeValue(MicroSeconds(1024)));
+  wifi.ConfigEhtOptions("MediumSyncDuration", TimeValue(MicroSeconds(3200)));
+  wifi.ConfigEhtOptions("MsdOfdmEdThreshold", IntegerValue(-72);
+  wifi.ConfigEhtOptions("MsdMaxNTxops", UintegerValue(0)); // unlimited attempts
+
+EMLSR parameters that are client specific can be configured through the attributes of the EMLSR
+Manager class and subclass. The ``WifiMacHelper`` class provides the ``SetEmlsrManager``
+method to conveniently set the type of EMLSR Manager and its attributes:
+
+.. sourcecode:: cpp
+
+  // setup STA.
+  wifiMac.SetType("ns3::StaWifiMac",
+                  "Ssid", SsidValue(ssid),
+                  "ActiveProbing", BooleanValue(false));
+  wifiMac.SetEmlsrManager("ns3::DefaultEmlsrManager",
+                          "EmlsrLinkSet",
+                          StringValue("0,1,2"),  // enable EMLSR on all EMLSR links
+                          "MainPhyId",
+                          UintegerValue(1),
+                          "EmlsrPaddingDelay",
+                          TimeValue(MicroSeconds(32)),
+                          "EmlsrTransitionDelay",
+                          TimeValue(MicroSeconds(128)),
+                          "SwitchAuxPhy",
+                          BooleanValue(false),
+                          "AuxPhyChannelWidth",
+                          UintegerValue(40));
+  NetDeviceContainer staDevice = wifi.Install(wifiPhy, wifiMac, sta);
+  devices.Add(staDevice);
+
+Note that the channel switch delay should be less than the transition delay:
+
+.. sourcecode:: cpp
+
+  // SpectrumWifiPhyHelper (3 links)
+  SpectrumWifiPhyHelper phy(3);
+  phy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
+  phy.AddChannel(spectrumChannel2_4Ghz, WIFI_SPECTRUM_2_4_GHZ);
+  phy.AddChannel(spectrumChannel5Ghz, WIFI_SPECTRUM_5_GHZ);
+  phy.AddChannel(spectrumChannel6Ghz, WIFI_SPECTRUM_6_GHZ);
+  phy.Set("ChannelSwitchDelay", TimeValue(MicroSeconds(100)));
+

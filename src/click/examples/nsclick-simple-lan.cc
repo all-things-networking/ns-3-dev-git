@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -44,7 +43,6 @@ ReceivePacket(Ptr<Socket> socket)
 int
 main(int argc, char* argv[])
 {
-#ifdef NS3_CLICK
     std::string clickConfigFolder = "src/click/examples";
 
     CommandLine cmd(__FILE__);
@@ -105,8 +103,6 @@ main(int argc, char* argv[])
     Simulator::Run();
 
     Simulator::Destroy();
+
     return 0;
-#else
-    NS_FATAL_ERROR("Can't use ns-3-click without NSCLICK compiled in");
-#endif
 }

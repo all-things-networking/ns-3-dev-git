@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -46,7 +45,7 @@ AttributeDefaultIterator::Iterate()
         bool calledStart = false;
         for (uint32_t j = 0; j < tid.GetAttributeN(); j++)
         {
-            struct TypeId::AttributeInformation info = tid.GetAttribute(j);
+            TypeId::AttributeInformation info = tid.GetAttribute(j);
             if (!(info.flags & TypeId::ATTR_CONSTRUCT))
             {
                 // we can't construct the attribute, so, there is no

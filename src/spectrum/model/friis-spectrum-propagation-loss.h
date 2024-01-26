@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -21,7 +20,7 @@
 #ifndef FRIIS_SPECTRUM_PROPAGATION_LOSS_H
 #define FRIIS_SPECTRUM_PROPAGATION_LOSS_H
 
-#include <ns3/spectrum-propagation-loss-model.h>
+#include "spectrum-propagation-loss-model.h"
 
 namespace ns3
 {

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 Duy Nguyen
  *
@@ -329,7 +328,7 @@ class MinstrelWifiManager : public WifiRemoteStationManager
      *
      * \param station the station object
      */
-    void PrintSampleTable(MinstrelWifiRemoteStation* station);
+    void PrintSampleTable(MinstrelWifiRemoteStation* station) const;
 
     /**
      * Print Minstrel Table.

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2005,2006 INRIA
  *
@@ -60,7 +59,7 @@ class PsrExperiment
      * \param input the PSR experiment
      * \returns the PSR experiment output
      */
-    struct PsrExperiment::Output Run(struct PsrExperiment::Input input);
+    PsrExperiment::Output Run(PsrExperiment::Input input);
 
   private:
     /// Send function
@@ -76,9 +75,9 @@ class PsrExperiment
                  RxSignalInfo rxSignalInfo,
                  WifiTxVector txVector,
                  std::vector<bool> statusPerMpdu);
-    Ptr<WifiPhy> m_tx;      ///< transmit
-    struct Input m_input;   ///< input
-    struct Output m_output; ///< output
+    Ptr<WifiPhy> m_tx; ///< transmit
+    Input m_input;     ///< input
+    Output m_output;   ///< output
 };
 
 void
@@ -115,8 +114,8 @@ PsrExperiment::Input::Input()
 {
 }
 
-struct PsrExperiment::Output
-PsrExperiment::Run(struct PsrExperiment::Input input)
+PsrExperiment::Output
+PsrExperiment::Run(PsrExperiment::Input input)
 {
     m_output.received = 0;
     m_input = input;
@@ -176,7 +175,7 @@ class CollisionExperiment
         uint32_t nPackets;     ///< number of packets
     };
 
-    /// Output struture
+    /// Output structure
     struct Output
     {
         uint32_t receivedA; ///< received A
@@ -190,7 +189,7 @@ class CollisionExperiment
      * \param input the collision experiment data
      * \returns the experiment output
      */
-    struct CollisionExperiment::Output Run(struct CollisionExperiment::Input input);
+    CollisionExperiment::Output Run(CollisionExperiment::Input input);
 
   private:
     /// Send A function
@@ -208,12 +207,12 @@ class CollisionExperiment
                  RxSignalInfo rxSignalInfo,
                  WifiTxVector txVector,
                  std::vector<bool> statusPerMpdu);
-    Ptr<WifiPhy> m_txA;     ///< transmit A
-    Ptr<WifiPhy> m_txB;     ///< transmit B
-    uint32_t m_flowIdA;     ///< flow ID A
-    uint32_t m_flowIdB;     ///< flow ID B
-    struct Input m_input;   ///< input
-    struct Output m_output; ///< output
+    Ptr<WifiPhy> m_txA; ///< transmit A
+    Ptr<WifiPhy> m_txB; ///< transmit B
+    uint32_t m_flowIdA; ///< flow ID A
+    uint32_t m_flowIdB; ///< flow ID B
+    Input m_input;      ///< input
+    Output m_output;    ///< output
 };
 
 void
@@ -278,8 +277,8 @@ CollisionExperiment::Input::Input()
 {
 }
 
-struct CollisionExperiment::Output
-CollisionExperiment::Run(struct CollisionExperiment::Input input)
+CollisionExperiment::Output
+CollisionExperiment::Run(CollisionExperiment::Input input)
 {
     m_output.receivedA = 0;
     m_output.receivedB = 0;
@@ -340,7 +339,7 @@ static void
 PrintPsr(int argc, char* argv[])
 {
     PsrExperiment experiment;
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("Distance", "The distance between two phys", input.distance);
@@ -352,7 +351,7 @@ PrintPsr(int argc, char* argv[])
                  input.txPowerLevel);
     cmd.Parse(argc, argv);
 
-    struct PsrExperiment::Output output;
+    PsrExperiment::Output output;
     output = experiment.Run(input);
 
     double psr = output.received;
@@ -362,7 +361,7 @@ PrintPsr(int argc, char* argv[])
 }
 
 double
-CalcPsr(struct PsrExperiment::Output output, struct PsrExperiment::Input input)
+CalcPsr(PsrExperiment::Output output, PsrExperiment::Input input)
 {
     double psr = output.received;
     psr /= input.nPackets;
@@ -372,7 +371,7 @@ CalcPsr(struct PsrExperiment::Output output, struct PsrExperiment::Input input)
 static void
 PrintPsrVsDistance(int argc, char* argv[])
 {
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
     CommandLine cmd(__FILE__);
     cmd.AddValue("TxPowerLevel",
                  "The power level index to use to send each packet",
@@ -386,7 +385,7 @@ PrintPsrVsDistance(int argc, char* argv[])
     {
         std::cout << input.distance;
         PsrExperiment experiment;
-        struct PsrExperiment::Output output;
+        PsrExperiment::Output output;
 
         input.txMode = "OfdmRate6Mbps";
         output = experiment.Run(input);
@@ -428,7 +427,7 @@ static void
 PrintSizeVsRange(int argc, char* argv[])
 {
     double targetPsr = 0.05;
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
     CommandLine cmd(__FILE__);
     cmd.AddValue("TxPowerLevel",
                  "The power level index to use to send each packet",
@@ -446,7 +445,7 @@ PrintSizeVsRange(int argc, char* argv[])
         while (high - low > precision)
         {
             double middle = low + (high - low) / 2;
-            struct PsrExperiment::Output output;
+            PsrExperiment::Output output;
             PsrExperiment experiment;
             input.distance = middle;
             output = experiment.Run(input);

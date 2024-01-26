@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2007, 2008 University of Washington
  *
@@ -257,7 +256,7 @@ PointToPointNetDevice::TransmitStart(Ptr<Packet> p)
     Simulator::Schedule(txCompleteTime, &PointToPointNetDevice::TransmitComplete, this);
 
     bool result = m_channel->TransmitStart(p, this, txTime);
-    if (result == false)
+    if (!result)
     {
         m_phyTxDropTrace(p);
     }
@@ -521,7 +520,7 @@ PointToPointNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t pr
     // If IsLinkUp() is false it means there is no channel to send any packet
     // over so we just hit the drop trace on the packet and return an error.
     //
-    if (IsLinkUp() == false)
+    if (!IsLinkUp())
     {
         m_macTxDropTrace(packet);
         return false;

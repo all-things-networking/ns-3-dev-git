@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
@@ -95,28 +94,27 @@ WifiTxTimer::GetReason() const
 std::string
 WifiTxTimer::GetReasonString(Reason reason) const
 {
-#define FOO(x)                                                                                     \
+#define CASE_REASON(x)                                                                             \
     case WAIT_##x:                                                                                 \
-        return #x;                                                                                 \
-        break;
+        return #x;
 
     switch (reason)
     {
     case NOT_RUNNING:
         return "NOT_RUNNING";
-        break;
-        FOO(CTS);
-        FOO(NORMAL_ACK);
-        FOO(BLOCK_ACK);
-        FOO(NORMAL_ACK_AFTER_DL_MU_PPDU);
-        FOO(BLOCK_ACKS_IN_TB_PPDU);
-        FOO(TB_PPDU_AFTER_BASIC_TF);
-        FOO(QOS_NULL_AFTER_BSRP_TF);
-        FOO(BLOCK_ACK_AFTER_TB_PPDU);
+        CASE_REASON(CTS);
+        CASE_REASON(NORMAL_ACK);
+        CASE_REASON(BLOCK_ACK);
+        CASE_REASON(CTS_AFTER_MU_RTS);
+        CASE_REASON(NORMAL_ACK_AFTER_DL_MU_PPDU);
+        CASE_REASON(BLOCK_ACKS_IN_TB_PPDU);
+        CASE_REASON(TB_PPDU_AFTER_BASIC_TF);
+        CASE_REASON(QOS_NULL_AFTER_BSRP_TF);
+        CASE_REASON(BLOCK_ACK_AFTER_TB_PPDU);
     default:
         NS_ABORT_MSG("Unknown reason");
     }
-#undef FOO
+#undef CASE_REASON
 }
 
 bool
@@ -131,12 +129,25 @@ WifiTxTimer::Cancel()
     NS_LOG_FUNCTION(this << GetReasonString(m_reason));
     m_timeoutEvent.Cancel();
     m_impl = nullptr;
+    m_staExpectResponseFrom.clear();
+}
+
+void
+WifiTxTimer::GotResponseFrom(const Mac48Address& from)
+{
+    m_staExpectResponseFrom.erase(from);
+}
+
+const std::set<Mac48Address>&
+WifiTxTimer::GetStasExpectedToRespond() const
+{
+    return m_staExpectResponseFrom;
 }
 
 Time
 WifiTxTimer::GetDelayLeft() const
 {
-    return Simulator::GetDelayLeft(m_timeoutEvent);
+    return m_end - Simulator::Now();
 }
 
 void
@@ -176,13 +187,14 @@ WifiTxTimer::SetPsduMapResponseTimeoutCallback(PsduMapResponseTimeout callback) 
 }
 
 void
-WifiTxTimer::FeedTraceSource(WifiPsduMap* psduMap,
-                             std::set<Mac48Address>* missingStations,
-                             std::size_t nTotalStations)
+WifiTxTimer::FeedTraceSource(WifiPsduMap* psduMap, std::size_t nTotalStations)
 {
     if (!m_psduMapResponseTimeoutCallback.IsNull())
     {
-        m_psduMapResponseTimeoutCallback(m_reason, psduMap, missingStations, nTotalStations);
+        m_psduMapResponseTimeoutCallback(m_reason,
+                                         psduMap,
+                                         &m_staExpectResponseFrom,
+                                         nTotalStations);
     }
 }
 

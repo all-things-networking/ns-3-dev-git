@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -24,9 +23,10 @@
 #ifndef RRC_HEADER_H
 #define RRC_HEADER_H
 
+#include "lte-asn1-header.h"
+#include "lte-rrc-sap.h"
+
 #include "ns3/header.h"
-#include "ns3/lte-asn1-header.h"
-#include "ns3/lte-rrc-sap.h"
 
 #include <bitset>
 #include <string>
@@ -51,7 +51,7 @@ class RrcAsn1Header : public Asn1Header
      *
      * \returns the message type
      */
-    int GetMessageType();
+    int GetMessageType() const;
 
   protected:
     /**
@@ -777,7 +777,7 @@ class RrcConnectionReconfigurationHeader : public RrcDlDcchMessage
      * Getter for m_haveMeasConfig
      * @return m_haveMeasConfig
      */
-    bool GetHaveMeasConfig();
+    bool GetHaveMeasConfig() const;
 
     /**
      * Getter for m_measConfig
@@ -789,7 +789,7 @@ class RrcConnectionReconfigurationHeader : public RrcDlDcchMessage
      * Getter for m_haveMobilityControlInfo
      * @return m_haveMobilityControlInfo
      */
-    bool GetHaveMobilityControlInfo();
+    bool GetHaveMobilityControlInfo() const;
 
     /**
      * Getter for m_mobilityControlInfo
@@ -801,7 +801,7 @@ class RrcConnectionReconfigurationHeader : public RrcDlDcchMessage
      * Getter for m_haveRadioResourceConfigDedicated
      * @return m_haveRadioResourceConfigDedicated
      */
-    bool GetHaveRadioResourceConfigDedicated();
+    bool GetHaveRadioResourceConfigDedicated() const;
 
     /**
      * Getter for m_radioResourceConfigDedicated
@@ -825,7 +825,7 @@ class RrcConnectionReconfigurationHeader : public RrcDlDcchMessage
      * Getter for m_haveNonCriticalExtension
      * @return m_haveNonCriticalExtension
      */
-    bool GetHaveNonCriticalExtensionConfig();
+    bool GetHaveNonCriticalExtensionConfig() const;
 
     /**
      * Getter for m_nonCriticalExtension

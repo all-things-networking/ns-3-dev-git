@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022 ZHIHENG DONG
  *
@@ -18,7 +17,7 @@
  * Author: Zhiheng Dong <dzh2077@gmail.com>
  */
 
-#include "ns3/neighbor-cache-helper.h"
+#include "neighbor-cache-helper.h"
 
 #include "ns3/assert.h"
 #include "ns3/channel-list.h"
@@ -65,16 +64,36 @@ NeighborCacheHelper::PopulateNeighborCache(Ptr<Channel> channel) const
     {
         Ptr<NetDevice> netDevice = channel->GetDevice(i);
         Ptr<Node> node = netDevice->GetNode();
-        int32_t ipv4InterfaceIndex = node->GetObject<Ipv4>()->GetInterfaceForDevice(netDevice);
-        int32_t ipv6InterfaceIndex = node->GetObject<Ipv6>()->GetInterfaceForDevice(netDevice);
+
+        int32_t ipv4InterfaceIndex = -1;
+        if (node->GetObject<Ipv4>())
+        {
+            ipv4InterfaceIndex = node->GetObject<Ipv4>()->GetInterfaceForDevice(netDevice);
+        }
+        int32_t ipv6InterfaceIndex = -1;
+        if (node->GetObject<Ipv6>())
+        {
+            ipv6InterfaceIndex = node->GetObject<Ipv6>()->GetInterfaceForDevice(netDevice);
+        }
+
         for (std::size_t j = 0; j < channel->GetNDevices(); ++j)
         {
             Ptr<NetDevice> neighborDevice = channel->GetDevice(j);
             Ptr<Node> neighborNode = neighborDevice->GetNode();
-            int32_t ipv4NeighborInterfaceIndex =
-                neighborNode->GetObject<Ipv4>()->GetInterfaceForDevice(neighborDevice);
-            int32_t ipv6NeighborInterfaceIndex =
-                neighborNode->GetObject<Ipv6>()->GetInterfaceForDevice(neighborDevice);
+
+            int32_t ipv4NeighborInterfaceIndex = -1;
+            if (neighborNode->GetObject<Ipv4>())
+            {
+                ipv4NeighborInterfaceIndex =
+                    neighborNode->GetObject<Ipv4>()->GetInterfaceForDevice(neighborDevice);
+            }
+            int32_t ipv6NeighborInterfaceIndex = -1;
+            if (neighborNode->GetObject<Ipv6>())
+            {
+                ipv6NeighborInterfaceIndex =
+                    neighborNode->GetObject<Ipv6>()->GetInterfaceForDevice(neighborDevice);
+            }
+
             if (neighborDevice != netDevice)
             {
                 if (ipv4InterfaceIndex != -1)
@@ -115,16 +134,36 @@ NeighborCacheHelper::PopulateNeighborCache(const NetDeviceContainer& c) const
         Ptr<NetDevice> netDevice = c.Get(i);
         Ptr<Channel> channel = netDevice->GetChannel();
         Ptr<Node> node = netDevice->GetNode();
-        int32_t ipv4InterfaceIndex = node->GetObject<Ipv4>()->GetInterfaceForDevice(netDevice);
-        int32_t ipv6InterfaceIndex = node->GetObject<Ipv6>()->GetInterfaceForDevice(netDevice);
+
+        int32_t ipv4InterfaceIndex = -1;
+        if (node->GetObject<Ipv4>())
+        {
+            ipv4InterfaceIndex = node->GetObject<Ipv4>()->GetInterfaceForDevice(netDevice);
+        }
+        int32_t ipv6InterfaceIndex = -1;
+        if (node->GetObject<Ipv6>())
+        {
+            ipv6InterfaceIndex = node->GetObject<Ipv6>()->GetInterfaceForDevice(netDevice);
+        }
+
         for (std::size_t j = 0; j < channel->GetNDevices(); ++j)
         {
             Ptr<NetDevice> neighborDevice = channel->GetDevice(j);
             Ptr<Node> neighborNode = neighborDevice->GetNode();
-            int32_t ipv4NeighborInterfaceIndex =
-                neighborNode->GetObject<Ipv4>()->GetInterfaceForDevice(neighborDevice);
-            int32_t ipv6NeighborInterfaceIndex =
-                neighborNode->GetObject<Ipv6>()->GetInterfaceForDevice(neighborDevice);
+
+            int32_t ipv4NeighborInterfaceIndex = -1;
+            if (neighborNode->GetObject<Ipv4>())
+            {
+                ipv4NeighborInterfaceIndex =
+                    neighborNode->GetObject<Ipv4>()->GetInterfaceForDevice(neighborDevice);
+            }
+            int32_t ipv6NeighborInterfaceIndex = -1;
+            if (neighborNode->GetObject<Ipv6>())
+            {
+                ipv6NeighborInterfaceIndex =
+                    neighborNode->GetObject<Ipv6>()->GetInterfaceForDevice(neighborDevice);
+            }
+
             if (neighborDevice != netDevice)
             {
                 if (ipv4InterfaceIndex != -1)

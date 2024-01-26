@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 //
 // Copyright (c) 2009 INESC Porto
 //
@@ -47,13 +46,13 @@ Histogram::GetNBins() const
 }
 
 double
-Histogram::GetBinStart(uint32_t index)
+Histogram::GetBinStart(uint32_t index) const
 {
     return index * m_binWidth;
 }
 
 double
-Histogram::GetBinEnd(uint32_t index)
+Histogram::GetBinEnd(uint32_t index) const
 {
     return (index + 1) * m_binWidth;
 }
@@ -67,12 +66,12 @@ Histogram::GetBinWidth(uint32_t index) const
 void
 Histogram::SetDefaultBinWidth(double binWidth)
 {
-    NS_ASSERT(m_histogram.size() == 0); // we can only change the bin width if no values were added
+    NS_ASSERT(m_histogram.empty()); // we can only change the bin width if no values were added
     m_binWidth = binWidth;
 }
 
 uint32_t
-Histogram::GetBinCount(uint32_t index)
+Histogram::GetBinCount(uint32_t index) const
 {
     NS_ASSERT(index < m_histogram.size());
     return m_histogram[index];
@@ -81,7 +80,7 @@ Histogram::GetBinCount(uint32_t index)
 void
 Histogram::AddValue(double value)
 {
-    uint32_t index = (uint32_t)std::floor(value / m_binWidth);
+    auto index = (uint32_t)std::floor(value / m_binWidth);
 
     // check if we need to resize the vector
     NS_LOG_DEBUG("AddValue: index=" << index << ", m_histogram.size()=" << m_histogram.size());
@@ -91,6 +90,12 @@ Histogram::AddValue(double value)
         m_histogram.resize(index + 1, 0);
     }
     m_histogram[index]++;
+}
+
+void
+Histogram::Clear()
+{
+    m_histogram.clear();
 }
 
 Histogram::Histogram(double binWidth)

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 University of Washington
  *
@@ -275,15 +274,16 @@ class PcapFile
     /**
      * \brief Compare two PCAP files packet-by-packet
      *
+     * \param f1 First PCAP file name
+     * \param f2 Second PCAP file name
+     * \param sec [out] Time stamp of first different packet, seconds. Undefined if files don't
+     * differ.
+     * \param usec [out] Time stamp of first different packet, microseconds. Undefined if files
+     * don't differ.
+     * \param packets [out] Number of first different packet. Total number of parsed packets if
+     * files don't differ.
+     * \param snapLen Snap length (if used)
      * \return true if files are different, false otherwise
-     *
-     * \param  f1         First PCAP file name
-     * \param  f2         Second PCAP file name
-     * \param  sec        [out] Time stamp of first different packet, seconds. Undefined if files
-     * doesn't differ. \param  usec       [out] Time stamp of first different packet, microseconds.
-     * Undefined if files doesn't differ. \param  packets    [out] Number of first different packet.
-     * Total number of parsed packets if files doesn't differ. \param  snapLen    Snap length (if
-     * used)
      */
     static bool Diff(const std::string& f1,
                      const std::string& f2,
@@ -296,7 +296,7 @@ class PcapFile
     /**
      * \brief Pcap file header
      */
-    typedef struct
+    struct PcapFileHeader
     {
         uint32_t m_magicNumber; //!< Magic number identifying this as a pcap file
         uint16_t
@@ -307,18 +307,18 @@ class PcapFile
         uint32_t m_sigFigs; //!< Unused by pretty much everybody
         uint32_t m_snapLen; //!< Maximum length of packet data stored in records
         uint32_t m_type;    //!< Data link type of packet data
-    } PcapFileHeader;
+    };
 
     /**
      * \brief Pcap record header
      */
-    typedef struct
+    struct PcapRecordHeader
     {
         uint32_t m_tsSec;   //!< seconds part of timestamp
         uint32_t m_tsUsec;  //!< microseconds part of timestamp (nsecs for PCAP_NSEC_MAGIC)
         uint32_t m_inclLen; //!< number of octets of packet saved in file
         uint32_t m_origLen; //!< actual length of original packet
-    } PcapRecordHeader;
+    };
 
     /**
      * \brief Swap a value byte order

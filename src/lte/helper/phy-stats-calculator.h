@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -21,7 +20,8 @@
 #ifndef PHY_STATS_CALCULATOR_H_
 #define PHY_STATS_CALCULATOR_H_
 
-#include "ns3/lte-stats-calculator.h"
+#include "lte-stats-calculator.h"
+
 #include "ns3/nstime.h"
 #include "ns3/spectrum-value.h"
 #include "ns3/uinteger.h"
@@ -71,8 +71,8 @@ class PhyStatsCalculator : public LteStatsCalculator
 
     // Inherited from ns3::Object
     /**
-     *  Register this type.
-     *  @return The object TypeId.
+     * Register this type.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 

@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -76,6 +75,10 @@ LteRlcUmE2eTestSuite::LteRlcUmE2eTestSuite()
     }
 }
 
+/**
+ * \ingroup lte-test
+ * Static variable for test initialization
+ */
 static LteRlcUmE2eTestSuite lteRlcUmE2eTestSuite;
 
 /**
