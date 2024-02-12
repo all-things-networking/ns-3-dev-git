@@ -28,48 +28,35 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
     QUICEvent* quicEvent = dynamic_cast<QUICEvent*>(event);
     MTEventProcessor* ChosenProcessor;
 
-    if (quicEvent->type == EventType::STREAM_EVENT) {
-        StreamEvent* streamEvent = dynamic_cast<StreamEvent*>(event);
 
-        // If we have a SEND_PACKET event we will send the packet
-        if (streamEvent->streamEventType == StreamEventType::SEND_PACKET)
-        {
-            ChosenProcessor = new QUICSendPacket();
-        }
-
-        // If we have a ADD_DATA event, create a dataFrame and send it
-        if (streamEvent->streamEventType == StreamEventType::ADD_DATA)
-        {
-            ChosenProcessor = new QUICAddStreamData();
-        }
-
-        ChosenProcessors.push_back(ChosenProcessor);
-        return ChosenProcessors;
+    // If we have a SEND_PACKET event we will send the packet
+    if (quicEvent->type == EventType::SEND)
+    {
+        ChosenProcessor = new QUICSendPacket();
     }
 
-    if (quicEvent->type == EventType::RESPONSE_EVENT) {
-        ResponseEvent* responseEvent = dynamic_cast<ResponseEvent*>(event);
-        if (responseEvent->responseEventType == ResponseEventType::ACK_PACKET)
-        {
-            ChosenProcessor = new QUICLossDetection();
-        }
-        ChosenProcessors.push_back(ChosenProcessor);
-        return ChosenProcessors;
+    // If we have a ADD_DATA event, create a dataFrame and send it
+    if (quicEvent->type == EventType::ADD_DATA)
+    {
+        ChosenProcessor = new QUICAddStreamData();
     }
-    ////////////////////////////////////////////////////////////////
 
-    //////////////////////////// Receiver //////////////////////////
-    // for now, just returning the 3 processors to process a receivepkt event
-    if ( quicEvent->type == EventType::RECEIVEPKT_EVENT ) {
-        ChosenProcessors.push_back(new QUICPacketDemultiplexer());
-        ChosenProcessors.push_back(new QUICBufferManagement());
-        ChosenProcessors.push_back(new QUICAckHandler());
-        ChosenProcessors.push_back(new QUICReceiverPacketGenerator());
-        return ChosenProcessors;
+    // If we have an ACK event, create ?
+    if (quicEvent->type == EventType::ACK) {
+        ChosenProcessor = new QUICAck();
     }
-    ////////////////////////////////////////////////////////////////
 
+    // If we have a TIMER event, create ?
+    if (quicEvent->type == EventType::TIMER) {
+        ChosenProcessor = new QUICtimer();
+    }
 
+    // If we have a CONGESTION event, create ?
+    if (quicEvent->type == EventType::CONGESTION) {
+        ChosenProcessor = new QUICcongestion();
+    }
+
+    ChosenProcessors.push_back(ChosenProcessor);
     return ChosenProcessors;
 }
 }
