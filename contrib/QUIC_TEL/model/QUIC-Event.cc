@@ -23,7 +23,6 @@ AckEvent::AckEvent(int flow_id) {
     this->ECT0_Count = 0;
     this->ECT1_Count = 0;
     this->ECN_CE_Count = 0;
-    this->pkt_nums = std::vector<int>();
 }
 
 StreamEvent::StreamEvent(std::string data, int id = NO_STREAM_ID, int frame_size_limit) {
@@ -157,5 +156,13 @@ QUICEvent::QUICEvent(long time, int flow_id, EventType type){
     this->type = type;
 }
 
+Frame::Frame() {}
+
+Frame::Frame(int data_length, int stream_id, int offset, std::string data) {
+    this->data_length = data_length;
+    this->stream_id = stream_id;
+    this->offset = offset;
+    this->data = data;
+}
 
 }

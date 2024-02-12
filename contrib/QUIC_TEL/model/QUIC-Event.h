@@ -34,6 +34,8 @@ class Frame {
     int stream_id;
     int offset;
     std::string data; // Try to correspond this field with "stream data" in the TEL DSL
+    Frame();
+    Frame(int data_length, int stream_id, int offset, std::string data);
 };
 
 // Reponse event type from the receiver
