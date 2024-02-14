@@ -61,7 +61,7 @@ public:
     // loss detection
     int kPacketThresh = 3;
     int kTimeThreshold;
-    int time_of_last_ack_eliciting_packet = 0;
+    int time_of_last_ack_eliciting_packet = 0; // change to time_t type?
     int largest_acked_packet = -1; // Question: is inf ok?
     int kGranularity;
     // vars
