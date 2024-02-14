@@ -1,5 +1,5 @@
-#ifndef QUIC_SEND_PACKET_H
-#define QUIC_SEND_PACKET_H
+#ifndef QUIC_HANDLE_RECEIVE_ACK_H
+#define QUIC_HANDLE_RECEIVE_ACK_H
 
 #include <ctime> // std::time_t
 #include <map>
@@ -7,8 +7,6 @@
 #include "QUIC-Frame.h"
 #include "QUIC-StreamHandler.h"
 #include "QUIC-Stream.h"
-#include "QUIC-SendPacket.h"
-#include "QUIC-PacketBuffer.h"
 #include "QUIC_TEL-iterm_out.h"
 
 #include "../model/QUIC-Context.h"
@@ -21,20 +19,19 @@ namespace ns3
 {
 
 class QUICFrame;
-class QUICPacketBuffer;
 class Packet;
 
 /**
- * \brief The class for a QUIC SendPacket
+ * \brief The class for a QUIC HandleRecieveACK
  */
-// QUIC SendPacket
-class QUICSendProcessor : public MTEventProcessor
+// QUIC HandleRecieveACK
+class QUICAckProcessor
 {
 public:
-    QUICSendProcessor();
-    ~QUICSendProcessor();
+    QUICAckProcessor();
+    ~QUICAckProcessor();
 
-    void Process(QUICEvent* e, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out);
+    void Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out);
     bool IsValidEvent(MTEvent * e);
 };
 
