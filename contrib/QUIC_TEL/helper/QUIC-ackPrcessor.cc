@@ -1,0 +1,63 @@
+#include "QUIC-HandleReceiveACK.h"
+#include "QUIC-Frame.h"
+#include "ns3/mt-eventprocessor.h"
+#include <ctime>
+#include <map>
+
+namespace ns3
+{
+
+QUICHandleReceiveACK::QUICAckProcessor()
+{
+}
+
+QUICHandleReceiveACK::~QUICAckProcessor()
+{
+}
+
+bool QUICHandleReceiveACK::IsValidEvent(MTEvent * e)
+{
+    return true;
+}
+
+void
+QUICHandleReceiveACK::Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out)
+{
+    if (ctx->largest_acked_packet == -1) {
+        ctx.largest_acked_packet = ev->largest_acked;
+    } else {
+        ctx->largest_acked_packet = max(ctx.largest_acked_packet, ev->largest_acked);
+    }
+    bool new_packet_acked = false;
+    vector<PacketInfo *> acked_packets;
+    int acked_bytes;
+    for (int i = 0; i < ev->packet_nums.size(); i++) {
+        for (int j = 0; j < ctx->sent_packets.size(); j++) {
+            if (i == ctx->sent_packets[j]->packet_id) {
+                if (i == ctx->largest_acked_packet) {
+                    ctx->largest_acked_time = ctx->sent_packets[j]->time_sent;
+                }
+                acked_packets.emplace_back(ctx->sent_packets[j]);
+                ctx->acked_bytes -= ctx->sent_packets[i].size();
+                ctx->sent_packets.erase(j);
+                new_packet_acked = true;
+                break;
+            }
+        }
+    }
+    ctx->bytes_in_flight -= acked_bytes;
+    if (!new_packet_acked) {
+        return;
+    }
+    ctx.latest_rtt = time(0) - ctx->largest_acked_time;
+    ctx->update_rtt = true;
+
+    if (ev->ECN_CE_Count > ctx->ecn_ce_counters) {
+        ctx->ecn_ce_counters = ack->ECN_CE_Count;
+        out->in_congestion = true;
+        out->start_time = ctx->largest_acked_packet;
+    }
+}
+
+
+} // namespace ns3
