@@ -29,6 +29,7 @@ enum class PacketState {
 
 ////////////////////////////NEW CLASS PacketInfo from TEL DSL////////////////////////////////
 class PacketInfo {
+  public:
   int packet_id;
   int time_sent;
   bool in_flight;

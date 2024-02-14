@@ -4,10 +4,11 @@
 #include <ctime> // std::time_t
 #include <map>
 #include <deque>
+#include <vector>
 #include "QUIC-Frame.h"
 #include "QUIC-StreamHandler.h"
 #include "QUIC-Stream.h"
-#include "QUIC-SendPacket.h"
+#include "QUIC-selectDataProcessor.h"
 #include "QUIC-PacketBuffer.h"
 
 #include "../model/QUIC-Context.h"
@@ -24,17 +25,16 @@ class QUICPacketBuffer;
 class Packet;
 
 /**
- * \brief The class for a QUIC SendPacket
+ * \brief The class for a QUIC selectDataProcessor
  */
-// QUIC SendPacket
-class QUICSendPacket : public MTEventProcessor
+// QUIC selectDataProcessor
+class selectDataProcessor : public MTEventProcessor
 {
 public:
-    QUICSendPacket();
-    ~QUICSendPacket();
+    selectDataProcessor();
+    ~selectDataProcessor();
 
-    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
-    bool IsValidEvent(MTEvent * e);
+    void Process(SendEvent* e, QUICContext ctx, std::vector<QUICEvent *> events, interm_out out, tx_module tx);
 };
 
 } // namespace ns3
