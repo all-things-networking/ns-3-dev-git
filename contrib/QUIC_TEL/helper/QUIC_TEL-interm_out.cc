@@ -1,6 +1,5 @@
 #include "QUIC_TEL-interm_out.h"
 
-#include <utility> // std::pair
 #include <vector>
 
 namespace ns3 {
