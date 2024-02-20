@@ -70,19 +70,6 @@ class AddDataEvent : public QUICEvent {
     AddDataEvent();
 };
 
-class StreamEvent : public QUICEvent { // trying to match this up with the struct QuicStream in the TEL DSL, not sure if I am doing
-    // NOT sure is this is written correctly
-    public:
-    std::string data; // stream data;
-    int id;
-    int frame_size_limit;
-    int last_sent;
-    std::vector<bool> acked_frames; // list<bool> acked_frames;
-    StreamEvent();
-
-    StreamEvent(std::string data, int id = NO_STREAM_ID, int frame_size_limit);
-};
-
 // This one would be modified after finishing all the implementation and before testing
 class SenderEventCreator
 {

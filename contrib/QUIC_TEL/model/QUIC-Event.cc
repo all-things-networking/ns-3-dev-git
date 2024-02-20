@@ -25,12 +25,6 @@ AckEvent::AckEvent(int flow_id) {
     this->ECN_CE_Count = 0;
 }
 
-StreamEvent::StreamEvent(std::string data, int id = NO_STREAM_ID, int frame_size_limit) {
-    this->data = data;
-    this->id=id;
-    this->frame_size_limit = frame_size_limit;
-}
-
 TimerEvent::TimerEvent() {
 
 }
