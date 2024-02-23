@@ -1,5 +1,5 @@
-#include "QUIC-HandleReceiveACK.h"
-#include "QUIC-Frame.h"
+#include "QUIC-ackProcessor.h"
+#include "QUIC_TEL-Frame.h"
 #include "ns3/mt-eventprocessor.h"
 #include <ctime>
 #include <map>
@@ -7,21 +7,21 @@
 namespace ns3
 {
 
-QUICHandleReceiveACK::QUICAckProcessor()
+QUICAckProcessor::QUICAckProcessor()
 {
 }
 
-QUICHandleReceiveACK::~QUICAckProcessor()
+QUICAckProcessor::~QUICAckProcessor()
 {
 }
 
-bool QUICHandleReceiveACK::IsValidEvent(MTEvent * e)
+bool QUICAckProcessor::IsValidEvent(MTEvent * e)
 {
     return true;
 }
 
 void
-QUICHandleReceiveACK::Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out)
+QUICAckProcessor::Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out)
 {
     if (ctx->largest_acked_packet == -1) {
         ctx.largest_acked_packet = ev->largest_acked;

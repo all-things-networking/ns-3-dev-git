@@ -1,5 +1,3 @@
-
-
 #include <utility> // std::pair
 #include <vector>
 

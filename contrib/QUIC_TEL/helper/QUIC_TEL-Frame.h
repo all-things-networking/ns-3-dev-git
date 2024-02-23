@@ -1,3 +1,6 @@
+#ifndef QUIC_TEL_FRAME
+#define QUIC_TEL_FRAME
+
 #include <vector>
 
 namespace ns3
@@ -11,3 +14,5 @@ namespace ns3
         Frame(int data_length, int stream_id, int offset);
     };
 } // namespace ns3
+
+#endif
