@@ -140,21 +140,4 @@ Packet* ReceiverEventCreator::CreateFakePacket(std::vector<std::string>& data, i
 */
 /////////////////////////////////////////////////////////////////////////////////
 
-QUICEvent::QUICEvent() {
-}
-
-QUICEvent::QUICEvent(long time, int flow_id, EventType type){
-    this->time=time;
-    this->flow_id=flow_id;
-    this->type = type;
-}
-
-Frame::Frame() {}
-
-Frame::Frame(int data_length, int stream_id, int offset, std::string data) {
-    this->data_length = data_length;
-    this->stream_id = stream_id;
-    this->offset = offset;
-    this->data = data;
-}
 }
