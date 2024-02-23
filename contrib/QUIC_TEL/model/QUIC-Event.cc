@@ -10,6 +10,7 @@ namespace ns3{
 SendEvent::SendEvent(){
 
 }
+
 SendEvent::SendEvent(int flow_id){
     this->flow_id=flow_id;
 }
@@ -29,52 +30,50 @@ TimerEvent::TimerEvent() {
 
 }
 
-CongestionEvent::CongestionPacketEvent(int time_sent) {
+AddDataEvent::AddDataEvent() {
+
+}
+
+AddDataEvent::AddDataEvent(bool server_side, bool direction, std::string data) {
+    this->server_side = server_side;
+    this->direction = direction;
+    this->data = data;
+}
+
+CongestionEvent::CongestionEvent(int time_sent) {
     this->time_sent = time_sent;
 }
-    /* THESE are left until testing
-    MTEvent* SenderEventCreator::CreateSendEvent(int flow_id, long time){
-        // Create random data for now
-        StreamEventData data;
-        data.text = "hello";
 
-        // TODO: need to free this memory after?
-        MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, 5); // pick
-    random stream_id for now return streamEvent;
-    }
+///////////////////////////////////////code for testing///////////////////////////////////////
 
-    MTEvent* SenderEventCreator::CreateSendPacketEvent(int flow_id, long time){
-        StreamEventData data;
-        data.text = "";
+    
+MTEvent* SenderEventCreator::CreateAddDataEvent(bool server_side, bool direction, std::string data) {
+    MTEvent* AddDataEvent = new AddDataEvent(server_side, direction, data); 
+    return AddDataEvent;
+}
 
-        MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::SEND_PACKET, data, -1);
-        return streamEvent;
-    }
+MTEvent* SenderEventCreator::CreateSendPacketEvent(int flow_id){
+    MTEvent* SendPacketEvent = new SendEvent(flow_id);
+    return SendPacketEvent;
+}
 
-    MTEvent* SenderEventCreator::CreateAddDataEvent(int flow_id, long time, std::string text, int
-    stream){ StreamEventData data; data.text = text;
 
-        MTEvent* streamEvent = new StreamEvent(flow_id, StreamEventType::ADD_DATA, data, stream);
-        return streamEvent;
-    }
-
-    MTEvent* SenderEventCreator::CreateACKPacketEvent(int flow_id, long time, int packetNum){
+/* respond and receive event is not yet implemented
+MTEvent* SenderEventCreator::CreateACKPacketEvent(int flow_id, long time, int packetNum){
         ResponseEventData data;
         data.text = "";
         data.packetNum = packetNum;
-
         MTEvent* streamEvent = new ResponseEvent(flow_id, ResponseEventType::ACK_PACKET, data, -1);
         return streamEvent;
-    }
+}
 
-    MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet* pkg){
+MTEvent* ReceiverEventCreator::CreateReceiveEvent(int flow_id, long time, Packet* pkg){
         MTEvent* RCVPacketEvent = new ReceivePacketEvent(time, flow_id, pkg);
         return RCVPacketEvent;
-    }
+}
 
 
-    Packet* ReceiverEventCreator::CreateFakePacket(std::vector<std::string>& data, int packetNumber,
-    bool setFinBit, int streamOffset, int streamContentOffset ){
+Packet* ReceiverEventCreator::CreateFakePacket(std::vector<std::string>& data, int packetNumber, bool setFinBit, int streamOffset, int streamContentOffset ) {
         // TODO: make this more flexible
 
         QUICPacketBuffer* PacketBuffer = new QUICPacketBuffer;
@@ -98,7 +97,7 @@ CongestionEvent::CongestionPacketEvent(int time_sent) {
 
         int processedLength = 0;
         int i = 0;
-        while ( true ){
+        while ( true ) {
             if ( processedLength == totalLength ) break;
 
             int currentIdx = i % data.size();
@@ -120,26 +119,26 @@ CongestionEvent::CongestionPacketEvent(int time_sent) {
             int finBit = currentData.size() == 0 && setFinBit ? 1 : 0;
 
             // std::cout << offset[ currentIdx ] << std::endl;
-            std::cout << currentFrameData << " " << currentStreamNumber << " " << offset[ currentIdx
-    ]
-    << std::endl; QUICFrameHeader currentFrameHeader = QUICFrameHeader(currentStreamNumber, offset[
-    currentIdx ], currentFrameData.size(), FrameType::STREAM, finBit, 0, 0, 0);
+            std::cout << currentFrameData << " " << currentStreamNumber << " " << offset[currentIdx]
+            << std::endl; QUICFrameHeader currentFrameHeader = QUICFrameHeader(currentStreamNumber, offset[currentIdx],
+            currentFrameData.size(), FrameType::STREAM, finBit, 0, 0, 0);
 
             offset[ currentIdx ] += currentFrameData.size();
 
-            Ptr<Packet> currentFrameDataPacket = Create<Packet>(reinterpret_cast<const
-    uint8_t*>(currentFrameData.data()), currentFrameData.size()); currentFrame->AddHeader(
-    currentFrameHeader ); currentFrame->AddAtEnd( currentFrameDataPacket ); QUICPacket->AddAtEnd(
-    currentFrame ); i++;
+            Ptr<Packet> currentFrameDataPacket = Create<Packet>(reinterpret_cast<const uint8_t*>(currentFrameData.data()), currentFrameData.size());
+            currentFrame->AddHeader(currentFrameHeader);
+            currentFrame->AddAtEnd(currentFrameDataPacket);
+            QUICPacket->AddAtEnd(currentFrame);
+            i++;
         }
 
-        std::cout << "Creating Fake Receiving Packet, packet number: " << quicHeader.pckNum <<
-    std::endl;
+        std::cout << "Creating Fake Receiving Packet, packet number: " << quicHeader.pckNum << std::endl;
         // Ptr<Packet> ptrPacket = PacketBuffer->CreatePacket();
         Packet* pkt = GetPointer( QUICPacket );
         return pkt;
     }
-    */
+*/
+/////////////////////////////////////////////////////////////////////////////////
 
 QUICEvent::QUICEvent() {
 }
@@ -158,5 +157,4 @@ Frame::Frame(int data_length, int stream_id, int offset, std::string data) {
     this->offset = offset;
     this->data = data;
 }
-
 }

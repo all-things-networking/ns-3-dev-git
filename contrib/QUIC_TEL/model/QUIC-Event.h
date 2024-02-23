@@ -67,7 +67,7 @@ class AddDataEvent : public QUICEvent {
     bool direction;
     std::string data;//stream data;
     AddDataEvent();
-    AddDataEvent();
+    AddDataEvent(bool server_side, bool direction, std::string data);
 };
 
 // This one would be modified after finishing all the implementation and before testing
@@ -76,10 +76,9 @@ class SenderEventCreator
     public:
     // These events are used mainly for testing right now - it creates the specific event based
     // on input
-    MTEvent* CreateSendEvent(int, long);
-    MTEvent* CreateSendPacketEvent(int flow_id, long time);
-    MTEvent* CreateAddDataEvent(int flow_id, long time, std::string text, int stream);
-    MTEvent* CreateACKPacketEvent(int flow_id, long time, int packetNum);
+    MTEvent* CreateAddDataEvent(bool server_side, bool direction, std::string data);
+    MTEvent* CreateSendPacketEvent(int flow_id);
+    MTEvent* CreateACKPacketEvent(int flow_id);
 };
 ////////////////////////////////////////////////////////////////
 
@@ -111,8 +110,8 @@ class CongestionEvent : public QUICEvent
 {
     public:
     int time_sent;
-    CongestionPacketEvent();
-    CongestionPacketEvent(int time_sent);
+    CongestionEvent();
+    CongestionEvent(int time_sent);
 };
 
 // This one would be modified after finishing all the implementation and before testing
