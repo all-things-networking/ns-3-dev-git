@@ -29,6 +29,8 @@ QUIC_TEL::GetTypeId()
 }
 QUIC_TEL::QUIC_TEL(){
     this->table = QUICState(this);
+    this->scheduler = QUICScheduler();
+    this->dispatcher = QUICDispatcher();
     NS_LOG_FUNCTION(this);
 }
 
@@ -114,19 +116,7 @@ QUIC_TEL::SetNode(Ptr<Node> node)
     m_node = node;
 }
 
-void QUIC_TEL::SetScheduler(QUICScheduler* scheduler){
-    this->scheduler=scheduler;
-}
 
-void QUIC_TEL::SetDispatcher(QUICDispatcher* dispatcher)
-{
-    this->dispatcher=dispatcher;
-}
-// Receiver is not yet implemented
-void QUIC_TEL::SetReceiver(QUICReceiver* receiver)
-{
-    this->receiver=receiver;
-}
 void QUIC_TEL::NotifyNewAggregate()
 {
     NS_LOG_FUNCTION(this);

@@ -46,27 +46,10 @@ class QUIC_TEL : public IpL4Protocol
     */
     void Mainloop();
 
-    /**
-     * Set Dispatcher associated with this stack
-     * \param node the node
-     */
-    void SetDispatcher(QUICDispatcher*);
-
     void AddEventToScheduler(QUICEvent* e);
 
     void WriteToTable(int flow_id, QUICContext* context);
-
-    /**
-     * Set Scheduler associated with this stack
-     * \param node the node
-     */
-    void SetScheduler(QUICScheduler*);
-    /**
-     * Set Scheduler associated with this stack
-     * \param node the node
-     */
-    //void SetReceiver(QUICReceiver*);
-
+    
     /**
      * Set node associated with this stack
      * \param node the node
