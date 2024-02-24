@@ -1,14 +1,16 @@
 #ifndef ITERM_OUT
 #define ITERM_OUT
+#include "ns3/node.h"
+
 #include <vector>
 
 namespace ns3 {
     class iterm_out {
         public:
-        pkt_t packet; //this is currently not defined
+        Packet* packet; //this is currently not defined
         PacketInfo info;
-        vector<PacketInfo *> lost_packet;
-        iterm_out(pkt_t packet, PacketInfo info);
+        std::vector<PacketInfo *> lost_packet;
+        iterm_out(Packet* packet, PacketInfo info);
     };  
 }
 #endif

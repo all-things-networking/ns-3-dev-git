@@ -2,7 +2,7 @@
 #include <vector>
 
 namespace ns3 {
-    iterm_out::iterm_out(pkt_t packet, PacketInfo info) {
+    iterm_out::iterm_out(Packet* packet, PacketInfo info) {
         this->packet = packet;
         this->info = info;
     };

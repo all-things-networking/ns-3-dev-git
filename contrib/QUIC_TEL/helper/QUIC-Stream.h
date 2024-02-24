@@ -27,20 +27,19 @@ enum QUICStreamState
 /**
  * \brief The class for maintaing the state variables for ONE QUIC stream.
  */
-namespace ns3 {
-    class QUICStream 
-    {
-        public:
-            QUICStream(int id);
-            ~QUICStream();
 
-            vector<char> data;
-            int id;
-            int frame_size_limit;
-            int last_sent;
-            std::vector<bool> acked_frames; // list<bool> acked_frames
-    };
+class QUICStream 
+{
+    public:
+        QUICStream(int id);
+        ~QUICStream();
+
+        std::vector<char> data;
+        int id;
+        int frame_size_limit;
+        int last_sent;
+        std::vector<bool> acked_frames; // list<bool> acked_frames
+};
+
 }
-
-
 #endif

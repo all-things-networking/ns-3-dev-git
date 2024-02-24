@@ -21,15 +21,15 @@ bool QUICAckProcessor::IsValidEvent(MTEvent * e)
 }
 
 void
-QUICAckProcessor::Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out)
+QUICAckProcessor::Process(AckEvent* ev, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out)
 {
     if (ctx->largest_acked_packet == -1) {
         ctx.largest_acked_packet = ev->largest_acked;
     } else {
-        ctx->largest_acked_packet = max(ctx.largest_acked_packet, ev->largest_acked);
+        ctx->largest_acked_packet = std::max(ctx.largest_acked_packet, ev->largest_acked);
     }
     bool new_packet_acked = false;
-    vector<PacketInfo *> acked_packets;
+    std::vector<PacketInfo *> acked_packets;
     int acked_bytes;
     for (int i = 0; i < ev->packet_nums.size(); i++) {
         for (int j = 0; j < ctx->sent_packets.size(); j++) {

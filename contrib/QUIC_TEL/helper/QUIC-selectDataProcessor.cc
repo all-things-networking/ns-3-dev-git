@@ -2,6 +2,8 @@
 
 #include "../model/QUIC-Context.h"
 #include "../model/QUIC-Event.h"
+#include "QUIC-Stream.h"
+
 #include "QUIC-Frame.h"
 
 #include "ns3/mt-eventprocessor.h"
@@ -25,13 +27,12 @@ namespace ns3
     selectDataProcessor::Process(SendEvent* e,
                                 QUICContext ctx,
                                 std::vector<QUICEvent*> events,
-                                interm_out out,
-                                tx_module tx)
+                                iterm_out out)
     {
         int sent_size = 0;
         int i = 0;
-        pkt_t pkt = new_pkt(); // packet
-        QuicStream qs;         // TODO: better definition of QUICStream
+        Packet pkt = Packet(); // packet
+        QUICStream qs = QUICStream(0);         // TODO: better definition of QUICStream
         int bytes_allowed = ctx.congestion_window - ctx.bytes_in_flight;
         int frame_size_limit = bytes_allowed / ctx.streams.size(); // len changed to size here
         while (bytes_allowed > 0)
@@ -63,7 +64,7 @@ namespace ns3
             pkt_info.packet_id = qheader.pkt_id;
             pkt.add_hdr(qheader);
             ctx.sent_packets.emplace_back(pkt_info); // add to emplace_back
-            tx_module.add(pkt); // pick a queue to add a packet (this add should be a builtin function for tx_module class)
+            //tx_module.add(pkt); // pick a queue to add a packet (this add should be a builtin function for tx_module class)
         }
     }
 } // namespace ns3

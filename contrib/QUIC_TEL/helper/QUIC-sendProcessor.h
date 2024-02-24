@@ -7,9 +7,8 @@
 #include "QUIC-Frame.h"
 #include "QUIC-StreamHandler.h"
 #include "QUIC-Stream.h"
-#include "QUIC-SendPacket.h"
 #include "QUIC-PacketBuffer.h"
-#include "QUIC_TEL-iterm_out.h"
+#include "QUIC_TEL-Iterm_out.h"
 
 #include "../model/QUIC-Context.h"
 #include "../model/QUIC-Event.h"
@@ -25,16 +24,16 @@ class QUICPacketBuffer;
 class Packet;
 
 /**
- * \brief The class for a QUIC SendPacket
+ * \brief The class for a QUICSendProcessor
  */
-// QUIC SendPacket
+// QUICSendProcessor
 class QUICSendProcessor : public MTEventProcessor
 {
 public:
     QUICSendProcessor();
     ~QUICSendProcessor();
 
-    void Process(QUICEvent* e, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out);
+    void Process(QUICEvent* e, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out);
     bool IsValidEvent(MTEvent * e);
 };
 

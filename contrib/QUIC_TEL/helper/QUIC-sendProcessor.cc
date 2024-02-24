@@ -1,5 +1,5 @@
-#include "QUIC-SendPacket.h"
-#include "QUIC-Frame.h"
+#include "QUIC-sendProcessor.h"
+#include "QUIC_TEL-Frame.h"
 #include "ns3/mt-eventprocessor.h"
 #include <ctime>
 #include <map>
@@ -7,28 +7,29 @@
 namespace ns3
 {
 
-QUICSendPacket::QUICSendProcessor()
+QUICSendProcessor::QUICSendProcessor()
 {
 }
 
-QUICSendPacket::~QUICSendProcessor()
+QUICSendProcessor::~QUICSendProcessor()
 {
 }
 
-bool QUICSendPacket::IsValidEvent(MTEvent * e)
+bool
+QUICSendProcessor::IsValidEvent(MTEvent* e)
 {
     return true;
 }
 
 
 void
-QUICSendPacket::Process(QUICEvent* e, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out)
+QUICSendProcessor::Process(QUICEvent* e, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out)
 {
     if (out->info.in_flight) {
-        if (out.info.ack_eliciting) {
-            ctx.time_of_last_ack_elicting_packet = time(0);
+        if (out->info.ack_eliciting) {
+            ctx->time_of_last_ack_eliciting_packet = time(0);
+        }
     }
+
 }
-
-
 } // namespace ns3

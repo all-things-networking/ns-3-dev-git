@@ -30,7 +30,7 @@ public:
     QUICAckProcessor();
     ~QUICAckProcessor();
 
-    void Process(AckEvent* ev, QuicContext *ctx, vector<QUICEvent *> events, vector<Packet *> packets, iterm_out *out);
+    void Process(AckEvent* ev, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out);
     bool IsValidEvent(MTEvent * e);
 };
 
