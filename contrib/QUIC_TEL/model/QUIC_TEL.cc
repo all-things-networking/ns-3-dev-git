@@ -4,7 +4,7 @@
 #include "mt-eventprocessor.h"
 #include "QUIC-Dispatcher.h"
 #include "QUIC-Scheduler.h"
-#include "QUIC_State.h"
+#include "QUIC-State.h"
 #include "QUIC-Context.h"
 #include "QUIC-Dispatcher.h"
 //#include "QUIC-Receiver.h"
@@ -27,6 +27,7 @@ QUIC_TEL::GetTypeId()
                             .AddConstructor<QUIC_TEL>();
     return tid;
 }
+
 QUIC_TEL::QUIC_TEL(){
     this->table = QUICState(this);
     this->scheduler = QUICScheduler();
@@ -47,38 +48,39 @@ QUIC_TEL::~QUIC_TEL()
     NS_LOG_FUNCTION(this);
 }
 
-void QUIC_TEL::QUIC_TEL(QUICEvent* e)
+void QUIC_TEL::AddEventToScheduler(QUICEvent* e)
 {
-    this->scheduler->AddEvent(e);
+    this->scheduler->enqueue(e);
 }
 
-void QUIC_TEL::WriteToTable(int flow_id, QUICContext* context) {
+void QUIC_TEL::WriteToTable(int flow_id, MTContext* context) {
     this->table.Write(flow_id, context);
 }
-void QUIC_TEL::Start(const Ipv4Address& saddr, const Ipv4Address& daddr, QUICContext* StartContext) {
+void QUIC_TEL::Start(const Ipv4Address& saddr, const Ipv4Address& daddr, MTContext* StartContext) {
     Mainloop();
 }
-void QUIC_TEL::Mainloop(){
+void QUIC_TEL::Mainloop() {
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
     while (!this->scheduler->isEmpty()){
-         QUICEvent* e = this->scheduler->GetNextEvent();
-         // this MTEventProcessor should stay unchange
-         std::vector<MTEventProcessor*> ep= this->dispatcher->dispatch(e);
-         QUICContext* ctx = this->table.GetVal(e->flow_id);
+        MTEvent* e = this->scheduler->next_event();
+        // this MTEventProcessor should stay unchange, as teh dispatcher is still using MTEvent
+        std::vector<MTEventProcessor*> ep = this->dispatcher->dispatch(e);
+        MTContext* ctx = this->table.GetVal(e->flow_id);
 
-         std::vector<QUICEvent*> newEvents;
-         MTContext* context;
-         std::vector<Packet> packetToSend;
+        std::vector<MTEvent*> newEvents;
+        MTContext* context;
+        std::vector<Packet> packetToSend;
 
-         // intermediate output for the chain of processors
-         IntermediateOutput* intermOutput;
-         EventProcessorOutput* epout = new EventProcessorOutput{newEvents, ctx, packetToSend, intermOutput};
+        // intermediate output for the chain of processors
+        IntermediateOutput* intermOutput;
+        EventProcessorOutput* epout =
+            new EventProcessorOutput{newEvents, ctx, packetToSend, intermOutput};
 
-         // run through all processors
-         for (auto processor : ep) 
-         {
+        // run through all processors
+        for (auto processor : ep)
+        {
             epout = processor->Process(e, epout);
          }
 
@@ -99,8 +101,9 @@ void QUIC_TEL::Mainloop(){
          //addall every thing in first vector of result into schedular
     }
 }
+
 void
-ModularTransport::DoDispose()
+QUIC_TEL::DoDispose()
 {
     NS_LOG_FUNCTION(this);
     m_node = nullptr;
@@ -173,6 +176,7 @@ void QUIC_TEL::SendPacket(Ptr<Packet> packet,
 }
 
 //NOT YET implemented
+/*
 enum IpL4Protocol::RxStatus
 QUIC_TEL::Receive(Ptr<Packet> packet,
                           const Ipv4Header& incomingIpHeader,
@@ -182,6 +186,7 @@ QUIC_TEL::Receive(Ptr<Packet> packet,
     this->receiver->Receive(this, packet, incomingIpHeader, incomingInterface);
     return IpL4Protocol::RX_OK;
 }
+*/
 
 void
 QUIC_TEL::SetDownTarget(IpL4Protocol::DownTargetCallback callback)
@@ -212,7 +217,7 @@ QUIC_TEL::ReceiveIcmp(Ipv4Address icmpSource,
                       Ipv4Address payloadDestination,
                       const uint8_t payload[8])
 {
-    NS_LOG_UNCOND("ModularTransport: ICMP over IPv4 is not supported");
+    NS_LOG_UNCOND("QUIC_TEL: ICMP over IPv4 is not supported");
 }
 
 void
@@ -225,7 +230,7 @@ QUIC_TEL::ReceiveIcmp(Ipv6Address icmpSource,
                       Ipv6Address payloadDestination,
                       const uint8_t payload[8])
 {
-    NS_LOG_UNCOND("ModularTransport: ICMP over IPv6 is not supported");
+    NS_LOG_UNCOND("QUIC_TEL: ICMP over IPv6 is not supported");
 }
 
 /* ********** IPv6-related functions ************ */
@@ -234,7 +239,7 @@ QUIC_TEL::Receive(Ptr<Packet> packet,
                   const Ipv6Header& incomingIpHeader,
                   Ptr<Ipv6Interface> interface)
 {
-    NS_LOG_UNCOND("ModularTransport: IPv6 Receive not supported");
+    NS_LOG_UNCOND("QUIC_TEL: IPv6 Receive not supported");
     return IpL4Protocol::RX_ENDPOINT_UNREACH;
 }
 

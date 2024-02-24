@@ -12,11 +12,10 @@ namespace ns3
 {
 
 class Node;
-class MTState;
+class QUICState;
 class QUICScheduler;
 class QUICDispatcher;
 class MTReceiver;
-class QUICContext;
 
 class QUIC_TEL : public IpL4Protocol
 {
@@ -40,7 +39,7 @@ class QUIC_TEL : public IpL4Protocol
      for processing TCP packets, e.g., initial sequence number,
      window size, beginning of the window, total number of bytes to send, etc.
     */
-    void Start(const Ipv4Address& saddr, const Ipv4Address& daddr, QUICContext* StartContext);
+    void Start(const Ipv4Address& saddr, const Ipv4Address& daddr, MTContext* StartContext);
     /**
     main of simulation
     */
@@ -48,7 +47,7 @@ class QUIC_TEL : public IpL4Protocol
 
     void AddEventToScheduler(QUICEvent* e);
 
-    void WriteToTable(int flow_id, QUICContext* context);
+    void WriteToTable(int flow_id, MTContext* context);
     
     /**
      * Set node associated with this stack
@@ -116,7 +115,7 @@ class QUIC_TEL : public IpL4Protocol
     // scheduler
     // dispatcher
     // context
-    MTState table;
+    QUICState table;
     QUICScheduler* scheduler;
     QUICDispatcher* dispatcher;
     MTReceiver* receiver;

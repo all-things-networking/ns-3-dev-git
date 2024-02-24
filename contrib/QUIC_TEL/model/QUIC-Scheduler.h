@@ -28,8 +28,9 @@ class QUICScheduler : public MTScheduler
     std::queue<AckEvent*> ack_queue;
 
     QUICScheduler();
-    QUICEvent* next_event();  // event_t next_event(queue_t send_queue, queue_t ack_queue, queue_t
-                            // add_queue)
+    // keep this as MTEvent for now to keep the consistency with dispatcher
+    MTEvent* next_event(); // event_t next_event(queue_t send_queue, queue_t ack_queue, queue_t
+                             // add_queue)
     bool enqueue(QUICEvent* new_event); //  bool enqueue(queue_t ack_queue, event_t new_event)
     int add_drop();             // int add_drop(queue_t add_queue, event_t new_event)
     int send_drop();
