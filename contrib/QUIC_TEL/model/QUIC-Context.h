@@ -11,21 +11,12 @@
 
 #include "../helper/QUIC-Stream.h"
 #include "../helper/QUIC-Stream.h"
-#include "../helper/QUIC-PacketBuffer.h"
 
 namespace ns3
 {
 
 class ModularTransport;
 class QUICStream;
-
-// Used to packet tracking in case re-transmission is needed
-enum class PacketState {
-  SENT,
-  ACKED,
-  NOT_SENT,
-  RECEIVED
-};
 
 ////////////////////////////NEW CLASS PacketInfo from TEL DSL////////////////////////////////
 class PacketInfo {
@@ -44,7 +35,7 @@ class QUICContext : public MTContext
 { 
 public:
 
-    QUICContext(int flow_id);
+    QUICContext();
     ~QUICContext();
     //mathcing with the field of MyContext from TEL DSL
 

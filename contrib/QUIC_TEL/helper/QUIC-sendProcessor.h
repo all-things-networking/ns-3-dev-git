@@ -13,8 +13,10 @@ namespace ns3
         QUICSendProcessor();
         ~QUICSendProcessor();
 
-        void Process(QUICEvent* e, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out);
-        bool IsValidEvent(QUICEvent * e);
+        EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+        // empty, only for inherit
+        void own_Process(QUICEvent* e, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out);
+        bool IsValidEvent(MTEvent* e);
     };
 }
 

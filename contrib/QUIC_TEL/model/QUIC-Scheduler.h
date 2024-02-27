@@ -1,6 +1,5 @@
 #ifndef QUIC_SCHEDULER_H
 #define QUIC_SCHEDULER_H
-#include "../helper/QUIC-PacketBuffer.h"
 #include "QUIC-Event.h"
 
 #include "ns3/mt-scheduler.h"

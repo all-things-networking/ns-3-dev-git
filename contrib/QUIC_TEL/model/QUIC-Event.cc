@@ -1,9 +1,8 @@
 #include "QUIC-Event.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
-#include "ns3/QUIC-Frame.h"
-#include "ns3/QUIC-PacketBuffer.h"
-#include "ns3/QUIC-Header.h"
+#include "../helper/QUIC_TEL-Frame.h"
+#include "../helper/QUIC_TEL-QuicHeader.h"
 
 namespace ns3{
 
@@ -48,8 +47,8 @@ CongestionEvent::CongestionEvent(int time_sent) {
 
     
 MTEvent* SenderEventCreator::CreateAddDataEvent(bool server_side, bool direction, std::string data) {
-    MTEvent* AddDataEvent = new AddDataEvent(server_side, direction, data); 
-    return AddDataEvent;
+    MTEvent* AddingDataEvent = new AddDataEvent(server_side, direction, data); 
+    return AddingDataEvent;
 }
 
 MTEvent* SenderEventCreator::CreateSendPacketEvent(int flow_id){

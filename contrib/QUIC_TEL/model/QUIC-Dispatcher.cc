@@ -24,13 +24,13 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
     // If we have a SEND_PACKET event we will send the packet
     if (quicEvent->type == EventType::SEND)
     {
-        ChosenProcessor = new QUICSendPacket();
+        ChosenProcessor = new QUICSendProcessor();
     }
 
     // If we have a ADD_DATA event, create a dataFrame and send it
     if (quicEvent->type == EventType::ADD_DATA)
     {
-        ChosenProcessor = new QUICAddStreamData();
+        ChosenProcessor = new selectDataProcessor();
     }
 
     // If we have an ACK event, create ?

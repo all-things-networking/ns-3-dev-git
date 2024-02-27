@@ -4,7 +4,6 @@
 #include "ns3/mt-eventprocessor.h"
 #include "QUIC-Dispatcher.h"
 #include "QUIC-Scheduler.h"
-#include "QUIC-State.h"
 #include "QUIC-Context.h"
 #include "QUIC-Dispatcher.h"
 //#include "QUIC-Receiver.h"
@@ -30,8 +29,8 @@ QUIC_TEL::GetTypeId()
 
 QUIC_TEL::QUIC_TEL(){
     this->table = QUICState(this);
-    this->scheduler = QUICScheduler();
-    this->dispatcher = QUICDispatcher();
+    //this->scheduler = new QUICScheduler();
+    this->dispatcher = new QUICDispatcher();
     NS_LOG_FUNCTION(this);
 }
 

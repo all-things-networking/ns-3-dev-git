@@ -7,7 +7,7 @@ namespace ns3 {
     {
         NONE,
         READY,
-        SEND,
+        SEND_S,
         DATA_SENT,
         RESET_SENT,
         DATA_RECVD,
