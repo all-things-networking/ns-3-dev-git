@@ -4,16 +4,8 @@
 #include "ns3/mt-eventprocessor.h"
 
 
-#include "../helper/QUIC-EventProcessor.h"
-#include "../helper/QUIC-StreamHandler.h"
-#include "../helper/QUIC-LossDetection.h"
-#include "../helper/QUIC-PacketDemultiplexer.h"
-#include "../helper/QUIC-BufferManagement.h"
-#include "../helper/QUIC-ReceiverAckHandler.h"
-#include "../helper/QUIC-SendPacket.h"
-#include "../helper/QUIC-AddStreamData.h"
-#include "../helper/QUIC-HandleReceiveACK.h"
-#include "../helper/QUIC-ReceiverPacketGenerator.h"
+#include "../helper/QUIC-sendProcessor.h"
+#include "../helper/QUIC-selectDataProcessor.h"
 
 
 #include <iostream>

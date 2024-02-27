@@ -18,9 +18,9 @@ build_lib(
                  model/QUIC-Event.cc
                  model/QUIC-Scheduler.cc
                  model/QUIC-State.cc
-                 helper/QUIC-Frame.cc
-                 helper/QUIC-Iterm_out.cc
-                 helper/QUIC-QuicHeader.cc
+                 helper/QUIC_TEL-Frame.cc
+                 helper/QUIC_TEL-Iterm_out.cc
+                 helper/QUIC_TEL-QuicHeader.cc
                  helper/QUIC-selectDataProcessor.cc
                  helper/QUIC-sendProcessor.cc
                  helper/QUIC-Stream.cc
@@ -30,9 +30,9 @@ build_lib(
                  model/QUIC-Event.h
                  model/QUIC-Scheduler.h
                  model/QUIC-State.h
-                 helper/QUIC-Frame.h
-                 helper/QUIC-Iterm_out.h
-                 helper/QUIC-QuicHeader.h
+                 helper/QUIC_TEL-Frame.h
+                 helper/QUIC_TEL-Iterm_out.h
+                 helper/QUIC_TEL-QuicHeader.h
                  helper/QUIC-selectDataProcessor.h
                  helper/QUIC-sendProcessor.h
                  helper/QUIC-Stream.h
