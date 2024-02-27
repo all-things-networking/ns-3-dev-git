@@ -1,5 +1,6 @@
 #ifndef QUIC_STREAM_H
 #define QUIC_STREAM_H
+#include <vector>
 
 namespace ns3 {
     // RFC9000 Section 3
