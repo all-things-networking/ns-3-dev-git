@@ -86,42 +86,6 @@ public:
     int congestion_recovery_start_time = 0;
     int ssthresh = -1;
     int ecn_ce_counters = 0;
-    //////////////////////////////////////////////////////////////////FIELDS of old QUIC in ns3////////////////////////////////////////////////////////////////
-    int flow_id;
-    uint32_t max_data; // maximum amount of data that can be sent on the connection
-    uint32_t max_stream_data; // maximum amount of data that can be sent on a stream
-    uint8_t* data;
-
-    //////////////////////////// Sender ////////////////////////////
-    
-    int CurrentStream = 0; // Current stream used for multiplexing. This is the INDEX in quic_streams
-    QUICPacketBuffer* PacketBuffer;
-
-    // Keep track of sent packets for loss detection and error handling;
-    std::deque<std::pair<Ptr<Packet>, PacketState>> sentPackets;
-    int sendBase = 0; // Sequence number of OLDEST in-flight and unACKED packet
-    int windowSize = 1; // [sendBase, sendBase + windowSize] is the range of packets in-flight (each may or may not be ACKED)
-    int PTO_Timer;
-    int k_packet_threshold = 1;
-    ///////////////////////////////////////////////////////////////
-
-    //////////////////////////// Receiver /////////////////////////
-    int maxData = 10000;      // hard coded limit
-    const int frameLimit = 5;
-    // uint8_t* receiver_data;
-    
-    std::map<int, QUICStream*> receiverBuffer;
-    int ackBase = 0; // sequence number of oldest acked packet
-    std::vector<std::pair<int, int>> receivedPackets;
-    int ackElicitingPacketCount = 0;
-
-    // TODO: put hard-coded constant data here
-
-    std::unordered_map<int, int> streamDataSize;
-    int currentTotalDataSize;
-    int receiverPacketNumber = 1;
-    ///////////////////////////////////////////////////////////////
-
 };
 } // namespace ns3
 
