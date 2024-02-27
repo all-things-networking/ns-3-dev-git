@@ -1,7 +1,7 @@
 #ifndef QUIC_TEL_FRAME
 #define QUIC_TEL_FRAME
-
-#include <vector>
+#include <iostream>
+using std::vector;
 
 namespace ns3
 {
@@ -10,7 +10,7 @@ namespace ns3
         int data_length;
         int stream_id;
         int offset;
-        std::vector<char> data;//stream data;  
+        vector<char> data; //stream data;  
         Frame(int data_length, int stream_id, int offset);
     };
 } // namespace ns3
