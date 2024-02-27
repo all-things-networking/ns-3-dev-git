@@ -22,7 +22,7 @@ build_lib(
                  helper/QUIC_TEL-Iterm_out.cc
                  helper/QUIC_TEL-PacketInfo.cc
                  helper/QUIC_TEL-QuicHeader.cc
-                 helper/QUIC-ackProcessor.cc
+                 #helper/QUIC-ackProcessor.cc
                  helper/QUIC-selectDataProcessor.cc
                  helper/QUIC-sendProcessor.cc
                  helper/QUIC-Stream.cc
@@ -36,7 +36,7 @@ build_lib(
                  helper/QUIC_TEL-Iterm_out.h
                  helper/QUIC_TEL-PacketInfo.h
                  helper/QUIC_TEL-QuicHeader.h
-                 helper/QUIC-ackProcessor.h
+                 #helper/QUIC-ackProcessor.h
                  helper/QUIC-selectDataProcessor.h
                  helper/QUIC-sendProcessor.h
                  helper/QUIC-Stream.h
