@@ -35,17 +35,17 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
 
     // If we have an ACK event, create ?
     if (quicEvent->type == EventType::ACK) {
-        ChosenProcessor = new QUICAck();
+        //ChosenProcessor = new QUICAck();
     }
 
     // If we have a TIMER event, create ?
     if (quicEvent->type == EventType::TIMER) {
-        ChosenProcessor = new QUICtimer();
+        //ChosenProcessor = new QUICtimer();
     }
 
     // If we have a CONGESTION event, create ?
     if (quicEvent->type == EventType::CONGESTION) {
-        ChosenProcessor = new QUICcongestion();
+        //ChosenProcessor = new QUICcongestion();
     }
 
     ChosenProcessors.push_back(ChosenProcessor);

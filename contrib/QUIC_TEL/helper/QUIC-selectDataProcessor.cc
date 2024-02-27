@@ -24,7 +24,7 @@ namespace ns3
     }
 
     void
-    selectDataProcessor::Process(SendEvent* e,
+    selectDataProcessor::own_Process(SendEvent* e,
                                 QUICContext ctx,
                                 std::vector<QUICEvent*> events,
                                 iterm_out out)
