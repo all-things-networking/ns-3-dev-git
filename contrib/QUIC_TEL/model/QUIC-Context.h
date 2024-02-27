@@ -11,7 +11,6 @@
 
 #include "../helper/QUIC-Stream.h"
 #include "../helper/QUIC-Stream.h"
-#include "../helper/QUIC-PacketBuffer.h"
 
 namespace ns3
 {
