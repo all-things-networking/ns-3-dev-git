@@ -1,7 +1,7 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 #include "QUIC_TEL.h"
-#include "mt-eventprocessor.h"
+#include "ns3/mt-eventprocessor.h"
 #include "QUIC-Dispatcher.h"
 #include "QUIC-Scheduler.h"
 #include "QUIC-State.h"
