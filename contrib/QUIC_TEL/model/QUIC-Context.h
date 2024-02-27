@@ -10,7 +10,6 @@
 #include "ns3/mt-state.h"
 
 #include "../helper/QUIC-Stream.h"
-#include "../helper/QUIC-Stream.h"
 
 namespace ns3
 {
