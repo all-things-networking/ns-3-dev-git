@@ -1,6 +1,4 @@
 #include "QUIC-Stream.h"
-#include <ctime>
-#include <map>
 
 namespace ns3
 {
