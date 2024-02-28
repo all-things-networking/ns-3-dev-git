@@ -47,13 +47,13 @@ namespace ns3
                                         bytes_allowed,
                                         frame_size_limit,
                                         static_cast<int>(qs.data.size()) - qs.last_sent}); // TODO: change the usage of this MIN
-                pkt_info.frame_size.emplace_back(frame.size); // add changed to emplace_back, is Frame.size just the data_length?
+                pkt_info.frame_size.emplace_back(frame.data_length); // add changed to emplace_back, is Frame.size just the data_length?
                 pkt_info.start_point.emplace_back(qs.last_sent);   // add changed to emplace_back
 
                 frame.data = std::vector<char>(qs.data.begin() + qs.last_sent, 
-                                                qs.data.begin() + qs.last_sent + frame.size); // frame.data = qs.data [qs.last_sent:qs.last_sent + frame.size];
+                                                qs.data.begin() + qs.last_sent + frame.data_length); // frame.data = qs.data [qs.last_sent:qs.last_sent + frame.size];
 
-                qs.last_sent = qs.last_sent + frame.size;
+                qs.last_sent = qs.last_sent + frame.data_length;
                 Packet pkt = Packet(reinterpret_cast<uint8_t*> (&frame), sizeof(reinterpret_cast<uint8_t*> (&frame))); // add std:: before byte
                 ctx.bytes_in_flight = ctx.bytes_in_flight + frame.data.size(); // len to size
                 bytes_allowed = bytes_allowed - frame.data.size(); // len to size
