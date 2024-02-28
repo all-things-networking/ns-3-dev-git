@@ -12,6 +12,7 @@
 #include <chrono>
 #include <ctime>
 #include <map>
+#include <vector>
 
 namespace ns3
 {
@@ -59,13 +60,11 @@ namespace ns3
                 bytes_allowed = bytes_allowed - frame.data.size(); // len to size
                 i = i + 1;
             }
-            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-            pkt_info.time_sent = std::chrono::system_clock::to_time_t(now); // change this to from now()
-            QuicHeader qheader; //Quic Header not defined yet
-            qheader.pkt_id = ctx.id_counter + 1;
+            pkt_info.time_sent = time(0); // fix casting
+            QuicHeader qheader(ctx.id_counter + 1); //Init
             pkt_info.packet_id = qheader.pkt_id;
-            pkt.add_hdr(qheader);
-            ctx.sent_packets.emplace_back(&pkt_info); // add to emplace_back
+            pkt.AddHeader(qheader); // replace with correct name
+            ctx.sent_packets.emplace_back(pkt_info); // add to emplace_back
             //tx_module.add(pkt); // pick a queue to add a packet (this add should be a builtin function for tx_module class)
         }
     }
