@@ -21,7 +21,7 @@ class QUICStream;
 class PacketInfo {
   public:
   int packet_id;
-  int time_sent;
+  time_t time_sent;
   bool in_flight;
   bool ack_eliciting;
   int size;

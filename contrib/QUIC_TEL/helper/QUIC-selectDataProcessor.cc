@@ -61,10 +61,10 @@ namespace ns3
                 i = i + 1;
             }
             pkt_info.time_sent = time(0); // fix casting
-            QuicHeader qheader(ctx.id_counter + 1); //Init
+            QuicHeader qheader = QuicHeader(ctx.id_counter + 1); //Init
             pkt_info.packet_id = qheader.pkt_id;
             pkt.AddHeader(qheader); // replace with correct name
-            ctx.sent_packets.emplace_back(pkt_info); // add to emplace_back
+            ctx.sent_packets.emplace_back(&pkt_info); // add to emplace_back
             //tx_module.add(pkt); // pick a queue to add a packet (this add should be a builtin function for tx_module class)
         }
     }
