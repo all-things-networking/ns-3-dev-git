@@ -6,9 +6,10 @@ namespace ns3
         public:
             int pkt_id;
             QuicHeader(int pkt_id);
-            uint32_t GetSerializedSize();
-            void Serialize(Buffer::Iterator start);
+            uint32_t GetSerializedSize() const;
+            void Serialize(Buffer::Iterator start) const;
             uint32_t Deserialize(Buffer::Iterator start);
-            void Print(std::ostream& os);
+            void Print(std::ostream& os) const;
+            TypeId GetInstanceTypeId() const;
     };
 } // namespace ns3

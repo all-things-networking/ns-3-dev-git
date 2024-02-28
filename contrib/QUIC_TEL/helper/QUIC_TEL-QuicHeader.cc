@@ -8,12 +8,12 @@ namespace ns3
     {
         this->pkt_id = pkt_id;
     };
-    uint32_t QuicHeader::GetSerializedSize() {
+    uint32_t QuicHeader::GetSerializedSize() const {
         return 0;
     }
-    void QuicHeader::Serialize(Buffer::Iterator start) {}
+    void QuicHeader::Serialize(Buffer::Iterator start) const {}
     uint32_t QuicHeader::Deserialize(Buffer::Iterator start) {
         return 0;
     }
-    void QuicHeader::Print(std::ostream& os) {}
+    void QuicHeader::Print(std::ostream& os) const {}
 } // namespace ns3
