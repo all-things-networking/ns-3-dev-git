@@ -16,4 +16,5 @@ namespace ns3
         return 0;
     }
     void QuicHeader::Print(std::ostream& os) const {}
+    TypeId QuicHeader::GetInstanceTypeId() const { return TypeId("QuicHeader"); }
 } // namespace ns3
