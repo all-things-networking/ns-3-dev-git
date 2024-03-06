@@ -1,8 +1,6 @@
 #ifndef QUIC_SEND_PACKET_H
 #define QUIC_SEND_PACKET_H
 
-
-#include "ns3/modular-transport.h"
 #include "QUIC_TEL-Iterm_out.h"
 #include "../model/QUIC-Context.h"
 #include "../model/QUIC-Event.h"

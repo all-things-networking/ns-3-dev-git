@@ -4,7 +4,6 @@
 #include "QUIC-Stream.h"
 #include "QUIC_TEL-Iterm_out.h"
 
-#include "ns3/modular-transport.h"
 #include "ns3/mt-event.h"
 #include "ns3/mt-eventprocessor.h"
 #include "ns3/mt-state.h"
