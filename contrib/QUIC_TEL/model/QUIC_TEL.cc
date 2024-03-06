@@ -9,6 +9,7 @@
 //#include "QUIC-Receiver.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
+#include "ns3/mt-receiver.h"
 
 namespace ns3
 {
@@ -109,6 +110,10 @@ QUIC_TEL::DoDispose()
     m_downTarget.Nullify();
     m_downTarget6.Nullify();
     IpL4Protocol::DoDispose();
+}
+
+void QUIC_TEL::SetReceiver(MTReceiver* receiver){
+    this->receiver=receiver;
 }
 
 void
@@ -240,6 +245,16 @@ QUIC_TEL::Receive(Ptr<Packet> packet,
 {
     NS_LOG_UNCOND("QUIC_TEL: IPv6 Receive not supported");
     return IpL4Protocol::RX_ENDPOINT_UNREACH;
+}
+
+enum IpL4Protocol::RxStatus
+QUIC_TEL::Receive(Ptr<Packet> p,
+                        const Ipv4Header& incomingIpHeader,
+                        Ptr<Ipv4Interface> incomingInterface)
+                          //MTScheduler chosenScheduler)
+{
+    // this->receiver->Receive(this, packet, incomingIpHeader, incomingInterface);
+    return IpL4Protocol::RX_OK;
 }
 
 void

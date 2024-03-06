@@ -16,6 +16,13 @@
 
 namespace ns3
 {
+    EventProcessorOutput* selectDataProcessor::Process(MTEvent* e, EventProcessorOutput* epOut) {
+        return nullptr;
+    }
+
+    bool selectDataProcessor::IsValidEvent(MTEvent* e) {
+        return true;
+    }
 
     selectDataProcessor::selectDataProcessor()
     {

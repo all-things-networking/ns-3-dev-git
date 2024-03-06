@@ -40,7 +40,7 @@ build_lib(
                  helper/QUIC-selectDataProcessor.h
                  helper/QUIC-sendProcessor.h
                  helper/QUIC-Stream.h
-    LIBRARIES_TO_LINK ${libcore}
+    LIBRARIES_TO_LINK ${libcore} ${libinternet} ${ns3-contrib-libs}
     TEST_SOURCES test/QUIC_TEL-test-suite.cc
                  ${examples_as_tests_sources}
 )

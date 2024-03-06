@@ -47,7 +47,7 @@ class QUIC_TEL : public IpL4Protocol
     void AddEventToScheduler(QUICEvent* e);
 
     void WriteToTable(int flow_id, MTContext* context);
-    
+    void SetReceiver(MTReceiver*);
     /**
      * Set node associated with this stack
      * \param node the node

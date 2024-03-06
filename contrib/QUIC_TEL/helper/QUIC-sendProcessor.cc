@@ -2,6 +2,9 @@
 
 namespace ns3
 {
+    EventProcessorOutput* QUICSendProcessor::Process(MTEvent* e, EventProcessorOutput* epOut) {
+        return nullptr;
+    }
 
     QUICSendProcessor::QUICSendProcessor(){}
 
