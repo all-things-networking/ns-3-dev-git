@@ -1,11 +1,11 @@
-#include "QUIC-ReceiveLogic.h"
+#include "QUIC_TEL-ReceiveLogic.h"
 
 #include "ns3/modular-transport.h"
 #include "ns3/mt-receiver.h"
 
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
-#include "ns3/QUIC_TEL-Header.h"
+#include "ns3/QUIC_TEL-QuicHeader.h"
 #include "ns3/QUIC_TEL-Frame.h"
 
 #include <string>

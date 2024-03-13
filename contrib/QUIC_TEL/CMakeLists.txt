@@ -18,6 +18,7 @@ build_lib(
                  model/QUIC_TEL-Event.cc
                  model/QUIC_TEL-Scheduler.cc
                  model/QUIC_TEL-State.cc
+                 #model/QUIC_TEL-ReceiveLogic.cc
                  helper/QUIC_TEL-Frame.cc
                  helper/QUIC_TEL-Iterm_out.cc
                  helper/QUIC_TEL-PacketInfo.cc
@@ -32,6 +33,7 @@ build_lib(
                  model/QUIC_TEL-Event.h
                  model/QUIC_TEL-Scheduler.h
                  model/QUIC_TEL-State.h
+                 #model/QUIC_TEL-ReceiveLogic.h
                  helper/QUIC_TEL-Frame.h
                  helper/QUIC_TEL-Iterm_out.h
                  helper/QUIC_TEL-PacketInfo.h

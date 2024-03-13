@@ -19,22 +19,22 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
-#include "ns3/QUIC_TEL.h"
-#include "ns3/QUIC_TEL-Dispatcher.h"
-#include "ns3/QUIC_TEL-Scheduler.h"
-#include "ns3/QUIC_TEL-Context.h"
+#include "ns3/modular-transport.h"
+#include "ns3/QUIC-Dispatcher.h"
+#include "ns3/QUIC-Scheduler.h"
+#include "ns3/QUIC-Context.h"
 #include "ns3/TCP-header.h"
-//#include "ns3/QUIC_TEL-ReceiveLogic.h"
-#include "ns3/QUIC_TEL-Event.h"
+#include "ns3/QUIC-ReceiveLogic.h"
+#include "ns3/QUIC-Event.h"
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("QUIC_TELTest");
+NS_LOG_COMPONENT_DEFINE ("MTTest");
 
 int
 main (int argc, char *argv[])
 {
-  NS_LOG_UNCOND ("Testing QUIC FROM TEL");
+  NS_LOG_UNCOND ("Testing Modular Transport");
 
   NodeContainer nodes;
   nodes.Create(2);
@@ -79,8 +79,14 @@ main (int argc, char *argv[])
     arp->SetTrafficControl(tc);
 
     NS_LOG_UNCOND ("Installing Modular Transport on Node " << node->GetId());
-    // As Scheduler and Dispatcher are initialized already during the QUIC_TEL construction, only creating a new QUIC_TEL should be enough
-    Ptr<QUIC_TEL> transport = CreateObjectWithAttributes<QUIC_TEL>();
+    //TODO:create private memebers
+    MTDispatcher* dispatcher = new QUICDispatcher();
+    MTScheduler* scheduler = new QUICScheduler();
+    MTReceiver* receiveLogic = new QUICReceiveLogic();
+    Ptr<ModularTransport> transport = CreateObjectWithAttributes<ModularTransport>();
+    transport->SetScheduler(scheduler);
+    transport->SetDispatcher(dispatcher);
+    transport->SetReceiver(receiveLogic);
     node->AggregateObject(transport);
   }
 
@@ -120,11 +126,11 @@ main (int argc, char *argv[])
   Ptr<Packet> packet = Create<Packet> (100);
   MTHeader mth = MTTCPHeader();
   mth.SetF1(2);
-  Ptr<QUIC_TEL> transport = src->GetObject<QUIC_TEL>();
+  Ptr<ModularTransport> transport = src->GetObject<ModularTransport>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"########## STARTING NOW ##########"<<std::endl;
   int flow_id=1; //flow_id here should be same
-  auto context =new QUICContext();
+  auto context =new QUICContext(flow_id);
   context->saddr = saddr;
   context->daddr = daddr;
   uint8_t data [128];
@@ -167,7 +173,6 @@ main (int argc, char *argv[])
   // transport->AddEventToScheduler(event6);
 
   // Receiver side testing -------------------
-  /*
   // TODO: comment back the sender back and make both sender test and receiver test working at the same time
   ReceiverEventCreator ReceiverEventCreator;
   
@@ -211,10 +216,10 @@ main (int argc, char *argv[])
   MTEvent* event12 = ReceiverEventCreator.CreateReceiveEvent(flow_id, time, fakePacket5);
   transport->AddEventToScheduler(event12);
 
-  */
 
 
-  Simulator::Schedule(Seconds(1), &QUIC_TEL::Start, transport,  saddr, daddr, context);
+
+  Simulator::Schedule(Seconds(1), &ModularTransport::Start, transport,  saddr, daddr, context);
   Simulator::Run ();
   Simulator::Destroy ();
   std::cout<<"########## ENDING NOW ##########"<<std::endl;
