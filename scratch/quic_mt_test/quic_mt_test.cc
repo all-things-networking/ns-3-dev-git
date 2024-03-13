@@ -19,13 +19,15 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
-#include "ns3/QUIC_TEL.h"
+
 #include "ns3/QUIC_TEL-Dispatcher.h"
 #include "ns3/QUIC_TEL-Scheduler.h"
 #include "ns3/QUIC_TEL-Context.h"
+#include "ns3/mt-header.h"
 #include "ns3/TCP-header.h"
+
+#include "ns3/QUIC_TEL.h"
 //#include "ns3/QUIC_TEL-ReceiveLogic.h"
-#include "ns3/QUIC_TEL-Event.h"
 
 using namespace ns3;
 
@@ -118,8 +120,8 @@ main (int argc, char *argv[])
   NS_LOG_UNCOND("Destination address: " << daddr);
 
   Ptr<Packet> packet = Create<Packet> (100);
-  //MTHeader mth = MTTCPHeader();
-  //mth.SetF1(2);
+  MTHeader mth = MTTCPHeader();
+  mth.SetF1(2);
   Ptr<QUIC_TEL> transport = src->GetObject<QUIC_TEL>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"########## STARTING NOW ##########"<<std::endl;
