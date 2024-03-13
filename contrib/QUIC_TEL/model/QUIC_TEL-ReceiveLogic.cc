@@ -5,8 +5,8 @@
 
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/node.h"
-#include "ns3/QUIC-Header.h"
-#include "ns3/QUIC-Frame.h"
+#include "ns3/QUIC_TEL-Header.h"
+#include "ns3/QUIC_TEL-Frame.h"
 
 #include <string>
 

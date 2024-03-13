@@ -1,7 +1,7 @@
-#include "../model/QUIC-Context.h"
-#include "../model/QUIC-Event.h"
+#include "../model/QUIC_TEL-Context.h"
+#include "../model/QUIC_TEL-Event.h"
 #include "QUIC_TEL-Frame.h"
-#include "QUIC-Stream.h"
+#include "QUIC_TEL-Stream.h"
 #include "QUIC_TEL-Iterm_out.h"
 
 #include "ns3/mt-event.h"

@@ -2,8 +2,8 @@
 #include "ns3/node.h"
 #include "ns3/mt-event.h"
 
-#include "QUIC-Scheduler.h"
-#include "QUIC-Event.h"
+#include "QUIC_TEL-Scheduler.h"
+#include "QUIC_TEL-Event.h"
 
 #include <string>
 

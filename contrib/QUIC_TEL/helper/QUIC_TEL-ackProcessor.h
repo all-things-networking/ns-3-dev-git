@@ -5,11 +5,11 @@
 #include <map>
 #include <deque>
 #include "QUIC_TEL-Frame.h"
-#include "QUIC-Stream.h"
+#include "QUIC_TEL-Stream.h"
 #include "QUIC_TEL-Iterm_out.h"
 
-#include "../model/QUIC-Context.h"
-#include "../model/QUIC-Event.h"
+#include "../model/QUIC_TEL-Context.h"
+#include "../model/QUIC_TEL-Event.h"
 #include "ns3/mt-event.h"
 #include "ns3/mt-eventprocessor.h"
 #include "ns3/mt-state.h"

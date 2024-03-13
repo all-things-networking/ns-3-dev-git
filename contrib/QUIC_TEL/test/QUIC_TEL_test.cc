@@ -19,7 +19,7 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "ns3/traffic-control-layer.h"
-#include "../model/QUIC_TEL.h"
+#include "ns3/QUIC_TEL.h"
 #include "ns3/QUIC-Dispatcher.h"
 #include "ns3/QUIC-Scheduler.h"
 #include "ns3/QUIC-Context.h"

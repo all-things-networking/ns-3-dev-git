@@ -9,7 +9,7 @@
 #include "ns3/ipv4-address.h"
 #include "ns3/mt-state.h"
 
-#include "../helper/QUIC-Stream.h"
+#include "../helper/QUIC_TEL-Stream.h"
 
 namespace ns3
 {
