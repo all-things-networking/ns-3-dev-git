@@ -29,7 +29,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("QUIC_TELTest");
+NS_LOG_COMPONENT_DEFINE("MTTest");
 
 int
 main (int argc, char *argv[])
@@ -118,8 +118,8 @@ main (int argc, char *argv[])
   NS_LOG_UNCOND("Destination address: " << daddr);
 
   Ptr<Packet> packet = Create<Packet> (100);
-  MTHeader mth = MTTCPHeader();
-  mth.SetF1(2);
+  //MTHeader mth = MTTCPHeader();
+  //mth.SetF1(2);
   Ptr<QUIC_TEL> transport = src->GetObject<QUIC_TEL>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"########## STARTING NOW ##########"<<std::endl;
@@ -131,7 +131,7 @@ main (int argc, char *argv[])
   for(int i=0;i<128;i++){
       data[i]=i;
   }
-  context->data = data;
+  //context->data = data;
 
   // initiate a flow by adding its state/context to the state table.
   // pick a constant for flow id. Context can include anything you need
