@@ -29,14 +29,16 @@ QUIC_TEL::GetTypeId()
 }
 
 QUIC_TEL::QUIC_TEL(){
+    std::cout<<"using empty constructor"<<std::endl;
     this->table = QUICState(this);
-    //this->scheduler = new QUICScheduler();
+    this->scheduler = new QUICScheduler();
     this->dispatcher = new QUICDispatcher();
     NS_LOG_FUNCTION(this);
 }
 
 QUIC_TEL::QUIC_TEL(QUICScheduler* scheduler, QUICDispatcher* dispatcher)
 {
+    std::cout << "using input constructor" << std::endl;
     this->table = QUICState(this);
     this->scheduler = scheduler;
     this->dispatcher = dispatcher;
@@ -63,9 +65,11 @@ void QUIC_TEL::Mainloop() {
     // This is the main loop of the transport layer
        // that calls the different components of our model
        // to process events
-    while (!this->scheduler->isEmpty()){
-        MTEvent* e = this->scheduler->next_event();
-        // this MTEventProcessor should stay unchange, as teh dispatcher is still using MTEvent
+    std::cout << "START MAINLOOP" << std::endl;
+    // only testing send now
+    while (!this->scheduler->isSendEmpty()){
+        MTEvent* e = this->scheduler->GetNextEvent();
+        // this MTEventProcessor should stay unchange, as tel dispatcher is still using MTEvent
         std::vector<MTEventProcessor*> ep = this->dispatcher->dispatch(e);
         MTContext* ctx = this->table.GetVal(e->flow_id);
 

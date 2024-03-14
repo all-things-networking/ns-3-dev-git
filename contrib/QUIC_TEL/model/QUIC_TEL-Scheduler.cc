@@ -27,7 +27,12 @@ bool QUICScheduler::enqueue(QUICEvent* new_event){
     return 0;
 }
 
-MTEvent* QUICScheduler::next_event() {
+bool
+QUICScheduler::isSendEmpty() {
+    return this->send_queue.empty();
+}
+
+MTEvent* QUICScheduler::GetNextEvent() {
     if (add_queue.size() > ack_queue.size() / 2) {
         QUICEvent* top = send_queue.front();
         ack_queue.pop();
