@@ -52,7 +52,7 @@ QUIC_TEL::~QUIC_TEL()
 
 void QUIC_TEL::AddEventToScheduler(QUICEvent* e)
 {
-    this->scheduler->enqueue(e);
+    this->scheduler->Enqueue(e);
 }
 
 void QUIC_TEL::WriteToTable(int flow_id, MTContext* context) {
@@ -68,7 +68,7 @@ void QUIC_TEL::Mainloop() {
     std::cout << "START MAINLOOP" << std::endl;
     // only testing send now
     while (!this->scheduler->isSendEmpty()){
-        MTEvent* e = this->scheduler->GetNextEvent();
+        MTEvent* e = this->scheduler->NextEvent();
         // this MTEventProcessor should stay unchange, as tel dispatcher is still using MTEvent
         std::vector<MTEventProcessor*> ep = this->dispatcher->dispatch(e);
         MTContext* ctx = this->table.GetVal(e->flow_id);
@@ -90,7 +90,7 @@ void QUIC_TEL::Mainloop() {
 
          for (auto newEvent : epout->newEvents)
          {
-                scheduler->AddEvent(newEvent);
+            scheduler->AddEvent(newEvent);
          }
         
          for (auto packet : epout->packetToSend)

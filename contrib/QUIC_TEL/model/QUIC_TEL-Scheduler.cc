@@ -11,7 +11,8 @@ namespace ns3{
 QUICScheduler::QUICScheduler(){
 }
 
-bool QUICScheduler::enqueue(QUICEvent* new_event){
+bool QUICScheduler::Enqueue(MTEvent* event){
+    QUICEvent* new_event = dynamic_cast<QUICEvent*>(event);
     if (new_event->type == SEND) {
         send_queue.push(dynamic_cast<SendEvent*>(new_event));
         return 1;
@@ -32,7 +33,7 @@ QUICScheduler::isSendEmpty() {
     return this->send_queue.empty();
 }
 
-MTEvent* QUICScheduler::GetNextEvent() {
+MTEvent* QUICScheduler::NextEvent() {
     if (add_queue.size() > ack_queue.size() / 2) {
         QUICEvent* top = send_queue.front();
         ack_queue.pop();

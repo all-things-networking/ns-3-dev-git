@@ -45,7 +45,7 @@ ModularTransport::~ModularTransport()
 }
 
 void ModularTransport::AddEventToScheduler(MTEvent* e) {
-    this->scheduler->AddEvent(e);
+    this->scheduler->Enqueue(e);
 }
 
 void ModularTransport::WriteToTable(int flow_id, MTContext* context) {
@@ -63,7 +63,7 @@ void ModularTransport::Mainloop(){
        // that calls the different components of our model
        // to process events
     while (!this->scheduler->isEmpty()){
-         MTEvent* e = this->scheduler->GetNextEvent();
+         MTEvent* e = this->scheduler->NextEvent();
          std::vector<MTEventProcessor*> ep= this->dispatcher->dispatch(e);
          MTContext* ctx = this->table.GetVal(e->flow_id);
 
@@ -83,7 +83,7 @@ void ModularTransport::Mainloop(){
 
          for (auto newEvent : epout->newEvents)
          {
-                scheduler->AddEvent(newEvent);
+                scheduler->Enqueue(newEvent);
          }
         
          for (auto packet : epout->packetToSend)
