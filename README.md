@@ -1,6 +1,10 @@
-# QUIC Modular-Transport Implementation on ns3
+# NS3 QUIC example manually translated from TEL language based on Modular-Transport
 
-ns3 is the network simulator used in this project. We implement the QUIC transport layer protocol according to modular transport programming model.
+ns3 is the network simulator used in this project. We manually translated the QUIC protocol example from TEL following modular transport programming model, which helps inspire the convertor from TEL to NS3.
+
+The resource TEL code being translated is the `TEL_Compiler/examples/QUIC.tel` in the `QUIC_Convertor` branch under `TEL_Compiler` repository.
+
+The `QUIC_Convertor` branch under `TEL_Compiler` repository contains the TEL->NS3 convertor contains the ANTLR4 convertor that have half way done for the automatical translation.
 
 ## Code Structures
 
@@ -8,7 +12,7 @@ Most of the files are from the ns3 open source project which we don't need to ca
 
 ### Modular Transport
 
-Modular transport is the generalized programming model used for all transport layer protocols.
+During the translation from TEL to NS3, always try to follow the Modular transportion model. 
 `/contrib/modular-transport` contains all the implementation for this. Specifically, we care about the code inside `helper/` and `model/` folders.
 
 ### QUIC-Protocol Implementation
