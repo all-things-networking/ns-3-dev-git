@@ -15,7 +15,7 @@ Most of the files are from the ns3 open source project which we don't need to ca
 During the translation from TEL to NS3, always try to follow the Modular transportion model. 
 `/contrib/modular-transport` contains all the implementation for this. Specifically, we care about the code inside `helper/` and `model/` folders.
 
-### QUIC-Protocol Implementation
+### QUIC-TEL Implementation
 
 As you can see from the commit history, this translated version of QUIC follows the QUIC-protocol NS3 design by Andrew. Thus, you can use the `/contrib/QUIC-protocol` as a reference when you further develop on the code, you may also want to check the documentation of `QUIC-protocol` branch, as Andrew gives a very clear explaination on the design.
 
