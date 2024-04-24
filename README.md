@@ -17,15 +17,22 @@ During the translation from TEL to NS3, always try to follow the Modular transpo
 
 ### QUIC-Protocol Implementation
 
+As you can see from the commit history, this translated version of QUIC follows the QUIC-protocol NS3 design by Andrew. Thus, you can use the `/contrib/QUIC-protocol` as a reference when you further develop on the code, you may also want to check the documentation of `QUIC-protocol` branch, as Andrew gives a very clear explaination on the design.
+
+Differences between the original `QUIC-protocol` and the TEL translated version `QUIC_TEL`:
+
+1. `QUIC-protocol` is designed from scratch in NS3, while `QUIC_TEL` is translated from the prexisted TEL language, thus many code, such as error handling, is simplified in `QUIC_TEL` as we are trying to simulate the convertor from TEL to NS3 by hand, and TEL is aimed to be a simply C-like language. Therefore, follow design pattern of TEL should be a good practice, since this tranlsated version of code is only the intermediate of the convertor, the convertor from TEL to NS3 is what we really desired.
+    
+2. QUIC_TEL uses its own "BIG Class", which is the `QUIC_TEL.cc/.h` under `/contrib/QUIC_TEL`, while QUIC-procotol uses the provided by modular-transport under `/contrib/modular-transport`. The BIG Class provides the api to write the test cases as `/contrib/QUIC_TEL/test`, sorry we didn't get enough time to finish the tests, you could refer to the  `/scratch/quic_mt_test/quic_mt_test.cc` to see how Andrew developed the test cases for `QUIC-protocol`, our test cases follows the same design.
+
 QUIC is a specific protocol for transport layer. In this implmentation, all QUIC classes inherit from the Modular Transport Model (e.g. child class of classes inside modular transport).
 
-`/contrib/QUIC-protocol` contains all the implmentation for this. Similarly, we care about the code inside `helper/` and `model/` folders.
+`/contrib/QUIC_TEL` contains all the implmentation for this. Similarly, we care about the code inside `helper/` and `model/` folders.
 
-Note: Some common patterns being used so far is, for specific event processors, the implmentation are inside the `helper/` folder.
+Notice that the `model/` folder mostly contains the different stages of modular transportation model, while `helper/` folder mostly contains some small helper structures for QUIC-protocol and specific event processors.
 
-### Test Cases
-
-The testing code are inside `/scratch/quic_mt_test/quic_mt_test.cc`, which starts the simulator (e.g. start modular transport) and run the pre-defined testing.
+As the original TEL code hasn't been tested, our focus is the sending part of the QUIC protocol, 
+more specificly, the selectDataProcessor and sendProcessor.
 
 ### Other Useful Files
 
@@ -53,6 +60,8 @@ In order to run test locally, run
 ```shell
 ./ns3 run quic_mt_test
 ```
+
+## The following paragraph are copied from Andrew's QUIC-protocol documentation, which I personally think very helpful when we writing the code:
 
 ## Andrew Zang's QUIC Receiver Implementation Walk Through
 ![alt text](./doc/assets/receiver-workflow.png)
