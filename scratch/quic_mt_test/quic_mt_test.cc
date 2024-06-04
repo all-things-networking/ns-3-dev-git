@@ -23,6 +23,7 @@
 #include "ns3/QUIC_TEL-Dispatcher.h"
 #include "ns3/QUIC_TEL-Scheduler.h"
 #include "ns3/QUIC_TEL-Context.h"
+#include "ns3/QUIC_TEL-Stream.h"
 #include "ns3/mt-header.h"
 #include "ns3/TCP-header.h"
 
@@ -110,7 +111,6 @@ main (int argc, char *argv[])
   }
 
 
-  // Send a packet
   Ptr<Node> src = *nodes.Begin();
   Ptr<Ipv4Interface> src_intf = src->GetObject<Ipv4L3Protocol>()->GetInterface(1);
   Ipv4Address saddr = src_intf->GetAddress(0).GetAddress();
@@ -119,35 +119,35 @@ main (int argc, char *argv[])
   Ipv4Address daddr = dst->GetObject<Ipv4L3Protocol>()->GetInterface(1)->GetAddress(0).GetAddress();
   NS_LOG_UNCOND("Destination address: " << daddr);
 
-  Ptr<Packet> packet = Create<Packet> (100);
-  MTHeader mth = MTTCPHeader();
-  mth.SetF1(2);
   Ptr<QUIC_TEL> transport = src->GetObject<QUIC_TEL>();
   //Simulator::Schedule(Seconds(1), &ModularTransport::SendPacket, transport, packet, mth, saddr, daddr);
   std::cout<<"########## STARTING NOW ##########"<<std::endl;
   int flow_id=1; //flow_id here should be same
-  auto context =new QUICContext();
-  context->saddr = saddr;
-  context->daddr = daddr;
-  uint8_t data [128];
+  // TODO: Create context instance for this flow
+  QUICStream *stream = new QUICStream(0);
+  std::vector<uint8_t> data;
   for(int i=0;i<128;i++){
-      data[i]=i;
+      data.push_back(i);
   }
+  stream->data = data;
+  QUICContext *ctx = new QUICContext();
+  // Add to stream
+  ctx->streams = {stream};
   //context->data = data;
+
 
   // initiate a flow by adding its state/context to the state table.
   // pick a constant for flow id. Context can include anything you need
   // for processing TCP packets, e.g., initial sequence number,
-  // window size, beginning of the window, total number of bytes to send, etc.
-
-  transport->WriteToTable(flow_id, context);
-  long time = 1;
+  // window size, beginning of the window, total number of bytes to send, etc. 
+  transport->WriteToTable(flow_id, ctx);
   // Then, create a "send" event to send the first window of packets for this
   // flow. This event will be processed by "Send if Possible" event processor
 
-  SenderEventCreator senderEventCreator;
 
-
+  // TODO: Create send event and add to scheduler
+  SendEvent *event1 = new SendEvent(flow_id);
+  transport->AddEventToScheduler(event1);
   // // Create and send first packet (hellogooodworldbye)
   // MTEvent* event1 = senderEventCreator.CreateAddDataEvent(flow_id, time, "helloworld", 1);
   // transport->AddEventToScheduler(event1);
@@ -215,7 +215,7 @@ main (int argc, char *argv[])
 
   */
 
-  Simulator::Schedule(Seconds(1), &QUIC_TEL::Start, transport,  saddr, daddr, context);
+  Simulator::Schedule(Seconds(1), &QUIC_TEL::Start, transport,  saddr, daddr, ctx);
   Simulator::Run ();
   Simulator::Destroy ();
   std::cout<<"########## ENDING NOW ##########"<<std::endl;

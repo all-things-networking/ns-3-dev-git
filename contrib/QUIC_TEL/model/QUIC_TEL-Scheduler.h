@@ -19,6 +19,7 @@ class SendEvent;
 class AddDataEvent;
 class AckEvent;
 
+// This scheduler doesn't correspond to latest TEL specification of QUIC
 class QUICScheduler : public MTScheduler
 {
   public:

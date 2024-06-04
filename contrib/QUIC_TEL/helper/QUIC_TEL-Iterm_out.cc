@@ -1,7 +1,7 @@
 #include "QUIC_TEL-Iterm_out.h"
 
 namespace ns3 {
-    iterm_out::iterm_out(Packet* packet, PacketInfo info) {
+    QUICIntermediateOutput::QUICIntermediateOutput(Packet* packet, PacketInfo info) {
         this->packet = packet;
         this->info = info;
     };

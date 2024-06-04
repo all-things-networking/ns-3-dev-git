@@ -25,7 +25,7 @@ namespace ns3 {
         QUICStream(int id);
         ~QUICStream();
 
-        std::vector<char> data;
+        std::vector<uint8_t> data;
         int id;
         int frame_size_limit;
         int last_sent;

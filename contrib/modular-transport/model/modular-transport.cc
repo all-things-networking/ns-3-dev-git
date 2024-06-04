@@ -48,6 +48,7 @@ void ModularTransport::AddEventToScheduler(MTEvent* e) {
     this->scheduler->AddEvent(e);
 }
 
+ // replace MT with QUIC Context
 void ModularTransport::WriteToTable(int flow_id, MTContext* context) {
     this->table.Write(flow_id, context);
 }

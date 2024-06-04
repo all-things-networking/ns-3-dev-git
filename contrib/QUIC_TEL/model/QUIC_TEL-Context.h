@@ -1,12 +1,10 @@
 #ifndef QUIC_CONTEXT_H
 #define QUIC_CONTEXT_H
 
-#include <ctime> // std::time_t
 #include <map>
 #include <unordered_map>
 #include <vector>
 #include <queue>
-#include "ns3/ipv4-address.h"
 #include "ns3/mt-state.h"
 
 #include "../helper/QUIC_TEL-Stream.h"
@@ -40,6 +38,7 @@ public:
 
     std::vector<QUICStream*> streams; // streams for this connection (list<QuicStream> streams;)
     std::vector<PacketInfo*> sent_packets; // list<PacketInfo> sent_packets;
+    int flow_id; // NOTE: Not in TEL Spec, need to discuss
     int curr_idx;
     int size_limit;
     int MAX_STREAMS;
@@ -51,7 +50,7 @@ public:
     // loss detection
     int kPacketThresh = 3;
     int kTimeThreshold;
-    int time_of_last_ack_eliciting_packet = 0; // change to time_t type?
+    int time_of_last_ack_eliciting_packet = 0;
     int largest_acked_packet = -1; // Question: is inf ok?
     int kGranularity;
     // vars
@@ -76,6 +75,15 @@ public:
     int congestion_recovery_start_time = 0;
     int ssthresh = -1;
     int ecn_ce_counters = 0;
+
+    //receiver:
+    vector<bool> recieved_packets;
+    int r_largest_acked;
+
+    vector<QuicStreamBuffer> qsbs;
+
+    int move_to_memory_size_thresh = 100;
+    int max_stream_per_pkt  = 6;
 };
 } // namespace ns3
 

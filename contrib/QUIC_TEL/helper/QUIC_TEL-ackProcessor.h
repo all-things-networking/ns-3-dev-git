@@ -1,7 +1,6 @@
 #ifndef QUIC_HANDLE_RECEIVE_ACK_H
 #define QUIC_HANDLE_RECEIVE_ACK_H
 
-#include <ctime> // std::time_t
 #include <map>
 #include <deque>
 #include "QUIC_TEL-Frame.h"
@@ -14,6 +13,7 @@
 #include "ns3/mt-eventprocessor.h"
 #include "ns3/mt-state.h"
 #include "ns3/node.h"
+#include "ns3/simulator.h"
 namespace ns3
 {
 

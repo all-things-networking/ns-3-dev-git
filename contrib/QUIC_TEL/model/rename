@@ -1,6 +1,0 @@
-for file in QUIC*; do
-    if [[ "$file" == QUIC_* ]]; then
-        continue  # Skip files already starting with QUIC_TEL
-    fi
-    mv "$file" "${file/QUIC/QUIC_TEL}"
-done

@@ -24,29 +24,30 @@ std::vector<MTEventProcessor*> QUICDispatcher::dispatch(MTEvent* event){
     // If we have a SEND_PACKET event we will send the packet
     if (quicEvent->type == EventType::SEND)
     {
+        // Add selectDataProcessor, sendProcessor, packetGenerationProcessor to ChosenProcessors here
         ChosenProcessor = new QUICSendProcessor();
     }
 
     // If we have a ADD_DATA event, create a dataFrame and send it
     if (quicEvent->type == EventType::ADD_DATA)
     {
+        // Add addStreamProcessor to ChosenProcessors here
         ChosenProcessor = new selectDataProcessor();
     }
 
     // If we have an ACK event, create ?
     if (quicEvent->type == EventType::ACK) {
+        // Add ackProcessor ,congestionProcessor,updateRttProcessor,lossDetectionProcessor, congestionProcessor,  adjustWindowProcessor, retransmitProcessor, packetGenerationProcessor
         //ChosenProcessor = new QUICAck();
     }
 
     // If we have a TIMER event, create ?
     if (quicEvent->type == EventType::TIMER) {
+        // Add lossDetectionProcessor,congestionProcessor,retransmitProcessor, packetGenerationProcessor
         //ChosenProcessor = new QUICtimer();
     }
 
-    // If we have a CONGESTION event, create ?
-    if (quicEvent->type == EventType::CONGESTION) {
-        //ChosenProcessor = new QUICcongestion();
-    }
+    // Data arrival processor condition here:
 
     ChosenProcessors.push_back(ChosenProcessor);
     return ChosenProcessors;

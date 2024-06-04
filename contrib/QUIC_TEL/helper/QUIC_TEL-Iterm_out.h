@@ -2,16 +2,17 @@
 #define ITERM_OUT
 #include "ns3/node.h"
 #include "QUIC_TEL-PacketInfo.h"
+#include "ns3/mt-intermediateoutput.h"
 
 #include <vector>
 
 namespace ns3 {
-    class iterm_out {
+    class QUICIntermediateOutput :  public MTIntermediateOutput {
         public:
         Packet* packet;
         PacketInfo info;
         std::vector<PacketInfo *> lost_packet;
-        iterm_out(Packet* packet, PacketInfo info);
+        QUICIntermediateOutput(Packet* packet, PacketInfo info);
     };  
 }
 #endif

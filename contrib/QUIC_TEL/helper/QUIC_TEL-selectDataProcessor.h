@@ -8,9 +8,8 @@
 #include "ns3/mt-eventprocessor.h"
 #include "ns3/mt-state.h"
 #include "ns3/node.h"
+#include "ns3/simulator.h"
 
-
-#include <ctime> // std::time_t
 #include <deque>
 #include <map>
 #include <vector>
@@ -31,11 +30,10 @@ class selectDataProcessor : public MTEventProcessor
 public:
     selectDataProcessor();
     ~selectDataProcessor();
-
-    EventProcessorOutput* Process(MTEvent* e, EventProcessorOutput* epOut);
+    EventProcessorOutput* Process(MTEvent *e, EventProcessorOutput *epOut);
     bool IsValidEvent(MTEvent* e);
 
-    void own_Process(SendEvent* e, QUICContext ctx, std::vector<QUICEvent *> events, iterm_out out);
+    // Own definition of the processor
 };
 
 } // namespace ns3

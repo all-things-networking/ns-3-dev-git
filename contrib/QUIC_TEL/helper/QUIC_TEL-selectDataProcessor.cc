@@ -10,7 +10,6 @@
 
 #include <algorithm> // added for min function
 #include <chrono>
-#include <ctime>
 #include <map>
 #include <vector>
 
@@ -32,46 +31,45 @@ namespace ns3
     {
     }
 
-    void
-    selectDataProcessor::own_Process(SendEvent* e,
-                                QUICContext ctx,
-                                std::vector<QUICEvent*> events,
-                                iterm_out out)
+    EventProcessorOutput *
+    selectDataProcessor::Process(MTEvent *e, EventProcessorOutput *epOut)
     {
+        QUICContext *ctx = epOut->ctx;
         int sent_size = 0;
         int i = 0;
         Packet pkt;
-        QUICStream qs = QUICStream(0);         // TODO: better definition of QUICStream
-        int bytes_allowed = ctx.congestion_window - ctx.bytes_in_flight;
-        int frame_size_limit = bytes_allowed / ctx.streams.size(); // len changed to size here
+        QUICStream *qs = new QUICStream(0);
+        int bytes_allowed = ctx->congestion_window - ctx->bytes_in_flight;
+        int frame_size_limit = bytes_allowed / ctx->streams.size(); // len changed to size here
+        int frame_size_limit = max(bytes_allowed/ctx.streams.size(), bytes_allowed/ctx->max_stream_per_pkt)
         while (bytes_allowed > 0)
         {
             PacketInfo pkt_info;
-            while (sent_size < ctx.size_limit && i < ctx.streams.size() && bytes_allowed > 0)   {
-                qs = *ctx.streams[i];
-                Frame frame = Frame(0,0,0); // TODO: Frame need redefinition
-                pkt_info.stream_id.emplace_back(i); // add changed to emplace_back
-                auto min_value = std::min({qs.frame_size_limit,
+            while (sent_size < ctx->size_limit && i < ctx->streams.size() && bytes_allowed > 0)   {
+                qs = ctx->streams[i];
+                Frame frame = Frame(0,0,0);
+                pkt_info.stream_id.emplace_back(i);
+                frame.size = std::min({qs->frame_size_limit,
                                         bytes_allowed,
                                         frame_size_limit,
-                                        static_cast<int>(qs.data.size()) - qs.last_sent}); // TODO: change the usage of this MIN
+                                        static_cast<int>(qs->data.size()) - qs->last_sent}); // TODO: change the usage of this MIN
                 pkt_info.frame_size.emplace_back(frame.data_length); // add changed to emplace_back, is Frame.size just the data_length?
-                pkt_info.start_point.emplace_back(qs.last_sent);   // add changed to emplace_back
+                pkt_info.start_point.emplace_back(qs->last_sent);   // add changed to emplace_back
 
-                frame.data = std::vector<char>(qs.data.begin() + qs.last_sent, 
-                                                qs.data.begin() + qs.last_sent + frame.data_length); // frame.data = qs.data [qs.last_sent:qs.last_sent + frame.size];
+                frame.data = std::vector<char>(qs->data.begin() + qs->last_sent, 
+                                                qs->data.begin() + qs->last_sent + frame.data_length); // frame.data = qs->data [qs->last_sent:qs->last_sent + frame.size];
 
-                qs.last_sent = qs.last_sent + frame.data_length;
+                qs->last_sent = qs->last_sent + frame.data_length;
                 Packet pkt = Packet(reinterpret_cast<uint8_t*> (&frame), sizeof(reinterpret_cast<uint8_t*> (&frame))); // add std:: before byte
-                ctx.bytes_in_flight = ctx.bytes_in_flight + frame.data.size(); // len to size
+                ctx->bytes_in_flight = ctx->bytes_in_flight + frame.data.size(); // len to size
                 bytes_allowed = bytes_allowed - frame.data.size(); // len to size
                 i = i + 1;
             }
-            pkt_info.time_sent = time(0); // fix casting
-            QuicHeader qheader = QuicHeader(ctx.id_counter + 1); //Init
+            pkt_info.time_sent = Simulator::Now();
+            QuicHeader qheader = QuicHeader(ctx->id_counter + 1); //Init
             pkt_info.packet_id = qheader.pkt_id;
             pkt.AddHeader(qheader); // replace with correct name
-            ctx.sent_packets.emplace_back(&pkt_info); // add to emplace_back
+            ctx->sent_packets.emplace_back(&pkt_info); // add to emplace_back
             //tx_module.add(pkt); // pick a queue to add a packet (this add should be a builtin function for tx_module class)
         }
     }

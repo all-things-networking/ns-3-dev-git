@@ -1,7 +1,6 @@
 #include "QUIC_TEL-ackProcessor.h"
 #include "QUIC_TEL-Frame.h"
 #include "ns3/mt-eventprocessor.h"
-#include <ctime>
 #include <map>
 
 namespace ns3
@@ -24,9 +23,9 @@ void
 QUICAckProcessor::Process(AckEvent* ev, QUICContext *ctx, std::vector<QUICEvent *> events, std::vector<Packet *> packets, iterm_out *out)
 {
     if (ctx->largest_acked_packet == -1) {
-        ctx.largest_acked_packet = ev->largest_acked;
+        ctx->largest_acked_packet = ev->largest_acked;
     } else {
-        ctx->largest_acked_packet = std::max(ctx.largest_acked_packet, ev->largest_acked);
+        ctx->largest_acked_packet = std::max(ctx->largest_acked_packet, ev->largest_acked);
     }
     bool new_packet_acked = false;
     std::vector<PacketInfo *> acked_packets;
@@ -49,7 +48,7 @@ QUICAckProcessor::Process(AckEvent* ev, QUICContext *ctx, std::vector<QUICEvent 
     if (!new_packet_acked) {
         return;
     }
-    ctx.latest_rtt = time(0) - ctx->largest_acked_time;
+    ctx.latest_rtt = Simulator:: - ctx->largest_acked_time;
     ctx->update_rtt = true;
 
     if (ev->ECN_CE_Count > ctx->ecn_ce_counters) {

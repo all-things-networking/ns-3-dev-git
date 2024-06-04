@@ -4,9 +4,9 @@
 namespace ns3
 {
 // General class for event intermediate output
-class IntermediateOutput {
-public:
-    IntermediateOutput(){};
+class MTIntermediateOutput {
+    public:
+    MTIntermediateOutput(){};
 };
 }
 #endif

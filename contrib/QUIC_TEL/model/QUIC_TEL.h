@@ -114,7 +114,7 @@ class QUIC_TEL : public IpL4Protocol
     // scheduler
     // dispatcher
     // context
-    QUICState table;
+    QUICState table; // fill as if data is from app layer
     QUICScheduler* scheduler;
     QUICDispatcher* dispatcher;
     MTReceiver* receiver;
